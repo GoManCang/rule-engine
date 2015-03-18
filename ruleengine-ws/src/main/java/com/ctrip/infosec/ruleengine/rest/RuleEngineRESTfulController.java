@@ -53,7 +53,7 @@ public class RuleEngineRESTfulController {
             // TODO: 处理异常
             logger.error("invoke query exception.", ex);
         }
-        logger.info("RESULT: " + JSON.toJSONString(fact));
+        logger.info("RESULT: " + JSON.toJSONString(fact.results));
         return new ResponseEntity(fact, HttpStatus.OK);
     }
 }
