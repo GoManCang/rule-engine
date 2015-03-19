@@ -24,7 +24,7 @@
     
     <!-- Output to central logging -->
     <appender name="CLoggingAppender" class="com.ctrip.framework.clogging.agent.appender.CLoggingAppender">
-        <appId>100000278</appId>
+        <appId>100000558</appId>
         <serverIp>{$CLogging.serverIp}</serverIp>
         <serverPort>{$CLogging.serverPort}</serverPort>
     </appender>
@@ -32,12 +32,12 @@
     <logger name="com.ctrip.infosec.ruleengine" additivity="false">
         <level value="INFO" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </logger>
     <logger name="com.ctrip.infosec.sars.monitor" additivity="false">
         <level value="WARN" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </logger>
     
     <logger name="org.springframework">
@@ -63,7 +63,7 @@
     <root level="WARN">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </root>
     
 </configuration>
