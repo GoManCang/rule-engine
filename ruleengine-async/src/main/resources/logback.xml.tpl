@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     
-    <substitutionProperty name="default_pattern" value="%date %-5level %logger{40} - %msg%n" />
+    <substitutionProperty name="default_pattern" value="%date %-5level - %msg%n" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoding>UTF-8</encoding>
@@ -15,7 +15,7 @@
         <file>/opt/logs/tomcat/ruleengine-async.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/opt/logs/tomcat/ruleengine-async.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>7</maxHistory>
+            <maxHistory>3</maxHistory>
         </rollingPolicy>
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>${default_pattern}</pattern>
@@ -24,7 +24,7 @@
     
     <!-- Output to central logging -->
     <appender name="CLoggingAppender" class="com.ctrip.framework.clogging.agent.appender.CLoggingAppender">
-        <appId>100000278</appId>
+        <appId>100000559</appId>
         <serverIp>{$CLogging.serverIp}</serverIp>
         <serverPort>{$CLogging.serverPort}</serverPort>
     </appender>
@@ -32,12 +32,12 @@
     <logger name="com.ctrip.infosec.ruleengine" additivity="false">
         <level value="INFO" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </logger>
     <logger name="com.ctrip.infosec.sars.monitor" additivity="false">
         <level value="WARN" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </logger>
     
     <logger name="org.springframework">
@@ -67,7 +67,7 @@
     <root level="WARN">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
-        <appender-ref ref="CLoggingAppender" />
+        <!--<appender-ref ref="CLoggingAppender" />-->
     </root>
     
 </configuration>

@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.rabbitmq;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
@@ -14,13 +15,11 @@ import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  *
  * @author zhengby
  */
-@Service("rabbitMqMessageHandler")
 public class RabbitMqMessageHandler {
 
     private static Logger logger = LoggerFactory.getLogger(RabbitMqMessageHandler.class);
@@ -31,9 +30,12 @@ public class RabbitMqMessageHandler {
     private PreRulesExecutorService preRulesExecutorService;
     @Autowired
     private PostRulesExecutorService postRulesExecutorService;
+    @Autowired
+    private RabbitMqMessageSender rabbitMqMessageSender;
 
-    public void handleMessage(Object factTxt) {
-        logger.info("REST: fact=" + factTxt);
+    public void handleMessage(Object message) throws Exception {
+        String factTxt = new String((byte[]) message, Constants.defaultCharset);
+        logger.info("MQ: fact=" + factTxt);
         RiskFact fact = JSON.parseObject((String) factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         try {
@@ -44,8 +46,10 @@ public class RabbitMqMessageHandler {
             // 执行后处理
             postRulesExecutorService.executePostRules(fact, true);
         } catch (Throwable ex) {
-            // TODO: 处理异常
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
+        } finally {
+            // 发送给DataDispatcher
+            rabbitMqMessageSender.sendToDataDispatcher(fact);
         }
     }
 }

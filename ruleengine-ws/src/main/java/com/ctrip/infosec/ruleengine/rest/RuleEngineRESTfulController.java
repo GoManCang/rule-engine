@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.ruleengine.rest;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
@@ -52,7 +53,9 @@ public class RuleEngineRESTfulController {
             // 执行同步规则
             rulesExecutorService.executeSyncRules(fact);
         } catch (Throwable ex) {
-            // TODO: 处理异常
+            if (fact.finalResult == null) {
+                fact.setFinalResult(Constants.defaultResult);
+            }
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
         }
         return new ResponseEntity(fact, HttpStatus.OK);

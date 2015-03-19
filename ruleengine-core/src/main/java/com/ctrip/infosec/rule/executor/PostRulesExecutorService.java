@@ -42,8 +42,8 @@ public class PostRulesExecutorService {
 
         // matchRules      
         List<PostRule> matchedRules = Configs.matchPostRules(fact, isAsync);
-        List<String> packageNames = Collections3.extractToList(matchedRules, "bizNo");
-        logger.info(Contexts.getLogPrefix() + "matched post rules: " + packageNames);
+        List<String> packageNames = Collections3.extractToList(matchedRules, "ruleNo");
+        logger.info(Contexts.getLogPrefix() + "matched post rules: " + packageNames.size());
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
 
         StopWatch clock = new StopWatch();

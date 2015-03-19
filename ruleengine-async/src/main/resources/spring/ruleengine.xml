@@ -26,15 +26,21 @@
                                host="${rabbitmq.inner.host}" virtual-host="${rabbitmq.inner.vhost}" 
                                username="${rabbitmq.inner.username}" password="${rabbitmq.inner.password}"/>
     
+    <!-- RabbitMQ Admin -->
+    <rabbit:admin connection-factory="connectionFactory" />
+    
     <!-- RabbitMQ 消息发送Template -->
     <rabbit:template id="template" connection-factory="connectionFactory" exchange="infosec.datadispatcher.exchange"/>
 
     <!-- RabbitMQ 消息接收Listener -->
-    <task:executor id="myExecutor" pool-size="32"/>
-    <rabbit:listener-container connection-factory="connectionFactory"
-                               prefetch="1000" acknowledge="auto" task-executor="myExecutor">
+    <task:executor id="rabbitmqConsumerExecutor" pool-size="32"/>
+    <rabbit:listener-container connection-factory="connectionFactory" 
+                               prefetch="1000" acknowledge="auto" task-executor="rabbitmqConsumerExecutor">
         <rabbit:listener ref="rabbitMqMessageHandler" method="handleMessage" queue-names="infosec.ruleengine.queue" />
-    </rabbit:listener-container>
+    </rabbit:listener-container>    
+    
+    <!-- MessageHandler -->
+    <bean id="rabbitMqMessageHandler" class="com.ctrip.infosec.rule.rabbitmq.RabbitMqMessageHandler" />
     
     <!-- SarsMonitor -->
     <bean class="com.ctrip.infosec.sars.monitor.scheduler.SarsMonitorScheduler" init-method="start">

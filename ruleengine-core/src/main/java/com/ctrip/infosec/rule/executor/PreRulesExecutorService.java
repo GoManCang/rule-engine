@@ -42,8 +42,8 @@ public class PreRulesExecutorService {
 
         // matchRules      
         List<PreRule> matchedRules = Configs.matchPreRules(fact, isAsync);
-        List<String> packageNames = Collections3.extractToList(matchedRules, "bizNo");
-        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + packageNames);
+        List<String> packageNames = Collections3.extractToList(matchedRules, "ruleNo");
+        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + packageNames.size());
         StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
 
         StopWatch clock = new StopWatch();
