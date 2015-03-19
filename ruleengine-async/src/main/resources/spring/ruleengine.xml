@@ -30,7 +30,7 @@
 
     <!-- RabbitMQ 消息接收Listener -->
     <task:executor id="myExecutor" pool-size="32"/>
-    <rabbit:listener-container connection-factory="connectionFactory" 
+    <rabbit:listener-container connectgtiion-factory="connectionFactory"
                                prefetch="1000" acknowledge="auto" task-executor="myExecutor">
         <rabbit:listener ref="rabbitMqMessageHandler" method="handleMessage" queue-names="infosec.ruleengine.queue" />
     </rabbit:listener-container>
