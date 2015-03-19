@@ -7,6 +7,7 @@ package com.ctrip.infosec.rule.rabbitmq;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -26,6 +27,7 @@ public class RabbitMqMessageSenderTest {
     private AmqpTemplate template;
 
     @Test
+    @Ignore
     public void testSend() {
         System.out.println("send");
         RiskFact fact = JSON.parseObject("{\n"
@@ -59,9 +61,9 @@ public class RabbitMqMessageSenderTest {
                 + "    \"uid\" : \"D65131299\"\n"
                 + "  }\n"
                 + "}", RiskFact.class);
-        
+
         for (int i = 0; i < 100; i++) {
-            template.convertAndSend("infosec.ruleengine.queue", JSON.toJSONString(fact));
+            template.convertAndSend("ruleengine", JSON.toJSONString(fact));
         }
     }
 
