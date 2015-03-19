@@ -13,14 +13,17 @@
     <logger name="com.ctrip.infosec.rule">
         <level value="INFO" />
     </logger>    
-    <logger name="com.ctrip.infosec.sars.monitor">
+    <logger name="com.ctrip.infosec.configs">
         <level value="INFO" />
     </logger>
-    
-    <logger name="org.springframework">
-        <level value="ERROR" />
+    <logger name="com.ctrip.infosec.sars.monitor">
+        <level value="WARN" />
     </logger>
-    
+        
+    <logger name="org.springframework">
+        <level value="WARN" />
+    </logger>
+
     <logger name="org.mybatis">
         <level value="WARN" />
     </logger>
@@ -28,17 +31,13 @@
     <logger name="java.sql">
         <level value="WARN" />
     </logger>
-    
+
     <logger name="org.apache.commons">
         <level value="ERROR" />
-    </logger>
-    
-    <logger name="org.eclipse.jetty">
-        <level value="INFO" />
-    </logger>
+    </logger> 
 
     <root level="WARN">
-        <appender-ref ref="STDOUT" />
+        <appender-ref ref="STDOUT" />        
     </root>
     
 </configuration>
