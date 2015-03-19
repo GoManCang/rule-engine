@@ -9,7 +9,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.Rule;
 import com.ctrip.infosec.configs.utils.BeanMapper;
-import com.ctrip.infosec.rule.Constants;
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.SpringContextHolder;

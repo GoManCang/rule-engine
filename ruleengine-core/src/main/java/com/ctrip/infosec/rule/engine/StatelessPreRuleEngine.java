@@ -84,43 +84,32 @@ public class StatelessPreRuleEngine extends RuleEngine {
      * 规则更新
      */
     @Override
-    public List<String> updateRules() {
+    public void updateRules() {
         logger.warn("exec updateRules() start.");
-
-        List<String> errors = new ArrayList<String>();
         Map<String, PreRule> newPreRulesInKBase = Maps.newHashMap();
 
         // 删除&更新Route规则
         for (PreRule rule : Configs.getPreRules()) {
             String packageName = rule.getRuleNo();
-            PreRule ruleInBase = this.preRulesInKBase.get(packageName);
+            PreRule ruleInKBase = this.preRulesInKBase.get(packageName);
             if (!rule.isEnabled()) {
-                if (ruleInBase != null) {
+                if (ruleInKBase != null) {
                     try {
                         logger.warn("remove rule: " + packageName);
-                        Collection<KnowledgePackage> kpackagesInBase = this.getKnowledgePackagesFromString(ruleInBase.getRuleContent());
+                        Collection<KnowledgePackage> kpackagesInBase = this.getKnowledgePackagesFromString(ruleInKBase.getRuleContent());
                         this.removeKnowledgePackages(kpackagesInBase);
-                        errors.add("remove rule[" + packageName + "] success.");
                     } catch (Exception ex) {
-                        errors.add("remove rule[" + packageName + "] failed. message: " + ex.getMessage());
                         logger.error("remove rule failed.", ex);
                     }
                 }
             } else {
-                if (ruleInBase == null
-                        || ruleInBase.getUpdatedAt().before(rule.getUpdatedAt())) {
+                if (ruleInKBase == null
+                        || ruleInKBase.getUpdatedAt().before(rule.getUpdatedAt())) {
                     try {
                         logger.warn("update rule: " + packageName);
                         Collection<KnowledgePackage> kpackages = this.getKnowledgePackagesFromString(rule.getRuleContent());
-                        if (ruleInBase != null) {
-                            // 修复规则更新可能失败的BUG, 更新前先remove掉
-                            Collection<KnowledgePackage> kpackagesInBase = this.getKnowledgePackagesFromString(ruleInBase.getRuleContent());
-                            this.removeKnowledgePackages(kpackagesInBase);
-                        }
                         this.addKnowledgePackages(kpackages);
-                        errors.add("update rule[" + packageName + "] success.");
                     } catch (Exception ex) {
-                        errors.add("remove rule[" + packageName + "] failed. message: " + ex.getMessage());
                         logger.error("update rule failed.", ex);
                     }
                 }
@@ -132,7 +121,6 @@ public class StatelessPreRuleEngine extends RuleEngine {
 
         // 最后更新缓存
         this.preRulesInKBase = newPreRulesInKBase;
-        return errors;
     }
 
     /**

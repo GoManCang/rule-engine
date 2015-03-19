@@ -11,6 +11,15 @@ public class DataProxyRequest {
     private String operationName;
     private Map<String, Object> params;
 
+    public DataProxyRequest() {
+    }
+
+    public DataProxyRequest(String serviceName, String operationName, Map<String, Object> params) {
+        this.serviceName = serviceName;
+        this.operationName = operationName;
+        this.params = params;
+    }
+
     public String getServiceName() {
         return serviceName;
     }

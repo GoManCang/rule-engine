@@ -7,6 +7,7 @@ package com.ctrip.infosec.ruleengine.rest;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
+import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
@@ -44,6 +45,7 @@ public class RuleEngineRESTfulController {
     public ResponseEntity<?> query(@RequestBody String factTxt) {
         logger.info("REST: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
+        Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         try {
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, false);
@@ -51,9 +53,8 @@ public class RuleEngineRESTfulController {
             rulesExecutorService.executeSyncRules(fact);
         } catch (Throwable ex) {
             // TODO: 处理异常
-            logger.error("invoke query exception.", ex);
+            logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
         }
-        logger.info("RESULT: " + JSON.toJSONString(fact.results));
         return new ResponseEntity(fact, HttpStatus.OK);
     }
 }

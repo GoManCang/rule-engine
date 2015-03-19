@@ -6,7 +6,7 @@
 package com.ctrip.infosec.rule.util;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.rule.Constants;
+import com.ctrip.infosec.common.Constants;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import java.util.Map;

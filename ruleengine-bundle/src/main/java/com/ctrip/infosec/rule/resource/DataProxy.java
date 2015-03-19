@@ -12,6 +12,7 @@ import com.ctrip.infosec.rule.model.DataProxyResponse;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -31,7 +32,7 @@ public class DataProxy {
      */
     static final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
 
-    final JavaType javaType = JSON.constructCollectionType(List.class, DataProxyResponse.class);
+    static final JavaType javaType = JSON.constructCollectionType(List.class, DataProxyResponse.class);
 
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
@@ -39,11 +40,8 @@ public class DataProxy {
 
     /**
      * 数据查询接口
-     *
-     * @param request
-     * @return
      */
-    public DataProxyResponse query(DataProxyRequest request) {
+    public static DataProxyResponse query(DataProxyRequest request) {
         check();
         DataProxyResponse response = null;
         try {
@@ -59,9 +57,22 @@ public class DataProxy {
     }
 
     /**
+     * 数据查询接口（同上）
+     *
+     * @param serviceName
+     * @param operationName
+     * @param params
+     * @return
+     */
+    public static DataProxyResponse query(String serviceName, String operationName, Map<String, Object> params) {
+        DataProxyRequest request = new DataProxyRequest(serviceName, operationName, params);
+        return query(request);
+    }
+
+    /**
      * 数据查询接口
      */
-    public List<DataProxyResponse> queries(List<DataProxyRequest> request) {
+    public static List<DataProxyResponse> queries(List<DataProxyRequest> request) {
         check();
         List<DataProxyResponse> response = null;
         try {

@@ -4,11 +4,12 @@
  */
 package com.ctrip.infosec.rule.engine;
 
-import com.ctrip.infosec.common.model.RiskFact;
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 import org.drools.KnowledgeBase;
 import org.drools.builder.KnowledgeBuilder;
+import org.drools.builder.KnowledgeBuilderError;
 import org.drools.builder.KnowledgeBuilderErrors;
 import org.drools.builder.KnowledgeBuilderFactory;
 import org.drools.builder.ResourceType;
@@ -37,7 +38,7 @@ public abstract class RuleEngine {
     /**
      * 规则更新, 返回错误信息List
      */
-    public abstract List<String> updateRules();
+    public abstract void updateRules();
 
     protected void addKnowledgePackages(Collection<KnowledgePackage> kpackages) {
         this.kbase.addKnowledgePackages(kpackages);
@@ -49,17 +50,16 @@ public abstract class RuleEngine {
         }
     }
 
-    protected Collection<KnowledgePackage> getKnowledgePackagesFromString(String ruleContent) {
+    protected Collection<KnowledgePackage> getKnowledgePackagesFromString(String ruleContent) throws Exception {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-        ByteArrayInputStream stream = new ByteArrayInputStream(ruleContent.getBytes());
-        kbuilder.add(ResourceFactory.newInputStreamResource(stream), ResourceType.DRL);
-        if (kbuilder.hasErrors()) {
-            logger.error("compile error:");
-            KnowledgeBuilderErrors kbuidlerErrors = kbuilder.getErrors();
-            for (Iterator iter = kbuidlerErrors.iterator(); iter.hasNext();) {
-                logger.error(iter.next().toString());
+        kbuilder.add(ResourceFactory.newByteArrayResource(ruleContent.getBytes("UTF-8")), ResourceType.DRL);
+        KnowledgeBuilderErrors errors = kbuilder.getErrors();
+        if (errors.size() > 0) {
+            String errorMessage = "compile rule failed: " + "\n";
+            for (KnowledgeBuilderError error : errors) {
+                errorMessage += error.toString() + "\n";
             }
-            return new ArrayList<KnowledgePackage>();
+            throw new RuntimeException(errorMessage);
         }
         Collection<KnowledgePackage> kpackages = kbuilder.getKnowledgePackages();
         return kpackages;
