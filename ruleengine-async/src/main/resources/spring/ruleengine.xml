@@ -23,7 +23,8 @@
         
     <!-- RabbitMQ -->
     <rabbit:connection-factory id="connectionFactory" 
-                               host="10.3.6.42" virtual-host="medusa" username="bsc-medusa" password="bsc-medusa"/>
+                               host="${rabbitmq.inner.host}" virtual-host="${rabbitmq.inner.vhost}" 
+                               username="${rabbitmq.inner.username}" password="${rabbitmq.inner.password}"/>
     
     <!-- RabbitMQ 消息发送Template -->
     <rabbit:template id="template" connection-factory="connectionFactory" exchange="infosec.datadispatcher.exchange"/>

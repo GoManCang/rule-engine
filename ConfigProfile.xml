@@ -36,7 +36,13 @@
 		<!-- Counter -->
 		<Counter.REST.URL.Prefix>http://10.2.10.75:8080/counterws</Counter.REST.URL.Prefix>
 		<!-- DataProxy -->
-		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>
+		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>		
+		<!-- RabbitMQ -->
+		<rabbitmq.inner.host>10.3.6.42</rabbitmq.inner.host>
+		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
+		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
 	</fat>
 	<lpt></lpt>
 	<uat>
@@ -54,6 +60,12 @@
 		<Counter.REST.URL.Prefix>http://10.2.25.54:8080/counterws</Counter.REST.URL.Prefix>
 		<!-- DataProxy -->
 		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
+		<!-- RabbitMQ -->
+		<rabbitmq.inner.host>10.2.24.236</rabbitmq.inner.host>
+		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
+		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
 	</uat>
 	<uat_nt></uat_nt>
 	<prd>
@@ -71,5 +83,11 @@
 		<Counter.REST.URL.Prefix>http://ws.counter.infosec.ctripcorp.com/counterws</Counter.REST.URL.Prefix>
 		<!-- DataProxy -->
 		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
+		<!-- RabbitMQ -->
+		<rabbitmq.inner.host>riskinner.rabbitmq.infosec.ctripcorp.com</rabbitmq.inner.host>
+		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
+		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
 	</prd>
 </profile>
