@@ -18,3 +18,9 @@ Counter.REST.URL.Prefix={$Counter.REST.URL.Prefix}
 
 # DataProxy
 DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}
+
+# RabbitMQ
+rabbitmq.inner.host={$rabbitmq.inner.host}
+rabbitmq.inner.vhost={$rabbitmq.inner.vhost}
+rabbitmq.inner.username={$rabbitmq.inner.username}
+rabbitmq.inner.password={$rabbitmq.inner.password}
