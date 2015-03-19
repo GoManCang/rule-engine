@@ -14,13 +14,11 @@ import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 /**
  *
  * @author zhengby
  */
-@Service("rabbitMqMessageHandler")
 public class RabbitMqMessageHandler {
 
     private static Logger logger = LoggerFactory.getLogger(RabbitMqMessageHandler.class);
@@ -32,11 +30,14 @@ public class RabbitMqMessageHandler {
     @Autowired
     private PostRulesExecutorService postRulesExecutorService;
 
-    public void handleMessage(Object factTxt) {
-        logger.info("REST: fact=" + factTxt);
-        RiskFact fact = JSON.parseObject((String) factTxt, RiskFact.class);
-        Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
+    public void handleMessage(Object message) {
         try {
+
+            String factTxt = new String((byte[]) message, "UTF-8");
+            logger.info("MQ: fact=" + factTxt);
+            RiskFact fact = JSON.parseObject((String) factTxt, RiskFact.class);
+            Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
+
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, true);
             // 执行异步规则

@@ -29,7 +29,7 @@
         <serverPort>63100</serverPort>
     </appender>
     
-    <logger name="com.ctrip.infosec.ruleengine" additivity="false">
+    <logger name="com.ctrip.infosec.rule" additivity="false">
         <level value="INFO" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />

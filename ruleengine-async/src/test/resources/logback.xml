@@ -10,7 +10,7 @@
         </layout>
     </appender>
         
-    <logger name="com.ctrip.infosec.ruleengine">
+    <logger name="com.ctrip.infosec.rule">
         <level value="INFO" />
     </logger>    
     <logger name="com.ctrip.infosec.sars.monitor">
