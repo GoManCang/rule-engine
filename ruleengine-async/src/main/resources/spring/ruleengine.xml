@@ -30,7 +30,7 @@
     <rabbit:admin connection-factory="connectionFactory" />
     
     <!-- RabbitMQ 消息发送Template -->
-    <rabbit:template id="template" connection-factory="connectionFactory"/>
+    <rabbit:template id="template" connection-factory="connectionFactory" exchange="infosec.datadispatcher.exchange"/>
 
     <!-- RabbitMQ 消息接收Listener -->
     <task:executor id="rabbitmqConsumerExecutor" pool-size="32"/>
