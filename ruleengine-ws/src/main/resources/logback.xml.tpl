@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     
-    <substitutionProperty name="default_pattern" value="%date %-5level - %msg%n" />
+    <substitutionProperty name="default_pattern" value="%date %-5level %logger{30} - %msg%n" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoding>UTF-8</encoding>
@@ -29,7 +29,7 @@
         <serverPort>{$CLogging.serverPort}</serverPort>
     </appender>
     
-    <logger name="com.ctrip.infosec.ruleengine" additivity="false">
+    <logger name="com.ctrip.infosec.rule" additivity="false">
         <level value="INFO" />
         <appender-ref ref="fileAppender" />
         <!--<appender-ref ref="CLoggingAppender" />-->
