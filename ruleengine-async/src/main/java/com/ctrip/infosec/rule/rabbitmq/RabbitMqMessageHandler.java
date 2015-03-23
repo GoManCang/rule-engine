@@ -11,6 +11,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
+import com.ctrip.infosec.rule.executor.RedisExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ public class RabbitMqMessageHandler {
     private PostRulesExecutorService postRulesExecutorService;
     @Autowired
     private RabbitMqMessageSender rabbitMqMessageSender;
+    @Autowired
+    private RedisExecutorService redisExecutorService;
 
     public void handleMessage(Object message) throws Exception {
         String factTxt = new String((byte[]) message, Constants.defaultCharset);
@@ -39,6 +42,8 @@ public class RabbitMqMessageHandler {
         RiskFact fact = JSON.parseObject((String) factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         try {
+            //执行订单合并
+            redisExecutorService.executeRedisOption(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, true);
             // 执行异步规则

@@ -1,8 +1,12 @@
+#applicationId
+appId=100000558
+
 # sars monitor
 sars.monitor.rest.url={$sars.monitor.rest.url}
 
 # CRedis
 CRedis.serviceUrl={$CRedis.serviceUrl}
+CRedis.provider=PaymentRiskControl
 CRedis.logging={$CRedis.logging}
 
 # CLogging
@@ -18,6 +22,9 @@ Counter.REST.URL.Prefix={$Counter.REST.URL.Prefix}
 
 # DataProxy
 DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}
+
+# CardInfo
+CardInfo.REST.URL.Prefix={$CardInfo.REST.URL.Prefix}
 
 # RabbitMQ
 rabbitmq.inner.host={$rabbitmq.inner.host}

@@ -34,7 +34,9 @@
     
     <!-- 初始化trace工具 -->
     <bean class="com.ctrip.infosec.configs.rule.trace.TraceDeamon" init-method="start" destroy-method="stop">
-        <property name="url" value="${Configs.Trace.URL}"/>   
+        <property name="url" value="${Configs.Trace.URL}"/>
     </bean>
+
+   <bean class="com.ctrip.infosec.rule.executor.RedisExecutorService" init-method="Init"></bean>
                        
 </beans>

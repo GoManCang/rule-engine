@@ -1,0 +1,65 @@
+{
+    "eventPoint": "CP0011004",
+    "eventId": "edb39231-b294-11e4-be84-ad65b5f4ddc1",
+    "eventBody": {
+        "CardInfoID":30075005,
+        "actualAmount": 1710,
+        "amount": 1710,
+        "bizType": "11",
+        "bookingDate": "2015-02-10 12:47:59",
+        "contactInfo": "{\"Name\":\"商旅客户\",\"Tel\":\"015089038739\",\"Mobile\":\"015089038739\",\"Email\":\"86094512@qq.com\",\"Fax\":\"\",\"ConfirmType\":\"CSM\"}",
+        "currency": "RMB",
+        "firstDepartureTime": "2015-03-08 09:00:00",
+        "isHide": false,
+        "isPartial": "",
+        "itemInfos": [
+            {
+                "ArrivalTime": "2015-03-08 12:10:00",
+                "Description": "",
+                "FlightNo": "MU2333",
+                "FlightWay": "S",
+                "FromAddress": "XIY",
+                "FromCityId": "10",
+                "FromCityName": "西安",
+                "IsSurface": "F",
+                "OrderCategory": "Flight",
+                "Price": 1630,
+                "SubClass": "B",
+                "TakeOffTime": "2015-03-08 09:00:00",
+                "ToAddress": "LXA",
+                "ToCityId": "41",
+                "ToCityName": "拉萨"
+            }
+        ],
+        "message_CreateTime": "2015-2-10 12:48:00",
+        "operateTime": "2015-02-10 12:47:59",
+        "operators": "",
+        "orderDescription": "未提交",
+        "orderId": 1229651114,
+        "orderStatus": "FLIGHT_UNCOMMIT",
+        "orderType": "国内",
+        "orderVersion": "1:1",
+        "passengers": [
+            {
+                "AgeType": "ADU",
+                "BirthDate": "1985-1-16 0:00:00",
+                "CardNo": "610104198501162624",
+                "CardType": "1",
+                "Gender": "F",
+                "Name": "崔静姝",
+                "Nationality": "CN"
+            }
+        ],
+        "remarks": "",
+        "serverFrom": "m.ct/html5",
+        "sourceFromCode": "Web",
+        "specialPriceType": "",
+        "ticketStatus": "A",
+        "uid": "2106313861"
+    },
+    "ext": {
+        "CHANNEL": "CMessage",
+        "descTimestamp": 2647148655916
+    },
+    "requestReceive": "2015-02-12 16:55:44.083"
+}
