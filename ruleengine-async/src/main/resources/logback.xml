@@ -26,7 +26,10 @@
         <level value="INFO" />
         <appender-ref ref="fileAppender" />
     </logger>
-
+    <logger name="com.ctrip.infosec.configs" additivity="false">
+        <level value="INFO" />
+        <appender-ref ref="fileAppender" />
+    </logger>
     <logger name="com.ctrip.infosec.sars.monitor" additivity="false">
         <level value="WARN" />
         <appender-ref ref="fileAppender" />
