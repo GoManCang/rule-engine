@@ -20,11 +20,11 @@ public class SlogAgent
 {
     private static Logger logger = LoggerFactory.getLogger(SlogAgent.class);
     private static String appId = GlobalConfig.getString("appId");
-    private static String slogIp = GlobalConfig.getString("SLogIp");
+    private static String slogIp = GlobalConfig.getString("SLog.Ip");
     private static BDPAgent<SLog> agent = null;
     static{
         Validate.notEmpty(appId, "在GlobalConfig.properties里没有找到\"appId\"配置项.");
-        Validate.notEmpty(slogIp, "在GlobalConfig.properties里没有找到\"SLogIp\"配置项.");
+        Validate.notEmpty(slogIp, "在GlobalConfig.properties里没有找到\"SLog.Ip\"配置项.");
         agent = BDPAgent.createLogAgentForBDP(appId, slogIp, JsonSerImpl.getInstance());
     }
 
