@@ -39,6 +39,8 @@
 		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>		
 		<!--CardInfo-->
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <!--SLogAgent-->
+        <SLogIp>secbd1.qa.nt.ctripcorp.com</SLogIp>
         <!-- RabbitMQ -->
 		<rabbitmq.inner.host>10.3.6.42</rabbitmq.inner.host>
 		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
@@ -64,6 +66,8 @@
 		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
         <!--CardInfo-->
         <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <!--SLogAgent-->
+        <SLogIp>10.2.24.236</SLogIp>
         <!-- RabbitMQ -->
 		<rabbitmq.inner.host>10.2.24.236</rabbitmq.inner.host>
 		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
@@ -89,6 +93,8 @@
 		<DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
         <!--CardInfo-->
         <CardInfo.REST.URL.Prefix>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
+        <!--SLogAgent-->
+        <SLogIp>colletor.infosec.ctripcorp.com</SLogIp>
         <!-- RabbitMQ -->
 		<rabbitmq.inner.host>riskinner.rabbitmq.infosec.ctripcorp.com</rabbitmq.inner.host>
 		<rabbitmq.inner.port>5672</rabbitmq.inner.port>

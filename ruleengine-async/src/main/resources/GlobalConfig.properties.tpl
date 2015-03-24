@@ -26,6 +26,9 @@ DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}
 # CardInfo
 CardInfo.REST.URL.Prefix={$CardInfo.REST.URL.Prefix}
 
+#SLogIp
+SLogIp={$SLogIp}
+
 # RabbitMQ
 rabbitmq.inner.host={$rabbitmq.inner.host}
 rabbitmq.inner.vhost={$rabbitmq.inner.vhost}

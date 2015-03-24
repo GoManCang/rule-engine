@@ -52,7 +52,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        
+        <!--大安-->
+        <dependency>
+            <groupId>com.ctrip.infosec.bdp</groupId>
+            <artifactId>bdp-agent</artifactId>
+            <version>1.1.1</version>
+        </dependency>
     </dependencies>
 
 </project>
