@@ -7,6 +7,7 @@ package com.ctrip.infosec.rule.rabbitmq;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
+import java.io.IOException;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,10 +29,11 @@ public class RabbitMqMessageSenderTest {
 
     @Test
     @Ignore
-    public void testSend() {
+    public void testSend() throws IOException {
         System.out.println("send");
         RiskFact fact = JSON.parseObject("{\n"
                 + "  \"eventPoint\" : \"CP0011004\",\n"
+                + "  \"eventId\" : \"ba64ea70-ce0d-11e4-92b0-5f471111111\",\n"
                 + "  \"eventBody\" : {\n"
                 + "    \"actualAmount\" : \"327.0\",\n"
                 + "    \"amount\" : \"327.0\",\n"
@@ -65,6 +67,7 @@ public class RabbitMqMessageSenderTest {
         for (int i = 0; i < 100; i++) {
             template.convertAndSend("ruleengine", JSON.toJSONString(fact));
         }
+
     }
 
 }

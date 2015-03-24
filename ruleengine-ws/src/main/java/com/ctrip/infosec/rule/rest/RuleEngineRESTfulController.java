@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.ctrip.infosec.ruleengine.rest;
+package com.ctrip.infosec.rule.rest;
 
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -44,6 +45,32 @@ public class RuleEngineRESTfulController {
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<?> query(@RequestBody String factTxt) {
+        logger.info("REST: fact=" + factTxt);
+        RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
+        Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
+        try {
+            // 执行预处理
+            preRulesExecutorService.executePreRules(fact, false);
+            // 执行同步规则
+            rulesExecutorService.executeSyncRules(fact);
+        } catch (Throwable ex) {
+            if (fact.finalResult == null) {
+                fact.setFinalResult(Constants.defaultResult);
+            }
+            logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
+        }
+        return new ResponseEntity(fact, HttpStatus.OK);
+    }
+
+    /**
+     * POST版本的规则验证接口
+     *
+     * @param factTxt
+     * @return
+     */
+    @RequestMapping(value = "/verify", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<?> verify(@RequestParam(value = "fact", required = true) String factTxt) {
         logger.info("REST: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
