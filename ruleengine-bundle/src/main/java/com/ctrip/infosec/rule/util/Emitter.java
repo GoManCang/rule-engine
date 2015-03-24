@@ -10,6 +10,7 @@ import com.ctrip.infosec.common.Constants;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  *
@@ -19,6 +20,17 @@ public class Emitter {
 
     public static void emit(RiskFact fact, int riskLevel, String riskMessage) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
+        if (!Strings.isNullOrEmpty(ruleNo)) {
+            Map<String, Object> result = Maps.newHashMap();
+            result.put(Constants.riskLevel, riskLevel);
+            result.put(Constants.riskMessage, riskMessage);
+            fact.results.put(ruleNo, result);
+        }
+    }
+    
+    public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage) {
+        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
+        int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
