@@ -4,6 +4,8 @@ import com.ctrip.infosec.bdp.agent.BDPAgent;
 import com.ctrip.infosec.bdp.agent.ser.JsonSerImpl;
 import com.ctrip.infosec.bdp.agent.slog.SLog;
 import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.util.MonitorAgent;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
@@ -16,7 +18,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 /**
  * Created by lpxie on 15-3-24.
  */
-public class SlogAgent
+public class SlogAgent extends MonitorAgent
 {
     private static Logger logger = LoggerFactory.getLogger(SlogAgent.class);
     private static String appId = GlobalConfig.getString("appId");
@@ -33,18 +35,38 @@ public class SlogAgent
      */
     public static void sendToSLog(int logType,String sourceFrom,String subSourceFrom,String sceneType,String uid,String userIp,String clientIp,RiskFact fact)
     {
-        List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
-        msg.add(changeDataForm(fact));
-        SLog slog = SLog.createSLog(appId, logType, sourceFrom, subSourceFrom, sceneType, uid, userIp, clientIp, msg);
-        agent.sendMessage(slog);
+        beforeInvoke();
+        try{
+            List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
+            msg.add(changeDataForm(fact));
+            SLog slog = SLog.createSLog(appId, logType, sourceFrom, subSourceFrom, sceneType, uid, userIp, clientIp, msg);
+            agent.sendMessage(slog);
+        }catch (Exception exp)
+        {
+            fault();
+            logger.warn(Contexts.getLogPrefix() + "invoke SlogAgent.sendToSLog fault.", exp);
+        }finally
+        {
+            afterInvoke("SlogAgent.sendToSLog");
+        }
     }
 
     public static void sendToSLog(int logType,String sourceFrom,String subSourceFrom,String sceneType,String uid,String userIp,String clientIp,Map map)
     {
-        List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
-        msg.add(map);
-        SLog slog = SLog.createSLog(appId, logType, sourceFrom, subSourceFrom, sceneType, uid, userIp, clientIp, msg);
-        agent.sendMessage(slog);
+        beforeInvoke();
+        try{
+            List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
+            msg.add(map);
+            SLog slog = SLog.createSLog(appId, logType, sourceFrom, subSourceFrom, sceneType, uid, userIp, clientIp, msg);
+            agent.sendMessage(slog);
+        }catch (Exception exp)
+        {
+            fault();
+            logger.warn(Contexts.getLogPrefix() + "invoke SlogAgent.sendToSLog fault.", exp);
+        }finally
+        {
+            afterInvoke("SlogAgent.sendToSLog");
+        }
     }
 
     public static Map<String, String> changeDataForm(RiskFact fact)
