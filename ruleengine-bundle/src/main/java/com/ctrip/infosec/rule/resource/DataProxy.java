@@ -9,6 +9,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.model.DataProxyRequest;
 import com.ctrip.infosec.rule.model.DataProxyResponse;
+import com.ctrip.infosec.rule.util.MonitorAgent;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import java.util.List;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhengby
  */
-public class DataProxy {
+public class DataProxy extends MonitorAgent {
 
     private static final Logger logger = LoggerFactory.getLogger(DataProxy.class);
     /**
@@ -43,17 +44,20 @@ public class DataProxy {
      */
     public static DataProxyResponse query(DataProxyRequest request) {
         check();
+        beforeInvoke();
         DataProxyResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/query")
                     .body(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DataProxyResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.query fault.", ex);
-            return null;
+        } finally {
+            afterInvoke("DataProxy.query");
         }
+        return response;
     }
 
     /**
@@ -74,6 +78,7 @@ public class DataProxy {
      */
     public static List<DataProxyResponse> queries(List<DataProxyRequest> request) {
         check();
+        beforeInvoke();
         List<DataProxyResponse> response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/queries")
@@ -81,11 +86,13 @@ public class DataProxy {
                     .connectTimeout(1000).socketTimeout(5000)
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, javaType);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queries fault.", ex);
-            return null;
+        } finally {
+            afterInvoke("DataProxy.queries");
         }
+        return response;
     }
 
 }

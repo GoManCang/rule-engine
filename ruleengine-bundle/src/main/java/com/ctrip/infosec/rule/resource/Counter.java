@@ -17,6 +17,7 @@ import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.PolicyBatchExecuteResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.util.MonitorAgent;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import java.nio.charset.Charset;
 import java.util.Date;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhengby
  */
-public class Counter {
+public class Counter extends MonitorAgent {
 
     private static final Logger logger = LoggerFactory.getLogger(Counter.class);
     /**
@@ -54,6 +55,7 @@ public class Counter {
      */
     public static FlowPushResponse push(String bizNo, Map<String, Object> kvData) {
         check();
+        beforeInvoke();
         FlowPushResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/push")
@@ -63,14 +65,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.push fault.", ex);
             response = new FlowPushResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.push");
         }
+        return response;
     }
 
     /**
@@ -83,6 +87,7 @@ public class Counter {
      */
     public static PolicyExecuteResponse pushAndExecute(String bizNo, String policyNo, Map<String, Object> kvData) {
         check();
+        beforeInvoke();
         PolicyExecuteResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecute")
@@ -93,14 +98,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushAndExecute fault.", ex);
             response = new PolicyExecuteResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.pushAndExecute");
         }
+        return response;
     }
 
     /**
@@ -113,6 +120,7 @@ public class Counter {
      */
     public static PolicyBatchExecuteResponse pushAndExecuteAll(String bizNo, List<String> policyNoList, Map<String, Object> kvData) {
         check();
+        beforeInvoke();
         PolicyBatchExecuteResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecuteAll")
@@ -123,14 +131,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushAndExecuteAll fault.", ex);
             response = new PolicyBatchExecuteResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.pushAndExecuteAll");
         }
+        return response;
     }
 
     /**
@@ -142,6 +152,7 @@ public class Counter {
      */
     public static PolicyExecuteResponse execute(String policyNo, Map<String, Object> kvData) {
         check();
+        beforeInvoke();
         PolicyExecuteResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/execute")
@@ -151,14 +162,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.execute fault.", ex);
             response = new PolicyExecuteResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.execute");
         }
+        return response;
     }
 
     /**
@@ -170,6 +183,7 @@ public class Counter {
      */
     public static PolicyBatchExecuteResponse executeAll(List<String> policyNoList, Map<String, Object> kvData) {
         check();
+        beforeInvoke();
         PolicyBatchExecuteResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/executeAll")
@@ -179,14 +193,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.executeAll fault.", ex);
             response = new PolicyBatchExecuteResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.executeAll");
         }
+        return response;
     }
 
     /**
@@ -201,6 +217,7 @@ public class Counter {
      */
     public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, Object> kvData) {
         check();
+        beforeInvoke();
         FlowQueryResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
@@ -213,14 +230,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryFlowData fault.", ex);
             response = new FlowQueryResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.queryFlowData");
         }
+        return response;
     }
 
     /**
@@ -235,6 +254,7 @@ public class Counter {
      */
     public static DecisionDataPushResponse pushDecisionData(String decisionTableNo, Map<String, Object> xData, Map<String, Object> yData, Date expireAt, String memo) {
         check();
+        beforeInvoke();
         DecisionDataPushResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/pushDecisionData")
@@ -247,14 +267,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DecisionDataPushResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushDecisionData fault.", ex);
             response = new DecisionDataPushResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.pushDecisionData");
         }
+        return response;
     }
 
     /**
@@ -266,6 +288,7 @@ public class Counter {
      */
     public static DecisionDataRemoveResponse removeDecisionData(String decisionTableNo, Map<String, Object> xData) {
         check();
+        beforeInvoke();
         DecisionDataRemoveResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/removeDecisionData")
@@ -275,14 +298,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DecisionDataRemoveResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.removeDecisionData fault.", ex);
             response = new DecisionDataRemoveResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.removeDecisionData");
         }
+        return response;
     }
 
     /**
@@ -294,6 +319,7 @@ public class Counter {
      */
     public static DecisionDataQueryResponse queryDecisionData(String decisionTableNo, String xData) {
         check();
+        beforeInvoke();
         DecisionDataQueryResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/queryDecisionData")
@@ -303,14 +329,16 @@ public class Counter {
                             .build(), Charset.forName("UTF-8"))
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DecisionDataQueryResponse.class);
-            return response;
         } catch (Exception ex) {
+            fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryDecisionData fault.", ex);
             response = new DecisionDataQueryResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
-            return response;
+        } finally {
+            afterInvoke("Counter.queryDecisionData");
         }
+        return response;
     }
 
 }
