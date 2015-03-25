@@ -3,6 +3,7 @@ package com.ctrip.infosec.rule.engine;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PostRule;
+import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.*;
@@ -41,8 +42,8 @@ public class StatelessPostRuleEngine extends RuleEngine {
      * 使用JMX查询规则集
      */
     @ManagedAttribute
-    public Set<String> getPackageNamesInKBase() {
-        return postRulesInKBase.keySet();
+    public String getPackageNamesInKBase() {
+        return JSON.toPrettyJSONString(postRulesInKBase.keySet());
     }
 
     public void execute(List<String> packageNames, RiskFact fact) {
