@@ -60,6 +60,7 @@ public class RuleEngineRESTfulControllerTest {
             + "}", RiskFact.class);
 
     @Test
+    @Ignore
     public void testQuery() throws Exception {
         System.out.println("query");
 
