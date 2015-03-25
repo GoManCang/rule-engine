@@ -17,6 +17,10 @@
     <context:annotation-config />
     <context:component-scan base-package="com.ctrip.infosec.rule.rabbitmq" />
     
+    <!-- JMX -->
+    <context:mbean-server id="mbeanServer_async" />
+    <context:mbean-export server="mbeanServer_async" />
+    
     <!-- GlobalConfig -->
     <context:property-placeholder ignore-unresolvable="true"
                                   location="classpath*:/GlobalConfig.properties" />
