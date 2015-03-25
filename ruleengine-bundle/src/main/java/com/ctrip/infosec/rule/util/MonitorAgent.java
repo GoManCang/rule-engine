@@ -23,6 +23,7 @@ public class MonitorAgent {
 
     protected static void beforeInvoke() {
         beginTimeHolder.set(System.currentTimeMillis());
+        faultHolder.remove();
     }
 
     protected static void fault() {
