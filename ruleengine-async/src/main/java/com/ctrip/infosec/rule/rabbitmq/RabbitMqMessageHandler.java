@@ -46,8 +46,10 @@ public class RabbitMqMessageHandler {
             redisExecutorService.executeRedisOption(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, true);
+            //本地测试
+            rulesExecutorService.executeSyncRules(fact);
             // 执行异步规则
-            rulesExecutorService.executeAsyncRules(fact);
+            //rulesExecutorService.executeAsyncRules(fact);
             // 执行后处理
             postRulesExecutorService.executePostRules(fact, true);
         } catch (Throwable ex) {

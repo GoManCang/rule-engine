@@ -24,6 +24,7 @@
     
     <logger name="com.ctrip.infosec.rule" additivity="false">
         <level value="INFO" />
+        <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
     </logger>
     <logger name="com.ctrip.infosec.configs" additivity="false">
