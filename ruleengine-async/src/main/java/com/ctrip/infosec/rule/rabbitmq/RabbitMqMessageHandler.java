@@ -38,8 +38,17 @@ public class RabbitMqMessageHandler {
 
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
+        String factTxt = null;
         try {
-            String factTxt = new String((byte[]) message, Constants.defaultCharset);
+
+            if (message instanceof byte[]) {
+                factTxt = new String((byte[]) message, Constants.defaultCharset);
+            } else if (message instanceof String) {
+                factTxt = (String) message;
+            } else {
+                throw new IllegalArgumentException("消息格式只支持\"String\"或\"byte[]\"");
+            }
+
             logger.info("MQ: fact=" + factTxt);
             fact = JSON.parseObject((String) factTxt, RiskFact.class);
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
