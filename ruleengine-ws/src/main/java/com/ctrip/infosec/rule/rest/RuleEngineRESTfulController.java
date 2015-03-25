@@ -11,6 +11,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
+import com.ctrip.infosec.rule.executor.RedisExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,8 @@ public class RuleEngineRESTfulController {
     @Autowired
     private PreRulesExecutorService preRulesExecutorService;
     @Autowired
+    private RedisExecutorService redisExecutorService;
+    @Autowired
     private PostRulesExecutorService postRulesExecutorService;
 
     @RequestMapping(value = "/query", method = RequestMethod.POST)
@@ -49,6 +52,8 @@ public class RuleEngineRESTfulController {
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         try {
+            //执行订单合并
+            redisExecutorService.executeRedisOption(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, false);
             // 执行同步规则
