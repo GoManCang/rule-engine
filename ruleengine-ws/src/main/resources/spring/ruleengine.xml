@@ -15,8 +15,10 @@
     <context:annotation-config />
     
     <!-- JMX -->
-    <context:mbean-server id="mbeanServer_ws" />
-    <context:mbean-export server="mbeanServer_ws" />
+    <!--    
+    <context:mbean-server id="mbeanServer" />
+    <context:mbean-export server="mbeanServer" />
+    -->
     
     <!-- GlobalConfig -->
     <context:property-placeholder ignore-unresolvable="true"
