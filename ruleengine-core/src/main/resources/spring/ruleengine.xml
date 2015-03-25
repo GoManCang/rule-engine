@@ -37,6 +37,7 @@
         <property name="url" value="${Configs.Trace.URL}"/>
     </bean>
 
-   <bean class="com.ctrip.infosec.rule.executor.RedisExecutorService" init-method="Init"></bean>
+    <!-- 数据合并 -->
+    <bean class="com.ctrip.infosec.rule.executor.EventDataMergeService" init-method="init"/>
                        
 </beans>

@@ -11,7 +11,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
-import com.ctrip.infosec.rule.executor.RedisExecutorService;
+import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class RuleEngineRESTfulController {
     @Autowired
     private PreRulesExecutorService preRulesExecutorService;
     @Autowired
-    private RedisExecutorService redisExecutorService;
+    private EventDataMergeService eventDataMergeService;
     @Autowired
     private PostRulesExecutorService postRulesExecutorService;
 
@@ -53,7 +53,7 @@ public class RuleEngineRESTfulController {
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         try {
             //执行订单合并
-            redisExecutorService.executeRedisOption(fact);
+            eventDataMergeService.executeRedisOption(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, false);
             // 执行同步规则

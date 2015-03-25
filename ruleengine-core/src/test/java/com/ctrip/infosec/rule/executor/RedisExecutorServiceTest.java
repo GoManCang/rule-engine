@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class RedisExecutorServiceTest
 {
     @Autowired
-    private RedisExecutorService redisExecutorService;
+    private EventDataMergeService redisExecutorService;
 
     @Test
     public void testMerge()
