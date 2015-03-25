@@ -60,7 +60,7 @@ public class RulesExecutorService {
             finalResult = compareAndReturn(finalResult, r);
         }
         fact.setFinalResult(finalResult);
-        logger.info(Contexts.getLogPrefix() + "execute async rules finished. finalResult: riskLevel="
+        logger.info(Contexts.getLogPrefix() + "execute sync rules finished. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
 
         return fact;
