@@ -19,12 +19,15 @@ import org.drools.runtime.StatelessKnowledgeSession;
 import org.drools.runtime.rule.AgendaFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jmx.export.annotation.ManagedAttribute;
+import org.springframework.jmx.export.annotation.ManagedResource;
 
 /**
  * 预处理引擎
  *
  * @author zhengbaiyun
  */
+@ManagedResource
 public class StatelessPreRuleEngine extends RuleEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(StatelessPreRuleEngine.class);
@@ -33,6 +36,14 @@ public class StatelessPreRuleEngine extends RuleEngine {
      * Cache, Key为: packageName
      */
     Map<String, PreRule> preRulesInKBase = Maps.newHashMap();
+
+    /**
+     * 使用JMX查询规则集
+     */
+    @ManagedAttribute
+    public Set<String> getPackageNamesInKBase() {
+        return preRulesInKBase.keySet();
+    }
 
     public void execute(List<String> packageNames, RiskFact fact) {
         List<String> executablePackageNames = Lists.newArrayList();

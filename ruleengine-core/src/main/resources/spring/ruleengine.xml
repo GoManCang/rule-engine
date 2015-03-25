@@ -15,6 +15,10 @@
     <context:annotation-config />
     <context:component-scan base-package="com.ctrip.infosec.rule.executor" />
     
+    <!-- JMX -->
+    <context:mbean-server id="mbeanServer" />
+    <context:mbean-export server="mbeanServer" />
+    
     <!-- SpringContextHolder -->
     <bean class="com.ctrip.infosec.sars.util.SpringContextHolder"/>
     
