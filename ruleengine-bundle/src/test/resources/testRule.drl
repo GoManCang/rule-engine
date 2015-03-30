@@ -1,0 +1,43 @@
+//package ;
+
+import java.util.*;
+import java.math.*;
+import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.time.DateUtils;
+
+import com.ctrip.infosec.rule.model.*;
+import com.ctrip.infosec.common.model.*;
+import com.ctrip.infosec.rule.resource.*;
+import com.ctrip.infosec.counter.model.*;
+import com.ctrip.infosec.counter.enums.FlowAccuracy;
+import static com.ctrip.infosec.rule.util.Emitter.*;
+import static com.ctrip.infosec.configs.utils.Utils.*;
+import static com.ctrip.infosec.configs.rule.trace.Trace.*;
+
+global org.slf4j.Logger logger;
+
+rule "UGSBC050002"
+    salience 1
+    no-loop true
+    enabled true
+when
+    $fact:RiskFact()
+then
+
+try{
+    List<Map> fNCMallSubOrderItems = (List<Map>)$fact.eventBody.get("fNCMallSubOrderItems");
+    int sumQuantity = 0;
+    for(int i=0;i<fNCMallSubOrderItems.size();i++)
+    {
+        Map subOrderItems = (Map)fNCMallSubOrderItems.get(i);
+        sumQuantity += Integer.parseInt(subOrderItems.get("quantity")+"");
+    }
+    if(sumQuantity>=9)
+    {
+        emit($fact, 80, "礼遇商城礼品卡支付,单笔订单份数 [" + amount + "] >= 9");
+    }
+
+}catch(Exception ex){
+    logger.error("exec rule[UGSBC050002] fault.", ex);
+}
+end

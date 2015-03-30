@@ -1,0 +1,48 @@
+{
+    "eventPoint": "CP0022004",
+    "eventId":"11111111111111111111111111111111",
+    "eventBody": {
+        "CardInfoID":30075005,
+        "ip":"202.96.209.133",
+        "amount": 7000,
+        "bizType": "90",
+        "BookingDate": "/Date(1422203535917+0800)/",
+        "CurrentAmount": 70,
+        "IsHide": false,
+        "ItemInfos": [
+            {
+                "DestCityId": "228",
+                "DestCityName": "东京",
+                "EndDate": "/Date(1422720000000+0800)/",
+                "ProductName": "东京拼车接机服务 点击查看详情（成田机场至东京市内酒店）",
+                "Remark": "自由行订单号：1210958007",
+                "StartCityId": "1",
+                "StartCityName": "北京",
+                "StartDate": "/Date(1422720000000+0800)/"
+            }
+        ],
+        "Message_CreateTime": "2015-1-26 0:32:16",
+        "OperateTime": "/Date(1422203535863+0800)/",
+        "OrderDescription": "未提交",
+        "OrderId": 239628748,
+        "OrderStatus": "DIY_UNCOMMIT",
+        "OrderType": "机酒",
+        "Passengers": [
+            {
+                "AgeType": "ADU",
+                "CardNo": "G57175296",
+                "EName": "Pei/Jingyuan",
+                "Gender": "M",
+                "Mobile": "13718959754",
+                "Name": "裴敬渊",
+                "Nationality": "CN"
+            }
+        ],
+        "PriceAdjust": "2",
+        "ProcessOper": "",
+        "SourceFromCode": "Web",
+        "uid": "JJYD",
+        "UsedTime": "/Date(1422720000000+0800)/",
+        "Version": "0:0"
+    }
+}

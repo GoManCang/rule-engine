@@ -9,7 +9,11 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
+
+import java.util.List;
 import java.util.Map;
+
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -20,6 +24,7 @@ import static org.junit.Assert.*;
 public class CounterTest {
 
     @Test
+    @Ignore
     public void testPush() {
         System.out.println("push");
         String bizNo = "0003";
@@ -29,6 +34,7 @@ public class CounterTest {
     }
 
     @Test
+    @Ignore
     public void testQueryFlowData() {
         System.out.println("queryFlowData");
         String flowNo = "F0003001";
@@ -40,5 +46,6 @@ public class CounterTest {
         assertEquals("0", result.getErrorCode());
 
         System.out.println("flowData: " + result.getFlowData().longValue());
+
     }
 }
