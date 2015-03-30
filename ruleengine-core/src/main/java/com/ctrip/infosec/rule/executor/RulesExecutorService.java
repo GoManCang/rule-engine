@@ -13,6 +13,7 @@ import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.ArrayList;
@@ -59,7 +60,11 @@ public class RulesExecutorService {
         for (Map<String, Object> r : fact.results.values()) {
             finalResult = compareAndReturn(finalResult, r);
         }
-        fact.setFinalResult(finalResult);
+        fact.setFinalResult(
+                ImmutableMap.of(
+                        Constants.riskLevel, finalResult.get(Constants.riskLevel),
+                        Constants.riskMessage, finalResult.get(Constants.riskMessage)
+                ));
         logger.info(Contexts.getLogPrefix() + "execute sync rules finished. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
 
@@ -84,7 +89,11 @@ public class RulesExecutorService {
         for (Map<String, Object> r : fact.results.values()) {
             finalResult = compareAndReturn(finalResult, r);
         }
-        fact.setFinalResult(finalResult);
+        fact.setFinalResult(
+                ImmutableMap.of(
+                        Constants.riskLevel, finalResult.get(Constants.riskLevel),
+                        Constants.riskMessage, finalResult.get(Constants.riskMessage)
+                ));
         logger.info(Contexts.getLogPrefix() + "execute async rules finished. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
         return fact;
@@ -145,8 +154,7 @@ public class RulesExecutorService {
         logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
         List<Callable<RuleExecuteResultWithEvent>> runs = Lists.newArrayList();
         for (Rule rule : matchedRules) {
-            final RiskFact factCopy = new RiskFact();
-            BeanMapper.copy(fact, factCopy);
+            final RiskFact factCopy = BeanMapper.copy(fact, RiskFact.class);
 
             // set default result
             Map<String, Object> defaultResult = Maps.newHashMap();

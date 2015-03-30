@@ -14,7 +14,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -28,17 +27,18 @@ import javax.annotation.Resource;
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine-test.xml"})
 public class RabbitMqMessageSenderTest {
 
-    @Resource(name="ruleEngineTemplate")
+    @Resource(name = "ruleEngineTemplate")
     private AmqpTemplate ruleEngineTemplate;
 
     @Test
+    @Ignore
     public void testSend() throws IOException {
         System.out.println("send");
         RiskFact fact = ReadFactFile.getFact("cp0027004.json");
         byte[] b = JSON.toJSONString(fact).getBytes(Charset.forName("UTF-8"));
         for (int i = 0; i < 100000; i++) {
             ruleEngineTemplate.convertAndSend("ruleengine", b);
-            System.out.println("发送了  "+i);
+            System.out.println("发送了  " + i);
         }
 
     }
