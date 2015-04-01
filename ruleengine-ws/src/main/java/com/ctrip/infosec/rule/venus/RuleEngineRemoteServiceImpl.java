@@ -6,6 +6,9 @@
 package com.ctrip.infosec.rule.venus;
 
 import com.ctrip.infosec.common.Constants;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
@@ -37,6 +40,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
 
     @Override
     public RiskFact verify(RiskFact fact) {
+        beforeInvoke();
         logger.info("VENUS: fact=" + JSON.toJSONString(fact));
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
@@ -48,10 +52,13 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             // 执行同步规则
             rulesExecutorService.executeSyncRules(fact);
         } catch (Throwable ex) {
+            fault();
             if (fact.finalResult == null) {
                 fact.setFinalResult(Constants.defaultResult);
             }
             logger.error(Contexts.getLogPrefix() + "invoke verify exception.", ex);
+        } finally {
+            afterInvoke("RuleEngineRemoteService.verify");
         }
         return fact;
     }
