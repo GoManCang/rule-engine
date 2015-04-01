@@ -5,11 +5,13 @@
  */
 package com.ctrip.infosec.rule.resource;
 
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.model.DataProxyRequest;
 import com.ctrip.infosec.rule.model.DataProxyResponse;
-import com.ctrip.infosec.rule.util.MonitorAgent;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import java.util.List;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhengby
  */
-public class DataProxy extends MonitorAgent {
+public class DataProxy {
 
     private static final Logger logger = LoggerFactory.getLogger(DataProxy.class);
     /**

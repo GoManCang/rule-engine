@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<venus-server>
+    <services>
+        <service type="com.ctrip.infosec.rule.venus.RuleEngineRemoteService">
+            <instance class="com.ctrip.infosec.rule.venus.RuleEngineRemoteServiceImpl"/>
+        </service>
+    </services>
+</venus-server>

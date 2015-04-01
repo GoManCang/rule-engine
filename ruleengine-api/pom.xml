@@ -10,17 +10,12 @@
     </parent>
 
     <groupId>com.ctrip.infosec.ruleengine</groupId>
-    <artifactId>ruleengine-bundle</artifactId>
+    <artifactId>ruleengine-api</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>${project.artifactId} v${project.version}</name>
 
     <dependencies>
-        
-        <dependency>
-            <groupId>com.ctrip.infosec.ruleengine</groupId>
-            <artifactId>ruleengine-api</artifactId>
-        </dependency>
         
         <!-- Data Config Server -->
         <dependency>
@@ -28,38 +23,24 @@
             <artifactId>configs-client</artifactId>
         </dependency>
         
-        <!-- Counter Server -->
+        <!-- Venus 3.x -->
         <dependency>
-            <groupId>com.ctrip.infosec.counter</groupId>
-            <artifactId>counter-api</artifactId>
+            <groupId>com.meidusa.venus</groupId>
+            <artifactId>venus-client</artifactId>
         </dependency>
         
-        <!-- sars-util -->
+        <!-- google guava -->
         <dependency>
-            <groupId>com.ctrip.infosec.sars</groupId>
-            <artifactId>sars-util</artifactId>
-        </dependency>
-        
-        <!--dom4j-->
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        
-        <!--大安-->
-        <dependency>
-            <groupId>com.ctrip.infosec.bdp</groupId>
-            <artifactId>bdp-agent</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         
         <!-- test -->   
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <scope>test</scope>
+        </dependency> 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>

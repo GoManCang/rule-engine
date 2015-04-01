@@ -13,6 +13,7 @@ import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,9 @@ public class RuleEngineRESTfulController {
         logger.info("REST: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
+        SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
         try {
-            //执行订单合并
+            // 执行订单合并
             eventDataMergeService.executeRedisOption(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, false);
@@ -79,7 +81,10 @@ public class RuleEngineRESTfulController {
         logger.info("REST: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
+        SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
         try {
+            // 执行订单合并
+            eventDataMergeService.executeRedisOption(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, false);
             // 执行同步规则

@@ -5,8 +5,9 @@
  */
 package com.ctrip.infosec.rule.resource;
 
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
-import static com.ctrip.infosec.configs.utils.Utils.fastDateFormat;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.counter.enums.ErrorCode;
 import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.DecisionDataPushResponse;
@@ -16,17 +17,15 @@ import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.PolicyBatchExecuteResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
+import com.ctrip.infosec.counter.venus.DecisionDataRemoteService;
+import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
 import com.ctrip.infosec.rule.Contexts;
-import com.ctrip.infosec.rule.util.MonitorAgent;
 import com.ctrip.infosec.sars.util.GlobalConfig;
-import java.nio.charset.Charset;
+import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
-import org.apache.http.client.fluent.Form;
-import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author zhengby
  */
-public class Counter extends MonitorAgent {
+public class Counter {
 
     private static final Logger logger = LoggerFactory.getLogger(Counter.class);
     /**
@@ -53,18 +52,20 @@ public class Counter extends MonitorAgent {
      * @param kvData 交易数据
      * @return
      */
-    public static FlowPushResponse push(String bizNo, Map<String, Object> kvData) {
+    public static FlowPushResponse push(String bizNo, Map<String, String> kvData) {
         check();
         beforeInvoke();
         FlowPushResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/push")
-                    .bodyForm(Form.form()
-                            .add("bizNo", bizNo)
-                            .add("kvData", JSON.toJSONString(kvData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/push")
+//                    .bodyForm(Form.form()
+//                            .add("bizNo", bizNo)
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            response = flowPolicyRemoteService.push(bizNo, kvData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.push fault.", ex);
@@ -85,19 +86,21 @@ public class Counter extends MonitorAgent {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyExecuteResponse pushAndExecute(String bizNo, String policyNo, Map<String, Object> kvData) {
+    public static PolicyExecuteResponse pushAndExecute(String bizNo, String policyNo, Map<String, String> kvData) {
         check();
         beforeInvoke();
         PolicyExecuteResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecute")
-                    .bodyForm(Form.form()
-                            .add("bizNo", bizNo)
-                            .add("policyNo", policyNo)
-                            .add("kvData", JSON.toJSONString(kvData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecute")
+//                    .bodyForm(Form.form()
+//                            .add("bizNo", bizNo)
+//                            .add("policyNo", policyNo)
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            response = flowPolicyRemoteService.pushAndExecute(bizNo, policyNo, kvData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushAndExecute fault.", ex);
@@ -118,19 +121,21 @@ public class Counter extends MonitorAgent {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyBatchExecuteResponse pushAndExecuteAll(String bizNo, List<String> policyNoList, Map<String, Object> kvData) {
+    public static PolicyBatchExecuteResponse pushAndExecuteAll(String bizNo, List<String> policyNoList, Map<String, String> kvData) {
         check();
         beforeInvoke();
         PolicyBatchExecuteResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecuteAll")
-                    .bodyForm(Form.form()
-                            .add("bizNo", bizNo)
-                            .add("policyNoList", StringUtils.join(policyNoList, ","))
-                            .add("kvData", JSON.toJSONString(kvData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecuteAll")
+//                    .bodyForm(Form.form()
+//                            .add("bizNo", bizNo)
+//                            .add("policyNoList", StringUtils.join(policyNoList, ","))
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            response = flowPolicyRemoteService.pushAndExecuteAll(bizNo, policyNoList, kvData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushAndExecuteAll fault.", ex);
@@ -150,18 +155,20 @@ public class Counter extends MonitorAgent {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyExecuteResponse execute(String policyNo, Map<String, Object> kvData) {
+    public static PolicyExecuteResponse execute(String policyNo, Map<String, String> kvData) {
         check();
         beforeInvoke();
         PolicyExecuteResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/execute")
-                    .bodyForm(Form.form()
-                            .add("policyNo", policyNo)
-                            .add("kvData", JSON.toJSONString(kvData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/execute")
+//                    .bodyForm(Form.form()
+//                            .add("policyNo", policyNo)
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            response = flowPolicyRemoteService.execute(policyNo, kvData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.execute fault.", ex);
@@ -181,18 +188,20 @@ public class Counter extends MonitorAgent {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyBatchExecuteResponse executeAll(List<String> policyNoList, Map<String, Object> kvData) {
+    public static PolicyBatchExecuteResponse executeAll(List<String> policyNoList, Map<String, String> kvData) {
         check();
         beforeInvoke();
         PolicyBatchExecuteResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/executeAll")
-                    .bodyForm(Form.form()
-                            .add("policyNoList", StringUtils.join(policyNoList, ","))
-                            .add("kvData", JSON.toJSONString(kvData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/executeAll")
+//                    .bodyForm(Form.form()
+//                            .add("policyNoList", StringUtils.join(policyNoList, ","))
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            response = flowPolicyRemoteService.executeAll(policyNoList, kvData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.executeAll fault.", ex);
@@ -215,21 +224,23 @@ public class Counter extends MonitorAgent {
      * @param kvData 交易数据(至少需要包含维度数据)
      * @return
      */
-    public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, Object> kvData) {
+    public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, String> kvData) {
         check();
         beforeInvoke();
         FlowQueryResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
-                    .bodyForm(Form.form()
-                            .add("flowNo", flowNo)
-                            .add("fieldName", fieldName)
-                            .add("accuracy", accuracy.toString())
-                            .add("timeWindow", timeWindow)
-                            .add("kvData", JSON.toJSONString(kvData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
+//                    .bodyForm(Form.form()
+//                            .add("flowNo", flowNo)
+//                            .add("fieldName", fieldName)
+//                            .add("accuracy", accuracy.toString())
+//                            .add("timeWindow", timeWindow)
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            response = flowPolicyRemoteService.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryFlowData fault.", ex);
@@ -252,21 +263,23 @@ public class Counter extends MonitorAgent {
      * @param memo 描述
      * @return
      */
-    public static DecisionDataPushResponse pushDecisionData(String decisionTableNo, Map<String, Object> xData, Map<String, Object> yData, Date expireAt, String memo) {
+    public static DecisionDataPushResponse pushDecisionData(String decisionTableNo, Map<String, String> xData, Map<String, String> yData, Date expireAt, String memo) {
         check();
         beforeInvoke();
         DecisionDataPushResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/pushDecisionData")
-                    .bodyForm(Form.form()
-                            .add("decisionTableNo", decisionTableNo)
-                            .add("xData", JSON.toJSONString(xData))
-                            .add("yData", JSON.toJSONString(yData))
-                            .add("expireAt", expireAt != null ? fastDateFormat.format(expireAt) : "")
-                            .add("memo", memo)
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, DecisionDataPushResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/pushDecisionData")
+//                    .bodyForm(Form.form()
+//                            .add("decisionTableNo", decisionTableNo)
+//                            .add("xData", JSON.toJSONString(xData))
+//                            .add("yData", JSON.toJSONString(yData))
+//                            .add("expireAt", expireAt != null ? fastDateFormat.format(expireAt) : "")
+//                            .add("memo", memo)
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, DecisionDataPushResponse.class);
+            DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
+            response = decisionDataRemoteService.pushDecisionData(decisionTableNo, xData, yData, expireAt, memo);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushDecisionData fault.", ex);
@@ -286,18 +299,20 @@ public class Counter extends MonitorAgent {
      * @param xData 决策表横坐标数据
      * @return 返回结果中包含删除的记录数
      */
-    public static DecisionDataRemoveResponse removeDecisionData(String decisionTableNo, Map<String, Object> xData) {
+    public static DecisionDataRemoveResponse removeDecisionData(String decisionTableNo, Map<String, String> xData) {
         check();
         beforeInvoke();
         DecisionDataRemoveResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/removeDecisionData")
-                    .bodyForm(Form.form()
-                            .add("decisionTableNo", decisionTableNo)
-                            .add("xData", JSON.toJSONString(xData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, DecisionDataRemoveResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/removeDecisionData")
+//                    .bodyForm(Form.form()
+//                            .add("decisionTableNo", decisionTableNo)
+//                            .add("xData", JSON.toJSONString(xData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, DecisionDataRemoveResponse.class);
+            DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
+            response = decisionDataRemoteService.removeDecisionData(decisionTableNo, xData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.removeDecisionData fault.", ex);
@@ -317,18 +332,20 @@ public class Counter extends MonitorAgent {
      * @param xData 决策表横坐标数据
      * @return 返回决策表纵坐标数据
      */
-    public static DecisionDataQueryResponse queryDecisionData(String decisionTableNo, String xData) {
+    public static DecisionDataQueryResponse queryDecisionData(String decisionTableNo, Map<String, String> xData) {
         check();
         beforeInvoke();
         DecisionDataQueryResponse response = null;
         try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/queryDecisionData")
-                    .bodyForm(Form.form()
-                            .add("decisionTableNo", decisionTableNo)
-                            .add("xData", JSON.toJSONString(xData))
-                            .build(), Charset.forName("UTF-8"))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, DecisionDataQueryResponse.class);
+//            String responseTxt = Request.Post(urlPrefix + "/rest/queryDecisionData")
+//                    .bodyForm(Form.form()
+//                            .add("decisionTableNo", decisionTableNo)
+//                            .add("xData", JSON.toJSONString(xData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, DecisionDataQueryResponse.class);
+            DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
+            response = decisionDataRemoteService.queryDecisionData(decisionTableNo, xData);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryDecisionData fault.", ex);

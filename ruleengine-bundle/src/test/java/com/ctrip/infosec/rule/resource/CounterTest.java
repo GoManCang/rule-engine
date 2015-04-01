@@ -9,43 +9,43 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
-
-import java.util.List;
 import java.util.Map;
-
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  *
  * @author zhengby
  */
+//@Ignore
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:spring/counter-venus-test.xml"})
 public class CounterTest {
 
     @Test
-    @Ignore
     public void testPush() {
         System.out.println("push");
         String bizNo = "0003";
-        Map<String, Object> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
+        Map<String, String> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
         FlowPushResponse result = Counter.push(bizNo, kvData);
         assertEquals("0", result.getErrorCode());
     }
 
     @Test
-    @Ignore
     public void testQueryFlowData() {
         System.out.println("queryFlowData");
         String flowNo = "F0003001";
         String fieldName = "同一IP对应的预定量";
         FlowAccuracy accuracy = FlowAccuracy.EveryMin;
         String timeWindow = "0,-1439";
-        Map<String, Object> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
+        Map<String, String> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
         FlowQueryResponse result = Counter.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
         assertEquals("0", result.getErrorCode());
 
         System.out.println("flowData: " + result.getFlowData().longValue());
-
     }
 }

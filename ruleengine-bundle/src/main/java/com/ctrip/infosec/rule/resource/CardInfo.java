@@ -1,12 +1,13 @@
 package com.ctrip.infosec.rule.resource;
 
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.ESB.ESBClient;
-import com.ctrip.infosec.rule.util.MonitorAgent;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.*;
@@ -14,7 +15,7 @@ import java.util.*;
 /*
  * Created by lpxie on 15-3-20.
  */
-public class CardInfo extends MonitorAgent {
+public class CardInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(CardInfo.class);
 

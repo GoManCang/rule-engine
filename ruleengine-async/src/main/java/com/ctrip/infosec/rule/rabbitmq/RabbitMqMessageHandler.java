@@ -13,6 +13,7 @@ import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ public class RabbitMqMessageHandler {
             logger.info("MQ: fact=" + factTxt);
             fact = JSON.parseObject((String) factTxt, RiskFact.class);
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
+            SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 
             //执行订单合并
             eventDataMergeService.executeRedisOption(fact);

@@ -1,4 +1,4 @@
-#applicationId
+# applicationId
 appId=100000559
 
 # sars monitor
@@ -19,6 +19,7 @@ Configs.Trace.URL={$Configs.Trace.URL}
 
 # Counter
 Counter.REST.URL.Prefix={$Counter.REST.URL.Prefix}
+Counter.Venus.ipAddressList={$Counter.Venus.ipAddressList}
 
 # DataProxy
 DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}

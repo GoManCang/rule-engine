@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<venus-client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="Venus2Client.xsd">
+    
+    <remotes>
+        <remote name="remote">
+            <factory>
+                <property name="ipAddressList">${Counter.Venus.ipAddressList}</property>
+                <property name="sendBufferSize">64</property>
+                <property name="receiveBufferSize">64</property>				
+                <property name="soTimeout">5000</property>
+            </factory>
+            <pool>
+                <property name="maxActive">128</property>
+                <property name="maxIdle">32</property>
+                <property name="minIdle">8</property>
+                <property name="minEvictableIdleTimeMillis">60000</property>
+                <property name="timeBetweenEvictionRunsMillis">60000</property>
+                <property name="testOnBorrow">true</property>
+                <property name="testWhileIdle">true</property>
+            </pool>
+        </remote>       
+    </remotes>
+    
+    <services>
+        <service beanName="flowPolicyRemoteService" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteService" remote="remote"/>
+        <service beanName="decisionDataRemoteService" type="com.ctrip.infosec.counter.venus.DecisionDataRemoteService" remote="remote"/>
+    </services>
+    
+</venus-client>
+<!--<venus-client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="VenusClient.xsd">
+
+    <services>
+
+        <service beanName="flowPolicyRemoteService" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteService">
+            <property name="ipAddressList">${Counter.Venus.ipAddressList}</property>
+            <endpoint name="execute" timeWait="2000"/>
+        </service>
+		
+        <service beanName="decisionDataRemoteService" type="com.ctrip.infosec.counter.venus.DecisionDataRemoteService">
+            <property name="ipAddressList">${Counter.Venus.ipAddressList}</property>
+        </service>
+        
+    </services>
+    
+</venus-client>-->
