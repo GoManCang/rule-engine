@@ -35,6 +35,7 @@
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.10.75:8080/counterws</Counter.REST.URL.Prefix>
+        <Counter.Venus.ipAddressList>10.2.10.75:16800</Counter.Venus.ipAddressList>
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>		
         <!--CardInfo-->
