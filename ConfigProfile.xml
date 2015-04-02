@@ -35,7 +35,7 @@
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.10.75:8080/counterws</Counter.REST.URL.Prefix>
-        <Counter.Venus.ipAddressList>10.2.10.75:16800</Counter.Venus.ipAddressList>
+        <Counter.Venus.ipAddressList>10.2.10.75:16900</Counter.Venus.ipAddressList>
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>		
         <!--CardInfo-->
@@ -64,7 +64,7 @@
         <Configs.Trace.URL>http://10.2.25.54:8080/configsws/rest/trace</Configs.Trace.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.25.54:8080/counterws</Counter.REST.URL.Prefix>
-        <Counter.Venus.ipAddressList>10.2.25.54:16800</Counter.Venus.ipAddressList>
+        <Counter.Venus.ipAddressList>10.2.25.54:16900</Counter.Venus.ipAddressList>
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
         <!--CardInfo-->
@@ -91,7 +91,7 @@
         <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://ws.counter.infosec.ctripcorp.com/counterws</Counter.REST.URL.Prefix>
-        <Counter.Venus.ipAddressList>10.8.114.48:16800,10.8.114.49:16800,10.8.114.50:16800</Counter.Venus.ipAddressList>
+        <Counter.Venus.ipAddressList>10.8.114.48:16900,10.8.114.49:16900,10.8.114.50:16900</Counter.Venus.ipAddressList>
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
         <!--CardInfo-->
