@@ -11,9 +11,9 @@
                 <property name="soTimeout">5000</property>
             </factory>
             <pool>
-                <property name="maxActive">128</property>
-                <property name="maxIdle">32</property>
-                <property name="minIdle">8</property>
+                <property name="maxActive">500</property>
+                <property name="maxIdle">500</property>
+                <property name="minIdle">3</property>
                 <property name="minEvictableIdleTimeMillis">60000</property>
                 <property name="timeBetweenEvictionRunsMillis">60000</property>
                 <property name="testOnBorrow">true</property>
