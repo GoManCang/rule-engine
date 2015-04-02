@@ -37,10 +37,8 @@ public class RuleEngineRemoteServiceTest {
                 + "  },\n"
                 + "  \"requestTime\" : \"2015-04-01 08:43:01.148\"\n"
                 + "}", RiskFact.class);
-        
-        for (int i = 0; i < 10; i++) {
-            fact = ruleEngineRemoteService.verify(fact);
-        }
+
+        fact = ruleEngineRemoteService.verify(fact);
         System.out.println("fact: " + JSON.toJSONString(fact));
     }
 

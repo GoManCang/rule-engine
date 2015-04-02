@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <venus-client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:noNamespaceSchemaLocation="Venus2Client.xsd">
+              xsi:noNamespaceSchemaLocation="VenusClient.xsd">
     
     <remotes>
         <remote name="remote">

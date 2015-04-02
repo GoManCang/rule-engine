@@ -35,8 +35,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine*.xml"})
 public class RuleTest {
 
-    //@Test
-    @Ignore
+    @Test
+//    @Ignore
     public void testCP0006021() {
         System.out.println("CP0006021");
         for (int i = 0; i < 11; i++) {
@@ -80,6 +80,7 @@ public class RuleTest {
     }
 
     @Test
+    @Ignore
     public void testCP0003001()
     {
         System.out.println("CP0003001");
