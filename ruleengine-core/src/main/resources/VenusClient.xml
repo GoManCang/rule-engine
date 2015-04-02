@@ -12,7 +12,7 @@
             </factory>
             <pool>
                 <property name="maxActive">128</property>
-                <property name="maxIdle">32</property>
+                <property name="maxIdle">128</property>
                 <property name="minIdle">8</property>
                 <property name="minEvictableIdleTimeMillis">60000</property>
                 <property name="timeBetweenEvictionRunsMillis">60000</property>
