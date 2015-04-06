@@ -13,11 +13,17 @@ import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResult;
+import com.ctrip.infosec.rule.model.DataProxyRequest;
+import com.ctrip.infosec.rule.model.DataProxyResponse;
 import com.ctrip.infosec.rule.resource.Counter;
+import com.ctrip.infosec.rule.resource.DataProxy;
 import static com.ctrip.infosec.rule.util.Emitter.emit;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -55,14 +61,14 @@ public class RuleTest {
         $fact.eventBody.put("couponID", "CID111");
         $fact.eventBody.put("userID", "U111");
 
-        String appId = "" + $fact.eventBody.get("appID");
-        String couponCode = "" + $fact.eventBody.get("couponCode");
-        String couponId = "" + $fact.eventBody.get("couponID");
-        String uid = "" + $fact.eventBody.get("userID");
-        
+        String appId = $fact.eventBody.get("appID") == null ? "" : $fact.eventBody.get("appID").toString();
+        String couponCode = $fact.eventBody.get("couponCode") == null ? "" : $fact.eventBody.get("couponCode").toString();
+        String couponId = $fact.eventBody.get("couponID") == null ? "" : $fact.eventBody.get("couponID").toString();
+        String uid = $fact.eventBody.get("userID") == null ? "" : $fact.eventBody.get("userID").toString();
+
         $fact.results.clear();
 
-        //push to countServer
+        // push to countServer
         Map kvData = ImmutableMap.of("appId", appId, "couponCode", couponCode, "couponId", couponId, "uid", uid);
         PolicyExecuteResponse response = Counter.execute("P0006021001", kvData);
         if ("0".equals(response.getErrorCode())) {
@@ -77,34 +83,43 @@ public class RuleTest {
 
         //push to countServer
         Counter.push("0006", kvData);
+
+//        Map map = new HashMap<String, Object>();
+//        map.put("uid", $fact.eventBody.get("uid"));
+//        map.put("tagNames", Lists.newArrayList("RECENT_IP", "RECENT_IPAREA"));
+//
+//        DataProxyRequest request = new DataProxyRequest("UserProfileService", "DataQuery", map);
+//        List<DataProxyResponse> responses = DataProxy.queries(Lists.newArrayList(request)); // DataProxy.query("UserProfileService", "DataQuery", map);
+//
+//        for (DataProxyResponse response1 : responses) {
+//            response1.getRtnCode();
+//        }
     }
 
     @Test
     @Ignore
-    public void testCP0003001()
-    {
+    public void testCP0003001() {
         System.out.println("CP0003001");
-        for(int i=0;i<10;i++)
-        {
+        for (int i = 0; i < 10; i++) {
             System.out.println(i);
             //R2();
             //R3();
             R4();
         }
     }
+
     //同一个ip对应的相关量
-    void R2()
-    {
+    void R2() {
         RiskFact $fact = new RiskFact();
         $fact.eventPoint = "CP0003001";
         $fact.ext.put(Constants.key_ruleNo, "CP0003001");
         //随机生成orderID
         Random random = new Random();
         int randomNum = random.nextInt(10000000);
-        $fact.eventBody.put("mobilePhone", randomNum+"");
+        $fact.eventBody.put("mobilePhone", randomNum + "");
         $fact.eventBody.put("orderDate", "2015-03-30");
-        $fact.eventBody.put("orderID", randomNum+"");
-        $fact.eventBody.put("uid", randomNum+"");
+        $fact.eventBody.put("orderID", randomNum + "");
+        $fact.eventBody.put("uid", randomNum + "");
         $fact.eventBody.put("userIP", "151.235.656.121");
 
         String mobilePhone = $fact.eventBody.get("mobilePhone") == null ? "" : $fact.eventBody.get("mobilePhone").toString();
@@ -116,45 +131,45 @@ public class RuleTest {
         $fact.results.clear();
 
         //push to countServer
-        Map kvData = ImmutableMap.of("mobilePhone", mobilePhone, "orderDate", orderDate, "orderId", orderId, "uid", uid,"userIp",userIp);
+        Map kvData = ImmutableMap.of("mobilePhone", mobilePhone, "orderDate", orderDate, "orderId", orderId, "uid", uid, "userIp", userIp);
         //push to countServer
         Counter.push("0003", kvData);
         //礼遇商城礼品卡支付,一天内，同一IP对应预定量>=5
-        BigDecimal count = ((FlowQueryResponse)Counter.queryFlowData("F0003001", "同一IP对应的预定量",
+        BigDecimal count = ((FlowQueryResponse) Counter.queryFlowData("F0003001", "同一IP对应的预定量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count!=null&&count.longValue() >= 5){
+        if (count != null && count.longValue() >= 5) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一IP对应预定量[" + count.longValue() + "] >= 5");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
         //礼遇商城礼品卡支付,一天内，同一IP对应uid量>=3
-        BigDecimal count1 = ((FlowQueryResponse)Counter.queryFlowData("F0003001", "同一IP对应的uid量",
+        BigDecimal count1 = ((FlowQueryResponse) Counter.queryFlowData("F0003001", "同一IP对应的uid量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count1!=null&&count1.longValue() >= 3){
+        if (count1 != null && count1.longValue() >= 3) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一IP对应的uid量[" + count1.longValue() + "] >= 3");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
         //礼遇商城礼品卡支付,一天内，同一IP对应联系手机量>=3
-        BigDecimal count2 = ((FlowQueryResponse)Counter.queryFlowData("F0003001", "同一IP对应的手机量",
+        BigDecimal count2 = ((FlowQueryResponse) Counter.queryFlowData("F0003001", "同一IP对应的手机量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count2!=null&&count2.longValue() >= 3){
+        if (count2 != null && count2.longValue() >= 3) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一IP对应的手机量[" + count2.longValue() + "] >= 3");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
     }
+
     //同一个uid对应的相关量
-    void R3()
-    {
+    void R3() {
         RiskFact $fact = new RiskFact();
         $fact.eventPoint = "CP0003001";
         $fact.ext.put(Constants.key_ruleNo, "CP0003001");
         //随机生成orderID
         Random random = new Random();
         int randomNum = random.nextInt(10000000);
-        $fact.eventBody.put("mobilePhone", randomNum+"");
+        $fact.eventBody.put("mobilePhone", randomNum + "");
         $fact.eventBody.put("orderDate", "2015-03-30");
-        $fact.eventBody.put("orderID", randomNum+"");
+        $fact.eventBody.put("orderID", randomNum + "");
         $fact.eventBody.put("uid", "10001");
-        $fact.eventBody.put("userIP", randomNum+"");
+        $fact.eventBody.put("userIP", randomNum + "");
 
         String mobilePhone = $fact.eventBody.get("mobilePhone") == null ? "" : $fact.eventBody.get("mobilePhone").toString();
         String orderDate = $fact.eventBody.get("orderDate") == null ? "" : $fact.eventBody.get("orderDate").toString();
@@ -165,34 +180,34 @@ public class RuleTest {
         $fact.results.clear();
 
         //push to countServer
-        Map kvData = ImmutableMap.of("mobilePhone", mobilePhone, "orderDate", orderDate, "orderId", orderId, "uid", uid,"userIp",userIp);
+        Map kvData = ImmutableMap.of("mobilePhone", mobilePhone, "orderDate", orderDate, "orderId", orderId, "uid", uid, "userIp", userIp);
         //push to countServer
         Counter.push("0003", kvData);
         //礼遇商城礼品卡支付,一天内，同一IP对应预定量>=5
-        BigDecimal count = ((FlowQueryResponse)Counter.queryFlowData("F0003002", "同一uid对应的预定量",
+        BigDecimal count = ((FlowQueryResponse) Counter.queryFlowData("F0003002", "同一uid对应的预定量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count!=null&&count.longValue() >= 8){
+        if (count != null && count.longValue() >= 8) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一uid对应的预定量[" + count.longValue() + "] >= 8");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
         //礼遇商城礼品卡支付,一天内，同一IP对应uid量>=3
-        BigDecimal count1 = ((FlowQueryResponse)Counter.queryFlowData("F0003002", "同一uid对应的ip量",
+        BigDecimal count1 = ((FlowQueryResponse) Counter.queryFlowData("F0003002", "同一uid对应的ip量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count1!=null&&count1.longValue() >= 3){
+        if (count1 != null && count1.longValue() >= 3) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一uid对应的ip量[" + count1.longValue() + "] >= 3");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
         //礼遇商城礼品卡支付,一天内，同一IP对应联系手机量>=3
-        BigDecimal count2 = ((FlowQueryResponse)Counter.queryFlowData("F0003002", "同一uid对应的手机量",
+        BigDecimal count2 = ((FlowQueryResponse) Counter.queryFlowData("F0003002", "同一uid对应的手机量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count2!=null&&count2.longValue() >= 3){
+        if (count2 != null && count2.longValue() >= 3) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一uid对应的手机量[" + count2.longValue() + "] >= 3");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
     }
+
     //同一手机对应的预定量
-    void R4()
-    {
+    void R4() {
         RiskFact $fact = new RiskFact();
         $fact.eventPoint = "CP0003001";
         $fact.ext.put(Constants.key_ruleNo, "CP0003001");
@@ -201,9 +216,9 @@ public class RuleTest {
         int randomNum = random.nextInt(10000000);
         $fact.eventBody.put("mobilePhone", "13516896542");
         $fact.eventBody.put("orderDate", "2015-03-30");
-        $fact.eventBody.put("orderID", randomNum+"");
-        $fact.eventBody.put("uid", randomNum+"");
-        $fact.eventBody.put("userIP", randomNum+"");
+        $fact.eventBody.put("orderID", randomNum + "");
+        $fact.eventBody.put("uid", randomNum + "");
+        $fact.eventBody.put("userIP", randomNum + "");
 
         String mobilePhone = $fact.eventBody.get("mobilePhone") == null ? "" : $fact.eventBody.get("mobilePhone").toString();
         String orderDate = $fact.eventBody.get("orderDate") == null ? "" : $fact.eventBody.get("orderDate").toString();
@@ -214,29 +229,29 @@ public class RuleTest {
         $fact.results.clear();
 
         //push to countServer
-        Map kvData = ImmutableMap.of("mobilePhone", mobilePhone, "orderDate", orderDate, "orderId", orderId, "uid", uid,"userIp",userIp);
+        Map kvData = ImmutableMap.of("mobilePhone", mobilePhone, "orderDate", orderDate, "orderId", orderId, "uid", uid, "userIp", userIp);
         //push to countServer
         Counter.push("0003", kvData);
         //礼遇商城礼品卡支付,一天内，同一IP对应预定量>=5
-        BigDecimal count = ((FlowQueryResponse)Counter.queryFlowData("F0003003", "同一手机对应的预定量",
+        BigDecimal count = ((FlowQueryResponse) Counter.queryFlowData("F0003003", "同一手机对应的预定量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count!=null&&count.longValue() >= 10){
+        if (count != null && count.longValue() >= 10) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一手机对应的预定量[" + count.longValue() + "] >= 10");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
         //礼遇商城礼品卡支付,一天内，同一IP对应uid量>=3
-        BigDecimal count1 = ((FlowQueryResponse)Counter.queryFlowData("F0003003", "同一手机对应的uid量",
+        BigDecimal count1 = ((FlowQueryResponse) Counter.queryFlowData("F0003003", "同一手机对应的uid量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count1!=null&&count1.longValue() >= 3){
+        if (count1 != null && count1.longValue() >= 3) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一手机对应的uid量[" + count1.longValue() + "] >= 3");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
         //礼遇商城礼品卡支付,一天内，同一IP对应联系手机量>=3
-        BigDecimal count2 = ((FlowQueryResponse)Counter.queryFlowData("F0003003", "同一手机对应的ip量",
+        BigDecimal count2 = ((FlowQueryResponse) Counter.queryFlowData("F0003003", "同一手机对应的ip量",
                 FlowAccuracy.EveryMin, "0,-1439", kvData)).getFlowData();
-        if(count2!=null&&count2.longValue() >= 3){
+        if (count2 != null && count2.longValue() >= 3) {
             emit($fact, 80, "礼遇商城礼品卡支付, 一天内, 同一手机对应的ip量[" + count2.longValue() + "] >= 3");
-            System.out.println("results: "+JSON.toPrettyJSONString($fact.results));
+            System.out.println("results: " + JSON.toPrettyJSONString($fact.results));
         }
     }
 }

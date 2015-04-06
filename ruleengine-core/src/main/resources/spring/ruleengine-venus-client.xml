@@ -17,7 +17,7 @@
         <property name="location" value="classpath:GlobalConfig.properties"/>
     </bean>    
     
-    <bean id="serviceFactory" class="com.meidusa.venus.client.VenusServiceFactory" destroy-method="destroy" lazy-init="true">
+    <bean id="serviceFactory" class="com.meidusa.venus.client.VenusServiceFactory" destroy-method="destroy">
         <property name="configFiles">
             <list>
                 <value>classpath:VenusClient.xml</value>
