@@ -16,9 +16,7 @@ import java.util.*;
  * Created by lpxie on 15-3-20.
  */
 public class CardInfo {
-
     private static final Logger logger = LoggerFactory.getLogger(CardInfo.class);
-
     /**
      * 这里的serviceName必须是“getinfo”
      */
@@ -30,7 +28,6 @@ public class CardInfo {
             if (xml == null || xml.isEmpty()) {
                 return result;
             }
-//            SAXReader reader = new SAXReader();
             Document document = DocumentHelper.parseText(xml);
             String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
             List<Element> list = document.selectNodes(xpath);
@@ -45,7 +42,6 @@ public class CardInfo {
                     result.put(element.getName(), element.getStringValue());
                 }
             }
-
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke CardInfo.query fault.", ex);

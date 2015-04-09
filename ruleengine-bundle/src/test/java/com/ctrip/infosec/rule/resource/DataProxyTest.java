@@ -18,6 +18,9 @@ import static org.junit.Assert.*;
  */
 public class DataProxyTest {
 
+    /**
+     * 根据ip地址获取相关的信息
+     */
     @Test
     public void testQuery() {
         System.out.println("query");
@@ -27,6 +30,11 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         assertEquals(0, result.getRtnCode());
         System.out.println("result: " + JSON.toJSONString(result.getResult()));
-    }
 
+        String serviceName1 = "MobilePhoneService";
+        String operationName1 = "getMobileArea";
+        Map params1 = ImmutableMap.of("mobileNumber", "13917863756");
+        DataProxyResponse result1 = DataProxy.query(serviceName1, operationName1, params1);
+        System.out.println("result1: " + JSON.toJSONString(result1.getResult()));
+    }
 }

@@ -44,10 +44,10 @@
                                prefetch="1000" acknowledge="auto" task-executor="rabbitmqConsumerExecutor">
         <rabbit:listener ref="rabbitMqMessageHandler" method="handleMessage" queue-names="infosec.ruleengine.queue" />
     </rabbit:listener-container>    
-    
+
     <!-- MessageHandler -->
     <bean id="rabbitMqMessageHandler" class="com.ctrip.infosec.rule.rabbitmq.RabbitMqMessageHandler" />
-    
+
     <!-- SarsMonitor -->
     <bean id="sarsMonitorAdvice" class="com.ctrip.infosec.sars.monitor.aop.SarsMonitorAdvice"/>
     <aop:config proxy-target-class="true">

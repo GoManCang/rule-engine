@@ -27,20 +27,29 @@ import javax.annotation.Resource;
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine-test.xml"})
 public class RabbitMqMessageSenderTest {
 
-    @Resource(name = "ruleEngineTemplate")
+  @Resource(name = "template_callback")
     private AmqpTemplate ruleEngineTemplate;
 
+    /*  @Resource(name = "callBackMessageHandler")
+    private AmqpTemplate callBackMessageHandler;*/
     @Test
-    @Ignore
+    //@Ignore
     public void testSend() throws IOException {
+
         System.out.println("send");
         RiskFact fact = ReadFactFile.getFact("cp0027004.json");
         byte[] b = JSON.toJSONString(fact).getBytes(Charset.forName("UTF-8"));
-        for (int i = 0; i < 100000; i++) {
-            ruleEngineTemplate.convertAndSend("ruleengine", b);
+        for (int i = 0; i < 1000; i++) {
+            ruleEngineTemplate.convertAndSend("0031", b);
             System.out.println("发送了  " + i);
         }
-
+        try
+        {
+            Thread.sleep(10000);
+        } catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
     }
 
 }
