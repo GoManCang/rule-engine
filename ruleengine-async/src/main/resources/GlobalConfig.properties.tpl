@@ -35,3 +35,7 @@ rabbitmq.inner.host={$rabbitmq.inner.host}
 rabbitmq.inner.vhost={$rabbitmq.inner.vhost}
 rabbitmq.inner.username={$rabbitmq.inner.username}
 rabbitmq.inner.password={$rabbitmq.inner.password}
+rabbitmq.event.host={$rabbitmq.event.host}
+rabbitmq.event.vhost={$rabbitmq.event.vhost}
+rabbitmq.event.username={$rabbitmq.event.username}
+rabbitmq.event.password={$rabbitmq.event.password}

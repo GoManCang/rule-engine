@@ -26,19 +26,21 @@
                                   location="classpath*:/GlobalConfig.properties" />
         
     <!-- RabbitMQ -->
-    <rabbit:connection-factory id="connectionFactory" 
+    <rabbit:connection-factory id="connectionFactory_inner" 
                                host="${rabbitmq.inner.host}" virtual-host="${rabbitmq.inner.vhost}" 
                                username="${rabbitmq.inner.username}" password="${rabbitmq.inner.password}"/>
-    
-    <!-- RabbitMQ Admin -->
-    <rabbit:admin connection-factory="connectionFactory" />
+    <rabbit:connection-factory id="connectionFactory_event" 
+                               host="${rabbitmq.event.host}" virtual-host="${rabbitmq.event.vhost}" 
+                               username="${rabbitmq.event.username}" password="${rabbitmq.event.password}"/>
     
     <!-- RabbitMQ 消息发送Template -->
-    <rabbit:template id="template" connection-factory="connectionFactory" exchange="infosec.datadispatcher.exchange"/>
+    <rabbit:template id="template_datadispatcher" connection-factory="connectionFactory_inner" exchange="infosec.datadispatcher.exchange"/>
+    <rabbit:template id="template_offline4j" connection-factory="connectionFactory_inner" exchange="infosec.offline4j.exchange"/>
+    <rabbit:template id="template_callback" connection-factory="connectionFactory_event" exchange="infosec.callback.exchange"/>
 
     <!-- RabbitMQ 消息接收Listener -->
     <task:executor id="rabbitmqConsumerExecutor" pool-size="32"/>
-    <rabbit:listener-container connection-factory="connectionFactory" 
+    <rabbit:listener-container connection-factory="connectionFactory_inner" 
                                prefetch="1000" acknowledge="auto" task-executor="rabbitmqConsumerExecutor">
         <rabbit:listener ref="rabbitMqMessageHandler" method="handleMessage" queue-names="infosec.ruleengine.queue" />
     </rabbit:listener-container>    
@@ -50,7 +52,9 @@
     <bean id="sarsMonitorAdvice" class="com.ctrip.infosec.sars.monitor.aop.SarsMonitorAdvice"/>
     <aop:config proxy-target-class="true">
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.rabbitmq.RabbitMqMessageHandler.handleMessage(..))"/>
-        <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.rabbitmq.RabbitMqMessageSender.sendToDataDispatcher(..))"/>
+        <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.rabbitmq.CallbackMessageSender.sendToPD(..))"/>
+        <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.rabbitmq.DispatcherMessageSender.sendToDataDispatcher(..))"/>
+        <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.rabbitmq.OfflineMessageSender.sendToOffline(..))"/>
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.RulesExecutorService.executeSyncRules(..))"/>
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.RulesExecutorService.executeAsyncRules(..))"/>
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.PreRulesExecutorService.executePreRules(..))"/>

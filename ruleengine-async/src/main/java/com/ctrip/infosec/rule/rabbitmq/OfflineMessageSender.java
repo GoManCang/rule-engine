@@ -8,26 +8,22 @@ package com.ctrip.infosec.rule.rabbitmq;
 import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Resource;
 
 /**
  *
  * @author zhengby
  */
 @Service
-public class RabbitMqMessageSender {
+public class OfflineMessageSender {
 
-    @Autowired
+    @Resource(name = "template_offline4j")
     private AmqpTemplate template;
-    private final String defaultRoutingKey = "datadispatcher";
+    private final String defaultRoutingKey = "callback";
 
-    public void sendToDataDispatcher(RiskFact fact) {
+    public void sendToOffline(RiskFact fact) {
         template.convertAndSend(defaultRoutingKey, JSON.toJSONString(fact));
     }
 }
