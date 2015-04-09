@@ -5,7 +5,6 @@
  */
 package com.ctrip.infosec.rule.rabbitmq;
 
-import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskResult;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
@@ -13,7 +12,6 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +28,10 @@ public class CallbackMessageSender {
     private AmqpTemplate template;
 
     public void sendToPD(RiskResult result) {
-        int riskLevel = MapUtils.getInteger(result.getResults(), Constants.riskLevel, 0);
-        if (riskLevel > 0) {
-            String routingKey = StringUtils.substring(result.getEventPoint(), 2, 5);
-            String message = JSON.toJSONString(result);
-            logger.info(Contexts.getLogPrefix() + "send callback message, routingKey=" + routingKey + ", message=" + message);
-            template.convertAndSend(routingKey, message);
-        }
+        String routingKey = StringUtils.substring(result.getEventPoint(), 2, 5);
+        String message = JSON.toJSONString(result);
+        logger.info(Contexts.getLogPrefix() + "send callback message, routingKey=" + routingKey + ", message=" + message);
+        template.convertAndSend(routingKey, message);
+        logger.info(Contexts.getLogPrefix() + "send callback message, OK.");
     }
 }

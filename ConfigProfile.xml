@@ -42,12 +42,17 @@
         <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
         <!--SLogAgent-->
         <SLog.Ip>secbd1.qa.nt.ctripcorp.com</SLog.Ip>
-        <!-- RabbitMQ -->
-        <rabbitmq.inner.host>10.3.6.42</rabbitmq.inner.host>
-        <rabbitmq.inner.port>5672</rabbitmq.inner.port>
-        <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
-        <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
-        <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+		<!-- RabbitMQ -->
+		<rabbitmq.event.host>10.3.6.42</rabbitmq.event.host>
+		<rabbitmq.event.port>5672</rabbitmq.event.port>
+		<rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
+		<rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
+		<rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
+		<rabbitmq.inner.host>10.3.6.42</rabbitmq.inner.host>
+		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
+		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -72,11 +77,16 @@
         <!--SLogAgent-->
         <SLog.Ip>10.2.24.236</SLog.Ip>
         <!-- RabbitMQ -->
-        <rabbitmq.inner.host>10.2.24.236</rabbitmq.inner.host>
-        <rabbitmq.inner.port>5672</rabbitmq.inner.port>
-        <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
-        <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
-        <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+		<rabbitmq.event.host>10.2.24.236</rabbitmq.event.host>
+		<rabbitmq.event.port>5672</rabbitmq.event.port>
+		<rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
+		<rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
+		<rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
+		<rabbitmq.inner.host>10.2.24.236</rabbitmq.inner.host>
+		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
+		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
 	</uat_nt>
     <prd>
         <sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
@@ -99,10 +109,15 @@
         <!--SLogAgent-->
         <SLog.Ip>colletor.infosec.ctripcorp.com</SLog.Ip>
         <!-- RabbitMQ -->
-        <rabbitmq.inner.host>riskinner.rabbitmq.infosec.ctripcorp.com</rabbitmq.inner.host>
-        <rabbitmq.inner.port>5672</rabbitmq.inner.port>
-        <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
-        <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
-        <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+		<rabbitmq.event.host>riskevent.rabbitmq.infosec.ctripcorp.com</rabbitmq.event.host>
+		<rabbitmq.event.port>5672</rabbitmq.event.port>
+		<rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
+		<rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
+		<rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
+		<rabbitmq.inner.host>riskinner.rabbitmq.infosec.ctripcorp.com</rabbitmq.inner.host>
+		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
+		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
     </prd>
 </profile>

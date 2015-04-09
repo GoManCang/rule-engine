@@ -6,6 +6,9 @@
 package com.ctrip.infosec.rule.rabbitmq;
 
 import com.ctrip.infosec.common.Constants;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.model.RiskResult;
 import com.ctrip.infosec.configs.utils.Utils;
@@ -17,6 +20,7 @@ import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import java.util.Date;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,11 +77,35 @@ public class RabbitMqMessageHandler {
         } finally {
             if (fact != null) {
                 // 发送给DataDispatcher
-                dispatcherMessageSender.sendToDataDispatcher(fact);
-                // 发送Callback给PD
-                if ("CP0031001".equals(fact.eventPoint)) {
-                    RiskResult result = buildRiskResult(fact);
-                    callbackMessageSender.sendToPD(result);
+                try {
+                    beforeInvoke();
+                    dispatcherMessageSender.sendToDataDispatcher(fact);
+                } catch (Exception ex) {
+                    fault();
+                    logger.error(Contexts.getLogPrefix() + "send dispatcher message fault.", ex);
+                } finally {
+                    afterInvoke("DispatcherMessageSender.sendToDataDispatcher");
+                }
+
+                int riskLevel = MapUtils.getInteger(fact.results, Constants.riskLevel, 0);
+                if (riskLevel > 0) {
+
+                    // 发送Callback给PD
+                    try {
+                        beforeInvoke();
+                        if ("CP0031001".equals(fact.eventPoint)) {
+                            RiskResult result = buildRiskResult(fact);
+                            callbackMessageSender.sendToPD(result);
+                        }
+                    } catch (Exception ex) {
+                        fault();
+                        logger.error(Contexts.getLogPrefix() + "send callback message fault.", ex);
+                    } finally {
+                        afterInvoke("CallbackMessageSender.sendToPD");
+                    }
+
+                    // 发送Offline4J
+                    // TODO
                 }
             }
         }
@@ -90,7 +118,7 @@ public class RabbitMqMessageHandler {
         RiskResult result = new RiskResult();
         result.setEventPoint(fact.eventPoint);
         result.setEventId(fact.eventId);
-        result.setResults(fact.finalResult);
+        result.getResults().putAll(fact.finalResult);
         result.getResults().put("orderId", fact.eventBody.get("orderID"));
         result.getResults().put("hotelId", fact.eventBody.get("hotelID"));
 

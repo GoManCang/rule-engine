@@ -27,13 +27,13 @@ import javax.annotation.Resource;
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine-test.xml"})
 public class RabbitMqMessageSenderTest {
 
-  @Resource(name = "template_callback")
+    @Resource(name = "template_callback")
     private AmqpTemplate ruleEngineTemplate;
 
     /*  @Resource(name = "callBackMessageHandler")
-    private AmqpTemplate callBackMessageHandler;*/
+     private AmqpTemplate callBackMessageHandler;*/
     @Test
-    //@Ignore
+    @Ignore
     public void testSend() throws IOException {
 
         System.out.println("send");
@@ -43,11 +43,9 @@ public class RabbitMqMessageSenderTest {
             ruleEngineTemplate.convertAndSend("0031", b);
             System.out.println("发送了  " + i);
         }
-        try
-        {
+        try {
             Thread.sleep(10000);
-        } catch (InterruptedException e)
-        {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
