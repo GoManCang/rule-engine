@@ -2,7 +2,7 @@
 <configuration>
     
     <jmxConfigurator />
-    <substitutionProperty name="default_pattern" value="%date %-5level - %msg%n" />
+    <substitutionProperty name="default_pattern" value="%date %-5level %logger{30} - %msg%n" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoding>UTF-8</encoding>
