@@ -65,8 +65,8 @@
         <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
         <CLogging.serverPort>63100</CLogging.serverPort>
         <!-- Configs -->
-        <Configs.URL>http://10.2.25.54:8080/configsws/rest/loadconfig</Configs.URL>
-        <Configs.Trace.URL>http://10.2.25.54:8080/configsws/rest/trace</Configs.Trace.URL>
+        <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
+        <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.25.54:8080/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.2.25.54:16900,10.2.27.62:16900</Counter.Venus.ipAddressList>
