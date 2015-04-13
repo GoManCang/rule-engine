@@ -14,8 +14,9 @@ import com.ctrip.infosec.rule.model.DataProxyRequest;
 import com.ctrip.infosec.rule.model.DataProxyResponse;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.fasterxml.jackson.databind.JavaType;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -62,6 +63,70 @@ public class DataProxy {
         return response;
     }
 
+    public static DataProxyResponse queryForFormatValue(DataProxyRequest request)
+    {
+        check();
+        beforeInvoke();
+        DataProxyResponse response = null;
+        try {
+            String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/query")
+                    .body(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON))
+                    .execute().returnContent().asString();
+            response = JSON.parseObject(responseTxt, DataProxyResponse.class);
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.query fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.query");
+        }
+        if(request.getServiceName().equals("UserProfileService"))
+        {
+            if(request.getParams().get("tagName") != null)
+            {
+                Map newResult = getNewResult(response.getResult());
+                response.setResult(newResult);
+            }else if(request.getParams().get("tagName") != null)
+            {
+                List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+                List<Map> newResults = new ArrayList<Map>();
+                Iterator iterator = oldResults.iterator();
+                while(iterator.hasNext())
+                {
+                    Map oneResult = (Map)iterator.next();
+                    newResults.add(getNewResult(oneResult));
+                }
+                Map finalResult = new HashMap();
+                finalResult.put("result",newResults);
+                response.setResult(finalResult);
+            }
+        }
+        return response;
+    }
+
+    /**
+     * 转换数据格式
+     * 把从userProfile里面的数据转成Map的格式
+     * @param oldValue 原来的值
+     * @return
+     */
+    private static Map getNewResult(Map oldValue)
+    {
+        Map newResult = new HashMap();
+        String tagDataType = oldValue.get("tagDataType") == null ? "" : oldValue.get("tagDataType").toString();
+        if(tagDataType.toLowerCase().equals("int") || tagDataType.toLowerCase().equals("string") || tagDataType.toLowerCase().equals("datetime")
+                || tagDataType.toLowerCase().equals("boolean"))
+        {
+            String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
+            String tagContent = oldValue.get("tagContent") == null ? "" : oldValue.get("tagContent").toString();
+            newResult.put(tagName,tagContent);
+        }else if(tagDataType.toLowerCase().equals("list"))
+        {
+            String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
+            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : (List)oldValue.get("tagContent");
+            newResult.put(tagName,tagContent);
+        }
+        return newResult;
+    }
     /**
      * 数据查询接口（同上）
      *

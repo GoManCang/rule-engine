@@ -9,10 +9,8 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.model.DataProxyResponse;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -54,19 +52,63 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         Map result1 = result.getResult();*/
 
-        /*String serviceName = "UserProfileService";
+        String serviceName = "UserProfileService";
         String operationName = "DataQuery";
-
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "M00713231","tagNames",tagContents);
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
-        Map result1 = result.getResult();*/
+        Map result1 = result.getResult();
+        //change data form
+        //数据类型：int string boolean  list  datetime
+        //tagNames的情况
+        List<Map> oldResults = (List<Map>)result1.get("tagNames");
+        List<Map> newResults = new ArrayList<Map>();
+        Iterator iterator = oldResults.iterator();
+        while(iterator.hasNext())
+        {
+            Map oneResult = (Map)iterator.next();
+            newResults.add(getNewResult(oneResult));
+        }
+        Map finalResult = new HashMap();
+        finalResult.put("result",newResults);
+        result.setResult(finalResult);
 
-        Map params = new HashMap();
+        /*String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        //http://userprofile.infosec.ctripcorp.com/userprofileweb/;jsessionid=11099F242AD077BD1F8A53F60FA6E68B
+        Map params = ImmutableMap.of("uid", "M00713231","tagName","RECENT_IP");//STATUS  RECENT_IP
+        DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
+        Map result1 = result.getResult();
+        //change data form
+        //数据类型：int string boolean  list  datetime
+        //tagName的情况
+        Map newResult = getNewResult(result1);
+        System.out.println(newResult.size());*/
+
+        /*Map params = new HashMap();
         params.put("cardInfoId", "30075005");
         Map map = CardInfo.query("getinfo", params);
-        System.out.println(map.size());
+        System.out.println(map.size());*/
+    }
+
+    public Map getNewResult(Map oldValue)
+    {
+        Map newResult = new HashMap();
+        String tagDataType = oldValue.get("tagDataType") == null ? "" : oldValue.get("tagDataType").toString();
+        if(tagDataType.toLowerCase().equals("int") || tagDataType.toLowerCase().equals("string") || tagDataType.toLowerCase().equals("datetime")
+                || tagDataType.toLowerCase().equals("boolean"))
+        {
+            String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
+            String tagContent = oldValue.get("tagContent") == null ? "" : oldValue.get("tagContent").toString();
+            newResult.put(tagName,tagContent);
+        }else if(tagDataType.toLowerCase().equals("list"))
+        {
+            String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
+            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : (List)oldValue.get("tagContent");
+            newResult.put(tagName,tagContent);
+        }
+        return newResult;
     }
 }
