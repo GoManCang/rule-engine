@@ -21,7 +21,7 @@
             </pool>
         </remote>
 
-        <remote name="remote">
+        <remote name="remote1">
             <factory>
                 <property name="ipAddressList">${DataProxy.Venus.ipAddressList}</property>
                 <property name="sendBufferSize">64</property>
@@ -43,6 +43,7 @@
     <services>
         <service beanName="flowPolicyRemoteService" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteService" remote="remote"/>
         <service beanName="decisionDataRemoteService" type="com.ctrip.infosec.counter.venus.DecisionDataRemoteService" remote="remote"/>
+        <service beanName="dataProxyVenusService" type="com.ctrip.sec.userprofile.contract.venusapi.DataProxyVenusService" remote="remote1"/>
     </services>
     
 </venus-client>
