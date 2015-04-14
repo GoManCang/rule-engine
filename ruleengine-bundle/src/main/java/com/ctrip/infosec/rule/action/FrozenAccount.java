@@ -5,24 +5,72 @@
  */
 package com.ctrip.infosec.rule.action;
 
+import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.resource.ESB.ESBClient;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+
 /**
  * 冻结/解冻钱包账户
  *
  * @author zhengby
  */
 public class FrozenAccount {
+    private static Logger logger = LoggerFactory.getLogger(FrozenAccount.class);
+    private static StringBuffer content = new StringBuffer();
 
     /**
-     * 冻结
+     * 添加是否解冻支付风控账户
+     * @param params
+     * @return
      */
-    public static void frozen(String uid) {
+    public static Map frozenOrNot(Map params)
+    {
+        beforeInvoke();
+        Map<String, String> result = new HashMap();
+        try
+        {
+            content.append("<Uid>"+params.get("uid")+"</Uid>");
+            content.append("<OperStatus>"+params.get("operStatus")+"</OperStatus>");
+            content.append("<Oper>"+params.get("oper")+"</Oper>");
+            content.append("<Remark>"+params.get("remark")+"</Remark>");
+            String xml = ESBClient.requestESB("Payment.CardRisk.InfoSecurity.EnterFULogMessage", "<FULogMessageRequest>" + content + "</FULogMessageRequest>");
+            if (xml == null || xml.isEmpty()) {
+                return result;
+            }
+            Document document = DocumentHelper.parseText(xml);
+            String xpath = "/Response/FULogMessageResponse";
+            List<Element> list = document.selectNodes(xpath);
+            if (list == null || list.isEmpty()) {
+                return result;
+            }
 
-    }
-
-    /**
-     * 解冻
-     */
-    public static void unfrozen(String uid) {
-
+            for (Element subElement : list) {
+                Iterator iterator = subElement.elements().iterator();
+                while (iterator.hasNext()) {
+                    Element element = (Element) iterator.next();
+                    result.put(element.getName(), element.getStringValue());
+                }
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke FrozenAccount.frozenOrNot fault.", ex);
+        } finally {
+            content.setLength(0);
+            afterInvoke("FrozenAccount.frozenOrNot");
+        }
+        return result;
     }
 }

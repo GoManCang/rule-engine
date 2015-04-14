@@ -39,12 +39,12 @@ public class DataProxyTest {
         DataProxyResponse result1 = DataProxy.query(serviceName1, operationName1, params1);
         System.out.println("result1: " + JSON.toJSONString(result1.getResult()));*/
 
-       /* String serviceName = "CRMService";
+        String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         Map params = ImmutableMap.of("uid", "wwwwww");
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
 
-        Map result1 = result.getResult();*/
+        Map result1 = result.getResult();
 
         /*String serviceName = "AirPortService";
         String operationName = "getAirPortCity";
@@ -52,7 +52,7 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         Map result1 = result.getResult();*/
 
-        String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
@@ -73,7 +73,7 @@ public class DataProxyTest {
         }
         Map finalResult = new HashMap();
         finalResult.put("result",newResults);
-        result.setResult(finalResult);
+        result.setResult(finalResult);*/
 
         /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
