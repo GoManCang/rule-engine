@@ -29,7 +29,7 @@ public class CardInfoDecryptConverter implements Converter {
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String cardInfoIdFieldName = (String) fieldMapping.get(fields[0].getParamName());
-        String cardInfoIdFieldValue = BeanUtils.getNestedProperty(fact, cardInfoIdFieldName);
+        String cardInfoIdFieldValue = BeanUtils.getNestedProperty(fact.eventBody, cardInfoIdFieldName);
 
         // prefix default value
         if (Strings.isNullOrEmpty(resultWrapper)) {

@@ -32,7 +32,7 @@ public class CrmUserInfoConverter implements Converter {
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String uidFieldName = (String) fieldMapping.get(fields[0].getParamName());
-        String uidFieldValue = BeanUtils.getNestedProperty(fact, uidFieldName);
+        String uidFieldValue = BeanUtils.getNestedProperty(fact.eventBody, uidFieldName);
 
         // prefix default value
         if (Strings.isNullOrEmpty(resultWrapper)) {

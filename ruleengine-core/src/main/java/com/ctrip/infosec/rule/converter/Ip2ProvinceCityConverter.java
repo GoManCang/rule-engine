@@ -31,8 +31,8 @@ public class Ip2ProvinceCityConverter implements Converter {
     @Override
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
-        String ipFieldName = (String) fieldMapping.get(fields[0]);
-        String ipFieldValue = BeanUtils.getNestedProperty(fact, ipFieldName);
+        String ipFieldName = (String) fieldMapping.get(fields[0].getParamName());
+        String ipFieldValue = BeanUtils.getNestedProperty(fact.eventBody, ipFieldName);
 
         // prefix default value
         if (Strings.isNullOrEmpty(resultWrapper)) {

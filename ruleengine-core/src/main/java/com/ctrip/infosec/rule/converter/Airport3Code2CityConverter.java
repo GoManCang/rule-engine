@@ -32,7 +32,7 @@ public class Airport3Code2CityConverter implements Converter {
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String airport3codeFieldName = (String) fieldMapping.get(fields[0].getParamName());
-        String airport3codeFieldValue = BeanUtils.getNestedProperty(fact, airport3codeFieldName);
+        String airport3codeFieldValue = BeanUtils.getNestedProperty(fact.eventBody, airport3codeFieldName);
 
         // prefix default value
         if (Strings.isNullOrEmpty(resultWrapper)) {

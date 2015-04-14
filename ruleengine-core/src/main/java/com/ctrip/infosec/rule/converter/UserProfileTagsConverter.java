@@ -34,7 +34,7 @@ public class UserProfileTagsConverter implements Converter {
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String uidFieldName = (String) fieldMapping.get(fields[0].getParamName());
-        String uidFieldValue = BeanUtils.getNestedProperty(fact, uidFieldName);
+        String uidFieldValue = BeanUtils.getNestedProperty(fact.eventBody, uidFieldName);
         String tagsFieldValue = (String) fieldMapping.get(fields[1].getParamName());
         if (StringUtils.isBlank(tagsFieldValue)) {
             return;
