@@ -23,6 +23,7 @@ Counter.Venus.ipAddressList={$Counter.Venus.ipAddressList}
 
 # DataProxy
 DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}
+DataProxy.Venus.ipAddressList={$DataProxy.Venus.ipAddressList}
 
 # CardInfo
 CardInfo.REST.URL.Prefix={$CardInfo.REST.URL.Prefix}

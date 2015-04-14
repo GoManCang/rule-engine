@@ -23,6 +23,8 @@ public class DataProxyTest {
      */
     @Test
     public void testQuery() {
+        //测试rest接口的DataProxy查询
+
         /*System.out.println("query");
         String serviceName = "IpService";
         String operationName = "getIpArea";
@@ -54,9 +56,9 @@ public class DataProxyTest {
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
-        Map params = ImmutableMap.of("uid", "M00713231","tagNames",tagContents);
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
-
+        Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
+        Map result = DataProxy.queryForMapRest(serviceName, operationName, params);
+        System.out.println(result.size());*/
 
         /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
@@ -69,6 +71,9 @@ public class DataProxyTest {
         params.put("cardInfoId", "30075005");
         Map map = CardInfo.query("getinfo", params);
         System.out.println(map.size());*/
+
+        //通过Venus的查询DataProxy
+
     }
 
     public Map getNewResult(Map oldValue)

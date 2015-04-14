@@ -60,7 +60,7 @@ public class DataProxy {
         return query(request).getResult();
     }*/
 
-    public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
+    public static Map queryForMapRest(String serviceName, String operationName, Map<String, Object> params) {
         DataProxyRequest request = new DataProxyRequest();
         request.setServiceName(serviceName);
         request.setOperationName(operationName);
@@ -143,7 +143,7 @@ public class DataProxy {
      * @param params
      * @return
      */
-    public static Map queryForOne(String serviceName, String operationName, Map<String, Object> params)
+    public static Map queryForMapVenus(String serviceName, String operationName, Map<String, Object> params)
     {
         beforeInvoke();
         DataProxyResponse response = null;
@@ -196,7 +196,7 @@ public class DataProxy {
      * @param requests
      * @return
      */
-    public static List<Map> queryForList( List<DataProxyRequest> requests)
+    public static List<Map> queryForListVenus( List<DataProxyRequest> requests)
     {
         beforeInvoke();
         List<Map> results = new ArrayList<Map>();
