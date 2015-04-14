@@ -18,7 +18,7 @@ public enum PreActionEnums {
     Ip2ProvinceCity("IP转省市", new PreActionParam("ip", PreActionParam.FIELD)),
     Mobile2ProvinceCity("手机号转省市", new PreActionParam("mobile", PreActionParam.FIELD)),
     UserProfileTags("获取UserProfile标签值", new PreActionParam("uid", PreActionParam.FIELD), new PreActionParam("tags", PreActionParam.TEXT)),
-    CrmUserInfo("获取CRM用户信息", new PreActionParam("uid", PreActionParam.FIELD)),
+    CrmMemberInfo("获取CRM会员信息", new PreActionParam("uid", PreActionParam.FIELD)),
     CardInfoDecrypt("银行卡解密（CardInfo）", new PreActionParam("cardInfoId", PreActionParam.FIELD)),
     Airport3Code2City("机场三字码转城市", new PreActionParam("airport3code", PreActionParam.FIELD));
     /**

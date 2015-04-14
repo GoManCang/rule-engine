@@ -20,10 +20,10 @@ import org.springframework.stereotype.Service;
  *
  * @author zhengby
  */
-@Service("crmUserInfoConverter")
-public class CrmUserInfoConverter implements Converter {
+@Service("crmMemberInfoConverter")
+public class CrmMemberInfoConverter implements Converter {
 
-    private static final Logger logger = LoggerFactory.getLogger(CrmUserInfoConverter.class);
+    private static final Logger logger = LoggerFactory.getLogger(CrmMemberInfoConverter.class);
 
     static final String serviceName = "CRMService";
     static final String operationName = "getMemberInfo";

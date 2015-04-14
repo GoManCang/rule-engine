@@ -24,8 +24,8 @@ public class ConverterLocator {
     @Resource(name = "userProfileTagsConverter")
     private Converter userProfileTagsConverter;
     //
-    @Resource(name = "crmUserInfoConverter")
-    private Converter crmUserInfoConverter;
+    @Resource(name = "crmMemberInfoConverter")
+    private Converter crmMemberInfoConverter;
     //
     @Resource(name = "cardInfoDecryptConverter")
     private Converter cardInfoDecryptConverter;
@@ -44,8 +44,8 @@ public class ConverterLocator {
                 return mobile2ProvinceCityConverter;
             case UserProfileTags:
                 return userProfileTagsConverter;
-            case CrmUserInfo:
-                return crmUserInfoConverter;
+            case CrmMemberInfo:
+                return crmMemberInfoConverter;
             case CardInfoDecrypt:
                 return cardInfoDecryptConverter;
             case Airport3Code2City:
