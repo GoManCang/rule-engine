@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JavaType;
 
 import java.util.*;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -212,7 +213,8 @@ public class DataProxy {
             newResult.put(tagName, tagContent);
         } else if (tagDataType.toLowerCase().equals("list")) {
             String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
-            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : (List) oldValue.get("tagContent");
+
+            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : JSON.parseObject(JSON.toJSONString(oldValue.get("tagContent")),List.class);
             newResult.put(tagName, tagContent);
         }
         return newResult;

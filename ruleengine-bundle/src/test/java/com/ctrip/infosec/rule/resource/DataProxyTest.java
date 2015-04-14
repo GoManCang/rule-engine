@@ -30,13 +30,12 @@ public class DataProxyTest {
     public void testQuery() {
         //测试rest接口的DataProxy查询
 
-        /*System.out.println("query");
+        System.out.println("query");
         String serviceName = "IpService";
         String operationName = "getIpArea";
         Map params = ImmutableMap.of("ip", "202.96.209.133");
-        DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
-        assertEquals(0, result.getRtnCode());
-        System.out.println("result: " + JSON.toJSONString(result.getResult()));*/
+        Map result = DataProxy.query(serviceName, operationName, params);
+        System.out.println(result.size());
 
         /*String serviceName1 = "MobilePhoneService";
         String operationName1 = "getMobileArea";
@@ -84,10 +83,27 @@ public class DataProxyTest {
     @Test
     public void testDataProxyVenus()
     {
-        System.out.println("query");
+        /*System.out.println("query");
         String serviceName = "IpService";
         String operationName = "getIpArea";
         Map params = ImmutableMap.of("ip", "202.96.209.133");
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        System.out.println(result.size());*/
+
+
+        /*String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        List tagContents = new ArrayList();
+        tagContents.add("RECENT_IP");
+        tagContents.add("RECENT_IPAREA");
+        Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        System.out.println(result.size());*/
+
+        String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        //http://userprofile.infosec.ctripcorp.com/userprofileweb/;jsessionid=11099F242AD077BD1F8A53F60FA6E68B
+        Map params = ImmutableMap.of("uid", "wwwwww","tagName","RECENT_IP");//STATUS  RECENT_IP
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
         System.out.println(result.size());
     }
