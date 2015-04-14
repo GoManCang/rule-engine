@@ -36,7 +36,8 @@ public class UserProfileTagsConverter implements Converter {
         String uidFieldName = (String) fieldMapping.get(fields[0].getParamName());
         String uidFieldValue = BeanUtils.getNestedProperty(fact.eventBody, uidFieldName);
         String tagsFieldValue = (String) fieldMapping.get(fields[1].getParamName());
-        if (StringUtils.isBlank(tagsFieldValue)) {
+
+        if (StringUtils.isBlank(uidFieldValue) || StringUtils.isBlank(tagsFieldValue)) {
             return;
         }
 
@@ -51,12 +52,10 @@ public class UserProfileTagsConverter implements Converter {
             return;
         }
 
-        if (StringUtils.isNotBlank(uidFieldValue) && StringUtils.isNotBlank(tagsFieldValue)) {
-            Map params = ImmutableMap.of("uid", uidFieldValue, "tagNames", tags);
-            Map result = DataProxy.queryForMap(serviceName, operationName, params);
-            if (result != null && !result.isEmpty()) {
-                fact.eventBody.put(resultWrapper, result);
-            }
+        Map params = ImmutableMap.of("uid", uidFieldValue, "tagNames", tags);
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        if (result != null && !result.isEmpty()) {
+            fact.eventBody.put(resultWrapper, result);
         }
     }
 

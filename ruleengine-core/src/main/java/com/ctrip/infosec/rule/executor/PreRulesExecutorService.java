@@ -59,7 +59,7 @@ public class PreRulesExecutorService {
                         Converter converter = converterLocator.getConverter(preAction);
                         converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
                     } catch (Exception ex) {
-                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo(), ex);
+                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
                     }
                 }
             } else if (rule.getRuleType() == RuleType.Script) {
