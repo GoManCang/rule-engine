@@ -8,14 +8,19 @@ package com.ctrip.infosec.rule.executor;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
+import com.ctrip.infosec.configs.event.RuleType;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.converter.Converter;
+import com.ctrip.infosec.rule.converter.ConverterLocator;
+import com.ctrip.infosec.rule.converter.PreActionEnums;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
-import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
+import com.google.common.collect.Lists;
 import java.util.List;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,6 +31,8 @@ import org.springframework.stereotype.Service;
 public class PreRulesExecutorService {
 
     private static final Logger logger = LoggerFactory.getLogger(PreRulesExecutorService.class);
+    @Autowired
+    private ConverterLocator converterLocator;
 
     /**
      * 执行预处理规则
@@ -41,9 +48,25 @@ public class PreRulesExecutorService {
     void execute(RiskFact fact, boolean isAsync) {
 
         // matchRules      
-        List<PreRule> matchedRules = Configs.matchPreRules(fact, isAsync);
-        List<String> packageNames = Collections3.extractToList(matchedRules, "ruleNo");
-        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + packageNames.size());
+        List<PreRule> matchedRules = Configs.matchPreRules(fact);
+        List<String> scriptRulePackageNames = Lists.newArrayList();
+        for (PreRule rule : matchedRules) {
+            if (rule.getRuleType() == RuleType.Visual) {
+                // 执行可视化预处理
+                PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
+                if (preAction != null) {
+                    try {
+                        Converter converter = converterLocator.getConverter(preAction);
+                        converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
+                    } catch (Exception ex) {
+                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo(), ex);
+                    }
+                }
+            } else if (rule.getRuleType() == RuleType.Script) {
+                scriptRulePackageNames.add(rule.getRuleNo());
+            }
+        }
+        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + scriptRulePackageNames.size());
         StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
 
         StopWatch clock = new StopWatch();
@@ -51,16 +74,16 @@ public class PreRulesExecutorService {
             clock.reset();
             clock.start();
 
-            statelessPreRuleEngine.execute(packageNames, fact);
+            statelessPreRuleEngine.execute(scriptRulePackageNames, fact);
 
             clock.stop();
             long handlingTime = clock.getTime();
             if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "preRules: " + packageNames + ", usage: " + handlingTime + "ms");
+                logger.info(Contexts.getLogPrefix() + "preRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
             }
 
         } catch (Throwable ex) {
-            logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. packageNames: " + packageNames, ex);
+            logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. packageNames: " + scriptRulePackageNames, ex);
         }
     }
 }

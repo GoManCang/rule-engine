@@ -41,9 +41,9 @@ public class PostRulesExecutorService {
     void execute(RiskFact fact, boolean isAsync) {
 
         // matchRules      
-        List<PostRule> matchedRules = Configs.matchPostRules(fact, isAsync);
-        List<String> packageNames = Collections3.extractToList(matchedRules, "ruleNo");
-        logger.info(Contexts.getLogPrefix() + "matched post rules: " + packageNames.size());
+        List<PostRule> matchedRules = Configs.matchPostRules(fact);
+        List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
+        logger.info(Contexts.getLogPrefix() + "matched post rules: " + scriptRulePackageNames.size());
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
 
         StopWatch clock = new StopWatch();
@@ -51,16 +51,17 @@ public class PostRulesExecutorService {
             clock.reset();
             clock.start();
 
-            statelessPostRuleEngine.execute(packageNames, fact);
+            // TODO: 需要判断ruleType == Script
+            statelessPostRuleEngine.execute(scriptRulePackageNames, fact);
 
             clock.stop();
             long handlingTime = clock.getTime();
             if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "postRules: " + packageNames + ", usage: " + handlingTime + "ms");
+                logger.info(Contexts.getLogPrefix() + "postRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
             }
 
         } catch (Throwable ex) {
-            logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. packageNames: " + packageNames, ex);
+            logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. packageNames: " + scriptRulePackageNames, ex);
         }
     }
 }

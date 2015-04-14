@@ -42,6 +42,7 @@ public class DataProxy {
 
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
+        Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.Venus.ipAddressList\"配置项.");
     }
 
     public static Map query(String serviceName, String operationName, Map<String, Object> params) {
@@ -54,11 +55,11 @@ public class DataProxy {
 
     /**
      * Rest数据查询接口
+     *
      * @param request
      * @return
      */
-    private static DataProxyResponse queryForFormatValue(DataProxyRequest request)
-    {
+    private static DataProxyResponse queryForFormatValue(DataProxyRequest request) {
         check();
         beforeInvoke();
         DataProxyResponse response = null;
@@ -73,39 +74,36 @@ public class DataProxy {
         } finally {
             afterInvoke("DataProxy.query");
         }
-        if(request.getServiceName().equals("UserProfileService"))
-        {
-            if(request.getParams().get("tagName") != null)
-            {
+        if (request.getServiceName().equals("UserProfileService")) {
+            if (request.getParams().get("tagName") != null) {
                 Map newResult = getNewResult(response.getResult());
                 response.setResult(newResult);
-            }else if(request.getParams().get("tagNames") != null)
-            {
-                List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+            } else if (request.getParams().get("tagNames") != null) {
+                List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
                 List<Map> newResults = new ArrayList<Map>();
                 Iterator iterator = oldResults.iterator();
-                while(iterator.hasNext())
-                {
-                    Map oneResult = (Map)iterator.next();
+                while (iterator.hasNext()) {
+                    Map oneResult = (Map) iterator.next();
                     newResults.add(getNewResult(oneResult));
                 }
                 Map finalResult = new HashMap();
-                finalResult.put("result",newResults);
+                finalResult.put("result", newResults);
                 response.setResult(finalResult);
             }
         }
         return response;
     }
+
     //venus
     /**
      * 查询一个服务的接口
+     *
      * @param serviceName
      * @param operationName
      * @param params
      * @return
      */
-    public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params)
-    {
+    public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
         beforeInvoke();
         DataProxyResponse response = null;
         try {
@@ -117,29 +115,24 @@ public class DataProxy {
             requests.add(request);
             DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
             List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
-            if(responses == null || responses.size()<1)
-            {
+            if (responses == null || responses.size() < 1) {
                 return new HashMap();
             }
             response = responses.get(0);
-            if(serviceName.equals("UserProfileService"))
-            {
-                if(request.getParams().get("tagName") != null)
-                {
+            if (serviceName.equals("UserProfileService")) {
+                if (request.getParams().get("tagName") != null) {
                     Map newResult = getNewResult(response.getResult());
                     response.setResult(newResult);
-                }else if(request.getParams().get("tagNames") != null)
-                {
-                    List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+                } else if (request.getParams().get("tagNames") != null) {
+                    List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
                     List<Map> newResults = new ArrayList<Map>();
                     Iterator iterator = oldResults.iterator();
-                    while(iterator.hasNext())
-                    {
-                        Map oneResult = (Map)iterator.next();
+                    while (iterator.hasNext()) {
+                        Map oneResult = (Map) iterator.next();
                         newResults.add(getNewResult(oneResult));
                     }
                     Map finalResult = new HashMap();
-                    finalResult.put("result",newResults);
+                    finalResult.put("result", newResults);
                     response.setResult(finalResult);
                 }
             }
@@ -154,48 +147,41 @@ public class DataProxy {
 
     /**
      * 批量查询的接口
+     *
      * @param requests
      * @return
      */
-    public static List<Map> queryForList( List<DataProxyRequest> requests)
-    {
+    public static List<Map> queryForList(List<DataProxyRequest> requests) {
         beforeInvoke();
         List<Map> results = new ArrayList<Map>();
         try {
             DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
             List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
-            if(responses == null || responses.size()<1)
-            {
+            if (responses == null || responses.size() < 1) {
                 return results;
             }
-            for(int i = 0;i<responses.size();i++)
-            {
+            for (int i = 0; i < responses.size(); i++) {
                 //这里得到的结果的顺序和请求的顺序是一致的
                 DataProxyRequest request = requests.get(i);
                 DataProxyResponse response = responses.get(i);
-                if(response.getResult() == null)
-                {
+                if (response.getResult() == null) {
                     results.add(new HashMap());
                     continue;
                 }
-                if(request.getServiceName().equals("UserProfileService"))
-                {
-                    if(request.getParams().get("tagName") != null)
-                    {
+                if (request.getServiceName().equals("UserProfileService")) {
+                    if (request.getParams().get("tagName") != null) {
                         Map newResult = getNewResult(response.getResult());
                         response.setResult(newResult);
-                    }else if(request.getParams().get("tagNames") != null)
-                    {
-                        List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+                    } else if (request.getParams().get("tagNames") != null) {
+                        List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
                         List<Map> newResults = new ArrayList<Map>();
                         Iterator iterator = oldResults.iterator();
-                        while(iterator.hasNext())
-                        {
-                            Map oneResult = (Map)iterator.next();
+                        while (iterator.hasNext()) {
+                            Map oneResult = (Map) iterator.next();
                             newResults.add(getNewResult(oneResult));
                         }
                         Map finalResult = new HashMap();
-                        finalResult.put("result",newResults);
+                        finalResult.put("result", newResults);
                         response.setResult(finalResult);
                     }
                 }
@@ -211,26 +197,23 @@ public class DataProxy {
     }
 
     /**
-     * 转换数据格式
-     * 把从userProfile里面的数据转成Map的格式
+     * 转换数据格式 把从userProfile里面的数据转成Map的格式
+     *
      * @param oldValue 原来的值
      * @return
      */
-    private static Map getNewResult(Map oldValue)
-    {
+    private static Map getNewResult(Map oldValue) {
         Map newResult = new HashMap();
         String tagDataType = oldValue.get("tagDataType") == null ? "" : oldValue.get("tagDataType").toString();
-        if(tagDataType.toLowerCase().equals("int") || tagDataType.toLowerCase().equals("string") || tagDataType.toLowerCase().equals("datetime")
-                || tagDataType.toLowerCase().equals("boolean"))
-        {
+        if (tagDataType.toLowerCase().equals("int") || tagDataType.toLowerCase().equals("string") || tagDataType.toLowerCase().equals("datetime")
+                || tagDataType.toLowerCase().equals("boolean")) {
             String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
             String tagContent = oldValue.get("tagContent") == null ? "" : oldValue.get("tagContent").toString();
-            newResult.put(tagName,tagContent);
-        }else if(tagDataType.toLowerCase().equals("list"))
-        {
+            newResult.put(tagName, tagContent);
+        } else if (tagDataType.toLowerCase().equals("list")) {
             String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
-            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : (List)oldValue.get("tagContent");
-            newResult.put(tagName,tagContent);
+            List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : (List) oldValue.get("tagContent");
+            newResult.put(tagName, tagContent);
         }
         return newResult;
     }
