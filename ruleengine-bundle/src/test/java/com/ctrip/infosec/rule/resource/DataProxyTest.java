@@ -11,11 +11,16 @@ import com.google.common.collect.ImmutableMap;
 import java.util.*;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  *
  * @author zhengby
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"classpath*:spring/counter-venus-test.xml"})
 public class DataProxyTest {
 
     /**
@@ -76,6 +81,16 @@ public class DataProxyTest {
 
     }
 
+    @Test
+    public void testDataProxyVenus()
+    {
+        System.out.println("query");
+        String serviceName = "IpService";
+        String operationName = "getIpArea";
+        Map params = ImmutableMap.of("ip", "202.96.209.133");
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        System.out.println(result.size());
+    }
     public Map getNewResult(Map oldValue)
     {
         Map newResult = new HashMap();

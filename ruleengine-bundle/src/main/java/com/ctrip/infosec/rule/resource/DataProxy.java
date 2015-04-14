@@ -44,51 +44,12 @@ public class DataProxy {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
     }
 
-    /**
-     * Rest数据查询接口（同上）
-     *
-     * @param serviceName
-     * @param operationName
-     * @param params
-     * @return
-     */
-   /* public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
-        DataProxyRequest request = new DataProxyRequest();
-        request.setServiceName(serviceName);
-        request.setOperationName(operationName);
-        request.setParams(params);
-        return query(request).getResult();
-    }*/
-
-    public static Map queryForMapRest(String serviceName, String operationName, Map<String, Object> params) {
+    public static Map query(String serviceName, String operationName, Map<String, Object> params) {
         DataProxyRequest request = new DataProxyRequest();
         request.setServiceName(serviceName);
         request.setOperationName(operationName);
         request.setParams(params);
         return queryForFormatValue(request).getResult();
-    }
-
-    /**
-     *  Rest数据查询接口
-     * @param request
-     * @return
-     */
-    private static DataProxyResponse query(DataProxyRequest request) {
-        check();
-        beforeInvoke();
-        DataProxyResponse response = null;
-        try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/query")
-                    .body(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON))
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, DataProxyResponse.class);
-        } catch (Exception ex) {
-            fault();
-            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.query fault.", ex);
-        } finally {
-            afterInvoke("DataProxy.query");
-        }
-        return response;
     }
 
     /**
@@ -143,7 +104,7 @@ public class DataProxy {
      * @param params
      * @return
      */
-    public static Map queryForMapVenus(String serviceName, String operationName, Map<String, Object> params)
+    public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params)
     {
         beforeInvoke();
         DataProxyResponse response = null;
@@ -196,7 +157,7 @@ public class DataProxy {
      * @param requests
      * @return
      */
-    public static List<Map> queryForListVenus( List<DataProxyRequest> requests)
+    public static List<Map> queryForList( List<DataProxyRequest> requests)
     {
         beforeInvoke();
         List<Map> results = new ArrayList<Map>();
