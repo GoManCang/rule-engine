@@ -108,6 +108,13 @@
                 <groupId>com.ctrip.infosec.counter</groupId>
                 <artifactId>counter-api</artifactId>
                 <version>${counter.server.version}</version>
+            </dependency>            
+            
+            <!--dataproxy-venus-client-->
+            <dependency>
+                <groupId>com.ctrip.sec.userprofile</groupId>
+                <artifactId>userprofile-contract</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
             </dependency>
             
             <!-- Venus 3.x -->

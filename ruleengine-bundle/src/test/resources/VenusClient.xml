@@ -19,12 +19,31 @@
                 <property name="testOnBorrow">true</property>
                 <property name="testWhileIdle">true</property>
             </pool>
-        </remote>       
+        </remote>  
+
+        <remote name="dataproxy">
+            <factory>
+                <property name="ipAddressList">${DataProxy.Venus.ipAddressList}</property>
+                <property name="sendBufferSize">64</property>
+                <property name="receiveBufferSize">64</property>
+                <property name="soTimeout">5000</property>
+            </factory>
+            <pool>
+                <property name="maxActive">500</property>
+                <property name="maxIdle">500</property>
+                <property name="minIdle">3</property>
+                <property name="minEvictableIdleTimeMillis">60000</property>
+                <property name="timeBetweenEvictionRunsMillis">60000</property>
+                <property name="testOnBorrow">true</property>
+                <property name="testWhileIdle">true</property>
+            </pool>
+        </remote>     
     </remotes>
     
     <services>
         <service beanName="flowPolicyRemoteService" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteService" remote="remote"/>
         <service beanName="decisionDataRemoteService" type="com.ctrip.infosec.counter.venus.DecisionDataRemoteService" remote="remote"/>
+        <service beanName="dataProxyVenusService" type="com.ctrip.sec.userprofile.contract.venusapi.DataProxyVenusService" remote="dataproxy"/>
     </services>
     
 </venus-client>

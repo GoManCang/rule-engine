@@ -5,6 +5,9 @@
  */
 package com.ctrip.infosec.rule.converter;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
+
 /**
  * 预处理枚举
  *
@@ -12,28 +15,39 @@ package com.ctrip.infosec.rule.converter;
  */
 public enum PreActionEnums {
 
-    Ip2ProvinceCity("IP转省市", "ip"),
-    Mobile2ProvinceCity("手机号转省市", "mobile"),
-    UserProfileTags("获取UserProfile标签值", "uid", "tags"),
-    CrmUserInfo("获取CRM用户信息", "uid"),
-    CardInfoDecrypt("银行卡解密（CardInfo）", "cardInfoId"),
-    Airport3Code2City("机场三字码转城市", "airport3code");
+    Ip2ProvinceCity("IP转省市", new PreActionParam("ip", PreActionParam.FIELD)),
+    Mobile2ProvinceCity("手机号转省市", new PreActionParam("mobile", PreActionParam.FIELD)),
+    UserProfileTags("获取UserProfile标签值", new PreActionParam("uid", PreActionParam.FIELD), new PreActionParam("tags", PreActionParam.TEXT)),
+    CrmUserInfo("获取CRM用户信息", new PreActionParam("uid", PreActionParam.FIELD)),
+    CardInfoDecrypt("银行卡解密（CardInfo）", new PreActionParam("cardInfoId", PreActionParam.FIELD)),
+    Airport3Code2City("机场三字码转城市", new PreActionParam("airport3code", PreActionParam.FIELD));
     /**
      *
      */
     private String label;
-    private String[] fields;
+    private PreActionParam[] fields;
+    private static Map<String, PreActionEnums> valueMap = Maps.newHashMap();
 
-    private PreActionEnums(String label, String... fields) {
+    static {
+        for (PreActionEnums item : PreActionEnums.values()) {
+            valueMap.put(item.toString(), item);
+        }
+    }
+
+    private PreActionEnums(String label, PreActionParam... fields) {
         this.label = label;
         this.fields = fields;
+    }
+
+    public static PreActionEnums parse(String value) {
+        return valueMap.get(value);
     }
 
     public String getLabel() {
         return label;
     }
 
-    public String[] getFields() {
+    public PreActionParam[] getFields() {
         return fields;
     }
 
