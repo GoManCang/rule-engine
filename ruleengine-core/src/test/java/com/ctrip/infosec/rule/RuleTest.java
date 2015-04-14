@@ -13,17 +13,12 @@ import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResult;
-import com.ctrip.infosec.rule.model.DataProxyRequest;
-import com.ctrip.infosec.rule.model.DataProxyResponse;
 import com.ctrip.infosec.rule.resource.Counter;
-import com.ctrip.infosec.rule.resource.DataProxy;
+
 import static com.ctrip.infosec.rule.util.Emitter.emit;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 

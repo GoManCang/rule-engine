@@ -10,9 +10,11 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
-import com.ctrip.infosec.rule.model.DataProxyRequest;
-import com.ctrip.infosec.rule.model.DataProxyResponse;
 import com.ctrip.infosec.sars.util.GlobalConfig;
+import com.ctrip.infosec.sars.util.SpringContextHolder;
+import com.ctrip.sec.userprofile.contract.venusapi.DataProxyVenusService;
+import com.ctrip.sec.userprofile.vo.content.request.DataProxyRequest;
+import com.ctrip.sec.userprofile.vo.content.response.DataProxyResponse;
 import com.fasterxml.jackson.databind.JavaType;
 
 import java.util.*;
@@ -43,9 +45,35 @@ public class DataProxy {
     }
 
     /**
-     * 数据查询接口
+     * Rest数据查询接口（同上）
+     *
+     * @param serviceName
+     * @param operationName
+     * @param params
+     * @return
      */
-    public static DataProxyResponse query(DataProxyRequest request) {
+   /* public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
+        DataProxyRequest request = new DataProxyRequest();
+        request.setServiceName(serviceName);
+        request.setOperationName(operationName);
+        request.setParams(params);
+        return query(request).getResult();
+    }*/
+
+    public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
+        DataProxyRequest request = new DataProxyRequest();
+        request.setServiceName(serviceName);
+        request.setOperationName(operationName);
+        request.setParams(params);
+        return queryForFormatValue(request).getResult();
+    }
+
+    /**
+     *  Rest数据查询接口
+     * @param request
+     * @return
+     */
+    private static DataProxyResponse query(DataProxyRequest request) {
         check();
         beforeInvoke();
         DataProxyResponse response = null;
@@ -63,7 +91,12 @@ public class DataProxy {
         return response;
     }
 
-    public static DataProxyResponse queryForFormatValue(DataProxyRequest request)
+    /**
+     * Rest数据查询接口
+     * @param request
+     * @return
+     */
+    private static DataProxyResponse queryForFormatValue(DataProxyRequest request)
     {
         check();
         beforeInvoke();
@@ -85,7 +118,7 @@ public class DataProxy {
             {
                 Map newResult = getNewResult(response.getResult());
                 response.setResult(newResult);
-            }else if(request.getParams().get("tagName") != null)
+            }else if(request.getParams().get("tagNames") != null)
             {
                 List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
                 List<Map> newResults = new ArrayList<Map>();
@@ -101,6 +134,119 @@ public class DataProxy {
             }
         }
         return response;
+    }
+    //venus
+    /**
+     * 查询一个服务的接口
+     * @param serviceName
+     * @param operationName
+     * @param params
+     * @return
+     */
+    public static Map queryForOne(String serviceName, String operationName, Map<String, Object> params)
+    {
+        beforeInvoke();
+        DataProxyResponse response = null;
+        try {
+            DataProxyRequest request = new DataProxyRequest();
+            request.setServiceName(serviceName);
+            request.setOperationName(operationName);
+            request.setParams(params);
+            List<DataProxyRequest> requests = new ArrayList<DataProxyRequest>();
+            requests.add(request);
+            DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
+            List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
+            if(responses == null || responses.size()<1)
+            {
+                return new HashMap();
+            }
+            response = responses.get(0);
+            if(serviceName.equals("UserProfileService"))
+            {
+                if(request.getParams().get("tagName") != null)
+                {
+                    Map newResult = getNewResult(response.getResult());
+                    response.setResult(newResult);
+                }else if(request.getParams().get("tagNames") != null)
+                {
+                    List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+                    List<Map> newResults = new ArrayList<Map>();
+                    Iterator iterator = oldResults.iterator();
+                    while(iterator.hasNext())
+                    {
+                        Map oneResult = (Map)iterator.next();
+                        newResults.add(getNewResult(oneResult));
+                    }
+                    Map finalResult = new HashMap();
+                    finalResult.put("result",newResults);
+                    response.setResult(finalResult);
+                }
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForOne fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.queryForOne");
+        }
+        return response.getResult();
+    }
+
+    /**
+     * 批量查询的接口
+     * @param requests
+     * @return
+     */
+    public static List<Map> queryForList( List<DataProxyRequest> requests)
+    {
+        beforeInvoke();
+        List<Map> results = new ArrayList<Map>();
+        try {
+            DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
+            List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
+            if(responses == null || responses.size()<1)
+            {
+                return results;
+            }
+            for(int i = 0;i<responses.size();i++)
+            {
+                //这里得到的结果的顺序和请求的顺序是一致的
+                DataProxyRequest request = requests.get(i);
+                DataProxyResponse response = responses.get(i);
+                if(response.getResult() == null)
+                {
+                    results.add(new HashMap());
+                    continue;
+                }
+                if(request.getServiceName().equals("UserProfileService"))
+                {
+                    if(request.getParams().get("tagName") != null)
+                    {
+                        Map newResult = getNewResult(response.getResult());
+                        response.setResult(newResult);
+                    }else if(request.getParams().get("tagNames") != null)
+                    {
+                        List<Map> oldResults = (List<Map>)response.getResult().get("tagNames");
+                        List<Map> newResults = new ArrayList<Map>();
+                        Iterator iterator = oldResults.iterator();
+                        while(iterator.hasNext())
+                        {
+                            Map oneResult = (Map)iterator.next();
+                            newResults.add(getNewResult(oneResult));
+                        }
+                        Map finalResult = new HashMap();
+                        finalResult.put("result",newResults);
+                        response.setResult(finalResult);
+                    }
+                }
+                results.add(response.getResult());
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForList fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.queryForList");
+        }
+        return results;
     }
 
     /**
@@ -127,39 +273,4 @@ public class DataProxy {
         }
         return newResult;
     }
-    /**
-     * 数据查询接口（同上）
-     *
-     * @param serviceName
-     * @param operationName
-     * @param params
-     * @return
-     */
-    public static DataProxyResponse query(String serviceName, String operationName, Map<String, Object> params) {
-        DataProxyRequest request = new DataProxyRequest(serviceName, operationName, params);
-        return query(request);
-    }
-
-    /**
-     * 数据查询接口
-     */
-    public static List<DataProxyResponse> queries(List<DataProxyRequest> request) {
-        check();
-        beforeInvoke();
-        List<DataProxyResponse> response = null;
-        try {
-            String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/queries")
-                    .body(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON))
-                    .connectTimeout(1000).socketTimeout(5000)
-                    .execute().returnContent().asString();
-            response = JSON.parseObject(responseTxt, javaType);
-        } catch (Exception ex) {
-            fault();
-            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queries fault.", ex);
-        } finally {
-            afterInvoke("DataProxy.queries");
-        }
-        return response;
-    }
-
 }

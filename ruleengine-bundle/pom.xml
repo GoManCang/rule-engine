@@ -70,7 +70,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-                
+        <!--dataproxy-venus-client-->
+        <dependency>
+            <groupId>com.ctrip.sec.userprofile</groupId>
+            <artifactId>userprofile-contract</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

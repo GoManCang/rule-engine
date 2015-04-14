@@ -5,14 +5,12 @@
  */
 package com.ctrip.infosec.rule.resource;
 
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
-import com.ctrip.infosec.rule.model.DataProxyResponse;
+import com.ctrip.sec.userprofile.vo.content.response.DataProxyResponse;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.*;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -39,12 +37,11 @@ public class DataProxyTest {
         DataProxyResponse result1 = DataProxy.query(serviceName1, operationName1, params1);
         System.out.println("result1: " + JSON.toJSONString(result1.getResult()));*/
 
-        String serviceName = "CRMService";
+        /*String serviceName = "CRMService";
         String operationName = "getMemberInfo";
         Map params = ImmutableMap.of("uid", "wwwwww");
-        DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
 
-        Map result1 = result.getResult();
 
         /*String serviceName = "AirPortService";
         String operationName = "getAirPortCity";
@@ -58,34 +55,15 @@ public class DataProxyTest {
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "M00713231","tagNames",tagContents);
-        DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
-        Map result1 = result.getResult();
-        //change data form
-        //数据类型：int string boolean  list  datetime
-        //tagNames的情况
-        List<Map> oldResults = (List<Map>)result1.get("tagNames");
-        List<Map> newResults = new ArrayList<Map>();
-        Iterator iterator = oldResults.iterator();
-        while(iterator.hasNext())
-        {
-            Map oneResult = (Map)iterator.next();
-            newResults.add(getNewResult(oneResult));
-        }
-        Map finalResult = new HashMap();
-        finalResult.put("result",newResults);
-        result.setResult(finalResult);*/
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
+
 
         /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         //http://userprofile.infosec.ctripcorp.com/userprofileweb/;jsessionid=11099F242AD077BD1F8A53F60FA6E68B
-        Map params = ImmutableMap.of("uid", "M00713231","tagName","RECENT_IP");//STATUS  RECENT_IP
-        DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
-        Map result1 = result.getResult();
-        //change data form
-        //数据类型：int string boolean  list  datetime
-        //tagName的情况
-        Map newResult = getNewResult(result1);
-        System.out.println(newResult.size());*/
+        Map params = ImmutableMap.of("uid", "wwwwww","tagName","RECENT_IP");//STATUS  RECENT_IP
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        System.out.println(result.size());*/
 
         /*Map params = new HashMap();
         params.put("cardInfoId", "30075005");
