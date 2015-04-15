@@ -56,14 +56,14 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         Map result1 = result.getResult();*/
 
-       /* String serviceName = "UserProfileService";
+        String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
-        Map result = DataProxy.queryProfileTagsForMap(serviceName, operationName, params);
-        System.out.println(JSON.toJSONString(result));*/
+        Map result = DataProxy.query(serviceName, operationName, params);
+        System.out.println(JSON.toJSONString(result));
 
         /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";

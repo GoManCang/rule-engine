@@ -75,28 +75,17 @@ public class DataProxy {
         } finally {
             afterInvoke("DataProxy.query");
         }
-        /*if (response.getRtnCode() == 0
-                && request.getServiceName().equals("UserProfileService")) {
-            if (request.getParams().get("tagName") != null) {
-                Map newResult = getNewResult(response.getResult());
-                response.setResult(newResult);
-            } else if (request.getParams().get("tagNames") != null) {
-                List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
-                List<Map> newResults = new ArrayList<Map>();
-                Iterator iterator = oldResults.iterator();
-                while (iterator.hasNext()) {
-                    Map oneResult = (Map) iterator.next();
-                    newResults.add(getNewResult(oneResult));
-                }
-                Map finalResult = new HashMap();
-                finalResult.put("result", newResults);
-                response.setResult(finalResult);
-            }
-        }*/
         return response;
     }
 
 
+    /**
+     * 查询userProfiles的接口
+     * @param serviceName
+     * @param operationName
+     * @param params
+     * @return
+     */
     public static Map queryProfileTagsForMap(String serviceName, String operationName, Map<String, Object> params) {
         Map result = queryForMap(serviceName, operationName, params);
         if (params.get("tagName") != null) {
