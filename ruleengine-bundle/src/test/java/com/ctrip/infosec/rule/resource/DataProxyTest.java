@@ -98,7 +98,7 @@ public class DataProxyTest {
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        Map result = DataProxy.queryProfileTagsForMap(serviceName, operationName, params);
         System.out.println(result.size());
 
         /*String serviceName = "UserProfileService";
