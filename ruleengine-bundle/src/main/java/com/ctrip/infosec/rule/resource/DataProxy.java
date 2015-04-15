@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JavaType;
 
 import java.util.*;
 
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
@@ -32,26 +31,38 @@ import org.slf4j.LoggerFactory;
  * @author zhengby
  */
 public class DataProxy {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(DataProxy.class);
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
      */
     static final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
-    
+
     static final JavaType javaType = JSON.constructCollectionType(List.class, DataProxyResponse.class);
-    
+
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.Venus.ipAddressList\"配置项.");
     }
-    
+
     public static Map query(String serviceName, String operationName, Map<String, Object> params) {
         DataProxyRequest request = new DataProxyRequest();
         request.setServiceName(serviceName);
         request.setOperationName(operationName);
         request.setParams(params);
-        return queryForFormatValue(request).getResult();
+        DataProxyResponse response = query(request);
+        if (response.getRtnCode() != 0) {
+            logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.query fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
+            return null;
+        }
+
+        Map newResult = null;
+        if (request.getServiceName().equals("UserProfileService")) {
+            newResult = parseProfileResult(response.getResult());
+        } else {
+            newResult = response.getResult();
+        }
+        return newResult;
     }
 
     /**
@@ -60,7 +71,7 @@ public class DataProxy {
      * @param request
      * @return
      */
-    private static DataProxyResponse queryForFormatValue(DataProxyRequest request) {
+    private static DataProxyResponse query(DataProxyRequest request) {
         check();
         beforeInvoke();
         DataProxyResponse response = null;
@@ -75,48 +86,9 @@ public class DataProxy {
         } finally {
             afterInvoke("DataProxy.query");
         }
-        /*if (response.getRtnCode() == 0
-         && request.getServiceName().equals("UserProfileService")) {
-         if (request.getParams().get("tagName") != null) {
-         Map newResult = getNewResult(response.getResult());
-         response.setResult(newResult);
-         } else if (request.getParams().get("tagNames") != null) {
-         List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
-         List<Map> newResults = new ArrayList<Map>();
-         Iterator iterator = oldResults.iterator();
-         while (iterator.hasNext()) {
-         Map oneResult = (Map) iterator.next();
-         newResults.add(getNewResult(oneResult));
-         }
-         Map finalResult = new HashMap();
-         finalResult.put("result", newResults);
-         response.setResult(finalResult);
-         }
-         }*/
         return response;
     }
-    
-    public static Map queryProfileTagsForMap(String serviceName, String operationName, Map<String, Object> params) {
-        Map result = queryForMap(serviceName, operationName, params);
-        if (result != null) {
-            if (params.get("tagName") != null) {
-                return getNewResult(result);
-            } else if (params.get("tagNames") != null) {
-                Object tagValues = result.get("tagNames");
-                List oldResults = JSON.parseObject(JSON.toJSONString(tagValues), List.class);
-                Map newResults = new HashMap();
-                Iterator iterator = oldResults.iterator();
-                while (iterator.hasNext()) {
-                    Map oneResult = (Map) iterator.next();
-                    newResults.putAll(getNewResult(oneResult));
-                }
-                return newResults;
-            }
-        }
-        return null;
-    }
 
-    //venus
     /**
      * 查询一个服务的接口
      *
@@ -140,11 +112,19 @@ public class DataProxy {
                 return new HashMap();
             }
             DataProxyResponse response = responses.get(0);
-            if (response.getRtnCode() == 0) {
-                return response.getResult();
-            } else {
+            if (response.getRtnCode() != 0) {
                 logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
+                return null;
             }
+
+            Map newResult = null;
+            if (request.getServiceName().equals("UserProfileService")) {
+                newResult = parseProfileResult(response.getResult());
+            } else {
+                newResult = response.getResult();
+            }
+            return newResult;
+
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
@@ -166,35 +146,29 @@ public class DataProxy {
         try {
             DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
             List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
-            if (responses == null || responses.size() < 1) {
+            if (responses == null || responses.isEmpty()) {
                 return results;
             }
             for (int i = 0; i < responses.size(); i++) {
+
                 //这里得到的结果的顺序和请求的顺序是一致的
                 DataProxyRequest request = requests.get(i);
                 DataProxyResponse response = responses.get(i);
-                if (response.getResult() == null) {
-                    results.add(new HashMap());
+
+                if (response.getRtnCode() != 0) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForList[" + i + "] fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
                     continue;
                 }
+
+                Map newResult = null;
                 if (request.getServiceName().equals("UserProfileService")) {
-                    if (request.getParams().get("tagName") != null) {
-                        Map newResult = getNewResult(response.getResult());
-                        response.setResult(newResult);
-                    } else if (request.getParams().get("tagNames") != null) {
-                        List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
-                        List<Map> newResults = new ArrayList<Map>();
-                        Iterator iterator = oldResults.iterator();
-                        while (iterator.hasNext()) {
-                            Map oneResult = (Map) iterator.next();
-                            newResults.add(getNewResult(oneResult));
-                        }
-                        Map finalResult = new HashMap();
-                        finalResult.put("result", newResults);
-                        response.setResult(finalResult);
-                    }
+                    newResult = parseProfileResult(response.getResult());
+                } else {
+                    newResult = response.getResult();
                 }
-                results.add(response.getResult());
+                if (newResult != null) {
+                    results.add(newResult);
+                }
             }
         } catch (Exception ex) {
             fault();
@@ -206,22 +180,47 @@ public class DataProxy {
     }
 
     /**
-     * 转换数据格式 把从userProfile里面的数据转成Map的格式
-     *
-     * @param oldValue 原来的值
-     * @return
+     * 转换DataProxyResponse对象的result为Map
      */
-    private static Map getNewResult(Map oldValue) {
+    private static Map parseProfileResult(Map result) {
+        if (result != null) {
+            if (result.get("tagName") != null) {
+                return parseResult(result);
+            } else if (result.get("tagNames") != null) {
+                Object tagValues = result.get("tagNames");
+                List oldResults = JSON.parseObject(JSON.toJSONString(tagValues), List.class);
+                Map newResults = new HashMap();
+                Iterator iterator = oldResults.iterator();
+                while (iterator.hasNext()) {
+                    Map oneResult = (Map) iterator.next();
+                    newResults.putAll(parseResult(oneResult));
+                }
+                return newResults;
+            } else {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 转换数据格式 把从userProfile里面的数据转成Map的格式
+     */
+    private static Map parseResult(Map oldValue) {
         Map newResult = new HashMap();
         String tagDataType = oldValue.get("tagDataType") == null ? "" : oldValue.get("tagDataType").toString();
-        if (tagDataType.toLowerCase().equals("int") || tagDataType.toLowerCase().equals("string") || tagDataType.toLowerCase().equals("datetime")
+        if (tagDataType.toLowerCase().equals("int")
+                || tagDataType.toLowerCase().equals("string")
+                || tagDataType.toLowerCase().equals("datetime")
                 || tagDataType.toLowerCase().equals("boolean")) {
+
             String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
             String tagContent = oldValue.get("tagContent") == null ? "" : oldValue.get("tagContent").toString();
             newResult.put(tagName, tagContent);
+
         } else if (tagDataType.toLowerCase().equals("list")) {
+
             String tagName = oldValue.get("tagName") == null ? "" : oldValue.get("tagName").toString();
-            
             List tagContent = oldValue.get("tagContent") == null ? new ArrayList() : JSON.parseObject(JSON.toJSONString(oldValue.get("tagContent")), List.class);
             newResult.put(tagName, tagContent);
         }

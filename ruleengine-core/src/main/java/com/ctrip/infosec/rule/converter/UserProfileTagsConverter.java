@@ -53,7 +53,7 @@ public class UserProfileTagsConverter implements Converter {
         }
 
         Map params = ImmutableMap.of("uid", uidFieldValue, "tagNames", tags);
-        Map result = DataProxy.queryProfileTagsForMap(serviceName, operationName, params);
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
         if (result != null && !result.isEmpty()) {
             fact.eventBody.put(resultWrapper, result);
         }
