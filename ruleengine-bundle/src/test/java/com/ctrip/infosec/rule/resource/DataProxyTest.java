@@ -56,14 +56,14 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         Map result1 = result.getResult();*/
 
-        String serviceName = "UserProfileService";
+       /* String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
         Map result = DataProxy.queryProfileTagsForMap(serviceName, operationName, params);
-        System.out.println(JSON.toJSONString(result));
+        System.out.println(JSON.toJSONString(result));*/
 
         /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
@@ -92,21 +92,21 @@ public class DataProxyTest {
         System.out.println(result.size());*/
 
 
-        /*String serviceName = "UserProfileService";
+        String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());*/
+        System.out.println(result.size());
 
-        String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         //http://userprofile.infosec.ctripcorp.com/userprofileweb/;jsessionid=11099F242AD077BD1F8A53F60FA6E68B
         Map params = ImmutableMap.of("uid", "wwwwww","tagName","RECENT_IP");//STATUS  RECENT_IP
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());
+        System.out.println(result.size());*/
     }
     public Map getNewResult(Map oldValue)
     {

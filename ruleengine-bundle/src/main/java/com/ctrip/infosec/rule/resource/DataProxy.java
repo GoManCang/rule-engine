@@ -75,29 +75,30 @@ public class DataProxy {
         } finally {
             afterInvoke("DataProxy.query");
         }
-//        if (response.getRtnCode() == 0
-//                && request.getServiceName().equals("UserProfileService")) {
-//            if (request.getParams().get("tagName") != null) {
-//                Map newResult = getNewResult(response.getResult());
-//                response.setResult(newResult);
-//            } else if (request.getParams().get("tagNames") != null) {
-//                List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
-//                List<Map> newResults = new ArrayList<Map>();
-//                Iterator iterator = oldResults.iterator();
-//                while (iterator.hasNext()) {
-//                    Map oneResult = (Map) iterator.next();
-//                    newResults.add(getNewResult(oneResult));
-//                }
-//                Map finalResult = new HashMap();
-//                finalResult.put("result", newResults);
-//                response.setResult(finalResult);
-//            }
-//        }
+        /*if (response.getRtnCode() == 0
+                && request.getServiceName().equals("UserProfileService")) {
+            if (request.getParams().get("tagName") != null) {
+                Map newResult = getNewResult(response.getResult());
+                response.setResult(newResult);
+            } else if (request.getParams().get("tagNames") != null) {
+                List<Map> oldResults = (List<Map>) response.getResult().get("tagNames");
+                List<Map> newResults = new ArrayList<Map>();
+                Iterator iterator = oldResults.iterator();
+                while (iterator.hasNext()) {
+                    Map oneResult = (Map) iterator.next();
+                    newResults.add(getNewResult(oneResult));
+                }
+                Map finalResult = new HashMap();
+                finalResult.put("result", newResults);
+                response.setResult(finalResult);
+            }
+        }*/
         return response;
     }
 
+
     public static Map queryProfileTagsForMap(String serviceName, String operationName, Map<String, Object> params) {
-        Map result = query(serviceName, operationName, params);
+        Map result = queryForMap(serviceName, operationName, params);
         if (params.get("tagName") != null) {
             return getNewResult(result);
         } else if (params.get("tagNames") != null) {
@@ -106,13 +107,12 @@ public class DataProxy {
             Iterator iterator = oldResults.iterator();
             while (iterator.hasNext()) {
                 Map oneResult = (Map) iterator.next();
-                newResults.putAll(oneResult);
+                newResults.putAll(getNewResult(oneResult));
             }
             return newResults;
         }
         return null;
     }
-
     //venus
     /**
      * 查询一个服务的接口
