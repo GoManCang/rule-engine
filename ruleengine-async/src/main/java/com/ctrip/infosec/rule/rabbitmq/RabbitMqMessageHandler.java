@@ -11,6 +11,8 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.model.RiskResult;
+import com.ctrip.infosec.configs.Configs;
+import com.ctrip.infosec.configs.event.CallbackRule;
 import com.ctrip.infosec.configs.utils.Utils;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
@@ -20,6 +22,8 @@ import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import java.util.Date;
+import java.util.Map;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,9 +97,9 @@ public class RabbitMqMessageHandler {
                     // 发送Callback给PD
                     try {
                         beforeInvoke();
-                        if ("CP0031001".equals(fact.eventPoint)) {
-                            RiskResult result = buildRiskResult(fact);
-                            callbackMessageSender.sendToPD(result);
+                        CallbackRule callbackRule = Configs.getCallbackRule(fact.eventPoint);
+                        if (callbackRule.isEnabled()) {
+                            callbackMessageSender.sendToPD(buildRiskResult(fact, callbackRule));
                         }
                     } catch (Exception ex) {
                         fault();
@@ -114,17 +118,39 @@ public class RabbitMqMessageHandler {
     /**
      * 组装Callback的报文
      */
-    RiskResult buildRiskResult(RiskFact fact) {
+    RiskResult buildRiskResult(RiskFact fact, CallbackRule callbackRule) {
         RiskResult result = new RiskResult();
         result.setEventPoint(fact.eventPoint);
         result.setEventId(fact.eventId);
         result.getResults().putAll(fact.finalResult);
-        result.getResults().put("orderId", fact.eventBody.get("orderID"));
-        result.getResults().put("hotelId", fact.eventBody.get("hotelID"));
+
+        // 需要返回给PD的额外字段
+        Map<String, String> fieldMapping = callbackRule.getFieldMapping();
+        if (fieldMapping != null && !fieldMapping.isEmpty()) {
+            for (String fieldName : fieldMapping.keySet()) {
+                String newFieldName = fieldMapping.get(fieldName);
+                Object fieldValue = getNestedProperty(fact, fieldName);
+                if (fieldValue != null) {
+                    result.getResults().put(newFieldName, fieldValue);
+                }
+            }
+        }
+//        result.getResults().put("orderId", fact.eventBody.get("orderID"));
+//        result.getResults().put("hotelId", fact.eventBody.get("hotelID"));
 
         result.setRequestTime(fact.requestTime);
         result.setRequestReceive(fact.requestReceive);
         result.setResponseTime(Utils.fastDateFormatInMicroSecond.format(new Date()));
         return result;
+    }
+
+    Object getNestedProperty(Object factOrEventBody, String columnExpression) {
+        try {
+            Object value = PropertyUtils.getNestedProperty(factOrEventBody, columnExpression);
+            return value;
+        } catch (Exception ex) {
+            logger.info(Contexts.getLogPrefix() + "getNestedProperty fault. message: " + ex.getMessage());
+        }
+        return null;
     }
 }
