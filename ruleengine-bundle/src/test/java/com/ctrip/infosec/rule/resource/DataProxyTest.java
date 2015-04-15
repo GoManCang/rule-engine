@@ -7,6 +7,7 @@ package com.ctrip.infosec.rule.resource;
 
 import com.ctrip.sec.userprofile.vo.content.response.DataProxyResponse;
 import com.google.common.collect.ImmutableMap;
+import com.meidusa.fastjson.JSON;
 
 import java.util.*;
 
@@ -30,12 +31,12 @@ public class DataProxyTest {
     public void testQuery() {
         //测试rest接口的DataProxy查询
 
-        System.out.println("query");
-        String serviceName = "IpService";
-        String operationName = "getIpArea";
-        Map params = ImmutableMap.of("ip", "202.96.209.133");
-        Map result = DataProxy.query(serviceName, operationName, params);
-        System.out.println(result.size());
+//        System.out.println("query");
+//        String serviceName = "IpService";
+//        String operationName = "getIpArea";
+//        Map params = ImmutableMap.of("ip", "202.96.209.133");
+//        Map result = DataProxy.query(serviceName, operationName, params);
+//        System.out.println(result.size());
 
         /*String serviceName1 = "MobilePhoneService";
         String operationName1 = "getMobileArea";
@@ -55,14 +56,14 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         Map result1 = result.getResult();*/
 
-        /*String serviceName = "UserProfileService";
+        String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
-        Map result = DataProxy.queryForMapRest(serviceName, operationName, params);
-        System.out.println(result.size());*/
+        Map result = DataProxy.queryProfileTagsForMap(serviceName, operationName, params);
+        System.out.println(JSON.toJSONString(result));
 
         /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
