@@ -49,7 +49,22 @@ public class DataProxyTest {
          Map params = ImmutableMap.of("uid", "wwwwww");
          Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
         /*String serviceName = "AirPortService";
-         String operationName = "getAirPortCity";
+
+        String operationName = "getAirPortCity";
+        Map params = ImmutableMap.of("airport", "PEK");
+        DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
+        Map result1 = result.getResult();*/
+
+        String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        List tagContents = new ArrayList();
+        tagContents.add("RECENT_IP");
+        tagContents.add("RECENT_IPAREA");
+        Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
+        Map result = DataProxy.query(serviceName, operationName, params);
+        System.out.println(JSON.toJSONString(result));
+
+         /*String operationName = "getAirPortCity";
          Map params = ImmutableMap.of("airport", "PEK");
          DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
          Map result1 = result.getResult();*/
@@ -62,6 +77,7 @@ public class DataProxyTest {
          Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
          Map result = DataProxy.queryProfileTagsForMap(serviceName, operationName, params);
          System.out.println(JSON.toJSONString(result));*/
+
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";

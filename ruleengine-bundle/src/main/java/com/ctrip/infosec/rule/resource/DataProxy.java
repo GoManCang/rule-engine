@@ -90,6 +90,31 @@ public class DataProxy {
     }
 
     /**
+     * 查询userProfiles的接口
+     * @param serviceName
+     * @param operationName
+     * @param params
+     * @return
+     */
+    public static Map queryProfileTagsForMap(String serviceName, String operationName, Map<String, Object> params) {
+        Map result = queryForMap(serviceName, operationName, params);
+        if (params.get("tagName") != null) {
+            return parseResult(result);
+        } else if (params.get("tagNames") != null) {
+            List<Map> oldResults = (List<Map>) result.get("tagNames");
+            Map newResults = new HashMap();
+            Iterator iterator = oldResults.iterator();
+            while (iterator.hasNext()) {
+                Map oneResult = (Map) iterator.next();
+                newResults.putAll(parseResult(oneResult));
+            }
+            return newResults;
+        }
+        return null;
+    }
+    //venus
+
+    /**
      * 查询一个服务的接口
      *
      * @param serviceName
