@@ -1,5 +1,8 @@
 package com.ctrip.infosec.rule.executor;
 
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.rule.Contexts;
@@ -53,15 +56,23 @@ public class EventDataMergeService {
      * 处理推送数据到redis和从redis获取数据
      */
     public RiskFact executeRedisOption(RiskFact fact) {
-        Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
-        //read and merge data to current fact
-        if (fieldsToGet != null && fieldsToGet != Collections.EMPTY_MAP) {
-            readAndMerge(fact, fieldsToGet);
-        }
-        //send data to redis for next get
-        Map<String, Set<String>> fieldsToPut = Configs.getEventMergeFieldsToPut(fact);
-        if (fieldsToPut != null && fieldsToPut != Collections.EMPTY_MAP) {
-            sendToRedis(fact, fieldsToPut);
+        beforeInvoke();
+        try {
+            Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
+            //read and merge data to current fact
+            if (fieldsToGet != null && !fieldsToGet.isEmpty()) {
+                readAndMerge(fact, fieldsToGet);
+            }
+            //send data to redis for next get
+            Map<String, Set<String>> fieldsToPut = Configs.getEventMergeFieldsToPut(fact);
+            if (fieldsToPut != null && !fieldsToPut.isEmpty()) {
+                sendToRedis(fact, fieldsToPut);
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "exec execute merge fault.", ex);
+        } finally {
+            afterInvoke("EventDataMergeService.executeRedisMerge");
         }
         return fact;
     }
@@ -119,7 +130,7 @@ public class EventDataMergeService {
             boolean sendSuccess = cacheProvider.set((String) redisKey, redisValueStr);
             boolean setExpireTime = cacheProvider.expire((String) redisKey, liveTime);
             if (!sendSuccess) {
-                logger.error(fact.eventId + "\t" + "Send " + redisKey + "=" + redisValueStr + " into redis failed!");
+                logger.error(Contexts.getLogPrefix() + "Send " + redisKey + "=" + redisValueStr + " into redis failed!");
             }
         }
         return fact;
