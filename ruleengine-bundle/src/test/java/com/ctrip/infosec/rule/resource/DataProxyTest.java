@@ -102,11 +102,20 @@ public class DataProxyTest {
          Map result = DataProxy.queryForMap(serviceName, operationName, params);
          System.out.println(result.size());*/
 
-        String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
+        Map params = ImmutableMap.of("uid", "wwwwww", "tagNames", tagContents);
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        System.out.println(result.size());*/
+
+        String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        List tagContents = new ArrayList();
+        tagContents.add("MOB_BOUND");
+        tagContents.add("RECENT_IP");
         Map params = ImmutableMap.of("uid", "wwwwww", "tagNames", tagContents);
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
         System.out.println(result.size());
