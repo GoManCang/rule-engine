@@ -64,6 +64,7 @@ public class FrozenAccount {
             content.append("<OperStatus>" + params.get("operStatus") + "</OperStatus>");
             content.append("<Oper>" + params.get("oper") + "</Oper>");
             content.append("<Remark>" + params.get("remark") + "</Remark>");
+            //String newContent = new String(content.toString().getBytes("utf-8")).toString();
             String xml = ESBClient.requestESB("Payment.CardRisk.InfoSecurity.EnterFULogMessage", "<FULogMessageRequest>" + content + "</FULogMessageRequest>");
             if (xml == null || xml.isEmpty()) {
                 return result;

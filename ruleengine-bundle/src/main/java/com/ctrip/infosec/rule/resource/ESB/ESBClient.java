@@ -42,7 +42,7 @@ public class ESBClient {
         soapRequestSOAPData.append("</SOAP-ENV:Body>");
         soapRequestSOAPData.append("</SOAP-ENV:Envelope>");
 
-        String response = Request.Post(esbConfig.getESBUrl()).body(new StringEntity(soapRequestSOAPData.toString())).
+        String response = Request.Post(esbConfig.getESBUrl()).body(new StringEntity(soapRequestSOAPData.toString(),"UTF-8")).
                 addHeader("Content-Type", "application/soap+xml; charset=utf-8").connectTimeout(5000).socketTimeout(5000).
                 execute().returnContent().asString();
         return response;
