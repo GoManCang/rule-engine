@@ -73,7 +73,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <httpclient.version>4.3.2</httpclient.version>
         <sars.util.version>1.0.1</sars.util.version>
-        <infosec.monitor.version>1.0.2</infosec.monitor.version>
+        <infosec.monitor.version>1.0.3</infosec.monitor.version>
         <configs.client.version>1.0.3-SNAPSHOT</configs.client.version>
         <counter.server.version>1.0.2-SNAPSHOT</counter.server.version>
     </properties>
