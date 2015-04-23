@@ -28,24 +28,42 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  * @author zhengby
  */
 public class FrozenAccount {
+
     private static Logger logger = LoggerFactory.getLogger(FrozenAccount.class);
     private static StringBuffer content = new StringBuffer();
 
+    public static Map frozen(String uid, String remark, String oper) {
+        Map<String, String> result = new HashMap();
+        result.put("uid", uid);
+        result.put("operStatus", "T"); //T=冻解 F=解冻
+        result.put("oper", oper);
+        result.put("remark", remark);
+        return frozenOrNot(result);
+    }
+
+    public static Map unfrozen(String uid, String remark, String oper) {
+        Map<String, String> result = new HashMap();
+        result.put("uid", uid);
+        result.put("operStatus", "F"); //T=冻解 F=解冻
+        result.put("oper", oper);
+        result.put("remark", remark);
+        return frozenOrNot(result);
+    }
+
     /**
      * 添加是否解冻支付风控账户
+     *
      * @param params
      * @return
      */
-    public static Map frozenOrNot(Map params)
-    {
+    private static Map frozenOrNot(Map params) {
         beforeInvoke();
         Map<String, String> result = new HashMap();
-        try
-        {
-            content.append("<Uid>"+params.get("uid")+"</Uid>");
-            content.append("<OperStatus>"+params.get("operStatus")+"</OperStatus>");
-            content.append("<Oper>"+params.get("oper")+"</Oper>");
-            content.append("<Remark>"+params.get("remark")+"</Remark>");
+        try {
+            content.append("<Uid>" + params.get("uid") + "</Uid>");
+            content.append("<OperStatus>" + params.get("operStatus") + "</OperStatus>");
+            content.append("<Oper>" + params.get("oper") + "</Oper>");
+            content.append("<Remark>" + params.get("remark") + "</Remark>");
             String xml = ESBClient.requestESB("Payment.CardRisk.InfoSecurity.EnterFULogMessage", "<FULogMessageRequest>" + content + "</FULogMessageRequest>");
             if (xml == null || xml.isEmpty()) {
                 return result;
