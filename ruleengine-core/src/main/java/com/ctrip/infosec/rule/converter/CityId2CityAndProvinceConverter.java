@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by lpxie on 15-4-23.
  */
-@Service("cityIdToCityAndProvince")
+@Service("cityId2CityAndProvinceConverter")
 public class CityId2CityAndProvinceConverter implements Converter
 {
     private static final Logger logger = LoggerFactory.getLogger(CityId2CityAndProvinceConverter.class);
