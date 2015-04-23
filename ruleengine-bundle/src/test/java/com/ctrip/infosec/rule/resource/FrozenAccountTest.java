@@ -21,11 +21,11 @@ public class FrozenAccountTest
         params.put("oper","");
         params.put("remark","冻结解冻账户");
 
-        /*Map result = FrozenAccount.frozenOrNot(params);
-        Assert.assertNotNull(result);*/
+        Map result = FrozenAccount.frozenOrNot(params);
+        Assert.assertNotNull(result);
 
-        params.put("operStatus","F"); //T=冻解 F=解冻
+        /*params.put("operStatus","F"); //T=冻解 F=解冻
         Map result1 = FrozenAccount.frozenOrNot(params);
-        Assert.assertNotNull(result1);
+        Assert.assertNotNull(result1);*/
     }
 }

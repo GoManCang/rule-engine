@@ -25,7 +25,18 @@ public class UpdateOrderStatus
     private static Logger logger = LoggerFactory.getLogger(UpdateOrderStatus.class);
     private static StringBuffer content = new StringBuffer();
 
-    public static Map updateOrderStatus(Map params)
+    public static Map updateStatus(String orderId,String orderType,String orderStatus,String merchantOrderID,String orderTime)
+    {
+        Map params = new HashMap();
+        params.put("OrderID",orderId);
+        params.put("OrderType",orderType);
+        params.put("OrderStatus",orderStatus);
+        params.put("MerchantOrderID",merchantOrderID);
+        params.put("OrderTime",orderTime);
+        return updateOrderStatus(params);
+    }
+
+    private static Map updateOrderStatus(Map params)
     {
         beforeInvoke();
         Map<String, String> result = new HashMap();
