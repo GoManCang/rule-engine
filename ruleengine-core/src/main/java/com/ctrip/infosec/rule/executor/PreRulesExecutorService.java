@@ -46,7 +46,6 @@ public class PreRulesExecutorService {
      * 串行执行
      */
     void execute(RiskFact fact, boolean isAsync) {
-
         // matchRules      
         List<PreRule> matchedRules = Configs.matchPreRules(fact);
         List<String> scriptRulePackageNames = Lists.newArrayList();

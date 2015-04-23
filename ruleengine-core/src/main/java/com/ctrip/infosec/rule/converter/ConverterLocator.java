@@ -32,6 +32,9 @@ public class ConverterLocator {
     //
     @Resource(name = "airport3Code2CityConverter")
     private Converter airport3Code2CityConverter;
+    //
+    @Resource(name = "cityId2CityAndProvinceConverter")
+    private Converter cityId2CityAndProvinceConverter;
 
     /**
      * 根据PreActionEnums查找对应的Converter
@@ -50,6 +53,8 @@ public class ConverterLocator {
                 return cardInfoDecryptConverter;
             case Airport3Code2City:
                 return airport3Code2CityConverter;
+            case CityId2CityAndProvince:
+                return cityId2CityAndProvinceConverter;
             default:
                 return null;
         }

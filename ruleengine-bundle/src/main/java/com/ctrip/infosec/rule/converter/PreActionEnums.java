@@ -33,7 +33,11 @@ public enum PreActionEnums {
             new PreActionParam("cardInfoId", PreActionParam.FIELD)),
     Airport3Code2City(
             "机场三字码转城市",
-            new PreActionParam("airport3code", PreActionParam.FIELD));
+            new PreActionParam("airport3code", PreActionParam.FIELD)),
+    CityId2CityAndProvince(
+            "城市id转城市",
+            new PreActionParam("cityId",PreActionParam.FIELD)
+    );
 
     /**
      *
