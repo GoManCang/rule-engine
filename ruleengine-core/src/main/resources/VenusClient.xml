@@ -50,6 +50,10 @@
     <services>
         <service beanName="flowPolicyRemoteService" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteService" remote="remote"/>
         <service beanName="decisionDataRemoteService" type="com.ctrip.infosec.counter.venus.DecisionDataRemoteService" remote="remote"/>
+        <!-- 名单库 -->
+        <service beanName="listRepoRemoteService" type="com.ctrip.infosec.counter.venus.ListRepoRemoteService" remote="remote"/>
+        <service beanName="complexListRepoRemoteService" type="com.ctrip.infosec.counter.venus.ComplexListRepoRemoteService" remote="remote"/>
+        <!-- DataProxy -->
         <service beanName="dataProxyVenusService" type="com.ctrip.sec.userprofile.contract.venusapi.DataProxyVenusService" remote="dataproxy"/>
     </services>
     
