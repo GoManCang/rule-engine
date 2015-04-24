@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.resource.ESB;
 
+import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Request;
@@ -42,7 +43,7 @@ public class ESBClient {
         soapRequestSOAPData.append("</SOAP-ENV:Body>");
         soapRequestSOAPData.append("</SOAP-ENV:Envelope>");
 
-        String response = Request.Post(esbConfig.getESBUrl()).body(new StringEntity(soapRequestSOAPData.toString(),"UTF-8")).
+        String response = Request.Post(esbConfig.getESBUrl()).body(new StringEntity(soapRequestSOAPData.toString(), "UTF-8")).
                 addHeader("Content-Type", "application/soap+xml; charset=utf-8").connectTimeout(5000).socketTimeout(5000).
                 execute().returnContent().asString();
         return response;
@@ -68,7 +69,11 @@ public class ESBClient {
         requestContent.append(requestBody);
         requestContent.append("</Request>");
 
-        String soapResponseData = requestWithSoap(requestContent.toString());
+        String request = requestContent.toString();
+        logger.info(Contexts.getLogPrefix() + "FrozenAccount: request=" + request);
+        String soapResponseData = requestWithSoap(request);
+        logger.info(Contexts.getLogPrefix() + "FrozenAccount: response=" + soapResponseData);
+
         if (soapResponseData != null && !soapResponseData.isEmpty()) {
             responseBody = response(soapResponseData);
         }
