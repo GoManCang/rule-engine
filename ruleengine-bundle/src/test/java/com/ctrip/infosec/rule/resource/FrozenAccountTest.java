@@ -14,7 +14,7 @@ public class FrozenAccountTest {
     @Test
     public void testFrozenOrNot() {
 
-        Map result1 = FrozenAccount.frozen("test121", "冻结解冻账户", "zhengby");
+        Map result1 = FrozenAccount.frozen("E181160046", "冻结解冻账户", "zhengby");
         System.out.print("result1: " + JSON.toJSONString(result1));
         Assert.assertNotNull(result1);
 

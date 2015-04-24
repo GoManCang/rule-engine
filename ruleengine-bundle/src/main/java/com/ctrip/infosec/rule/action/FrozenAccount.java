@@ -7,9 +7,7 @@ package com.ctrip.infosec.rule.action;
 
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.ESB.ESBClient;
-import org.dom4j.Document;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
+import org.dom4j.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +68,17 @@ public class FrozenAccount {
                 return result;
             }
             Document document = DocumentHelper.parseText(xml);
+
             String xpath = "/Response/FULogMessageResponse";
             List<Element> list = document.selectNodes(xpath);
             if (list == null || list.isEmpty()) {
+                /*xpath = "/Response/Header";
+                Element header = (Element)document.selectSingleNode(xpath);
+                Attribute resultCode = header.attribute("ResultCode");
+                Attribute resultMsg = header.attribute("ResultMsg");
+                result.put("resultCode",resultCode.getValue());
+                result.put("resultMsg",resultMsg.getValue());*/
+                result.put("result",xml);
                 return result;
             }
 
