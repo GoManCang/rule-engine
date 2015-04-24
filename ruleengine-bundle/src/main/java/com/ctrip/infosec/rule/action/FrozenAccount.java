@@ -28,7 +28,6 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 public class FrozenAccount {
 
     private static Logger logger = LoggerFactory.getLogger(FrozenAccount.class);
-    private static StringBuffer content = new StringBuffer();
 
     public static Map frozen(String uid, String remark, String oper) {
         Map<String, String> result = new HashMap();
@@ -58,12 +57,15 @@ public class FrozenAccount {
         beforeInvoke();
         Map<String, String> result = new HashMap();
         try {
-            content.append("<Uid>" + params.get("uid") + "</Uid>");
-            content.append("<OperStatus>" + params.get("operStatus") + "</OperStatus>");
-            content.append("<Oper>" + params.get("oper") + "</Oper>");
-            content.append("<Remark>" + params.get("remark") + "</Remark>");
-            //String newContent = new String(content.toString().getBytes("utf-8")).toString();
-            String xml = ESBClient.requestESB("Payment.CardRisk.InfoSecurity.EnterFULogMessage", "<FULogMessageRequest>" + content + "</FULogMessageRequest>");
+            StringBuilder content = new StringBuilder();
+            content.append("<Uid>").append(params.get("uid")).append("</Uid>");
+            content.append("<OperStatus>").append(params.get("operStatus")).append("</OperStatus>");
+            content.append("<Oper>").append(params.get("oper")).append("</Oper>");
+            content.append("<Remark>").append(params.get("remark")).append("</Remark>");
+            String request = "<FULogMessageRequest>" + content.toString() + "</FULogMessageRequest>";
+            logger.info(Contexts.getLogPrefix() + "FrozenAccount: request=" + request);
+            String xml = ESBClient.requestESB("Payment.CardRisk.InfoSecurity.EnterFULogMessage", request);
+            logger.info(Contexts.getLogPrefix() + "FrozenAccount: response=" + xml);
             if (xml == null || xml.isEmpty()) {
                 return result;
             }
@@ -73,12 +75,12 @@ public class FrozenAccount {
             List<Element> list = document.selectNodes(xpath);
             if (list == null || list.isEmpty()) {
                 /*xpath = "/Response/Header";
-                Element header = (Element)document.selectSingleNode(xpath);
-                Attribute resultCode = header.attribute("ResultCode");
-                Attribute resultMsg = header.attribute("ResultMsg");
-                result.put("resultCode",resultCode.getValue());
-                result.put("resultMsg",resultMsg.getValue());*/
-                result.put("result",xml);
+                 Element header = (Element)document.selectSingleNode(xpath);
+                 Attribute resultCode = header.attribute("ResultCode");
+                 Attribute resultMsg = header.attribute("ResultMsg");
+                 result.put("resultCode",resultCode.getValue());
+                 result.put("resultMsg",resultMsg.getValue());*/
+                result.put("result", xml);
                 return result;
             }
 
@@ -93,7 +95,6 @@ public class FrozenAccount {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke FrozenAccount.frozenOrNot fault.", ex);
         } finally {
-            content.setLength(0);
             afterInvoke("FrozenAccount.frozenOrNot");
         }
         return result;
