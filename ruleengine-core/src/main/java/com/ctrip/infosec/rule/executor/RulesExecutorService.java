@@ -12,6 +12,7 @@ import com.ctrip.infosec.configs.utils.BeanMapper;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -124,10 +125,12 @@ public class RulesExecutorService {
 
                 // add current execute ruleNo before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
 
                 statelessRuleEngine.execute(packageName, fact);
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
+                fact.ext.remove(Constants.key_logPrefix);
 
                 clock.stop();
                 long handlingTime = clock.getTime();
@@ -169,6 +172,7 @@ public class RulesExecutorService {
             try {
                 //add current execute ruleNo before execution
                 factCopy.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                factCopy.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
 
                 runs.add(new Callable<RuleExecuteResultWithEvent>() {
 
