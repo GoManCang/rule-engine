@@ -9,7 +9,11 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
+import com.ctrip.infosec.configs.utils.concurrent.MethodProxyFactory;
+import com.ctrip.infosec.configs.utils.concurrent.PoolConfig;
+import com.ctrip.infosec.configs.utils.concurrent.PooledMethodProxy;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.ctrip.sec.userprofile.contract.venusapi.DataProxyVenusService;
@@ -18,6 +22,8 @@ import com.ctrip.sec.userprofile.vo.content.response.DataProxyResponse;
 import com.fasterxml.jackson.databind.JavaType;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Request;
@@ -43,6 +49,47 @@ public class DataProxy {
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.Venus.ipAddressList\"配置项.");
+        initDataProxyVenusServiceProxy();
+    }
+
+    /**
+     * 异步模拟同步（多线程）调用DataProxy.
+     */
+    static PooledMethodProxy dataProxyVenusServiceProxy;
+    private static final int coreSize = GlobalConfig.getInteger("pooled.sync.coreSize", 32);
+    private static final int maxThreadSize = GlobalConfig.getInteger("pooled.sync.maxThreadSize", 512);
+    private static final int keepAliveTime = GlobalConfig.getInteger("pooled.sync.keepAliveTime", 60);
+    private static final int queueSize = GlobalConfig.getInteger("pooled.sync.queueSize", -1);
+    private static Lock lock = new ReentrantLock();
+
+    /**
+     * 初始化DataProxy执行的POOL
+     */
+    static void initDataProxyVenusServiceProxy() {
+        if (dataProxyVenusServiceProxy == null) {
+            lock.lock();
+            try {
+                if (dataProxyVenusServiceProxy == null) {
+                    logger.info(SarsMonitorContext.getLogPrefix() + "init data proxy client ...");
+                    DataProxyVenusService service = SpringContextHolder.getBean(DataProxyVenusService.class);
+                    PooledMethodProxy proxy = MethodProxyFactory
+                            .newMethodProxy(service, "dataproxyQueries", List.class)
+                            .supportAsyncInvoke()
+                            .pooledWithConfig(new PoolConfig()
+                                    .withCorePoolSize(coreSize)
+                                    .withKeepAliveTime(keepAliveTime)
+                                    .withMaxPoolSize(maxThreadSize)
+                                    .withQueueSize(queueSize)
+                            );
+                    dataProxyVenusServiceProxy = proxy;
+                    logger.info(SarsMonitorContext.getLogPrefix() + "init data proxy client ... OK");
+                }
+            } catch (Exception ex) {
+                logger.info(SarsMonitorContext.getLogPrefix() + "init data proxy client ... Exception", ex);
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     public static Map query(String serviceName, String operationName, Map<String, Object> params) {
@@ -91,6 +138,7 @@ public class DataProxy {
 
     /**
      * 查询userProfiles的接口
+     *
      * @param serviceName
      * @param operationName
      * @param params
@@ -123,6 +171,7 @@ public class DataProxy {
      * @return
      */
     public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
+        check();
         beforeInvoke();
         try {
             DataProxyRequest request = new DataProxyRequest();
@@ -131,8 +180,11 @@ public class DataProxy {
             request.setParams(params);
             List<DataProxyRequest> requests = new ArrayList<DataProxyRequest>();
             requests.add(request);
-            DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
-            List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
+
+//            DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
+//            List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
+            List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(500, requests);
+
             if (responses == null || responses.size() < 1) {
                 return new HashMap();
             }
@@ -166,6 +218,7 @@ public class DataProxy {
      * @return
      */
     public static List<Map> queryForList(List<DataProxyRequest> requests) {
+        check();
         beforeInvoke();
         List<Map> results = new ArrayList<Map>();
         try {
