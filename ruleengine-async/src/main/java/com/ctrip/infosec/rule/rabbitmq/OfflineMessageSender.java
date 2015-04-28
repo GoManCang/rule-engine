@@ -21,7 +21,7 @@ public class OfflineMessageSender {
 
     @Resource(name = "template_offline4j")
     private AmqpTemplate template;
-    private final String defaultRoutingKey = "callback";
+    private final String defaultRoutingKey = "offline4j";
 
     public void sendToOffline(RiskFact fact) {
         template.convertAndSend(defaultRoutingKey, JSON.toJSONString(fact));
