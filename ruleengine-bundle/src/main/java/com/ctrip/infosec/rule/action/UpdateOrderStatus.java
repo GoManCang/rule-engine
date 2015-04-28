@@ -20,33 +20,20 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 /**
  * Created by lpxie on 15-4-20.
  */
-public class UpdateOrderStatus
-{
+public class UpdateOrderStatus {
+
     private static Logger logger = LoggerFactory.getLogger(UpdateOrderStatus.class);
     private static StringBuffer content = new StringBuffer();
 
-    public static Map updateStatus(String orderId,String orderType,String orderStatus,String merchantOrderID,String orderTime)
-    {
-        Map params = new HashMap();
-        params.put("OrderID",orderId);
-        params.put("OrderType",orderType);
-        params.put("OrderStatus",orderStatus);
-        params.put("MerchantOrderID",merchantOrderID);
-        params.put("OrderTime",orderTime);
-        return updateOrderStatus(params);
-    }
-
-    private static Map updateOrderStatus(Map params)
-    {
+    public static Map updateOrderStatus(Map params) {
         beforeInvoke();
         Map<String, String> result = new HashMap();
-        try
-        {
-            content.append("<OrderID>"+params.get("OrderID")+"</OrderID>");
-            content.append("<OrderType>"+params.get("OrderType")+"</OrderType>");
-            content.append("<OrderStatus>"+params.get("OrderStatus")+"</OrderStatus>");
-            content.append("<MerchantOrderID>"+params.get("MerchantOrderID")+"</MerchantOrderID>");
-            content.append("<OrderTime>"+params.get("OrderTime")+"</OrderTime>");
+        try {
+            content.append("<OrderID>" + params.get("OrderID") + "</OrderID>");
+            content.append("<OrderType>" + params.get("OrderType") + "</OrderType>");
+            content.append("<OrderStatus>" + params.get("OrderStatus") + "</OrderStatus>");
+            content.append("<MerchantOrderID>" + params.get("MerchantOrderID") + "</MerchantOrderID>");
+            content.append("<OrderTime>" + params.get("OrderTime") + "</OrderTime>");
             String xml = ESBClient.requestESB("Payment.CardRisk.InfoSecurity.OrderStatusRequest", "<OrderStatusRequest>" + content + "</OrderStatusRequest>");
             if (xml == null || xml.isEmpty()) {
                 return result;
