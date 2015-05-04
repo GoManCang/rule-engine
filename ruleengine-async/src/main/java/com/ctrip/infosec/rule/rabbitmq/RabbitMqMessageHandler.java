@@ -49,6 +49,8 @@ public class RabbitMqMessageHandler {
     private CallbackMessageSender callbackMessageSender;
     @Autowired
     private EventDataMergeService eventDataMergeService;
+    @Autowired
+    private OfflineMessageSender offlineMessageSender;
 
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
@@ -91,7 +93,7 @@ public class RabbitMqMessageHandler {
                     afterInvoke("DispatcherMessageSender.sendToDataDispatcher");
                 }
 
-                int riskLevel = MapUtils.getInteger(fact.results, Constants.riskLevel, 0);
+                int riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
                 if (riskLevel > 0) {
 
                     // 发送Callback给PD
@@ -109,7 +111,17 @@ public class RabbitMqMessageHandler {
                     }
 
                     // 发送Offline4J
-                    // TODO
+                    try {
+                        beforeInvoke();
+                        
+                        offlineMessageSender.sendToOffline(fact);
+                        
+                    } catch (Exception ex) {
+                        fault();
+                        logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
+                    } finally {
+                        afterInvoke("offlineMessageSender.sendToOffline");
+                    }
                 }
             }
         }
