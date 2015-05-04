@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.counter.enums.ErrorCode;
 import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.DecisionDataPushResponse;
@@ -15,6 +16,7 @@ import com.ctrip.infosec.counter.model.DecisionDataQueryResponse;
 import com.ctrip.infosec.counter.model.DecisionDataRemoveResponse;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
+import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
 import com.ctrip.infosec.counter.model.PolicyBatchExecuteResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.venus.DecisionDataRemoteService;
@@ -22,10 +24,13 @@ import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.Validate;
+import org.apache.http.client.fluent.Form;
+import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +48,31 @@ public class Counter {
 
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"Counter.REST.URL.Prefix\"配置项.");
+    }
+
+    /**
+     * 根据业务编号查询数据字段列表
+     *
+     * @param bizNo 业务编号
+     * @return
+     */
+    public static GetDataFieldListResponse datafieldList(String bizNo) {
+        check();
+        GetDataFieldListResponse response = null;
+        try {
+            String responseTxt = Request.Post(urlPrefix + "/rest/configs/datafieldList")
+                    .bodyForm(Form.form()
+                            .add("bizNo", bizNo)
+                            .build(), Charset.forName("UTF-8"))
+                    .execute().returnContent().asString();
+            response = JSON.parseObject(responseTxt, GetDataFieldListResponse.class);
+        } catch (Exception ex) {
+            logger.error(Contexts.getLogPrefix() + "invoke Counter.datafieldList fault.", ex);
+            response = new GetDataFieldListResponse();
+            response.setErrorCode(ErrorCode.EXCEPTION.getCode());
+            response.setErrorMessage(ex.getMessage());
+        }
+        return response;
     }
 
     /**
