@@ -111,14 +111,23 @@ public class DataProxyTest {
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
         System.out.println(result.size());*/
 
+        //查询是否为商旅用户
         String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        List tagContents = new ArrayList();
+        tagContents.add("ISCORP");
+        Map params = ImmutableMap.of("uid", "2102819519", "tagNames", tagContents);
+        Map result = DataProxy.query(serviceName, operationName, params);
+        System.out.println(result.size());
+
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("MOB_BOUND");
         tagContents.add("RECENT_IP");
         Map params = ImmutableMap.of("uid", "wwwwww", "tagNames", tagContents);
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());
+        System.out.println(result.size());*/
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
