@@ -70,9 +70,9 @@ public class ESBClient {
         requestContent.append("</Request>");
 
         String request = requestContent.toString();
-        logger.info(Contexts.getLogPrefix() + "FrozenAccount: request=" + request);
+        logger.info(Contexts.getLogPrefix() + "request: " + request);
         String soapResponseData = requestWithSoap(request);
-        logger.info(Contexts.getLogPrefix() + "FrozenAccount: response=" + soapResponseData);
+        logger.info(Contexts.getLogPrefix() + "response: " + soapResponseData);
 
         if (soapResponseData != null && !soapResponseData.isEmpty()) {
             responseBody = response(soapResponseData);

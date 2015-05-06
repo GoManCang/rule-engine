@@ -56,6 +56,7 @@
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.RulesExecutorService.executeAsyncRules(..))"/>
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.PreRulesExecutorService.executePreRules(..))"/>
         <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.PostRulesExecutorService.executePostRules(..))"/>
+        <aop:advisor advice-ref="sarsMonitorAdvice" pointcut="execution(* com.ctrip.infosec.rule.executor.CounterPushRulesExecutorService.executeCounterPushRules(..))"/>
     </aop:config>
     <bean class="com.ctrip.infosec.sars.monitor.SarsMonitorDeamon" init-method="start">
         <property name="appId" value="100000559"/>
