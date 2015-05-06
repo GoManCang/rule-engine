@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
@@ -14,6 +15,7 @@ import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -73,7 +75,13 @@ public class PreRulesExecutorService {
             clock.reset();
             clock.start();
 
+            // add current execute logPrefix before execution
+            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+
             statelessPreRuleEngine.execute(scriptRulePackageNames, fact);
+
+            // remove current execute ruleNo when finished execution.
+            fact.ext.remove(Constants.key_logPrefix);
 
             clock.stop();
             long handlingTime = clock.getTime();

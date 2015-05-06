@@ -5,11 +5,13 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PostRule;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.List;
@@ -51,8 +53,14 @@ public class PostRulesExecutorService {
             clock.reset();
             clock.start();
 
+            // add current execute logPrefix before execution
+            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+
             // TODO: 需要判断ruleType == Script
             statelessPostRuleEngine.execute(scriptRulePackageNames, fact);
+
+            // remove current execute ruleNo when finished execution.
+            fact.ext.remove(Constants.key_logPrefix);
 
             clock.stop();
             long handlingTime = clock.getTime();

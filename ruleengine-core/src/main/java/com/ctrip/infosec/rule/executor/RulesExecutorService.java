@@ -123,11 +123,12 @@ public class RulesExecutorService {
                 defaultResult.put(Constants.riskMessage, "PASS");
                 fact.results.put(rule.getRuleNo(), defaultResult);
 
-                // add current execute ruleNo before execution
+                // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
 
                 statelessRuleEngine.execute(packageName, fact);
+
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
                 fact.ext.remove(Constants.key_logPrefix);
