@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -15,10 +16,16 @@ import org.springframework.stereotype.Service;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.CounterPushRule;
+import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.Counter;
 import com.meidusa.fastjson.JSON;
 
+/**
+ *
+ * @author sjchi
+ * @date 2015年5月6日 下午3:16:01
+ */
 @Service
 public class CounterPushRulesExecutorService {
 	
@@ -70,8 +77,8 @@ public class CounterPushRulesExecutorService {
 		for(Entry<String,String> entry : fieldMap.entrySet()){
 			
 			//从fact.eventBody中取出需要映射的值放入需要推送的dataMap中
-			//TODO 是否考虑value嵌套关系
-			String data = ObjectUtils.toString(fact.getEventBody().get(entry.getValue()));
+			//支持value多层嵌套关系
+			String data = EventBodyUtils.valueAsString(fact.getEventBody(), entry.getValue());
 			if(!StringUtils.isEmpty(data)){
 				dataMap.put(entry.getKey(),data);
 			}
