@@ -189,7 +189,7 @@ public class RulesExecutorService {
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
                             logger.info(logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                            return new RuleExecuteResultWithEvent(packageName, result, factCopy.eventBody);
+                            return new RuleExecuteResultWithEvent(packageName, result, factCopy.finalResultGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
                             logger.warn(logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
                         }
@@ -235,6 +235,10 @@ public class RulesExecutorService {
                 if (item.getResult() != null) {
                     fact.results.put(item.ruleNo, item.getResult());
                 }
+                // merge finalResultGroupByScene
+                if (item.getResultGroupByScene() != null) {
+                    fact.finalResultGroupByScene.putAll(item.getResultGroupByScene());
+                }
             }
         }
     }
@@ -243,11 +247,13 @@ public class RulesExecutorService {
 
         private String ruleNo;
         private Map<String, Object> result;
+        private Map<String, Map<String, Object>> resultGroupByScene;
         private Map<String, Object> eventBody;
 
-        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Object> result, Map<String, Object> eventBody) {
+        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Object> result, Map<String, Map<String, Object>> resultGroupByScene, Map<String, Object> eventBody) {
             this.ruleNo = ruleNo;
             this.result = result;
+            this.resultGroupByScene = resultGroupByScene;
             this.eventBody = eventBody;
         }
 
@@ -265,6 +271,14 @@ public class RulesExecutorService {
 
         public void setResult(Map<String, Object> result) {
             this.result = result;
+        }
+
+        public Map<String, Map<String, Object>> getResultGroupByScene() {
+            return resultGroupByScene;
+        }
+
+        public void setResultGroupByScene(Map<String, Map<String, Object>> resultGroupByScene) {
+            this.resultGroupByScene = resultGroupByScene;
         }
 
         public Map<String, Object> getEventBody() {
