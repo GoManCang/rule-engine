@@ -237,7 +237,21 @@ public class RulesExecutorService {
                 }
                 // merge finalResultGroupByScene
                 if (item.getResultGroupByScene() != null) {
-                    fact.finalResultGroupByScene.putAll(item.getResultGroupByScene());
+                    for (String r : item.getResultGroupByScene().keySet()) {
+                        Map<String, Object> rs = item.getResultGroupByScene().get(r);
+                        if (rs != null) {
+                            Map<String, Object> rsInFact = fact.finalResultGroupByScene.get(r);
+                            if (rsInFact != null) {
+                                int riskLevel = MapUtils.getIntValue(rs, Constants.riskLevel, 0);
+                                int riskLevelInFact = MapUtils.getIntValue(rsInFact, Constants.riskLevel, 0);
+                                if (riskLevel > riskLevelInFact) {
+                                    fact.finalResultGroupByScene.put(r, rs);
+                                }
+                            } else {
+                                fact.finalResultGroupByScene.put(r, rs);
+                            }
+                        }
+                    }
                 }
             }
         }
