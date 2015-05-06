@@ -58,8 +58,11 @@ public class RulesExecutorService {
 
         // 返回结果
         Map<String, Object> finalResult = Constants.defaultResult;
-        for (Map<String, Object> r : fact.results.values()) {
-            finalResult = compareAndReturn(finalResult, r);
+        for (Map<String, Object> rs : fact.results.values()) {
+            finalResult = compareAndReturn(finalResult, rs);
+        }
+        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
+            finalResult = compareAndReturn(finalResult, rs);
         }
         fact.setFinalResult(
                 ImmutableMap.of(
@@ -87,8 +90,11 @@ public class RulesExecutorService {
 
         // 返回结果
         Map<String, Object> finalResult = Constants.defaultResult;
-        for (Map<String, Object> r : fact.results.values()) {
-            finalResult = compareAndReturn(finalResult, r);
+        for (Map<String, Object> rs : fact.results.values()) {
+            finalResult = compareAndReturn(finalResult, rs);
+        }
+        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
+            finalResult = compareAndReturn(finalResult, rs);
         }
         fact.setFinalResult(
                 ImmutableMap.of(
