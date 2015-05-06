@@ -6,7 +6,7 @@
 package com.ctrip.infosec.rule.rabbitmq;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
+import com.meidusa.fastjson.JSON;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.stereotype.Service;
 
