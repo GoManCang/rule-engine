@@ -112,7 +112,7 @@ public class RabbitMqMessageHandler {
                     try {
                         beforeInvoke();
                         CallbackRule callbackRule = Configs.getCallbackRule(fact.eventPoint);
-                        if (callbackRule.isEnabled()) {
+                        if (callbackRule != null && callbackRule.isEnabled()) {
                             callbackMessageSender.sendToPD(buildRiskResult(fact, callbackRule));
                         }
                     } catch (Exception ex) {
@@ -125,9 +125,7 @@ public class RabbitMqMessageHandler {
                     // 发送Offline4J
                     try {
                         beforeInvoke();
-                        
                         offlineMessageSender.sendToOffline(fact);
-                        
                     } catch (Exception ex) {
                         fault();
                         logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
