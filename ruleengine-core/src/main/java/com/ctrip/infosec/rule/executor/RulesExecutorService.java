@@ -195,7 +195,7 @@ public class RulesExecutorService {
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
                             logger.info(logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                            return new RuleExecuteResultWithEvent(packageName, result, factCopy.finalResultGroupByScene, factCopy.eventBody);
+                            return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.finalResultGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
                             logger.warn(logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
                         }
@@ -238,13 +238,13 @@ public class RulesExecutorService {
                     }
                 }
                 // merge results
-                if (item.getResult() != null) {
-                    fact.results.put(item.ruleNo, item.getResult());
+                if (item.getResults() != null) {
+                    fact.results.putAll(item.getResults());
                 }
                 // merge finalResultGroupByScene
-                if (item.getResultGroupByScene() != null) {
-                    for (String r : item.getResultGroupByScene().keySet()) {
-                        Map<String, Object> rs = item.getResultGroupByScene().get(r);
+                if (item.getFinalResultGroupByScene() != null) {
+                    for (String r : item.getFinalResultGroupByScene().keySet()) {
+                        Map<String, Object> rs = item.getFinalResultGroupByScene().get(r);
                         if (rs != null) {
                             Map<String, Object> rsInFact = fact.finalResultGroupByScene.get(r);
                             if (rsInFact != null) {
@@ -266,14 +266,14 @@ public class RulesExecutorService {
     class RuleExecuteResultWithEvent {
 
         private String ruleNo;
-        private Map<String, Object> result;
-        private Map<String, Map<String, Object>> resultGroupByScene;
+        private Map<String, Map<String, Object>> results;
+        private Map<String, Map<String, Object>> finalResultGroupByScene;
         private Map<String, Object> eventBody;
 
-        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Object> result, Map<String, Map<String, Object>> resultGroupByScene, Map<String, Object> eventBody) {
+        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Map<String, Object>> results, Map<String, Map<String, Object>> finalResultGroupByScene, Map<String, Object> eventBody) {
             this.ruleNo = ruleNo;
-            this.result = result;
-            this.resultGroupByScene = resultGroupByScene;
+            this.results = results;
+            this.finalResultGroupByScene = finalResultGroupByScene;
             this.eventBody = eventBody;
         }
 
@@ -285,20 +285,20 @@ public class RulesExecutorService {
             this.ruleNo = ruleNo;
         }
 
-        public Map<String, Object> getResult() {
-            return result;
+        public Map<String, Map<String, Object>> getResults() {
+            return results;
         }
 
-        public void setResult(Map<String, Object> result) {
-            this.result = result;
+        public void setResults(Map<String, Map<String, Object>> results) {
+            this.results = results;
         }
 
-        public Map<String, Map<String, Object>> getResultGroupByScene() {
-            return resultGroupByScene;
+        public Map<String, Map<String, Object>> getFinalResultGroupByScene() {
+            return finalResultGroupByScene;
         }
 
-        public void setResultGroupByScene(Map<String, Map<String, Object>> resultGroupByScene) {
-            this.resultGroupByScene = resultGroupByScene;
+        public void setFinalResultGroupByScene(Map<String, Map<String, Object>> finalResultGroupByScene) {
+            this.finalResultGroupByScene = finalResultGroupByScene;
         }
 
         public Map<String, Object> getEventBody() {
