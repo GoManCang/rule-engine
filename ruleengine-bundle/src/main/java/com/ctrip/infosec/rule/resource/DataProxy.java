@@ -173,6 +173,7 @@ public class DataProxy {
     public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
         check();
         beforeInvoke();
+        beforeInvoke("DataProxy." + serviceName + "." + operationName);
         try {
             DataProxyRequest request = new DataProxyRequest();
             request.setServiceName(serviceName);
@@ -203,10 +204,12 @@ public class DataProxy {
             return newResult;
 
         } catch (Exception ex) {
-            fault();
-            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
+        	fault();
+        	fault("DataProxy." + serviceName + "." + operationName);
+        	logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForMap");
+            afterInvoke("DataProxy." + serviceName + "." + operationName);
         }
         return null;
     }
