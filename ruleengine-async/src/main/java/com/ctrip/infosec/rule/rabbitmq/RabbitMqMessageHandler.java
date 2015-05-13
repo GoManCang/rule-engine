@@ -5,36 +5,36 @@
  */
 package com.ctrip.infosec.rule.rabbitmq;
 
-import com.ctrip.infosec.common.Constants;
-
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
+import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.model.RiskResult;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.CallbackRule;
+import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
 import com.ctrip.infosec.configs.utils.Utils;
-
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
-
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.CounterPushRulesExecutorService;
+import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
-import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
-
-import java.util.Date;
-import java.util.Map;
-
-import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.commons.collections.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -132,7 +132,28 @@ public class RabbitMqMessageHandler {
                     } finally {
                         afterInvoke("offlineMessageSender.sendToOffline");
                     }
+                    
                 }
+                
+                try{
+                	
+                	//遍历fact的所有results，如果有风险值大于0的，则进行计数操作
+                	for(Entry<String,Map<String,Object>> entry : fact.getResults().entrySet()){
+                		
+                		String ruleNo = entry.getKey();
+                		int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), "riskLevel"));
+                		
+                		if(rLevel > 0){
+                			RuleMonitorRepository.increaseCounter(ruleNo);
+                		}
+                		
+                	}
+                }catch(Exception ex){
+                	logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
+                }
+                
+                
+                
             }
         }
     }

@@ -16,6 +16,7 @@ CLogging.serverPort={$CLogging.serverPort}
 # Data Config Server
 Configs.URL={$Configs.URL}
 Configs.Trace.URL={$Configs.Trace.URL}
+Configs.RuleMonitor.URL={$Configs.RuleMonitor.URL}
 
 # Counter
 Counter.REST.URL.Prefix={$Counter.REST.URL.Prefix}
@@ -40,3 +41,5 @@ rabbitmq.event.host={$rabbitmq.event.host}
 rabbitmq.event.vhost={$rabbitmq.event.vhost}
 rabbitmq.event.username={$rabbitmq.event.username}
 rabbitmq.event.password={$rabbitmq.event.password}
+
+

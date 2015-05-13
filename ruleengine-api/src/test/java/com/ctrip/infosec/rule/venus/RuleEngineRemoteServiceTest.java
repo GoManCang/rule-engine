@@ -5,14 +5,19 @@
  */
 package com.ctrip.infosec.rule.venus;
 
-import com.ctrip.infosec.common.model.RiskFact;
-import com.meidusa.fastjson.JSON;
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ctrip.infosec.common.model.RiskFact;
+import com.meidusa.fastjson.JSON;
 
 /**
  *
@@ -27,10 +32,17 @@ public class RuleEngineRemoteServiceTest {
     RuleEngineRemoteService ruleEngineRemoteService;
 
     @Test
-    public void testVerify() {
+    public void testVerify() throws IOException {
+    	
+    	
+//    	Resource resource = new DefaultResourceLoader().getResource("/fact.txt");
+//    	String factStr = IOUtils.toString(resource.getInputStream());
+//    	RiskFact fact = JSON.parseObject(factStr,RiskFact.class);
+    	
+    	
         System.out.println("verify");
         RiskFact fact = JSON.parseObject("{\n"
-                + "  \"eventPoint\" : \"CP0006021\",\n"
+                + "  \"eventPoint\" : \"CPB001100001\",\n"
                 + "  \"eventBody\" : {\n"
                 + "    \"couponCode\" : \"hfqxxwnqva\",\n"
                 + "    \"userID\" : \"66932736\"\n"

@@ -5,13 +5,19 @@
  */
 package com.ctrip.infosec.rule.executor;
 
-import com.ctrip.infosec.common.model.RiskFact;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
+
+import java.io.IOException;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ctrip.infosec.common.model.RiskFact;
 
 /**
  *
@@ -23,8 +29,24 @@ public class RulesExecutorServiceTest {
 
     @Autowired
     RulesExecutorService rulesExecutorService;
-
+    
     @Test
+    public void testRules() throws IOException{
+    	
+    	
+    	String jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1_1.txt").getInputStream());
+    	RiskFact fact = JSON.parseObject(jsonData, RiskFact.class);
+    	rulesExecutorService.execute(fact, true);
+    	
+    	
+    	jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1.txt").getInputStream());
+    	fact = JSON.parseObject(jsonData, RiskFact.class);
+    	rulesExecutorService.executeSyncRules(fact);
+    	
+    	System.out.println(JSON.toJSONString(fact));
+    }
+
+//    @Test
     public void testExecuteSyncRules() {
         System.out.println("executeSyncRules");
         String factTxt = "{\n"
@@ -104,7 +126,7 @@ public class RulesExecutorServiceTest {
         System.out.println("results: " + JSON.toPrettyJSONString(fact.results));
     }
 
-    @Test
+//    @Test
     public void testExecuteAsyncRules() {
         System.out.println("executeAsyncRules");
         String factTxt = "{\n"
