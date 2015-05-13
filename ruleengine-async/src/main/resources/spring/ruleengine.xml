@@ -65,7 +65,7 @@
     
     
     <!-- 规则监控 -->
-	<bean class="com.ctrip.infosec.configs.rule.monitor.RuleMonitorSender" init-method="init">
+	<bean class="com.ctrip.infosec.configs.rule.monitor.RuleMonitorSender" init-method="start">
 		<property name="url" value="${Configs.RuleMonitor.URL}" />
 	</bean>
 	
