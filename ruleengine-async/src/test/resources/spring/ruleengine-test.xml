@@ -76,4 +76,10 @@
         <property name="postUrl" value="${sars.monitor.rest.url}"/>
     </bean>
 	 -->
+	 
+	 <!-- 规则监控 -->
+	<bean class="com.ctrip.infosec.configs.rule.monitor.RuleMonitorSender" init-method="start">
+		<property name="url" value="${Configs.RuleMonitor.URL}" />
+	</bean>
+	 
 </beans>
