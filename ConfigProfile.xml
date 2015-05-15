@@ -30,7 +30,7 @@
         <!-- CLogging -->
         <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
         <CLogging.serverPort>63100</CLogging.serverPort>
-        <!-- Configs -->
+        <!-- Configs -->uat
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
         <!-- Counter -->
