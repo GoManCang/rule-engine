@@ -28,18 +28,17 @@ import com.meidusa.fastjson.JSON;
  */
 @Service
 public class CounterPushRulesExecutorService {
-	
-	private static final Logger logger = LoggerFactory.getLogger(CounterPushRulesExecutorService.class);
-	
-	public RiskFact executeCounterPushRules(RiskFact fact,boolean isAsync){
-		execute(fact, false);
-		return fact;
-	}
-	
-	
-	private void execute(RiskFact fact, boolean isAsync) {
-		
-		// matchRules      
+
+    private static final Logger logger = LoggerFactory.getLogger(CounterPushRulesExecutorService.class);
+
+    public RiskFact executeCounterPushRules(RiskFact fact, boolean isAsync) {
+        execute(fact, false);
+        return fact;
+    }
+
+    private void execute(RiskFact fact, boolean isAsync) {
+
+        // matchRules      
         List<CounterPushRule> matchedRules = Configs.matchCounterPushRules(fact);
         logger.info(Contexts.getLogPrefix() + "matched CounterPushRules: " + matchedRules.size());
 
@@ -47,9 +46,9 @@ public class CounterPushRulesExecutorService {
         try {
             clock.reset();
             clock.start();
-            
-            for(CounterPushRule rule : matchedRules){
-            	executeInternal(fact,rule);
+
+            for (CounterPushRule rule : matchedRules) {
+                executeInternal(fact, rule);
             }
 
             clock.stop();
@@ -61,37 +60,38 @@ public class CounterPushRulesExecutorService {
         } catch (Throwable ex) {
             logger.warn(Contexts.getLogPrefix() + "invoke CounterPushRuleExecutorService#execute failed. eventpoint: " + fact.getEventPoint(), ex);
         }
-		
-	}
-	
-	/**
-	 * 根据规则来组装需要推送的dataMap,然后执行Counter#push
-	 * @param rule
-	 * @param fact
-	 */
-	private void executeInternal(RiskFact fact,CounterPushRule rule){
-		
-		Map<String, String> dataMap = new HashMap<String, String>();
-		
-		Map<String, String> fieldMap = rule.getFieldMap();
-		for(Entry<String,String> entry : fieldMap.entrySet()){
-			
-			//从fact.eventBody中取出需要映射的值放入需要推送的dataMap中
-			//支持value多层嵌套关系
-			String data = EventBodyUtils.valueAsString(fact.getEventBody(), entry.getValue());
-			if(!StringUtils.isEmpty(data)){
-				dataMap.put(entry.getKey(),data);
-			}
-		}
-		
-		if(dataMap.size() > 0){
-			
-			Counter.push(rule.getBizNo(), dataMap);
-			
-			logger.info(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() +",eventPoint-->" + rule.getEventPoint() + ",dataMap-->" + JSON.toJSONString(dataMap));
-		}else{
-			logger.warn(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() +",eventPoint-->" + rule.getEventPoint() + ",dataMap is empty");
-		}
-	}
+
+    }
+
+    /**
+     * 根据规则来组装需要推送的dataMap,然后执行Counter#push
+     *
+     * @param rule
+     * @param fact
+     */
+    private void executeInternal(RiskFact fact, CounterPushRule rule) {
+
+        Map<String, String> dataMap = new HashMap<String, String>();
+
+        Map<String, String> fieldMap = rule.getFieldMap();
+        for (Entry<String, String> entry : fieldMap.entrySet()) {
+
+            //从fact.eventBody中取出需要映射的值放入需要推送的dataMap中
+            //支持value多层嵌套关系
+            String data = EventBodyUtils.valueAsString(fact.getEventBody(), entry.getValue());
+            if (!StringUtils.isEmpty(data)) {
+                dataMap.put(entry.getKey(), data);
+            }
+        }
+
+        if (dataMap.size() > 0) {
+
+            Counter.push(rule.getBizNo(), dataMap);
+
+            logger.info(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() + ",eventPoint-->" + rule.getEventPoint() + ",dataMap-->" + JSON.toJSONString(dataMap));
+        } else {
+            logger.warn(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() + ",eventPoint-->" + rule.getEventPoint() + ",dataMap is empty");
+        }
+    }
 
 }
