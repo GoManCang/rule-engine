@@ -88,8 +88,8 @@ public class RabbitMqMessageHandler {
             // 执行后处理
             postRulesExecutorService.executePostRules(fact, true);
             //Counter推送规则处理
-            counterPushRuleExrcutorService.executeCounterPushRules(fact,true);
-            
+            counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
         } finally {
@@ -123,37 +123,34 @@ public class RabbitMqMessageHandler {
                     }
 
                     // 发送Offline4J
-                    try {
-                        beforeInvoke();
-                        offlineMessageSender.sendToOffline(fact);
-                    } catch (Exception ex) {
-                        fault();
-                        logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
-                    } finally {
-                        afterInvoke("offlineMessageSender.sendToOffline");
+//                    try {
+//                        beforeInvoke();
+//                        offlineMessageSender.sendToOffline(fact);
+//                    } catch (Exception ex) {
+//                        fault();
+//                        logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
+//                    } finally {
+//                        afterInvoke("offlineMessageSender.sendToOffline");
+//                    }
+                }
+
+                try {
+
+                    //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
+                    for (Entry<String, Map<String, Object>> entry : fact.getResults().entrySet()) {
+
+                        String ruleNo = entry.getKey();
+                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+
+                        if (rLevel > 0) {
+                            RuleMonitorRepository.increaseCounter(ruleNo);
+                        }
+
                     }
-                    
+                } catch (Exception ex) {
+                    logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
                 }
-                
-                try{
-                	
-                	//遍历fact的所有results，如果有风险值大于0的，则进行计数操作
-                	for(Entry<String,Map<String,Object>> entry : fact.getResults().entrySet()){
-                		
-                		String ruleNo = entry.getKey();
-                		int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), "riskLevel"));
-                		
-                		if(rLevel > 0){
-                			RuleMonitorRepository.increaseCounter(ruleNo);
-                		}
-                		
-                	}
-                }catch(Exception ex){
-                	logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
-                }
-                
-                
-                
+
             }
         }
     }
