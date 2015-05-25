@@ -39,7 +39,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RulesExecutorService {
-
     private static final Logger logger = LoggerFactory.getLogger(RulesExecutorService.class);
     private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
 
