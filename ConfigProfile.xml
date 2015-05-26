@@ -43,8 +43,8 @@
         <!-- ESB -->
         <SOA.ESB.URL>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</SOA.ESB.URL>
         <!-- CryptoGraphy -->
-        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
-        <CryptoGraphy.sslcode>ZDYTEST000000001</CryptoGraphy.sslcode>
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
         <!-- SecLogAgent -->
         <SecLog.Agent.IP>secbd1.qa.nt.ctripcorp.com</SecLog.Agent.IP>
@@ -84,7 +84,7 @@
         <SOA.ESB.URL>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</SOA.ESB.URL>
         <!-- CryptoGraphy -->
         <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
-        <CryptoGraphy.sslcode>PK00000000000086u</CryptoGraphy.sslcode>
+        <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
         <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
         <!-- SLogAgent -->
         <SecLog.Agent.IP>10.2.24.236</SecLog.Agent.IP>

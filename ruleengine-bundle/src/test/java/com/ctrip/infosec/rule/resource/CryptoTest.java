@@ -18,7 +18,10 @@ public class CryptoTest {
         //加密
 //        System.out.println(Crypto.encrypt("3214566987345343jgfjf"));
         //解密
-       System.out.println(Crypto.decrypt("CTRPA13F75FE8D370C6862BEB376016607BB"));
+        //fat   CTRP7D4A9037D45BB0B8B3297DC607D3281D
+        //uat  CTRPA13F75FE8D370C6862BEB376016607BB
+
+        System.out.println(Crypto.decrypt("CTRP7D4A9037D45BB0B8B3297DC607D3281D"));
     }
 
     @Test
