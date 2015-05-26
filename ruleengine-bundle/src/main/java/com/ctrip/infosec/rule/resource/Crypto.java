@@ -10,6 +10,8 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,30 +33,46 @@ public class Crypto {
 
     static final String DEV = "DEV";
     static final String PROD = "PROD";
-    static com.ctrip.infosec.encrypt.CryptoGraphy cryptoGraphyProd = null;
-    static com.ctrip.infosec.dev.encrypt.CryptoGraphy cryptoGraphyDev = null;
-    static
-    {
-        if(PROD.equals(env))
-        {
-            logger.info("初始化生产环境的加解密实例");
-            cryptoGraphyProd = com.ctrip.infosec.encrypt.CryptoGraphy.GetInstance();
-            cryptoGraphyProd.init(cscmUrl, sslcode);
-        }else
-        {
-            logger.info("初始化测试环境的加解密实例");
-            cryptoGraphyDev = com.ctrip.infosec.dev.encrypt.CryptoGraphy.GetInstance();
-            cryptoGraphyDev.init(cscmUrl, sslcode);
-        }
-    }
-    static void check() {
+
+    static com.ctrip.infosec.encrypt.CryptoGraphy cryptoGraphyProd;
+    static com.ctrip.infosec.dev.encrypt.CryptoGraphy cryptoGraphyDev;
+
+    static Lock lock = new ReentrantLock();
+
+    static void init() {
         Validate.notEmpty(cscmUrl, "在GlobalConfig.properties里没有找到\"CryptoGraphy.cscmUrl\"配置项.");
         Validate.notEmpty(sslcode, "在GlobalConfig.properties里没有找到\"CryptoGraphy.sslcode\"配置项.");
         Validate.notEmpty(env, "在GlobalConfig.properties里没有找到\"CryptoGraphy.dependency.env\"配置项.");
+
+        if (PROD.equals(env)) {
+            if (cryptoGraphyProd == null) {
+                lock.lock();
+                try {
+                    if (cryptoGraphyProd == null) {
+                        com.ctrip.infosec.encrypt.CryptoGraphy _cryptoGraphyProd = com.ctrip.infosec.encrypt.CryptoGraphy.GetInstance();
+                        _cryptoGraphyProd.init(cscmUrl, sslcode);
+                        cryptoGraphyProd = _cryptoGraphyProd;
+                    }
+                } finally {
+                    lock.unlock();
+                }
+            }
+        } else {
+            lock.lock();
+            try {
+                if (cryptoGraphyDev == null) {
+                    com.ctrip.infosec.dev.encrypt.CryptoGraphy _cryptoGraphyDev = com.ctrip.infosec.dev.encrypt.CryptoGraphy.GetInstance();
+                    _cryptoGraphyDev.init(cscmUrl, sslcode);
+                    cryptoGraphyDev = _cryptoGraphyDev;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 
     public static String encrypt(String plain) {
-        check();
+        init();
         beforeInvoke();
         String cypher = null;
         try {
@@ -73,7 +91,7 @@ public class Crypto {
     }
 
     public static String decrypt(String complexText) {
-        check();
+        init();
         beforeInvoke();
         String txt = null;
         try {
