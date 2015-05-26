@@ -18,18 +18,18 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 
 /**
- * Created by lpxie on 15-3-24.
+ * SecLog Agent, Created by lpxie on 15-3-24.
  */
 public class SlogAgent {
 
     private static Logger logger = LoggerFactory.getLogger(SlogAgent.class);
     private static String appId = GlobalConfig.getString("appId");
-    private static String slogIp = GlobalConfig.getString("SLog.Ip");
+    private static String slogIp = GlobalConfig.getString("SecLog.Agent.IP");
     private static BDPAgent<SLog> agent = null;
 
     static {
         Validate.notEmpty(appId, "在GlobalConfig.properties里没有找到\"appId\"配置项.");
-        Validate.notEmpty(slogIp, "在GlobalConfig.properties里没有找到\"SLog.Ip\"配置项.");
+        Validate.notEmpty(slogIp, "在GlobalConfig.properties里没有找到\"SecLog.Agent.IP\"配置项.");
         agent = BDPAgent.createLogAgentForBDP(appId, slogIp, JsonSerImpl.getInstance());
     }
 

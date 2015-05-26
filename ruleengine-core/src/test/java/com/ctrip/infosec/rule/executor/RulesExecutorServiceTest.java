@@ -18,6 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import org.junit.Ignore;
 
 /**
  *
@@ -29,21 +30,20 @@ public class RulesExecutorServiceTest {
 
     @Autowired
     RulesExecutorService rulesExecutorService;
-    
+
     @Test
-    public void testRules() throws IOException{
-    	
-    	
-    	String jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1_1.txt").getInputStream());
-    	RiskFact fact = JSON.parseObject(jsonData, RiskFact.class);
-    	rulesExecutorService.execute(fact, true);
-    	
-    	
-    	jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1.txt").getInputStream());
-    	fact = JSON.parseObject(jsonData, RiskFact.class);
-    	rulesExecutorService.executeSyncRules(fact);
-    	
-    	System.out.println(JSON.toJSONString(fact));
+    @Ignore
+    public void testRules() throws IOException {
+
+        String jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1_1.txt").getInputStream());
+        RiskFact fact = JSON.parseObject(jsonData, RiskFact.class);
+        rulesExecutorService.execute(fact, true);
+
+        jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1.txt").getInputStream());
+        fact = JSON.parseObject(jsonData, RiskFact.class);
+        rulesExecutorService.executeSyncRules(fact);
+
+        System.out.println(JSON.toJSONString(fact));
     }
 
 //    @Test

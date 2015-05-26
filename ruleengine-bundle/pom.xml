@@ -20,6 +20,16 @@
         <dependency>
             <groupId>com.ctrip.infosec.ruleengine</groupId>
             <artifactId>ruleengine-api</artifactId>
+        </dependency>      
+
+        <!-- 加解密组件 -->
+        <dependency>
+            <groupId>CtripDataAES</groupId>
+            <artifactId>CtripDataAESDev</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>CtripDataAES</groupId>
+            <artifactId>CtripDataAESPro</artifactId>
         </dependency>
         
         <!-- Data Config Server -->
@@ -75,19 +85,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
-        </dependency>
-
-        <!--加解密卡号-->
-        <dependency>
-            <groupId>CtripDataAES</groupId>
-            <artifactId>CtripDataAESDev</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>CtripDataAES</groupId>
-            <artifactId>CtripDataAESPro</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
