@@ -31,7 +31,22 @@ public class Crypto {
 
     static final String DEV = "DEV";
     static final String PROD = "PROD";
-
+    static com.ctrip.infosec.encrypt.CryptoGraphy cryptoGraphyProd = null;
+    static com.ctrip.infosec.dev.encrypt.CryptoGraphy cryptoGraphyDev = null;
+    static
+    {
+        if(PROD.equals(env))
+        {
+            logger.info("初始化生产环境的加解密实例");
+            cryptoGraphyProd = com.ctrip.infosec.encrypt.CryptoGraphy.GetInstance();
+            cryptoGraphyProd.init(cscmUrl, sslcode);
+        }else
+        {
+            logger.info("初始化测试环境的加解密实例");
+            cryptoGraphyDev = com.ctrip.infosec.dev.encrypt.CryptoGraphy.GetInstance();
+            cryptoGraphyDev.init(cscmUrl, sslcode);
+        }
+    }
     static void check() {
         Validate.notEmpty(cscmUrl, "在GlobalConfig.properties里没有找到\"CryptoGraphy.cscmUrl\"配置项.");
         Validate.notEmpty(sslcode, "在GlobalConfig.properties里没有找到\"CryptoGraphy.sslcode\"配置项.");
@@ -44,13 +59,9 @@ public class Crypto {
         String cypher = null;
         try {
             if (PROD.equals(env)) {
-                com.ctrip.infosec.encrypt.CryptoGraphy cryptoGraphy = com.ctrip.infosec.encrypt.CryptoGraphy.GetInstance();
-                cryptoGraphy.init(cscmUrl, sslcode);
-                cypher = cryptoGraphy.encrypt(plain);
+                cypher = cryptoGraphyProd.encrypt(plain);
             } else {
-                com.ctrip.infosec.dev.encrypt.CryptoGraphy cryptoGraphy = com.ctrip.infosec.dev.encrypt.CryptoGraphy.GetInstance();
-                cryptoGraphy.init(cscmUrl, sslcode);
-                cypher = cryptoGraphy.encrypt(plain);
+                cypher = cryptoGraphyDev.encrypt(plain);
             }
         } catch (Exception ex) {
             fault();
@@ -67,13 +78,9 @@ public class Crypto {
         String txt = null;
         try {
             if (PROD.equals(env)) {
-                com.ctrip.infosec.encrypt.CryptoGraphy cryptoGraphy = com.ctrip.infosec.encrypt.CryptoGraphy.GetInstance();
-                cryptoGraphy.init(cscmUrl, sslcode);
-                txt = cryptoGraphy.decrypt(complexText);
+                txt = cryptoGraphyProd.decrypt(complexText);
             } else {
-                com.ctrip.infosec.dev.encrypt.CryptoGraphy cryptoGraphy = com.ctrip.infosec.dev.encrypt.CryptoGraphy.GetInstance();
-                cryptoGraphy.init(cscmUrl, sslcode);
-                txt = cryptoGraphy.decrypt(complexText);
+                txt = cryptoGraphyDev.decrypt(complexText);
             }
         } catch (Exception ex) {
             fault();
