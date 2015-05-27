@@ -6,7 +6,7 @@ sars.monitor.rest.url={$sars.monitor.rest.url}
 
 # CRedis
 CRedis.serviceUrl={$CRedis.serviceUrl}
-CRedis.provider=PaymentRiskControl
+CRedis.provider=CounterServer_03
 CRedis.logging={$CRedis.logging}
 
 # CLogging
