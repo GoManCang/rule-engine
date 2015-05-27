@@ -16,7 +16,9 @@ import java.util.*;
  * Created by lpxie on 15-3-20.
  */
 public class CardInfo {
+
     private static final Logger logger = LoggerFactory.getLogger(CardInfo.class);
+
     /**
      * 这里的serviceName必须是“getinfo”
      */

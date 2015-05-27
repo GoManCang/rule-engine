@@ -55,14 +55,14 @@ public class DataProxyTest {
         DataProxyResponse result = DataProxy.query(serviceName, operationName, params);
         Map result1 = result.getResult();*/
 
-        String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("RECENT_IP");
         tagContents.add("RECENT_IPAREA");
         Map params = ImmutableMap.of("uid", "wwwwww","tagNames",tagContents);
         Map result = DataProxy.query(serviceName, operationName, params);
-        System.out.println(JSON.toJSONString(result));
+        System.out.println(JSON.toJSONString(result));*/
 
          /*String operationName = "getAirPortCity";
          Map params = ImmutableMap.of("airport", "PEK");
@@ -91,6 +91,12 @@ public class DataProxyTest {
          Map map = CardInfo.query("getinfo", params);
          System.out.println(map.size());*/
         //通过Venus的查询DataProxy
+
+        String serviceName1 = "ConvertService";
+         String operationName1 = "getCityNameByCityId";
+         Map params1 = ImmutableMap.of("cityId", "30");
+         Map result1 = DataProxy.query(serviceName1, operationName1, params1);
+         System.out.println("result1: " + JSON.toJSONString(result1));
     }
 
     @Test
@@ -111,14 +117,23 @@ public class DataProxyTest {
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
         System.out.println(result.size());*/
 
+        //查询是否为商旅用户
         String serviceName = "UserProfileService";
+        String operationName = "DataQuery";
+        List tagContents = new ArrayList();
+        tagContents.add("ISCORP");
+        Map params = ImmutableMap.of("uid", "2102819519", "tagNames", tagContents);
+        Map result = DataProxy.query(serviceName, operationName, params);
+        System.out.println(result.size());
+
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("MOB_BOUND");
         tagContents.add("RECENT_IP");
         Map params = ImmutableMap.of("uid", "wwwwww", "tagNames", tagContents);
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());
+        System.out.println(result.size());*/
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";

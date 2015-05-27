@@ -40,21 +40,25 @@
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>		
         <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
-        <!--CardInfo-->
-        <CardInfo.REST.URL.Prefix>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
-        <!--SLogAgent-->
-        <SLog.Ip>secbd1.qa.nt.ctripcorp.com</SLog.Ip>
-		<!-- RabbitMQ -->
-		<rabbitmq.event.host>10.3.6.42</rabbitmq.event.host>
-		<rabbitmq.event.port>5672</rabbitmq.event.port>
-		<rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
-		<rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
-		<rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
-		<rabbitmq.inner.host>10.3.6.42</rabbitmq.inner.host>
-		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
-		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
-		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
-		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+        <!-- ESB -->
+        <SOA.ESB.URL>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</SOA.ESB.URL>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.fws.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>EU00000000000118</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+        <!-- SecLogAgent -->
+        <SecLog.Agent.IP>secbd1.qa.nt.ctripcorp.com</SecLog.Agent.IP>
+        <!-- RabbitMQ -->
+        <rabbitmq.event.host>10.3.6.42</rabbitmq.event.host>
+        <rabbitmq.event.port>5672</rabbitmq.event.port>
+        <rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
+        <rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
+        <rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
+        <rabbitmq.inner.host>10.3.6.42</rabbitmq.inner.host>
+        <rabbitmq.inner.port>5672</rabbitmq.inner.port>
+        <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+        <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+        <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -76,22 +80,26 @@
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.uat.qa.nt.ctripcorp.com:8081/userprofilews</DataProxy.REST.URL.Prefix>
         <DataProxy.Venus.ipAddressList>10.2.24.244:16800</DataProxy.Venus.ipAddressList>
-        <!--CardInfo-->
-        <CardInfo.REST.URL.Prefix>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
-        <!--SLogAgent-->
-        <SLog.Ip>10.2.24.236</SLog.Ip>
+        <!-- ESB -->
+        <SOA.ESB.URL>http://soa.uat.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</SOA.ESB.URL>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.uat.qa.nt.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>PK00000000000086</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>DEV</CryptoGraphy.dependency.env>
+        <!-- SLogAgent -->
+        <SecLog.Agent.IP>10.2.24.236</SecLog.Agent.IP>
         <!-- RabbitMQ -->
-		<rabbitmq.event.host>10.2.24.236</rabbitmq.event.host>
-		<rabbitmq.event.port>5672</rabbitmq.event.port>
-		<rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
-		<rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
-		<rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
-		<rabbitmq.inner.host>10.2.24.236</rabbitmq.inner.host>
-		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
-		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
-		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
-		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-	</uat_nt>
+        <rabbitmq.event.host>10.2.24.236</rabbitmq.event.host>
+        <rabbitmq.event.port>5672</rabbitmq.event.port>
+        <rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
+        <rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
+        <rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
+        <rabbitmq.inner.host>10.2.24.236</rabbitmq.inner.host>
+        <rabbitmq.inner.port>5672</rabbitmq.inner.port>
+        <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+        <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+        <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+    </uat_nt>
     <prd>
         <sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->
@@ -110,20 +118,24 @@
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
         <DataProxy.Venus.ipAddressList>10.8.68.222:16800,10.8.68.223:16800,10.8.68.224:16800,10.8.68.225:16800</DataProxy.Venus.ipAddressList>
-        <!--CardInfo-->
-        <CardInfo.REST.URL.Prefix>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</CardInfo.REST.URL.Prefix>
-        <!--SLogAgent-->
-        <SLog.Ip>colletor.infosec.ctripcorp.com</SLog.Ip>
+        <!-- ESB -->
+        <SOA.ESB.URL>http://soa.sh.ctriptravel.com/SOA.ESB/Ctrip.SOA.ESB.asmx</SOA.ESB.URL>
+        <!-- CryptoGraphy -->
+        <CryptoGraphy.cscmUrl>https://cscmws.infosec.ctripcorp.com/cscmws/CertificateWS.asmx</CryptoGraphy.cscmUrl>
+        <CryptoGraphy.sslcode>UI00000000000131</CryptoGraphy.sslcode>
+        <CryptoGraphy.dependency.env>PROD</CryptoGraphy.dependency.env>
+        <!-- SLogAgent -->
+        <SecLog.Agent.IP>colletor.infosec.ctripcorp.com</SecLog.Agent.IP>
         <!-- RabbitMQ -->
-		<rabbitmq.event.host>riskevent.rabbitmq.infosec.ctripcorp.com</rabbitmq.event.host>
-		<rabbitmq.event.port>5672</rabbitmq.event.port>
-		<rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
-		<rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
-		<rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
-		<rabbitmq.inner.host>riskinner.rabbitmq.infosec.ctripcorp.com</rabbitmq.inner.host>
-		<rabbitmq.inner.port>5672</rabbitmq.inner.port>
-		<rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
-		<rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
-		<rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+        <rabbitmq.event.host>riskevent.rabbitmq.infosec.ctripcorp.com</rabbitmq.event.host>
+        <rabbitmq.event.port>5672</rabbitmq.event.port>
+        <rabbitmq.event.vhost>medusa</rabbitmq.event.vhost>
+        <rabbitmq.event.username>bsc-medusa</rabbitmq.event.username>
+        <rabbitmq.event.password>bsc-medusa</rabbitmq.event.password>
+        <rabbitmq.inner.host>riskinner.rabbitmq.infosec.ctripcorp.com</rabbitmq.inner.host>
+        <rabbitmq.inner.port>5672</rabbitmq.inner.port>
+        <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
+        <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
+        <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
     </prd>
 </profile>

@@ -117,6 +117,18 @@
                 <artifactId>userprofile-contract</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
+       
+            <!-- 加解密组件 -->
+            <dependency>
+                <groupId>CtripDataAES</groupId>
+                <artifactId>CtripDataAESDev</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>CtripDataAES</groupId>
+                <artifactId>CtripDataAESPro</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
             
             <!-- Venus 3.x -->
             <dependency>

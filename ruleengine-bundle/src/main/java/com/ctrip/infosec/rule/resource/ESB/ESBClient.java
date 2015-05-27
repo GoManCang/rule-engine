@@ -23,11 +23,11 @@ public class ESBClient {
     private static final Logger logger = LoggerFactory.getLogger(ESBClient.class);
     private static ESBConfig esbConfig = new ESBConfig();
 
-    static final String urlPrefix = GlobalConfig.getString("CardInfo.REST.URL.Prefix");
+    static final String urlPrefix = GlobalConfig.getString("SOA.ESB.URL");
     static final String appId = GlobalConfig.getString("appId");
 
     static void check() {
-        Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"CardInfo.REST.URL.Prefix\"配置项.");
+        Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"SOA.ESB.URL\"配置项.");
         Validate.notEmpty(appId, "在GlobalConfig.properties里没有找到\"appId\"配置项.");
         esbConfig.setAppId(appId);
         esbConfig.setESBUrl(urlPrefix);

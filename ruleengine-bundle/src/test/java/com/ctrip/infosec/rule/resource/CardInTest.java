@@ -20,7 +20,6 @@ public class CardInTest {
         RiskFact fact = ReadFactFile.getFact("searchCardInfo.json");
         Map params = new HashMap();
         params.put("cardInfoId", fact.eventBody.get("CardInfoID") + "");
-
         Map map = CardInfo.query("getinfo", params);
         Assert.assertNotNull(map);
         Assert.assertTrue(map.size() > 0);

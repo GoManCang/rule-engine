@@ -6,7 +6,7 @@ sars.monitor.rest.url={$sars.monitor.rest.url}
 
 # CRedis
 CRedis.serviceUrl={$CRedis.serviceUrl}
-CRedis.provider=PaymentRiskControl
+CRedis.provider=CounterServer_03
 CRedis.logging={$CRedis.logging}
 
 # CLogging
@@ -26,11 +26,16 @@ Counter.Venus.ipAddressList={$Counter.Venus.ipAddressList}
 DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}
 DataProxy.Venus.ipAddressList={$DataProxy.Venus.ipAddressList}
 
-# CardInfo
-CardInfo.REST.URL.Prefix={$CardInfo.REST.URL.Prefix}
+# ESB
+SOA.ESB.URL={$SOA.ESB.URL}
 
-#SLog.Ip
-SLog.Ip={$SLog.Ip}
+# SecLogAgent
+SecLog.Agent.IP={$SecLog.Agent.IP}
+
+# CryptoGraphy
+CryptoGraphy.cscmUrl={$CryptoGraphy.cscmUrl}
+CryptoGraphy.sslcode={$CryptoGraphy.sslcode}
+CryptoGraphy.dependency.env={$CryptoGraphy.dependency.env}
 
 # RabbitMQ
 rabbitmq.inner.host={$rabbitmq.inner.host}
