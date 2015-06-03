@@ -44,10 +44,14 @@
             <artifactId>counter-api</artifactId>
         </dependency>        
         
-        <!--dataproxy-venus-client-->
+        <!-- userprofile -->
         <dependency>
             <groupId>com.ctrip.sec.userprofile</groupId>
             <artifactId>userprofile-contract</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.sec.userprofile</groupId>
+            <artifactId>userprofile-client</artifactId>
         </dependency>
         
         <!-- sars-util -->

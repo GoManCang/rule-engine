@@ -111,10 +111,15 @@
                 <version>${counter.server.version}</version>
             </dependency>            
             
-            <!--dataproxy-venus-client-->
+            <!-- userprofile -->
             <dependency>
                 <groupId>com.ctrip.sec.userprofile</groupId>
                 <artifactId>userprofile-contract</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>            
+            <dependency>
+                <groupId>com.ctrip.sec.userprofile</groupId>
+                <artifactId>userprofile-client</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
        
