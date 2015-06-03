@@ -24,9 +24,7 @@ import org.slf4j.LoggerFactory;
 public class Crypto {
 
     private static Logger logger = LoggerFactory.getLogger(Crypto.class);
-    /**
-     *
-     */
+
     static final String cscmUrl = GlobalConfig.getString("CryptoGraphy.cscmUrl");
     static final String sslcode = GlobalConfig.getString("CryptoGraphy.sslcode");
     static final String env = GlobalConfig.getString("CryptoGraphy.dependency.env");

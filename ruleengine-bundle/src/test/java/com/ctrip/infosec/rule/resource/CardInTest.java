@@ -13,7 +13,6 @@ import java.util.Map;
  * Created by lpxie on 15-3-23.
  */
 public class CardInTest {
-
     @Test
     public void testQueryCardInfo() {
         //cardInfoId为30075005这个的可以查询到数据，留这备用

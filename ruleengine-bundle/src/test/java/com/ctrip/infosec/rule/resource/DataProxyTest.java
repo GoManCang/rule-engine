@@ -92,9 +92,9 @@ public class DataProxyTest {
          System.out.println(map.size());*/
         //通过Venus的查询DataProxy
 
-        String serviceName1 = "ConvertService";
-         String operationName1 = "getCityNameByCityId";
-         Map params1 = ImmutableMap.of("cityId", "30");
+         String serviceName1 = "IDCardInfoService";
+         String operationName1 = "getIDCardInfo";
+         Map params1 = ImmutableMap.of("idCard", "130100");
          Map result1 = DataProxy.query(serviceName1, operationName1, params1);
          System.out.println("result1: " + JSON.toJSONString(result1));
     }
