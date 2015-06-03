@@ -40,5 +40,7 @@
 
     <!-- 数据合并 -->
     <bean class="com.ctrip.infosec.rule.executor.EventDataMergeService" init-method="init"/>
-                       
+
+   <!--初始化RiskProfile-->
+    <bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>
 </beans>

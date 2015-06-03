@@ -27,5 +27,5 @@
     
     <!-- SpringContextHolder -->
     <bean class="com.ctrip.infosec.sars.util.SpringContextHolder"/>
-    
+    <bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>
 </beans>
