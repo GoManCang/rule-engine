@@ -2,6 +2,7 @@ package com.ctrip.infosec.rule.resource;
 
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.sec.userprofile.client.service.PassportService;
+import com.ctrip.sec.userprofile.client.service.RiskProfileClientConfig;
 import org.apache.commons.lang3.Validate;
 
 /**
@@ -9,15 +10,16 @@ import org.apache.commons.lang3.Validate;
  */
 public class RiskProfileClient
 {
-    static final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
+    final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
 
-    static void check(){
+    void check(){
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
     }
 
-    static void init()
+    void init()
     {
         check();
-        PassportService.init(urlPrefix);
+        RiskProfileClientConfig riskProfileClientConfig = new RiskProfileClientConfig();
+        riskProfileClientConfig.init(urlPrefix);
     }
 }
