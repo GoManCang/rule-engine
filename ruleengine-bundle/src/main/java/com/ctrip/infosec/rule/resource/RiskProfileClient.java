@@ -1,7 +1,6 @@
 package com.ctrip.infosec.rule.resource;
 
 import com.ctrip.infosec.sars.util.GlobalConfig;
-import com.ctrip.sec.userprofile.client.service.PassportService;
 import com.ctrip.sec.userprofile.client.service.RiskProfileClientConfig;
 import org.apache.commons.lang3.Validate;
 
