@@ -50,7 +50,7 @@ public class PreRulesExecutorService {
     void execute(RiskFact fact, boolean isAsync) {
         // matchRules      
 //        List<PreRule> matchedRules = Configs.matchPreRules(fact);
-    	List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact);
+    	List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact,isAsync);
         List<String> scriptRulePackageNames = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
