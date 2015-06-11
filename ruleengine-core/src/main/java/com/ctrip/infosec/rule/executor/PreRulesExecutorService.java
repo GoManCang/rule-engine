@@ -51,6 +51,8 @@ public class PreRulesExecutorService {
         // matchRules      
 //        List<PreRule> matchedRules = Configs.matchPreRules(fact);
     	List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact,isAsync);
+    	logger.info(Contexts.getLogPrefix() + "matched pre rules: " + matchedRules.size());
+    	
         List<String> scriptRulePackageNames = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
@@ -68,7 +70,7 @@ public class PreRulesExecutorService {
                 scriptRulePackageNames.add(rule.getRuleNo());
             }
         }
-        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + scriptRulePackageNames.size());
+        
         StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
 
         StopWatch clock = new StopWatch();
