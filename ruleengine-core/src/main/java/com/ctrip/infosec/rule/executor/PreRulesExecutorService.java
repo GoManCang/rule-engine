@@ -40,7 +40,7 @@ public class PreRulesExecutorService {
      * 执行预处理规则
      */
     public RiskFact executePreRules(RiskFact fact, boolean isAsync) {
-        execute(fact, false);
+        execute(fact, isAsync);
         return fact;
     }
 
