@@ -41,7 +41,7 @@
     <!-- RabbitMQ 消息接收Listener -->
     <task:executor id="rabbitmqConsumerExecutor" pool-size="32"/>
     <rabbit:listener-container connection-factory="connectionFactory_inner" 
-                               prefetch="1000" acknowledge="auto" task-executor="rabbitmqConsumerExecutor">
+                               prefetch="1000" acknowledge="auto" concurrency="32" task-executor="rabbitmqConsumerExecutor">
         <rabbit:listener ref="rabbitMqMessageHandler" method="handleMessage" queue-names="infosec.ruleengine.queue" />
     </rabbit:listener-container>    
 
@@ -61,13 +61,11 @@
     <bean class="com.ctrip.infosec.sars.monitor.SarsMonitorDeamon" init-method="start">
         <property name="appId" value="100000559"/>
         <property name="postUrl" value="${sars.monitor.rest.url}"/>
-    </bean>
-    
+    </bean>    
     
     <!-- 规则监控 -->
-	<bean class="com.ctrip.infosec.configs.rule.monitor.RuleMonitorSender" init-method="start">
-		<property name="url" value="${Configs.RuleMonitor.URL}" />
-	</bean>
-	
-	
+    <bean class="com.ctrip.infosec.configs.rule.monitor.RuleMonitorSender" init-method="start">
+        <property name="url" value="${Configs.RuleMonitor.URL}" />
+    </bean>
+		
 </beans>
