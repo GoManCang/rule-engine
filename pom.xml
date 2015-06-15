@@ -571,6 +571,7 @@
         <module>ruleengine-core</module>
         <module>ruleengine-ws</module>
         <module>ruleengine-async</module>
+        <module>ruleengine-convert</module>
     </modules>
 
 </project>
