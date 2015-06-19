@@ -42,6 +42,8 @@ private static Map<String,DataUnitMetadata> riskFactMetadataMap = Maps.newHashMa
         /**
          * 将已有的全部清空
          */
+
+        //fixme  额 好像不能这么清空。map真在使用会 nullpointexception
         riskFactDefinitionConfigMap.clear();
         /**
          * 更新client提供的InternalRiskFactDefinitionConfig
