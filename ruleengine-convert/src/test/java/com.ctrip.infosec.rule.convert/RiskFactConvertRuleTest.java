@@ -124,7 +124,7 @@ public class RiskFactConvertRuleTest {
         Map map = JSON.parseObject(factTxt, Map.class);
         riskFact.setEventBody(map);
         RiskFactConvertRule riskFactConvertRule = new RiskFactConvertRule();
-//        InternalConvertConfigHolder.reconfigurate(Caches.riskFactConvertRuleConfigs, Caches.internalRiskFactDefinitionConfigs);
+//        InternalConvertConfigHolder.reconfigure(Caches.riskFactConvertRuleConfigs, Caches.internalRiskFactDefinitionConfigs);
         InternalRiskFact apply = riskFactConvertRule.apply(riskFact);
             List<DataUnit> dataUnits = apply.getDataUnits();
 

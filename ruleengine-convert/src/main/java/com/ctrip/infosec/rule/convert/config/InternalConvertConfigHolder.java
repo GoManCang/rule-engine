@@ -11,7 +11,6 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/15.
  */
 public class InternalConvertConfigHolder {
-    //    private static Map<String, List<InternalMappingConfigTree>> riskConvertMappings = Maps.newHashMap();
     private static long purgeTimeout = DateUtils.MILLIS_PER_DAY;
 
     /**
@@ -25,8 +24,8 @@ public class InternalConvertConfigHolder {
      * 重新配置
      *
      */
-    public static synchronized void reconfigurate(Map<String, RiskFactConvertRuleConfig> convertRuleClientConfigMap,
-                                                  Map<String,InternalRiskFactDefinitionConfig> convertDefinitionConfigMap){
+    public static synchronized void reconfigure(Map<String, RiskFactConvertRuleConfig> convertRuleClientConfigMap,
+                                                Map<String, InternalRiskFactDefinitionConfig> convertDefinitionConfigMap){
         updateRiskConvertMappings(convertRuleClientConfigMap);
         updateRiskFactDefinitionConfigMap(convertDefinitionConfigMap);
 

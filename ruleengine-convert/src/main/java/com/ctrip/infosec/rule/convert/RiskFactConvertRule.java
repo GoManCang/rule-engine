@@ -198,7 +198,7 @@ public class RiskFactConvertRule {
         else {
             if (dataUnitColumn.getColumnType() == DataUnitColumnType.List.getIndex() || dataUnitColumn.getColumnType() == DataUnitColumnType.Object.getIndex()) {
                 trgNames.remove(0);
-                return checkValidTrgName(Joiner.on('.').join(trgNames), dataUnitColumn.getDataUnitMetadata());
+                return checkValidTrgName(Joiner.on('.').join(trgNames), dataUnitColumn.getNestedDataUnitMeta());
             } else {
                 logger.warn("trgname:" + trgNames.get(0) + "不是最后columnName,columnType类型必须是List or Object");
                 return null;
