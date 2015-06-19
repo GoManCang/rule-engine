@@ -138,7 +138,7 @@ public class EventDataMergeService {
                 String oldName = (String) iteratorValues.next();
                 String newName = newNodeNames.get(oldName);
                 Object newValue = redisValues.get(oldName);
-                if (newValue == null || newValue.toString().isEmpty()) {
+                if (newName == null || newName.toString().isEmpty()||newValue == null || newValue.toString().isEmpty()) {
                     continue;
                 }
                 fact.eventBody.put(newName, newValue);
