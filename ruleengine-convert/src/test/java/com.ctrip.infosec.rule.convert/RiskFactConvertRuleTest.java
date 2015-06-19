@@ -115,13 +115,25 @@ public class RiskFactConvertRuleTest {
                 "    \"userIP\": \"117.136.75.60\",\n" +
                 "    \"withdrawType\": \"1\",\n" +
                 "    \"infoSW\": {\n" +
-                "      \"WC\":3333333},"+
+                "      \"WC\":3333333" +
+                "},"+
                 "    \"infoSWList\": [\n" +
                 "        {\n" +
                 "            \"entry\": \"1\",\n" +"\"bcn\":\"AAA\""+
                 "        },\n" +
                 "        {\n" +
                 "            \"entry\": \"2\",\n" +"\"bcn\":\"BBB\"" +
+                "        },\n" +
+                "        {\n" +
+                "            \"entry\": \"3\",\n" +"\"bcn\":\"CCC\""+
+                "        }\n" +
+                "    ],"+
+                "    \"test\": [\n" +
+                "        {\n" +
+                "            \"entry\": \"1\",\n" +"\"bcn\":\"AAA\""+
+                "        },\n" +
+                "        {\n" +
+                "            \n" +"\"bcn\":\"BBB\"" +
                 "        },\n" +
                 "        {\n" +
                 "            \"entry\": \"3\",\n" +"\"bcn\":\"CCC\""+
