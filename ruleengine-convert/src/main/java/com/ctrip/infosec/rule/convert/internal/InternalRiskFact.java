@@ -9,6 +9,7 @@ public class InternalRiskFact {
     private String eventPoint;
     private String eventId;
     private String appId;
+    private long reqId;
     private List<DataUnit> dataUnits;
 
     public String getEventPoint() {
@@ -41,5 +42,13 @@ public class InternalRiskFact {
 
     public void setDataUnits(List<DataUnit> dataUnits) {
         this.dataUnits = dataUnits;
+    }
+
+    public long getReqId() {
+        return reqId;
+    }
+
+    public void setReqId(long reqId) {
+        this.reqId = reqId;
     }
 }

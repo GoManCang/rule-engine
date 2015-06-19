@@ -34,6 +34,11 @@
             <artifactId>sars-util-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.ctrip.platform</groupId>
+            <artifactId>dal-java-client</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
     </dependencies>
 </project>

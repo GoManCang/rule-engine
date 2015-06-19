@@ -1,21 +1,17 @@
 package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.configs.Caches;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
-import com.ctrip.infosec.rule.convert.config.InternalMappingConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
