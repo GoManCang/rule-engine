@@ -1,8 +1,10 @@
 package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.configs.Caches;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
+import com.ctrip.infosec.rule.convert.config.InternalMappingConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
@@ -13,6 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +62,7 @@ public class RiskFactConvertRule {
             dataUnit.setData(new ArrayList<Map<String, Object>>());
             dataUnitMapping.put(definition.getMetadata().getName(), dataUnit);
         }
+
 
         /**
          * 设置基础信息
@@ -114,7 +118,7 @@ public class RiskFactConvertRule {
             String srcName = fieldMapping.getSourceFieldName();
             String trgName = fieldMapping.getTargetFieldName();
             ArrayList<String> trgNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
-            ArrayList<String> srcNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(srcName));
+//            ArrayList<String> srcNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(srcName));
 
             String name = trgNames.get(0);
             /**
@@ -134,11 +138,14 @@ public class RiskFactConvertRule {
                     /**
                      * 不管dataUnit.getDefinition().getType() 是List 还是Object 都 放到dataUnitMapping 中
                      */
-                    Object results = getValueFromMap(eventBody, srcName);
+
+                    Object results = getValueFromMap(eventBody, srcName,dataUnit);
                     if (results instanceof List) {
                         List<Object> objects = (List<Object>) results;
                         for (Object result : objects) {
-                            data.add((Map<String, Object>) ImmutableMultimap.of(srcName, result));
+                            Map<String,Object> reslutmapping=new HashMap<String, Object>();
+                            reslutmapping.put(trgName,result);
+                            data.add(reslutmapping);
                         }
                     } else {
                         Map<String,Object> reslutmapping=new HashMap<String, Object>();
@@ -198,7 +205,14 @@ public class RiskFactConvertRule {
         else {
             if (dataUnitColumn.getColumnType() == DataUnitColumnType.List.getIndex() || dataUnitColumn.getColumnType() == DataUnitColumnType.Object.getIndex()) {
                 trgNames.remove(0);
-                return checkValidTrgName(Joiner.on('.').join(trgNames), dataUnitColumn.getNestedDataUnitMeta());
+                if(StringUtils.isNotBlank(dataUnitColumn.getNestedDataUnitMataNo()) ){
+                    DataUnitMetadata dataUnitMetadata = InternalConvertConfigHolder.getRiskFactMetadataMap().get(dataUnitColumn.getNestedDataUnitMataNo());
+                    return checkValidTrgName(Joiner.on('.').join(trgNames),dataUnitMetadata );
+                }
+                else{
+                    logger.warn("trgname:" + trgNames.get(0) + "作为object 和 list 对象没有找到 元数据Id");
+                    return null;
+                }
             } else {
                 logger.warn("trgname:" + trgNames.get(0) + "不是最后columnName,columnType类型必须是List or Object");
                 return null;
@@ -206,28 +220,33 @@ public class RiskFactConvertRule {
         }
     }
 
-    private Object getValueFromMap(Map<String, Object> mapping, String sourceFieldName) {
+    private Object getValueFromMap(Map<String, Object> mapping, String sourceFieldName,DataUnit dataUnit) {
         ArrayList<String> keys = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().limit(2).split(sourceFieldName));
         String key = keys.get(0);
         Object object = mapping.get(key);
 
         if (object instanceof Map) {
             if (keys.size() == 1) {
-                logger.warn("取到的最后对象是一个map 当前版本暂不支持，值被丢弃返回null");
+                logger.warn("取到的最后key:"+key+"的值是一个map 当前版本暂不支持，值被丢弃返回null");
                 return null;
             } else {
-                return getValueFromMap((Map) object, keys.get(1));
+                Object valueFromMap = getValueFromMap((Map) object, keys.get(1),dataUnit);
+                if(valueFromMap!=null){
+
+
+                }
+                return valueFromMap;
             }
         } else if (object instanceof List) {
             if (keys.size() == 1) {
-                logger.warn("取到的最后对象是一个List 当前版本暂不支持，值被丢弃返回null");
+                logger.warn("取到的最后key："+key+"的值是一个List 当前版本暂不支持，值被丢弃返回null");
                 return null;
             } else {
-                return getValueFromList((List) object, keys.get(1));
+                return getValueFromList((List) object, keys.get(1),dataUnit);
             }
         } else {
             if (keys.size() > 1) {
-                logger.warn("sourceFieldName未走到底！！当前key是：" + keys.get(0) + " value：" + object);
+                logger.warn("sourceFieldName未走到底！！当前key是：" + key + " value：" + object);
                 return null;
             } else {
                 return object;
@@ -236,23 +255,31 @@ public class RiskFactConvertRule {
 
     }
 
-    private List getValueFromList(List<Object> list, String sourceFieldName) {
+    private List getValueFromList(List<Object> list, String sourceFieldName,DataUnit dataUnit) {
         ArrayList<String> keys = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().limit(2).split(sourceFieldName));
         Object tmpValue = null;
         List resultList = new ArrayList();
         for (Object item : list) {
             if (item instanceof Map) {
-                if (keys.size() > 1) {
-                    tmpValue = getValueFromMap((Map<String, Object>) item, sourceFieldName);
-                    if (tmpValue != null) {
-                        resultList.add(tmpValue);
-                    }
-                } else {
-                    logger.warn("取到的最后对象是一个map 当前版本暂不支持，值被丢弃");
+                tmpValue=getValueFromMap((Map<String,Object>) item,sourceFieldName,dataUnit);
+                if(tmpValue!=null){
+                    resultList.add(tmpValue);
                 }
+//                if (keys.size() == 1) {
+//                    tmpValue = getValueFromMap((Map<String, Object>) item, sourceFieldName);
+//                    if (tmpValue != null) {
+//                        resultList.add(tmpValue);
+//                    }
+//                }
+//                else if(keys.size()>1){
+//
+//                }
+//                else {
+//                    logger.warn("取到的最后对象是一个map 当前版本暂不支持，值被丢弃");
+//                }
             } else if (item instanceof List) {
                 if (keys.size() > 1) {
-                    tmpValue = getValueFromList((List<Object>) item, sourceFieldName);
+                    tmpValue = getValueFromList((List<Object>) item, sourceFieldName,dataUnit);
                     if (tmpValue != null) {
                         resultList.add(tmpValue);
                     }

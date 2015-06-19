@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.convert.config;
 
+import com.ctrip.infosec.configs.event.DataUnitMetadata;
 import com.ctrip.infosec.configs.event.InternalRiskFactDefinitionConfig;
 import com.ctrip.infosec.configs.event.RiskFactConvertRuleConfig;
 import com.google.common.collect.Maps;
@@ -19,15 +20,21 @@ public class InternalConvertConfigHolder {
     private static Map<String,RiskFactConvertRuleConfig> riskConvertMappings=Maps.newHashMap();
     private static Map<String,InternalRiskFactDefinitionConfig> riskFactDefinitionConfigMap =Maps.newHashMap();
 
+    /**
+     * key shi  dataUtils
+     */
+private static Map<String,DataUnitMetadata> riskFactMetadataMap = Maps.newHashMap();
 
     /**
      * 重新配置
      *
      */
     public static synchronized void reconfigure(Map<String, RiskFactConvertRuleConfig> convertRuleClientConfigMap,
-                                                Map<String, InternalRiskFactDefinitionConfig> convertDefinitionConfigMap){
+                                                  Map<String,InternalRiskFactDefinitionConfig> convertDefinitionConfigMap,
+                                                  Map<String,DataUnitMetadata> convertDataUnitMetadate){
         updateRiskConvertMappings(convertRuleClientConfigMap);
         updateRiskFactDefinitionConfigMap(convertDefinitionConfigMap);
+        updateConvertDataUnitMetadate(convertDataUnitMetadate);
 
     }
 
@@ -35,22 +42,12 @@ public class InternalConvertConfigHolder {
         /**
          * 将已有的全部清空
          */
-        for(Map.Entry<String,InternalRiskFactDefinitionConfig> entry:riskFactDefinitionConfigMap.entrySet()){
-            entry.setValue(null);
-        }
+        riskFactDefinitionConfigMap.clear();
         /**
          * 更新client提供的InternalRiskFactDefinitionConfig
          */
         for (Map.Entry<String, InternalRiskFactDefinitionConfig> entry : convertDefinitionConfigMap.entrySet()) {
             riskFactDefinitionConfigMap.put(entry.getKey(), entry.getValue());
-        }
-        /**
-         * 将key对应的null去除
-         */
-        for(Map.Entry<String,RiskFactConvertRuleConfig> entry:riskConvertMappings.entrySet()){
-            if(entry.getValue()==null){
-                riskFactDefinitionConfigMap.remove(entry.getKey());
-            }
         }
     }
 
@@ -58,25 +55,28 @@ public class InternalConvertConfigHolder {
         /**
          * 将已有的 全部清空
          */
-        for(Map.Entry<String,RiskFactConvertRuleConfig> entry:riskConvertMappings.entrySet()){
-            entry.setValue(null);
-        }
+        riskConvertMappings.clear();
         /**
          * 更新client提供的RiskFactConvertRuleConfig
          */
         for (Map.Entry<String, RiskFactConvertRuleConfig> entry : convertRuleClientConfigMap.entrySet()) {
             riskConvertMappings.put(entry.getKey(),entry.getValue());
         }
-        /**
-         * 将key对应的null去除
-         */
-        for(Map.Entry<String,RiskFactConvertRuleConfig> entry:riskConvertMappings.entrySet()){
-            if(entry.getValue()==null){
-                riskConvertMappings.remove(entry.getKey());
-            }
-        }
     }
 
+    private static void updateConvertDataUnitMetadate(Map<String,DataUnitMetadata> convertDataUnitMetadate){
+        /**
+         * 将已有的 全部清空
+         */
+        riskFactMetadataMap.clear();
+        /**
+         * 更新client提供的RiskFactConvertRuleConfig
+         */
+        for (Map.Entry<String, DataUnitMetadata> entry : convertDataUnitMetadate.entrySet()) {
+            riskFactMetadataMap.put(entry.getKey(), entry.getValue());
+        }
+
+    }
 //    private static void tryUpdateConfig(String eventPoint, RiskFactConvertRuleConfig clientConfig) {
 //        RiskFactConvertRuleConfig riskFactConvertRuleConfig = riskConvertMappings.get(eventPoint);
 //        /**
@@ -94,4 +94,7 @@ public class InternalConvertConfigHolder {
         return riskFactDefinitionConfigMap;
     }
 
+    public static Map<String, DataUnitMetadata> getRiskFactMetadataMap() {
+        return riskFactMetadataMap;
+    }
 }
