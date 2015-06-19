@@ -132,10 +132,12 @@ public class EventDataMergeService {
             if (redisValue == null || redisValue.isEmpty()) {
                 continue;
             }
+
             Map<String, Object> redisValues = JSON.parseObject(redisValue, Map.class);//check this line
-            Iterator iteratorValues = redisValues.keySet().iterator();
-            while (iteratorValues.hasNext()) {
-                String oldName = (String) iteratorValues.next();
+            Iterator iteratorKeys = newNodeNames.keySet().iterator();
+            //Iterator iteratorValues = redisValues.keySet().iterator();
+            while (iteratorKeys.hasNext()) {
+                String oldName = (String) iteratorKeys.next();
                 String newName = newNodeNames.get(oldName);
                 Object newValue = redisValues.get(oldName);
                 if (newName == null || newName.toString().isEmpty()||newValue == null || newValue.toString().isEmpty()) {
