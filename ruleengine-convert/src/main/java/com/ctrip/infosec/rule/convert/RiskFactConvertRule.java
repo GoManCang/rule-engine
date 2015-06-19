@@ -1,16 +1,17 @@
 package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.configs.event.DataUnitDefinition;
-import com.ctrip.infosec.configs.event.FieldMapping;
-import com.ctrip.infosec.configs.event.InternalRiskFactDefinitionConfig;
-import com.ctrip.infosec.configs.event.RiskFactConvertRuleConfig;
+import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Lists;
-import org.springframework.stereotype.Component;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,9 @@ import java.util.Map;
  * Created by jizhao on 2015/6/15.
  */
 public class RiskFactConvertRule {
+
+    private static Logger logger = LoggerFactory.getLogger(RiskFactConvertRule.class);
+
     private String eventPoint;
     private List<FieldMapping> mappings;
 
@@ -34,259 +38,235 @@ public class RiskFactConvertRule {
 //    private static  List<FieldMapping> fieldMappingList;
     public InternalRiskFact apply(RiskFact riskFact) {
         /**
+         * dataUnitMapping 的 key 是 dataUnitDefinition 的 id
+         * 不管DataUnit中的data 是 list 还是 单个 object 全部放在 list<Map<Stirng,Object>> 中
+         * 根据 DataUnit.DataUnitDefinition.type 的类型来决定 是取list[0] 还是 遍历list
+         */
+        Map<String, DataUnit> dataUnitMapping = new HashMap<String, DataUnit>();
+        if (!InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().containsKey(riskFact.getEventPoint())) {
+            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的InternalRiskFactDefinitionConfig未找到！！");
+            return null;
+        }
+        InternalRiskFactDefinitionConfig internalRiskFactDefinitionConfig = InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().get(riskFact.getEventPoint());
+        List<DataUnitDefinition> dataUnitDefinitions = internalRiskFactDefinitionConfig.getDataUnitMetas();
+        if (dataUnitDefinitions == null) {
+            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的DataUnitDefinition未找到！！");
+            return null;
+        }
+        for (DataUnitDefinition definition : dataUnitDefinitions) {
+            DataUnit dataUnit = new DataUnit();
+            dataUnit.setDefinition(definition);
+            dataUnit.setData(new ArrayList<Map<String, Object>>());
+            dataUnitMapping.put(definition.getMetadata().getName(), dataUnit);
+        }
+
+        /**
          * 设置基础信息
          */
         InternalRiskFact internalRiskFact = new InternalRiskFact();
         internalRiskFact.setEventPoint(riskFact.getEventPoint());
         internalRiskFact.setEventId(riskFact.getEventId());
         internalRiskFact.setAppId(riskFact.getAppId());
+        internalRiskFact.setDataUnits(new ArrayList<DataUnit>());
+        /**
+         * 至此 eventpoint 对应的DatUnit 空对象创建完成。
+         */
 
         /**
-         * eventBoday 转换
+         * 获得eventPoint对应的FieldMapping
+         *
          */
-        List<DataUnit> dataUnits = new ArrayList<DataUnit>();
-        Map<String, Object> eventBody = riskFact.getEventBody();
-
         if (!InternalConvertConfigHolder.getRiskConvertMappings().containsKey(riskFact.getEventPoint())) {
+            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的RiskFactConvertRuleConfig未找到！！");
             return null;
         }
-
         RiskFactConvertRuleConfig riskFactConvertRuleConfigs = InternalConvertConfigHolder.getRiskConvertMappings().get(riskFact.getEventPoint());
         List<FieldMapping> fieldMappingList = riskFactConvertRuleConfigs.getMappings();
-
-        /**
-         * key 是 mataUnitMetaData 的name
-         */
-        Map<String, DataUnitDefinition> unitDefinitionMap = new HashMap<String, DataUnitDefinition>();
-
-        if (InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().containsKey(riskFact.getEventPoint())) {
+        if (fieldMappingList == null) {
+            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的FieldMapping未找到！！");
             return null;
         }
-        InternalRiskFactDefinitionConfig internalRiskFactDefinitionConfig = InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().get(riskFact.getEventPoint());
-        List<DataUnitDefinition> dataUnitMetas = internalRiskFactDefinitionConfig.getDataUnitMetas();
-        for (FieldMapping fieldMapping : fieldMappingList) {
-            String targetFieldName = fieldMapping.getTargetFieldName();
-            String sourceFieldName = fieldMapping.getSourceFieldName();
-            DataUnit dataUnit = createDataUnit(eventBody, sourceFieldName, targetFieldName, unitDefinitionMap, dataUnitMetas);
-            dataUnits.add(dataUnit);
 
+        /**
+         * 至此eventPoint对应的FieldMapping获取完成
+         *
+         */
 
+        /**
+         * 开始遍历FieldMapping
+         */
+        recurseFieldMappingList(riskFact.eventBody, dataUnitMapping, fieldMappingList);
+        for (String key : dataUnitMapping.keySet()) {
+            internalRiskFact.getDataUnits().add(dataUnitMapping.get(key));
         }
-        internalRiskFact.setDataUnits(dataUnits);
-
-//        /**
-//         * 遍历map 将FieldMapping中需要的字段值取出构成InternalRiskFact
-//         */
-//        recurseValue(eventBody,"",dataUnits,null);
 
         return internalRiskFact;
     }
 
-    private DataUnit createDataUnit(Map<String, Object> eventBody,
-                                    String sourceFieldName,
-                                    String targetFieldName,
-                                    Map<String, DataUnitDefinition> unitDefinitionMap,
-                                    List<DataUnitDefinition> dataUnitMetas) {
+    /**
+     * @param eventBody
+     * @param dataUnitMapping
+     * @param fieldMappingList
+     */
+    private void recurseFieldMappingList(Map eventBody, Map<String, DataUnit> dataUnitMapping,
+                                         List<FieldMapping> fieldMappingList) {
+        for (FieldMapping fieldMapping : fieldMappingList) {
+            String srcName = fieldMapping.getSourceFieldName();
+            String trgName = fieldMapping.getTargetFieldName();
+            ArrayList<String> trgNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
+            ArrayList<String> srcNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(srcName));
 
-        DataUnit dataUnit = new DataUnit();
-
-//        List<String> paths = Lists.newArrayList(targetFieldName.split("."));
-        /**
-         * todo 限制支取第一个；
-         */
-        List<String> paths = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().limit(1).trimResults().split(targetFieldName));
-        try {
-            for (String path : paths) {
-                if (!unitDefinitionMap.containsKey(path)) {
-                    boolean isFound = false;
-                    for (DataUnitDefinition definition : dataUnitMetas) {
-                        if (definition.getMetadata().getName().equals(path)) {
-                            unitDefinitionMap.put(path, definition);
-                            isFound = true;
-                            break;
+            String name = trgNames.get(0);
+            /**
+             * 找到DataUnitMetadata名字和targetName对应的
+             */
+            DataUnit dataUnit = null;
+            for (Map.Entry<String, DataUnit> entry : dataUnitMapping.entrySet()) {
+                if (entry.getValue().getDefinition().getMetadata().getName().equals(name)) {
+                    dataUnit = entry.getValue();
+                    break;
+                }
+            }
+            if (dataUnit != null) {
+                ArrayList<Map<String, Object>> data = (ArrayList<Map<String, Object>>) dataUnit.getData();
+                Integer columnType = checkValidTrgName(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".")+1, trgName.length()), dataUnit.getDefinition().getMetadata());
+                if (columnType != null) {
+                    /**
+                     * 不管dataUnit.getDefinition().getType() 是List 还是Object 都 放到dataUnitMapping 中
+                     */
+                    Object results = getValueFromMap(eventBody, srcName);
+                    if (results instanceof List) {
+                        List<Object> objects = (List<Object>) results;
+                        for (Object result : objects) {
+                            data.add((Map<String, Object>) ImmutableMultimap.of(srcName, result));
                         }
+                    } else {
+                        Map<String,Object> reslutmapping=new HashMap<String, Object>();
+                        reslutmapping.put(trgName,results);
+                        data.add(reslutmapping);
                     }
-                    if (isFound) {
-                        throw new Exception("没有找到第一个path 对应的DataUnitDefinition");
-                    }
-                }
-            }
-            DataUnitDefinition dataUnitDefinition = unitDefinitionMap.get(paths.get(0));
-//            if(dataUnitDefinition.getType()==LIST_TYPE){
-//                dataUnit.setData(new ArrayList<Map<String, Object>>());
-//                /**
-//                 * 从eventBody中找到sourceFieldName 对应的list值
-//                 */
-//
-//            }
-            if (dataUnitDefinition.getType() == OBJECT_TYPE) {
-                dataUnit.setData(new HashMap<String, Object>());
-                dataUnit.setDefinition(dataUnitDefinition);
-
-                Object value = getValueFromMap(eventBody, sourceFieldName);
-                if (value instanceof String) {
-                    dataUnit.setDefinition(dataUnitDefinition);
                 } else {
-                    throw new Exception("取到的value 不是String 对象");
+                    logger.warn("trgName对应的DataMetadata类型不符合当前版本要求");
                 }
-                Map<String, Object> data = (Map<String, Object>) dataUnit.getData();
-
-                data.put(targetFieldName,value);
+            } else {
+                logger.warn("未找到DataUnitDefinition");
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 判断这个trgNames数组是否有效
+     *
+     * @param trgName
+     * @param metadata
+     * @return
+     */
+    private Integer checkValidTrgName(String trgName, DataUnitMetadata metadata) {
+        if (StringUtils.isBlank(trgName) || metadata ==null) {
+            logger.warn("targNme 或者 metadata 为空");
+            return null;
         }
 
-        return dataUnit;
+        ArrayList<String> trgNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
+
+        DataUnitColumn dataUnitColumn = null;
+        List<DataUnitColumn> columns = metadata.getColumns();
+        for (DataUnitColumn column : columns) {
+            if (column.getName().equals(trgNames.get(0))) {
+                dataUnitColumn = column;
+                break;
+            }
+        }
+        if (dataUnitColumn == null) {
+            return null;
+        }
+
+        /**
+         * 最后一个 ColumnName
+         */
+        if (trgNames.size() == 1) {
+            if (dataUnitColumn.getColumnType() != DataUnitColumnType.List.getIndex() && dataUnitColumn.getColumnType() != DataUnitColumnType.Object.getIndex()) {
+                return dataUnitColumn.getColumnType();
+            } else {
+                logger.warn("未找到columnName：" + trgNames.get(0) + "或者columnType是list 或 object");
+                return null;
+            }
+        }
+        /**
+         * 不是最后一个ColumnName (trgNames.size()>1)
+         */
+        else {
+            if (dataUnitColumn.getColumnType() == DataUnitColumnType.List.getIndex() || dataUnitColumn.getColumnType() == DataUnitColumnType.Object.getIndex()) {
+                trgNames.remove(0);
+                return checkValidTrgName(Joiner.on('.').join(trgNames), dataUnitColumn.getDataUnitMetadata());
+            } else {
+                logger.warn("trgname:" + trgNames.get(0) + "不是最后columnName,columnType类型必须是List or Object");
+                return null;
+            }
+        }
     }
 
     private Object getValueFromMap(Map<String, Object> mapping, String sourceFieldName) {
-        Iterable<String> split = Splitter.on('.').omitEmptyStrings().limit(2).trimResults().split(sourceFieldName);
-        ArrayList<String> keys = Lists.newArrayList(split);
-        if (keys.size() == 2) {
-            String key = keys.get(0);
-            Object object = mapping.get(key);
-            if (object instanceof Map) {
-                return getValueFromMap((Map) object, keys.get(1));
-            } else if (object instanceof List) {
-                return getValueFromList((List<Object>) object, sourceFieldName);
+        ArrayList<String> keys = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().limit(2).split(sourceFieldName));
+        String key = keys.get(0);
+        Object object = mapping.get(key);
+
+        if (object instanceof Map) {
+            if (keys.size() == 1) {
+                logger.warn("取到的最后对象是一个map 当前版本暂不支持，值被丢弃返回null");
+                return null;
             } else {
-                //todo 这种情况是错误的；
-                System.out.println("woring!!!!!");
-                return object;
+                return getValueFromMap((Map) object, keys.get(1));
+            }
+        } else if (object instanceof List) {
+            if (keys.size() == 1) {
+                logger.warn("取到的最后对象是一个List 当前版本暂不支持，值被丢弃返回null");
+                return null;
+            } else {
+                return getValueFromList((List) object, keys.get(1));
             }
         } else {
-            //todo 可能是 map list  string  都有可能
-            return mapping.get(keys.get(0));
+            if (keys.size() > 1) {
+                logger.warn("sourceFieldName未走到底！！当前key是：" + keys.get(0) + " value：" + object);
+                return null;
+            } else {
+                return object;
+            }
         }
+
     }
 
     private List getValueFromList(List<Object> list, String sourceFieldName) {
+        ArrayList<String> keys = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().limit(2).split(sourceFieldName));
         Object tmpValue = null;
         List resultList = new ArrayList();
         for (Object item : list) {
             if (item instanceof Map) {
-                tmpValue = getValueFromMap((Map<String, Object>) item, sourceFieldName);
-                if (tmpValue != null) {
-                    resultList.add(tmpValue);
+                if (keys.size() > 1) {
+                    tmpValue = getValueFromMap((Map<String, Object>) item, sourceFieldName);
+                    if (tmpValue != null) {
+                        resultList.add(tmpValue);
+                    }
+                } else {
+                    logger.warn("取到的最后对象是一个map 当前版本暂不支持，值被丢弃");
                 }
             } else if (item instanceof List) {
-                tmpValue = getValueFromList((List<Object>) item, sourceFieldName);
-                if (tmpValue != null) {
-                    resultList.add(tmpValue);
+                if (keys.size() > 1) {
+                    tmpValue = getValueFromList((List<Object>) item, sourceFieldName);
+                    if (tmpValue != null) {
+                        resultList.add(tmpValue);
+                    }
+                } else {
+                    logger.warn("取到的最后对象是一个List 当前版本暂不支持，值被丢弃");
                 }
             } else {
-                //todo 这种情况{"list": [1,2]}
-                resultList.add(item);
+                logger.warn("当前版本list下必须要map或者list,取到对的值" + tmpValue + "被丢弃");
             }
         }
         return resultList;
     }
 
-//    /**
-//     * 遍历obj判断obj是否为map，list 和 String
-//     * 判断 a.b.c 的路径是否在sourceFieldName中
-//     *
-//     * @param obj
-//     * @param sourcePath
-//     * @param dataUnits
-//     */
-//    private void recurseValue(Object obj, String sourcePath,List<DataUnit> dataUnits,DataUnit dataUnit){
-//        if(obj instanceof Map) {
-//            Map<String,Object> map=(Map)obj;
-//            for(Map.Entry<String,Object> entry: map.entrySet()){
-//                sourcePath=StringUtils.isNotBlank(sourcePath)?sourcePath.concat("."+entry.getKey()):entry.getKey();
-//                recurseValue(entry.getValue(),sourcePath, dataUnits,dataUnit==null?null:dataUnit);
-//            }
-//        }
-//        else if(obj instanceof List){
-//            List<Object> list = (List<Object>) obj;
-//            DataUnit unit=new DataUnit();
-//            dataUnit.setData(new ArrayList<Map<String,Object>>());
-//            dataUnits.add(unit);
-//            for(Object entry: list){
-//                recurseValue(entry,sourcePath,dataUnits,unit);
-//            }
-//        }else {
-//            /**
-//             * obj 是String 类型
-//             * 递归结束点
-//             */
-//            FieldMapping fieldMapping = sourcePathMatched(sourcePath);
-//            if(fieldMapping!=null) {
-//                String value = (String) obj;
-//                String targetFieldName = fieldMapping.getTargetFieldName();
-//                createDataUnitDefinition(targetFieldName,dataUnits,dataUnit==null?null:dataUnit);
-//            }
-//        }
-//    }
 
-//    /**
-//     * 如果sourcePath 满足fieldMapping 返回此mapping
-//     * @param sourcePath
-//     * @return
-//     */
-//    private FieldMapping sourcePathMatched(String sourcePath){
-//        for (FieldMapping fieldMapping:fieldMappingList){
-//            String sourceFieldName = fieldMapping.getSourceFieldName();
-//            if(sourceFieldName.equals(sourcePath)){
-//                return fieldMapping;
-//            }
-//        }
-//        return null;
-//    }
-
-    //    /**
-//     * @param targetfieldName
-//     * @param dataUnits
-//     */
-//    private void createDataUnitDefinition(String targetfieldName, List<DataUnit> dataUnits, DataUnit dataUnit){
-//        if(dataUnit==null){
-//            dataUnit=new DataUnit();
-//        }
-//        int listType=2;
-//        int objType=1;
-//        InternalRiskFactDefinitionConfig definitionConfig = InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().get(eventPoint);
-//        List<DataUnitDefinition> dataUnitMetas = definitionConfig.getDataUnitMetas();
-//
-//
-//        List<String> paths= Lists.newArrayList(targetfieldName.split("."));
-//        for(final String path:paths){
-//            DataUnitDefinition dataUnitDefinition;
-//            if(!unitDefinitionMap.containsKey(path)){
-//                Collection<DataUnitDefinition> filter = Collections2.filter(dataUnitMetas, new Predicate<DataUnitDefinition>() {
-//                    @Override
-//                    public boolean apply(DataUnitDefinition input) {
-//                        return input.getMetadata().getName().equals(path);
-//                    }
-//                });
-//                if(filter.isEmpty()&& filter.size()!=1){
-//                    return;
-//                }
-//                else{
-//                    dataUnitDefinition=Lists.newArrayList(filter).get(0);
-//
-//                }
-//            }else {
-//                dataUnitDefinition = unitDefinitionMap.get(path);
-//            }
-//            /**
-//             * 列表对象
-//             */
-//            if(dataUnitDefinition.getType()==listType){
-//            }
-//            /**
-//             * 单一对象
-//             */
-//            if(dataUnitDefinition.getType()==objType){
-//                DataUnitMetadata metadata = dataUnitDefinition.getMetadata();
-//                metadata
-//            }
-//
-//        }
-//
-//
-//    }
     public String getEventPoint() {
         return eventPoint;
     }
@@ -302,6 +282,5 @@ public class RiskFactConvertRule {
     public void setMappings(List<FieldMapping> mappings) {
         this.mappings = mappings;
     }
-
 
 }
