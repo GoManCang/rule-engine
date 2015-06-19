@@ -82,7 +82,7 @@ public class RabbitMqMessageHandler {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理
-            preRulesExecutorService.executePreRules(fact, false);
+            preRulesExecutorService.executePreRules(fact, true);
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
