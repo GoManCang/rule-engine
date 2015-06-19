@@ -78,6 +78,48 @@ public class EventDataMergeService {
     }
 
     /**
+     * 处理从redis获取数据
+     */
+    public RiskFact executeRedisGet(RiskFact fact)
+    {
+        beforeInvoke();
+        try {
+            Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
+            //read and merge data to current fact
+            if (fieldsToGet != null && !fieldsToGet.isEmpty()) {
+                readAndMerge(fact, fieldsToGet);
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "exec executeRedisGet fault.", ex);
+        } finally {
+            afterInvoke("EventDataMergeService.executeRedisGet");
+        }
+        return fact;
+    }
+
+    /**
+     * 处理推送数据到redis
+     */
+    public RiskFact executeRedisPut(RiskFact fact)
+    {
+        beforeInvoke();
+        try {
+            //send data to redis for next get
+            Map<String, Set<String>> fieldsToPut = Configs.getEventMergeFieldsToPut(fact);
+            if (fieldsToPut != null && !fieldsToPut.isEmpty()) {
+                sendToRedis(fact, fieldsToPut);
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "exec executeRedisPut fault.", ex);
+        } finally {
+            afterInvoke("EventDataMergeService.executeRedisPut");
+        }
+        return fact;
+    }
+
+    /**
      * 从Redis获取数据并且合并到当前的fact中 获取的是多个eventPoint对应的合并的key
      */
     private RiskFact readAndMerge(RiskFact fact, Map<String, Map<String, String>> fields) {

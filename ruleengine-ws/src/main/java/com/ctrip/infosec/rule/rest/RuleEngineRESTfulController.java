@@ -54,10 +54,12 @@ public class RuleEngineRESTfulController {
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
         try {
-            // 执行订单合并
-            eventDataMergeService.executeRedisOption(fact);
+            // 执行Redis读取
+            eventDataMergeService.executeRedisGet(fact);
             // 执行预处理
             preRulesExecutorService.executePreRules(fact, false);
+            //执行推送数据到Redis
+            eventDataMergeService.executeRedisPut(fact);
             // 执行同步规则
             rulesExecutorService.executeSyncRules(fact);
         } catch (Throwable ex) {

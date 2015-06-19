@@ -79,10 +79,12 @@ public class RabbitMqMessageHandler {
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 
-            //执行订单合并
-            eventDataMergeService.executeRedisOption(fact);
+            // 执行Redis读取
+            eventDataMergeService.executeRedisGet(fact);
             // 执行预处理
-            preRulesExecutorService.executePreRules(fact, true);
+            preRulesExecutorService.executePreRules(fact, false);
+            //执行推送数据到Redis
+            eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
             rulesExecutorService.executeAsyncRules(fact);
             // 执行后处理
