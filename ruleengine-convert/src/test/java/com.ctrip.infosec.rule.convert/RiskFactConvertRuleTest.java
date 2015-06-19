@@ -115,16 +115,24 @@ public class RiskFactConvertRuleTest {
                 "    \"userIP\": \"117.136.75.60\",\n" +
                 "    \"withdrawType\": \"1\",\n" +
                 "    \"infoSW\": {\n" +
-                "      \"WC\":\"3333333\"}"+
-
-
+                "      \"WC\":3333333},"+
+                "    \"infoSWList\": [\n" +
+                "        {\n" +
+                "            \"entry\": \"1\",\n" +"\"bcn\":\"AAA\""+
+                "        },\n" +
+                "        {\n" +
+                "            \"entry\": \"2\",\n" +"\"bcn\":\"BBB\"" +
+                "        },\n" +
+                "        {\n" +
+                "            \"entry\": \"3\",\n" +"\"bcn\":\"CCC\""+
+                "        }\n" +
+                "    ]"+
                 "}";
 
 
         Map map = JSON.parseObject(factTxt, Map.class);
         riskFact.setEventBody(map);
         RiskFactConvertRule riskFactConvertRule = new RiskFactConvertRule();
-//        InternalConvertConfigHolder.reconfigurate(Caches.riskFactConvertRuleConfigs, Caches.internalRiskFactDefinitionConfigs);
         InternalRiskFact apply = riskFactConvertRule.apply(riskFact);
             List<DataUnit> dataUnits = apply.getDataUnits();
 
