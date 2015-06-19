@@ -47,3 +47,6 @@ venus.server.binding.port=16800
 venus.server.manager.executor.size=64
 venus.socket.receiveBufferSize=64
 venus.socket.sendBufferSize=64
+
+#RService
+RService.Ip={$RService.Ip}

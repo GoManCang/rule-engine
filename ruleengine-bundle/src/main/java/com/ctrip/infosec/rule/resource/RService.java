@@ -27,7 +27,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  */
 public class RService
 {
-    private static final Logger logger = LoggerFactory.getLogger(DataProxy.class);
+    private static final Logger logger = LoggerFactory.getLogger(RService.class);
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
      */
@@ -37,6 +37,7 @@ public class RService
 
     static void check() {
         Validate.notEmpty(rServiceIp, "在GlobalConfig.properties里没有找到\"RService.Ip\"配置项.");
+        initRServiceProxy();
     }
 
     /**
@@ -57,7 +58,7 @@ public class RService
             rConnection = new RConnection(rServiceIp);
         } catch (RserveException e)
         {
-            e.printStackTrace();
+            logger.warn("连接Rserve异常:"+e.getMessage());
         }
     }
 
@@ -69,7 +70,7 @@ public class RService
                     logger.info(SarsMonitorContext.getLogPrefix() + "init RServiceProxy ...");
                     RService service = SpringContextHolder.getBean(RService.class);
                     PooledMethodProxy proxy = MethodProxyFactory
-                            .newMethodProxy(service, "getRScore", double.class)
+                            .newMethodProxy(service, "getRScore", String.class)
                             .supportAsyncInvoke()
                             .pooledWithConfig(new PoolConfig()
                                     .withCorePoolSize(coreSize)
@@ -88,8 +89,9 @@ public class RService
         }
     }
 
-    public double getScore(String expression)
+    public static double getScore(String expression)
     {
+        check();
         beforeInvoke();
         beforeInvoke("RService.getScore");
         double score = 0.0;
