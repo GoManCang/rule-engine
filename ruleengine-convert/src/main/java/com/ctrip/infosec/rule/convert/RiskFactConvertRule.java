@@ -2,12 +2,14 @@ package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.event.*;
+import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import com.meidusa.toolkit.common.util.collection.ArrayHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,6 +141,10 @@ public class RiskFactConvertRule {
 
 
                     Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
+
+                    System.out.println("[trgName]:"+trgName+ "     [value]:" + Utils.JSON.toPrettyJSONString(results));
+
+
                     /**
                      * 将获取的results结果输入格式化如：
                      *
@@ -192,9 +198,11 @@ public class RiskFactConvertRule {
             String firstTrgName = trgNameList.get(0);
             trgNameList.remove(0);
             Object firstMap = data.get(firstTrgName);
-            Object o = convert2InternalMapData(trgNameList, results, firstMap == null ? new HashMap<String, Object>() : (Map<String, Object>) firstMap, trgNames, dataUnit);
+            Object o = convert2InternalMapData(trgNameList, results, firstMap == null ? new HashMap<String, Object>() : (Map<String, Object>) firstMap, trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
             data.put(firstTrgName, o);
         }else  if(dataUnit.getDefinition().getType() == LIST_TYPE){
+
+
 
         }
     }
@@ -205,25 +213,65 @@ public class RiskFactConvertRule {
     }
 
     private Map convert2InternalMapData(ArrayList<String> trgNames, Object result, Map<String, Object> data, String trgName, DataUnit dataUnit) {
-        Integer integer = this.checkColumnType(trgNames.get(0), dataUnit.getDefinition().getMetadata());
+        System.out.println(trgNames.get(0));
+
+        /**
+         * 从完整targetname中获取 从头到当前 trgName[0]的前半段路径 。
+         *
+         */
+        ArrayList<String> tempNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
+        String chechTypePath="";
+        for(String name:tempNames){
+            chechTypePath=chechTypePath.concat(name+".");
+            if(name.equals(trgNames.get(0))){
+                break;
+            }
+        }
+        chechTypePath=chechTypePath.substring(0,chechTypePath.length()-1);
+
+        Integer integer = this.checkColumnType(chechTypePath, dataUnit.getDefinition().getMetadata());
+        String firstTrgName = trgNames.get(0);
         if (integer != null && integer != DataUnitColumnType.List.getIndex()) {
             Map<String, Object> map = new HashMap<String, Object>();
-            String firstTrgName = trgNames.get(0);
+
             if (trgNames.size() == 1) {
                 map.put(firstTrgName, result);
                 data.putAll(map);
             } else {
                 trgNames.remove(0);
                 Map subMap = (Map) data.get(firstTrgName);
-                Map o = convert2InternalMapData(trgNames, result, subMap == null ? new HashMap<String, Map>() : subMap, firstTrgName, dataUnit);
+                Map o = convert2InternalMapData(trgNames, result, subMap == null ? new HashMap<String, Object>() : subMap, trgName, dataUnit);
                 map.put(firstTrgName, o);
                 data.putAll(map);
             }
         }
         if (integer == DataUnitColumnType.List.getIndex()) {
-            System.out.println("---------------list--------------------");
+            System.out.println("[key] : "+trgName+"[trgname] : "+trgNames.get(0)+"\n---------------list--------------------");
+//            List<Object> list=new ArrayList<Object>();
+            Map<String, Object> map = new HashMap<String, Object>();
+            /**
+             * 由于是trgName 中包含list 所以需要判断获得的对象是否也是list，
+             * 又因为当前版本 最后一个column类型必定是简单类型 所以 result 中都是简单类型 循环处理一下就OK了
+             * 是符合条件，不是的话   todo 呵呵再说
+             *
+             */
+            if(result instanceof  List){
+                List<Object> resultList= (List<Object>) result;
+                trgNames.remove(0);
+                List subList = (List) data.get(firstTrgName);
+                if(subList==null){
+                    subList=new ArrayList();
+                }
+                for(Object item: resultList){
+                    Map submap = convert2InternalMapData(trgNames, item, new HashMap<String, Object>(), trgName, dataUnit);
+                    subList.add(submap);
+                }
+                map.put(firstTrgName,subList);
+                data.putAll(map);
+            }
+            else{
 
-
+            }
         }
         return data;
     }

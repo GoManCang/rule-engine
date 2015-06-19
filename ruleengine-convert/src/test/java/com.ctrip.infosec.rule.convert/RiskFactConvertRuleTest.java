@@ -138,7 +138,19 @@ public class RiskFactConvertRuleTest {
                 "        {\n" +
                 "            \"entry\": \"3\",\n" +"\"bcn\":\"CCC\""+
                 "        }\n" +
-                "    ]"+
+                "    ],"+
+                "  \"listmd\": {\n" +
+                "        \"list1\": [\n" +
+                "            {\n" +
+                "                \"name\": \"listName1\",\n" +
+                "                \"age\": 1" +
+                "            },\n" +
+                "            {\n" +
+                "                \"name\": \"listName2\",\n" +
+                "                \"age\": 2" +
+                "            }\n" +
+                "        ]\n" +
+                "    }"+
                 "}";
 
 
