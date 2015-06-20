@@ -9,7 +9,6 @@ import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.meidusa.toolkit.common.util.collection.ArrayHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,7 +141,7 @@ public class RiskFactConvertRule {
 
                     Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
 
-                    System.out.println("[trgName]:"+trgName+ "     [value]:" + Utils.JSON.toPrettyJSONString(results));
+                    System.out.println("[trgName]:" + trgName + "     [value]:" + Utils.JSON.toPrettyJSONString(results));
 
 
                     /**
@@ -192,7 +191,7 @@ public class RiskFactConvertRule {
      * @param trgNames
      */
     private void convert2data(Object results, DataUnit dataUnit, String trgNames) {
-        if (dataUnit.getDefinition().getType() == OBJECT_TYPE ) {
+        if (dataUnit.getDefinition().getType() == OBJECT_TYPE) {
             Map data = (Map) dataUnit.getData();
             ArrayList<String> trgNameList = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgNames));
             String firstTrgName = trgNameList.get(0);
@@ -200,8 +199,7 @@ public class RiskFactConvertRule {
             Object firstMap = data.get(firstTrgName);
             Object o = convert2InternalMapData(trgNameList, results, firstMap == null ? new HashMap<String, Object>() : (Map<String, Object>) firstMap, trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
             data.put(firstTrgName, o);
-        }else  if(dataUnit.getDefinition().getType() == LIST_TYPE){
-
+        } else if (dataUnit.getDefinition().getType() == LIST_TYPE) {
 
 
         }
@@ -220,14 +218,14 @@ public class RiskFactConvertRule {
          *
          */
         ArrayList<String> tempNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
-        String chechTypePath="";
-        for(String name:tempNames){
-            chechTypePath=chechTypePath.concat(name+".");
-            if(name.equals(trgNames.get(0))){
+        String chechTypePath = "";
+        for (String name : tempNames) {
+            chechTypePath = chechTypePath.concat(name + ".");
+            if (name.equals(trgNames.get(0))) {
                 break;
             }
         }
-        chechTypePath=chechTypePath.substring(0,chechTypePath.length()-1);
+        chechTypePath = chechTypePath.substring(0, chechTypePath.length() - 1);
 
         Integer integer = this.checkColumnType(chechTypePath, dataUnit.getDefinition().getMetadata());
         String firstTrgName = trgNames.get(0);
@@ -246,7 +244,7 @@ public class RiskFactConvertRule {
             }
         }
         if (integer == DataUnitColumnType.List.getIndex()) {
-            System.out.println("[key] : "+trgName+"[trgname] : "+trgNames.get(0)+"\n---------------list--------------------");
+            System.out.println("[key] : " + trgName + "[trgname] : " + trgNames.get(0) + "\n---------------list--------------------");
 //            List<Object> list=new ArrayList<Object>();
             Map<String, Object> map = new HashMap<String, Object>();
             /**
@@ -255,21 +253,38 @@ public class RiskFactConvertRule {
              * 是符合条件，不是的话   todo 呵呵再说
              *
              */
-            if(result instanceof  List){
-                List<Object> resultList= (List<Object>) result;
+            if (result instanceof List) {
+                List<Object> resultList = (List<Object>) result;
                 trgNames.remove(0);
                 List subList = (List) data.get(firstTrgName);
-                if(subList==null){
-                    subList=new ArrayList();
+                if (subList == null) {
+                    subList = new ArrayList();
                 }
-                for(Object item: resultList){
-                    Map submap = convert2InternalMapData(trgNames, item, new HashMap<String, Object>(), trgName, dataUnit);
-                    subList.add(submap);
+                if (subList.size() == 0) {
+                    for (int i = 0; i < resultList.size(); i++)
+//                for(Object item: resultList)
+                    {
+                        Object item = resultList.get(i);
+                        Map submap = convert2InternalMapData(trgNames, item, new HashMap<String, Object>(), trgName, dataUnit);
+                        subList.add(submap);
+                    }
+                    map.put(firstTrgName, subList);
+                    data.putAll(map);
                 }
-                map.put(firstTrgName,subList);
-                data.putAll(map);
-            }
-            else{
+                else{
+                    /**
+                     * map的list中已有值 不用再putAll
+                     */
+                    if(subList.size()==resultList.size()){
+                        for (int i = 0; i < resultList.size(); i++){
+                            Object r = resultList.get(i);
+                            Map item  = (Map) subList.get(i);
+                            convert2InternalMapData(trgNames, r, item, trgName, dataUnit);
+                        }
+                    }
+                }
+
+            } else {
 
             }
         }
