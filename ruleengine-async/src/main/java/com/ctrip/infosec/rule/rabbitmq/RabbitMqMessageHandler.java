@@ -75,7 +75,7 @@ public class RabbitMqMessageHandler {
         RiskFact fact = null;
         String factTxt = null;
         long reqId;
-        InternalRiskFact internalRiskFact;
+        InternalRiskFact internalRiskFact = null;
         try {
 
             if (message instanceof byte[]) {
