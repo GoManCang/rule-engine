@@ -43,6 +43,11 @@ public class OfflineMessageSender {
         }
 
     }
+    
+    public void sendToOffline(Object obj) {
+    	
+    	template.convertAndSend(defaultRoutingKey, JSON.toJSONString(obj));
+    }
 
     private RiskEvent dataConvert(RiskFact fact) {
 

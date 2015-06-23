@@ -26,9 +26,12 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.model.RiskResult;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.CallbackRule;
+import com.ctrip.infosec.configs.event.HeaderMappingBizType;
 import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.executor.CounterPushRulesExecutorService;
 import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
@@ -60,10 +63,15 @@ public class RabbitMqMessageHandler {
     private OfflineMessageSender offlineMessageSender;
     @Autowired
     private CounterPushRulesExecutorService counterPushRuleExrcutorService;
+    @Autowired
+    private RiskEventConvertor riskEventConvertor;
 
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
         String factTxt = null;
+        InternalRiskFact internalRiskFact = null;
+        long reqId = -1;
+        
         try {
 
             if (message instanceof byte[]) {
@@ -89,6 +97,7 @@ public class RabbitMqMessageHandler {
             postRulesExecutorService.executePostRules(fact, true);
             //Counter推送规则处理
             counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+            
 
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
@@ -123,15 +132,16 @@ public class RabbitMqMessageHandler {
                     }
 
                     // 发送Offline4J
-//                    try {
-//                        beforeInvoke();
-//                        offlineMessageSender.sendToOffline(fact);
-//                    } catch (Exception ex) {
-//                        fault();
-//                        logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
-//                    } finally {
-//                        afterInvoke("offlineMessageSender.sendToOffline");
-//                    }
+                    try {
+                    	Object eventObj = riskEventConvertor.convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
+                        beforeInvoke();
+                        offlineMessageSender.sendToOffline(eventObj);
+                    } catch (Exception ex) {
+                        fault();
+                        logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
+                    } finally {
+                        afterInvoke("offlineMessageSender.sendToOffline");
+                    }
                 }
 
                 try {

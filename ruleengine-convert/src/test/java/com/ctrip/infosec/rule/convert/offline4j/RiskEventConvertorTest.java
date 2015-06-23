@@ -1,39 +1,38 @@
-package com.ctrip.infosec.rule.convert;
-
-import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.configs.Caches;
-import com.ctrip.infosec.configs.entity.offline.HeaderMapping;
-import com.ctrip.infosec.configs.utils.Utils;
-import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
-import com.ctrip.infosec.rule.convert.internal.DataUnit;
-import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.BeanUtils;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.List;
-import java.util.Map;
+package com.ctrip.infosec.rule.convert.offline4j;
 
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.configs.event.HeaderMappingBizType;
+import com.ctrip.infosec.configs.utils.EventBodyUtils;
+import com.ctrip.infosec.rule.convert.internal.DataUnit;
+import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine.xml"})
-public class RiskFactConvertRuleTest {
+public class RiskEventConvertorTest {
+	
+	@Autowired
+	private RiskEventConvertor riskEventConvertor;
 
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+	}
 
-    @Test
-    public void testApply() throws Exception {
-        RiskFact riskFact = new RiskFact();
-        riskFact.setEventId("11");
-        riskFact.setEventPoint("CP0007012");
-        riskFact.setAppId("11");
-
-//        map.put("DealInfo", ImmutableMap.of("ReqID",7888,"CheckStatus",0));
-
-        String factTxt = "{\n" +
+	@Test
+	public void testConvert() {
+		
+		String factTxt = "{\n" +
                 "    \"CrmMemberInfo\": {\n" +
                 "        \"agentType\": \"  \",\n" +
                 "        \"bindedMobilePhone\": \"13600971055\",\n" +
@@ -157,20 +156,29 @@ public class RiskFactConvertRuleTest {
                 "}";
 
 
-        Map map = JSON.parseObject(factTxt, Map.class);
-        riskFact.setEventBody(map);
-        RiskFactConvertRule riskFactConvertRule = new RiskFactConvertRule();
-        InternalRiskFact apply = riskFactConvertRule.apply(riskFact);
-            List<DataUnit> dataUnits = apply.getDataUnits();
-
-            System.out.println("------------------format print----------------------");
-            for(DataUnit dataUnit:dataUnits) {
-                    System.out.println(Utils.JSON.toPrettyJSONString(dataUnit.getData()));
-            }
-            System.out.println("-----------------format print end-----------------------");
-
-    }
-
-
+        Map eventBody = JSON.parseObject(factTxt, Map.class);
+        System.out.println("EventBodyUtils.valueAsString = " + EventBodyUtils.valueAsString(eventBody, "CrmMemberInfo.bindedMobilePhone"));
+		
+		RiskFact riskFact = new RiskFact();
+		riskFact.setAppId("test appid");
+		riskFact.setEventId("test eventId");
+		riskFact.setEventPoint("CP0001008");
+		riskFact.setEventBody(eventBody);
+		
+		InternalRiskFact internalRiskFact = new InternalRiskFact();
+		internalRiskFact.setAppId("test internal app id");
+		internalRiskFact.setEventId("test internal event id");
+		internalRiskFact.setEventPoint("CP0001008");
+		internalRiskFact.setReqId(123l);
+		internalRiskFact.setDataUnits(new ArrayList<DataUnit>());
+		
+		Object eventObject = null;
+		try {
+			eventObject = riskEventConvertor.convert(internalRiskFact, riskFact, HeaderMappingBizType.Offline4J);
+			System.out.println(eventObject.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }
