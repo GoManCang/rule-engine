@@ -1,6 +1,7 @@
 package com.ctrip.infosec.rule.convert.persist;
 
 import com.ctrip.infosec.configs.event.DataUnitMetadata;
+import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 
 import java.util.Map;
@@ -20,8 +21,15 @@ public class RdbmsInsert implements DbOperation {
      */
     Map<String, PersistColumnProperties> columnPropertiesMap;
 
+
+
     @Override
     public void execute(PersistContext ctx) throws DbExecuteException {
+        DatabaseType databaseType = channel.getDatabaseType();
+        if(databaseType.equals(DatabaseType.AllInOne_SqlServer)){
+            
+        }
+
 
     }
 
