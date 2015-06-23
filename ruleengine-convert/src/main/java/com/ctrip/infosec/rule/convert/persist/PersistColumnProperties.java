@@ -1,12 +1,14 @@
 package com.ctrip.infosec.rule.convert.persist;
 
 import com.ctrip.infosec.configs.event.DataUnitColumnType;
+import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 
 /**
  * Created by jizhao on 2015/6/23.
  */
 public class PersistColumnProperties {
-    private PersistColumnProperties columnProperties;
+
+    private PersistColumnSourceType persistColumnSourceType;
 
     private String expression;
 
@@ -14,14 +16,6 @@ public class PersistColumnProperties {
 
     private Object value;
 
-
-    public PersistColumnProperties getColumnProperties() {
-        return columnProperties;
-    }
-
-    public void setColumnProperties(PersistColumnProperties columnProperties) {
-        this.columnProperties = columnProperties;
-    }
 
     public String getExpression() {
         return expression;

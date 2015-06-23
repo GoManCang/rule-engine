@@ -1,9 +1,12 @@
 package com.ctrip.infosec.rule.convert.persist;
 
+import com.ctrip.datasource.locator.DataSourceLocator;
 import com.ctrip.infosec.configs.event.DataUnitMetadata;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
+import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.sql.DataSource;
 import java.util.Map;
 
 /**
@@ -27,7 +30,18 @@ public class RdbmsInsert implements DbOperation {
     public void execute(PersistContext ctx) throws DbExecuteException {
         DatabaseType databaseType = channel.getDatabaseType();
         if(databaseType.equals(DatabaseType.AllInOne_SqlServer)){
-            
+            DataSource dataSource;
+            try {
+                dataSource = DataSourceLocator.newInstance().getDataSource( channel.getDatabaseURL());
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new DbExecuteException("获取dataSource异常",e);
+            }
+
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+//            jdbcTemplate.update()
+
         }
 
 
