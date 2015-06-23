@@ -122,4 +122,16 @@ public class RService
         }
         return score;
     }
+
+    public void destroy()
+    {
+        if(rConnection.close())
+        {
+            logger.info("Rserve断开连接成功");
+        }else
+        {
+            logger.warn("Rserve断开连接异常");
+        }
+
+    }
 }
