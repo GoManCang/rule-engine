@@ -97,7 +97,7 @@ public class RabbitMqMessageHandler {
             postRulesExecutorService.executePostRules(fact, true);
             //Counter推送规则处理
             counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-            //riskfact 数据映射装换
+            //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
 
         } catch (Throwable ex) {
