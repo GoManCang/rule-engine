@@ -4,8 +4,10 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -111,6 +113,7 @@ public class RiskFactConvertRuleTest {
             System.out.println("-----------------format print end-----------------------");
 
     }
+
 
 
 }
