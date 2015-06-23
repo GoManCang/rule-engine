@@ -5,4 +5,13 @@ package com.ctrip.infosec.rule.convert.persist;
  */
 public class RiskFactPersistManager {
     private final PersistContext ctx = new PersistContext();
+    private DbOperationChain operationChain;
+
+    public void persist() throws DbExecuteException {
+        operationChain.execute(ctx);
+    }
+
+    public void setOperationChain(DbOperationChain operationChain) {
+        this.operationChain = operationChain;
+    }
 }

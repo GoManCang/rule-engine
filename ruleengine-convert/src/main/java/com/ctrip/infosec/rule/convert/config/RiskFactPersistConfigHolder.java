@@ -13,7 +13,7 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/19.
  */
 public class RiskFactPersistConfigHolder {
-    private static final long PURGE_TIMEOUT = DateUtils.MILLIS_PER_DAY;
+    private static final long PURGE_TIMEOUT = DateUtils.MILLIS_PER_MINUTE;
     private static long lastPurgeTime = System.currentTimeMillis();
     public static final Map<String, InternalRiskFactPersistConfig> localPersistConfigs = Maps.newHashMap();
     public static final Map<String, DataUnitMetadata> localDataUnitMetadatas = Maps.newHashMap();

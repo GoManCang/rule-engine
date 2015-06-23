@@ -14,6 +14,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
+import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -66,12 +68,14 @@ public class RabbitMqMessageHandler {
     @Autowired
     private RiskEventConvertor riskEventConvertor;
 
+    @Autowired
+    private RiskFactConvertRuleService riskFactConvertRuleService;
+
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
         String factTxt = null;
-        InternalRiskFact internalRiskFact = null;
-        long reqId = -1;
-        
+        long reqId;
+        InternalRiskFact internalRiskFact;
         try {
 
             if (message instanceof byte[]) {
@@ -97,7 +101,8 @@ public class RabbitMqMessageHandler {
             postRulesExecutorService.executePostRules(fact, true);
             //Counter推送规则处理
             counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-            
+            //riskfact 数据映射转换
+            internalRiskFact = riskFactConvertRuleService.apply(fact);
 
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
