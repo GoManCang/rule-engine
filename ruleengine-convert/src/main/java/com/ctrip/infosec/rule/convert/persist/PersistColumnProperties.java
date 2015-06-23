@@ -40,4 +40,12 @@ public class PersistColumnProperties {
     public void setValue(Object value) {
         this.value = value;
     }
+
+    public PersistColumnSourceType getPersistColumnSourceType() {
+        return persistColumnSourceType;
+    }
+
+    public void setPersistColumnSourceType(PersistColumnSourceType persistColumnSourceType) {
+        this.persistColumnSourceType = persistColumnSourceType;
+    }
 }
