@@ -1,16 +1,16 @@
 package com.ctrip.infosec.rule.convert;
 
-import com.ctrip.infosec.configs.event.DataUnitMetadata;
-import com.ctrip.infosec.configs.event.InternalRiskFactPersistConfig;
-import com.ctrip.infosec.configs.event.RdbmsTableOperationConfig;
+import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
+import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
+import com.ctrip.infosec.configs.event.enums.PersistOperationType;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-import com.ctrip.infosec.rule.convert.persist.DbOperation;
-import com.ctrip.infosec.rule.convert.persist.DbOperationChain;
-import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
+import com.ctrip.infosec.rule.convert.persist.*;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -82,13 +82,98 @@ public class RiskFactPersistStrategy {
     }
 
     private static DbOperationChain buildDbOperationChain(Map<String, Object> data, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
-        Map<String, Object> fieldMap = extractFieldData(data, meta);
-        return null;
+        // 简单类型，对应一个落地操作
+        Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
+        PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
+        DbOperationChain chain = null;
+        if (operationType == PersistOperationType.INSERT) {
+            RdbmsInsert insert = new RdbmsInsert();
+            insert.setChannel(config.getChannel());
+            insert.setTable(config.getTableName());
+            insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
+            chain = new DbOperationChain(insert);
+        }
+        Map<String, Object> complexFieldMap = extractFieldObject(data, meta);
+        if (MapUtils.isNotEmpty(complexFieldMap)){
+            for (Map.Entry<String, Object> entry : complexFieldMap.entrySet()) {
+
+            }
+            // TODO
+        }
+        return chain;
     }
 
-    private static Map<String, Object> extractFieldData(Map<String, Object> data, DataUnitMetadata meta) {
+    private static Map<String, PersistColumnProperties> generateColumnProperties(Map<String, Object> simpleFieldMap, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+        List<RdbmsTableColumnConfig> columnConfigs = config.getColumns();
+        Map<String, PersistColumnProperties> rt = Maps.newHashMap();
+        for (RdbmsTableColumnConfig columnConfig : columnConfigs) {
+            PersistColumnSourceType sourceType = PersistColumnSourceType.getByCode(columnConfig.getSourceType());
+            PersistColumnProperties props = new PersistColumnProperties();
+            props.setExpression(columnConfig.getSource());
+            props.setPersistColumnSourceType(sourceType);
+            if (sourceType == PersistColumnSourceType.DATA_UNIT) {
+                String metaColumnName = columnConfig.getSource();
+                props.setValue(simpleFieldMap.get(metaColumnName));
+                props.setColumnType(DataUnitColumnType.getByIndex(meta.getColumn(metaColumnName).getColumnType()));
+            }
+            rt.put(columnConfig.getName(), props);
+        }
+        return rt;
+    }
 
-        return null;
+    /**
+     * 获取data中类型是简单类型的数据
+     *
+     * @param data
+     * @param meta
+     * @return
+     */
+    private static Map<String, Object> extractFieldData(Map<String, Object> data, DataUnitMetadata meta) {
+        Map<String, Object> rt = null;
+        List<DataUnitColumn> columns = meta.getColumns();
+        if (CollectionUtils.isNotEmpty(columns)) {
+            rt = Maps.newHashMap();
+            for (DataUnitColumn column : columns) {
+                String name = column.getName();
+                DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());
+                if (colType != DataUnitColumnType.List && colType != DataUnitColumnType.Object) {
+                    Object val = data.get(name);
+                    if (val != null) {
+                        rt.put(name, val);
+                    }
+                }
+            }
+        }
+        return rt;
+    }
+
+    /**
+     * 获取data中类型是LIST或OBJECT的数据
+     *
+     * @param data
+     * @param meta
+     * @return
+     */
+    private static Map<String, Object> extractFieldObject(Map<String, Object> data, DataUnitMetadata meta) {
+        Map<String, Object> rt = null;
+        List<DataUnitColumn> columns = meta.getColumns();
+        if (CollectionUtils.isNotEmpty(columns)) {
+            rt = Maps.newHashMap();
+            for (DataUnitColumn column : columns) {
+                String name = column.getName();
+                DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());
+                if (colType == DataUnitColumnType.List || colType == DataUnitColumnType.Object) {
+                    Object val = data.get(name);
+                    if (val != null) {
+                        rt.put(name, val);
+                    }
+                }
+            }
+            if (rt.size() == 0) {
+                rt = null;
+            }
+        }
+        return rt;
     }
 
     /**
