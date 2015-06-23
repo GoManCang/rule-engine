@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -64,6 +65,8 @@ public class RabbitMqMessageHandler {
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
         String factTxt = null;
+        InternalRiskFact internalRiskFact;
+        long reqId = -1;
         try {
 
             if (message instanceof byte[]) {
