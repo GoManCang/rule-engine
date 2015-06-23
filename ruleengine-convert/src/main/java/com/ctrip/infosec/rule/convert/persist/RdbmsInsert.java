@@ -19,10 +19,12 @@ public class RdbmsInsert implements DbOperation {
      */
     private DistributionChannel channel;
 
+    private String table;
+
     /**
      * key: 数据序列  value： 数据来源和 表达式
      */
-    Map<String, PersistColumnProperties> columnPropertiesMap;
+    private Map<String, PersistColumnProperties> columnPropertiesMap;
 
 
 
@@ -30,6 +32,8 @@ public class RdbmsInsert implements DbOperation {
     public void execute(PersistContext ctx) throws DbExecuteException {
         DatabaseType databaseType = channel.getDatabaseType();
         if(databaseType.equals(DatabaseType.AllInOne_SqlServer)){
+//            String sql = createSql(channel.get,columnPropertiesMap);
+
             DataSource dataSource;
             try {
                 dataSource = DataSourceLocator.newInstance().getDataSource( channel.getDatabaseURL());
@@ -47,11 +51,42 @@ public class RdbmsInsert implements DbOperation {
 
     }
 
+//    private String createSql(String table, Map<String, PersistColumnProperties> columnPropertiesMap) {
+//        String sql= "insert "
+//        for(Map.Entry<String,PersistColumnProperties> entry: columnPropertiesMap){
+//
+//        }
+//    }
+
+
     @Override
     public Map<String, Object> getExposedValue() {
         return null;
+
     }
 
 
+    public DistributionChannel getChannel() {
+        return channel;
+    }
 
+    public void setChannel(DistributionChannel channel) {
+        this.channel = channel;
+    }
+
+    public String getTable() {
+        return table;
+    }
+
+    public void setTable(String table) {
+        this.table = table;
+    }
+
+    public Map<String, PersistColumnProperties> getColumnPropertiesMap() {
+        return columnPropertiesMap;
+    }
+
+    public void setColumnPropertiesMap(Map<String, PersistColumnProperties> columnPropertiesMap) {
+        this.columnPropertiesMap = columnPropertiesMap;
+    }
 }
