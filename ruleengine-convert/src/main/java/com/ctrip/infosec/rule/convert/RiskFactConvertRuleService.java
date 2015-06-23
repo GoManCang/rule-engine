@@ -9,10 +9,10 @@ import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import com.meidusa.toolkit.common.util.collection.ArrayHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,9 +22,10 @@ import java.util.Map;
 /**
  * Created by jizhao on 2015/6/15.
  */
-public class RiskFactConvertRule {
+@Service
+public class RiskFactConvertRuleService {
 
-    private static Logger logger = LoggerFactory.getLogger(RiskFactConvertRule.class);
+    private static Logger logger = LoggerFactory.getLogger(RiskFactConvertRuleService.class);
 
 //    private String eventPoint;
 //    private List<FieldMapping> mappings;
