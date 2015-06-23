@@ -1,9 +1,7 @@
 package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.configs.Caches;
 import com.ctrip.infosec.configs.utils.Utils;
-import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import org.junit.Test;
@@ -71,7 +69,7 @@ public class RiskFactConvertRuleTest {
 
         Map map = JSON.parseObject(factTxt, Map.class);
         riskFact.setEventBody(map);
-        RiskFactConvertRule riskFactConvertRule = new RiskFactConvertRule();
+        RiskFactConvertRuleService riskFactConvertRule = new RiskFactConvertRuleService();
         InternalRiskFact apply = riskFactConvertRule.apply(riskFact);
             List<DataUnit> dataUnits = apply.getDataUnits();
         /**

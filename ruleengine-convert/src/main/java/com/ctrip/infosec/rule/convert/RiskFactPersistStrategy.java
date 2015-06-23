@@ -87,7 +87,7 @@ public class RiskFactPersistStrategy {
     }
 
     private static Map<String, Object> extractFieldData(Map<String, Object> data, DataUnitMetadata meta) {
-        
+
         return null;
     }
 
