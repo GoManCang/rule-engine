@@ -39,6 +39,12 @@
             <artifactId>dal-java-client</artifactId>
             <scope>provided</scope>
         </dependency>
+        
+        <!-- offline4j-api -->
+        <dependency>
+			<groupId>com.ctrip.infosec.offline4j</groupId>
+			<artifactId>offline4j-api</artifactId>
+		</dependency>
 
     </dependencies>
 </project>

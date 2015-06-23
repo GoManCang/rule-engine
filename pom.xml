@@ -76,6 +76,7 @@
         <infosec.monitor.version>1.0.3</infosec.monitor.version>
         <configs.client.version>1.0.4-SNAPSHOT</configs.client.version>
         <counter.server.version>1.0.2-SNAPSHOT</counter.server.version>
+        <offline4j.version>1.0.0-SNAPSHOT</offline4j.version>
 
     </properties>
 
@@ -94,6 +95,11 @@
             <dependency>
                 <groupId>com.ctrip.infosec.ruleengine</groupId>
                 <artifactId>ruleengine-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ctrip.infosec.ruleengine</groupId>
+                <artifactId>ruleengine-convert</artifactId>
                 <version>${project.version}</version>
             </dependency>
             
@@ -550,6 +556,13 @@
                 <version>4.11</version>
                 <scope>test</scope>
             </dependency>
+            
+            <!-- offline4j-api -->
+            <dependency>
+				<groupId>com.ctrip.infosec.offline4j</groupId>
+				<artifactId>offline4j-api</artifactId>
+				<version>${offline4j.version}</version>
+			</dependency>
             
         </dependencies>
     </dependencyManagement>
