@@ -1,9 +1,9 @@
 package com.ctrip.infosec.rule.convert.persist;
 
-import com.ctrip.datasource.locator.DataSourceLocator;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
+import com.ctrip.infosec.rule.convert.util.DalDataSourceHolder;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -56,10 +56,12 @@ public class RdbmsInsert implements DbOperation {
 
         DatabaseType databaseType = channel.getDatabaseType();
         if (databaseType.equals(DatabaseType.AllInOne_SqlServer)) {
+
             DataSource dataSource;
+            Connection connection = null;
             try {
-                dataSource = DataSourceLocator.newInstance().getDataSource(channel.getDatabaseURL());
-                Connection connection = dataSource.getConnection();
+                dataSource = DalDataSourceHolder.getDataSource(channel.getDatabaseURL());
+                connection = dataSource.getConnection();
                 String spa = createSPA(table, columnPropertiesMap, ctx);
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
@@ -67,9 +69,18 @@ public class RdbmsInsert implements DbOperation {
                 if (pk_Index != 0) {
                     primary_key = cs.getLong(pk_Index);
                 }
+
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new DbExecuteException("insert操作异常", e);
+            } finally {
+                try {
+                    if (connection != null) {
+                        connection.close();
+                    }
+                }catch(SQLException e){
+                    throw new DbExecuteException("connect 关闭错误",e);
+                }
             }
         }
     }
@@ -87,8 +98,8 @@ public class RdbmsInsert implements DbOperation {
         int size = columnPropertiesMap.size();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             Object o = valueByPersistSourceType(entry.getValue(), ctx);
-            if(entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
-                if (o != null ) {
+            if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
+                if (o != null) {
                     if (index + 1 < size) {
                         temp += "@" + entry.getKey() + " = ?, ";
                     } else {
@@ -96,8 +107,7 @@ public class RdbmsInsert implements DbOperation {
                     }
                 }
 
-            }
-            else{
+            } else {
                 if (index + 1 < size) {
                     temp += "@" + entry.getKey() + " = ?, ";
                 } else {
@@ -127,23 +137,20 @@ public class RdbmsInsert implements DbOperation {
             if (!value.getPersistColumnSourceType().equals(PersistColumnSourceType.DB_PK)) {
                 Object o = value.getValue();
                 if (o != null) {
-                    if(o instanceof Integer){
+                    if (o instanceof Integer) {
                         cs.setInt(index, (Integer) o);
-                    }
-                    else if(o instanceof Logger){
+                    } else if (o instanceof Logger) {
                         cs.setLong(index, (Long) o);
-                    }else if(o instanceof Date){
+                    } else if (o instanceof Date) {
                         cs.setDate(index, new java.sql.Date(((Date) o).getTime()));
-                    }else if(o instanceof String){
+                    } else if (o instanceof String) {
                         cs.setString(index, (String) o);
-                    }else if (o instanceof Float || o instanceof Double){
+                    } else if (o instanceof Float || o instanceof Double) {
                         cs.setBigDecimal(index, (BigDecimal) o);
+                    } else {
+                        cs.setObject(index, o);
                     }
-                    else{
-                        cs.setObject(index,o);
-                    }
-                }
-                else{
+                } else {
                     continue;
                 }
             } else {
