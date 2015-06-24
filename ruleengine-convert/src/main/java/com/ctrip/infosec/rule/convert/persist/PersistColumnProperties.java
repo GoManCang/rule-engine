@@ -48,4 +48,14 @@ public class PersistColumnProperties {
     public void setPersistColumnSourceType(PersistColumnSourceType persistColumnSourceType) {
         this.persistColumnSourceType = persistColumnSourceType;
     }
+
+    @Override
+    public String toString() {
+        return "PersistColumnProperties{" +
+                "persistColumnSourceType=" + persistColumnSourceType +
+                ", expression='" + expression + '\'' +
+                ", columnType=" + columnType +
+                ", value=" + value +
+                '}';
+    }
 }
