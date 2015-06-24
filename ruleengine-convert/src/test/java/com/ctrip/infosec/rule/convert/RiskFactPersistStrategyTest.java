@@ -96,11 +96,13 @@ public class RiskFactPersistStrategyTest {
                 "}";
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
-        daemon.setUrl("http://localhost:8180/rest/loadconfig");
+
+        daemon.setUrl("http://localhost:8080/configsws/rest/loadconfig");
         daemon.setPart(Part.FactPersistConfig);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();
 
+//        Thread.sleep(10000);
         InternalRiskFact internalRiskFact = new RiskFactConvertRuleService().apply(fact);
         System.out.println(Utils.JSON.toPrettyJSONString(internalRiskFact.getDataUnits()));
         RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);

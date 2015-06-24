@@ -215,8 +215,8 @@ public class RiskFactConvertRuleService {
                  for(Object item:items){
                      Map tmpMap=new HashMap();
                      Object o = convert2InternalMapData(trgNameList, item, new HashMap<String, Object>(), trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
-                     tmpMap.put(firstTrgName,o);
-                     data.add(tmpMap);
+//                     tmpMap.put(firstTrgName,o);
+                     data.add(o);
                  }
             }
             else {
