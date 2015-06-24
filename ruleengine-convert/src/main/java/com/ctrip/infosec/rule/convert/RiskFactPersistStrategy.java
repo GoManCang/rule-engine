@@ -38,7 +38,7 @@ public class RiskFactPersistStrategy {
             return null;
         }
         DbOperationChain firstOne = genReqIdOperationChain();
-        DbOperationChain last = null;
+        DbOperationChain last = firstOne;
         List<RdbmsTableOperationConfig> opConfigs = config.getOps();
         for (RdbmsTableOperationConfig operationConfig : opConfigs) {
             DataUnitMetadata meta = getMetadata(operationConfig.getDataUnitMetaId());

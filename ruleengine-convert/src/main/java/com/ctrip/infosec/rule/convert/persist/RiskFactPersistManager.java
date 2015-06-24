@@ -24,4 +24,12 @@ public class RiskFactPersistManager {
                 ", operationChain=" + operationChain +
                 '}';
     }
+
+    public long getGeneratedReqId() {
+        Long reqId = ctx.getReqId();
+        if (reqId != null) {
+            return reqId.longValue();
+        }
+        return -1;
+    }
 }

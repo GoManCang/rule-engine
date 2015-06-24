@@ -62,36 +62,38 @@ public class RiskFactPersistStrategyTest {
 
         // 获取persistManager
         RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact);
-        System.out.println(persistManager);
+        persistManager.persist();
+        System.out.println(persistManager.getGeneratedReqId());
     }
 
     private List<RdbmsTableOperationConfig> getRdbmsTableOperationConfigs() {
         List<RdbmsTableOperationConfig> configOps = Lists.newArrayList();
         RdbmsTableOperationConfig op = new RdbmsTableOperationConfig();
-        DistributionChannel channel = getChannel("ch1", DatabaseType.AllInOne_SqlServer, "AllInOneChannel");
+        DistributionChannel channel = getChannel("ch1", DatabaseType.AllInOne_SqlServer, "CardRiskDB_INSERT_1");
         op.setChannel(channel);
         op.setChannelId(channel.getChannelNo());
         op.setDataUnitMetaId("complexMeta");
         op.setOpType(PersistOperationType.INSERT.getCode());
-        op.setTableName("ComplexMetaTable");
+        op.setTableName("InfoSecurity_OtherInfo");
         op.setColumns(getRdbmsTableColumnConfigs());
         configOps.add(op);
         return configOps;
     }
 
-    private DistributionChannel getChannel(String channelNo, DatabaseType dbType, String channelDesc) {
+    private DistributionChannel getChannel(String channelNo, DatabaseType dbType, String channelUrl) {
         DistributionChannel channel = new DistributionChannel();
         channel.setChannelNo(channelNo);
         channel.setDatabaseType(dbType);
-        channel.setChannelDesc(channelDesc);
+        channel.setChannelDesc(channelNo);
+        channel.setDatabaseURL(channelUrl);
         return channel;
     }
 
     private List<RdbmsTableColumnConfig> getRdbmsTableColumnConfigs() {
         List<RdbmsTableColumnConfig> columnConfigs = Lists.newArrayList();
-        columnConfigs.add(getRdbmsTableColumnConfig("col1", PersistColumnSourceType.DB_PK, null));
-        columnConfigs.add(getRdbmsTableColumnConfig("col2", PersistColumnSourceType.DATA_UNIT, "name"));
-        columnConfigs.add(getRdbmsTableColumnConfig("col3", PersistColumnSourceType.CUSTOMIZE, "data:now"));
+        columnConfigs.add(getRdbmsTableColumnConfig("ReqID", PersistColumnSourceType.CUSTOMIZE, "ctx:CardRisk_DealInfo.ReqID"));
+        columnConfigs.add(getRdbmsTableColumnConfig("OrderInfoExternalURL", PersistColumnSourceType.DATA_UNIT, "name"));
+        columnConfigs.add(getRdbmsTableColumnConfig("DataChange_LastTime", PersistColumnSourceType.CUSTOMIZE, "data:now"));
         return columnConfigs;
     }
 

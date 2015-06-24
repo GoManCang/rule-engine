@@ -15,7 +15,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
+import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -103,7 +105,19 @@ public class RabbitMqMessageHandler {
             counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
-
+            // 数据落地
+            String operation = internalRiskFact.getEventId() + ".persist-info";
+            try {
+                beforeInvoke(operation);
+                RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
+                persistManager.persist();
+                internalRiskFact.setReqId(persistManager.getGeneratedReqId());
+            } catch (Exception ex) {
+                fault(operation);
+                logger.error(Contexts.getLogPrefix() + "send callback message fault.", ex);
+            } finally {
+                afterInvoke(operation);
+            }
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
         } finally {

@@ -30,4 +30,9 @@ public class PersistContext {
     public void returnFromChild() {
         inheritableShared.returnFromChild();
     }
+
+    public Long getReqId() {
+        Object reqId = ctxSharedValues.get("CardRisk_DealInfo.ReqID");
+        return reqId == null ? new Long(-1) : Long.valueOf(reqId.toString());
+    }
 }
