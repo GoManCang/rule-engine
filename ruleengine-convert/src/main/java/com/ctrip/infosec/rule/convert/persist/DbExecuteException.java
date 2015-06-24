@@ -8,6 +8,10 @@ public class DbExecuteException extends Exception {
         super();
     }
 
+    public DbExecuteException(String msg){
+        super(msg);
+    }
+
     public DbExecuteException(String msg, Throwable cause){
         super(msg, cause);
     }

@@ -46,10 +46,10 @@
 			<artifactId>offline4j-api</artifactId>
 		</dependency>
 
-        <!-- dalclient -->
-        <dependency>
-            <groupId>com.ctrip.platform</groupId>
-            <artifactId>dal-java-client</artifactId>
-        </dependency>
+        <!--&lt;!&ndash; dalclient &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>com.ctrip.platform</groupId>-->
+            <!--<artifactId>dal-java-client</artifactId>-->
+        <!--</dependency>-->
     </dependencies>
 </project>
