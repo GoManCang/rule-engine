@@ -114,7 +114,7 @@ public class RabbitMqMessageHandler {
                 internalRiskFact.setReqId(persistManager.getGeneratedReqId());
             } catch (Exception ex) {
                 fault(operation);
-                logger.error(Contexts.getLogPrefix() + "send callback message fault.", ex);
+                logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
             } finally {
                 afterInvoke(operation);
             }

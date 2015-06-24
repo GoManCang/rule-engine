@@ -1,9 +1,11 @@
 package com.ctrip.infosec.rule.convert;
 
+import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.event.enums.PersistOperationType;
+import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
@@ -22,6 +24,76 @@ import static org.junit.Assert.*;
  * Created by yxjiang on 2015/6/24.
  */
 public class RiskFactPersistStrategyTest {
+
+    @Test
+    public void testConvertAndPersist() {
+        String data = "{\n" +
+                "  \"eventPoint\" : \"CP0027004\",\n" +
+                "  \"eventBody\" : {\n" +
+                "    \"amount\" : \"12631\",\n" +
+                "    \"bizCategory\" : \"DIY\",\n" +
+                "    \"bizType\" : \"90\",\n" +
+                "    \"bookingDate\" : \"2015-06-23 20:32:58\",\n" +
+                "    \"currentAmount\" : \"10631\",\n" +
+                "    \"finalResultGroupByScene\" : { },\n" +
+                "    \"isHide\" : \"false\",\n" +
+                "    \"itemInfos\" : [ {\n" +
+                "      \"DestCityId\" : \"623\",\n" +
+                "      \"DestCityName\" : \"清迈\",\n" +
+                "      \"EndDate\" : \"2015-08-12 00:00:00\",\n" +
+                "      \"ProductName\" : \"清迈+普吉岛8日7晚自由行·清迈进普吉出 清迈3晚+普吉4晚\",\n" +
+                "      \"Remark\" : \"1365008322 最多2人，烦请改订，谢谢//已下1365042339，烦请预订，烦请取消1365008322，差价70元，待确认后补款\",\n" +
+                "      \"StartCityId\" : \"2\",\n" +
+                "      \"StartCityName\" : \"上海\",\n" +
+                "      \"StartDate\" : \"2015-08-05 00:00:00\"\n" +
+                "    } ],\n" +
+                "    \"merchantOrderType\" : \"机酒\",\n" +
+                "    \"message_CreateTime\" : \"2015-6-24 16:44:39\",\n" +
+                "    \"operateTime\" : \"2015-06-24 16:44:38\",\n" +
+                "    \"orderDescription\" : \"已付款\",\n" +
+                "    \"orderId\" : \"1368705150\",\n" +
+                "    \"orderStatus\" : \"DIY_PAYED\",\n" +
+                "    \"orderType\" : \"机酒\",\n" +
+                "    \"orderVersion\" : \"1:1\",\n" +
+                "    \"passengers\" : [ {\n" +
+                "      \"AgeType\" : \"3\",\n" +
+                "      \"BirthDate\" : \"1976-10-13 0:00:00\",\n" +
+                "      \"CardNo\" : \"G36616883\",\n" +
+                "      \"CardType\" : \"2\",\n" +
+                "      \"EName\" : \"ZHANG/JUNCHEN\",\n" +
+                "      \"Gender\" : \"1\",\n" +
+                "      \"Mobile\" : \"18918182882\",\n" +
+                "      \"Nationality\" : \"CN\"\n" +
+                "    }, {\n" +
+                "      \"AgeType\" : \"3\",\n" +
+                "      \"BirthDate\" : \"1978-10-27 0:00:00\",\n" +
+                "      \"CardNo\" : \"E17489998\",\n" +
+                "      \"CardType\" : \"2\",\n" +
+                "      \"EName\" : \"WU/WENQING\",\n" +
+                "      \"Gender\" : \"0\",\n" +
+                "      \"Mobile\" : \"13331952188\",\n" +
+                "      \"Nationality\" : \"CN\"\n" +
+                "    }, {\n" +
+                "      \"AgeType\" : \"2\",\n" +
+                "      \"BirthDate\" : \"2004-7-10 0:00:00\",\n" +
+                "      \"CardNo\" : \"E17489997\",\n" +
+                "      \"CardType\" : \"2\",\n" +
+                "      \"EName\" : \"ZHANG/YUQING\",\n" +
+                "      \"Gender\" : \"0\",\n" +
+                "      \"Mobile\" : \"18916167872\",\n" +
+                "      \"Nationality\" : \"CN\"\n" +
+                "    } ],\n" +
+                "    \"postActions\" : { },\n" +
+                "    \"priceAdjust\" : \"0.0000\",\n" +
+                "    \"processOper\" : \"n09728\",\n" +
+                "    \"sourceFromCode\" : \"Web\",\n" +
+                "    \"uid\" : \"w10wq27\",\n" +
+                "    \"usedTime\" : \"2015-08-05 00:00:00\"\n" +
+                "  }\n" +
+                "}";
+        RiskFact fact = JSON.parseObject(data, RiskFact.class);
+
+    }
 
     @Test
     public void testPreparePersistence() throws Exception {

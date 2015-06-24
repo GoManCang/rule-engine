@@ -28,8 +28,10 @@ public class RiskFactPersistStrategy {
 
     public static RiskFactPersistManager preparePersistence(InternalRiskFact fact) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
-        InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
-        persistManager.setOperationChain(buildDbOperationChain(fact, config));
+        if (fact != null) {
+            InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
+            persistManager.setOperationChain(buildDbOperationChain(fact, config));
+        }
         return persistManager;
     }
 
