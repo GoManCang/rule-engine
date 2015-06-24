@@ -142,6 +142,6 @@
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
         <!--RSserve-->
-        <RService.Ip>10.3.6.244</RService.Ip>
+        <RService.Ip>riskmlrules.infosec.ctripcorp.com</RService.Ip>
     </prd>
 </profile>

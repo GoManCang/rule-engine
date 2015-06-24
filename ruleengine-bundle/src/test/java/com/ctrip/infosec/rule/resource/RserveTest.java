@@ -16,7 +16,7 @@ public class RserveTest
     public void testR()
     {
         //System.out.print(RService.getScore("logistic.predict(c(1,'Active', 2,'offline','huadong',1,'NEW','new_user',1,1,'low','huadong'))"));
-        for(int i=0;i<100000;i++)
+        for(int i=0;i<10;i++)
         {
             //new Thread(){
 //                public void run()

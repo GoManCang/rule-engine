@@ -98,7 +98,7 @@ public class DataProxyTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testDataProxyVenus() {
         /*System.out.println("query");
          String serviceName = "IpService";
@@ -106,6 +106,11 @@ public class DataProxyTest {
          Map params = ImmutableMap.of("ip", "202.96.209.133");
          Map result = DataProxy.queryForMap(serviceName, operationName, params);
          System.out.println(result.size());*/
+
+        String serviceName = "ConvertService";
+        String operationName = "getCityNameByCityId";
+        Map params = ImmutableMap.of("cityId", "2");
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
@@ -115,14 +120,17 @@ public class DataProxyTest {
          Map params = ImmutableMap.of("uid", "wwwwww", "tagNames", tagContents);
          Map result = DataProxy.queryForMap(serviceName, operationName, params);
          System.out.println(result.size());*/
+
         //查询是否为商旅用户
-        String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("ISCORP");
         Map params = ImmutableMap.of("uid", "2102819519", "tagNames", tagContents);
         Map result = DataProxy.query(serviceName, operationName, params);
-        System.out.println(result.size());
+        System.out.println(result.size());*/
+
+
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
