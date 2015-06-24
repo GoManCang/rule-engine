@@ -11,6 +11,7 @@ import com.ctrip.infosec.rule.convert.persist.*;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/15.
  */
 public class RiskFactPersistStrategy {
-    public static RiskFactPersistManager preparePersistance(InternalRiskFact fact) {
+    public static RiskFactPersistManager preparePersistence(InternalRiskFact fact) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
         InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
         persistManager.setOperationChain(buildDbOperationChain(fact, config));
@@ -28,12 +29,18 @@ public class RiskFactPersistStrategy {
     }
 
     private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, InternalRiskFactPersistConfig config) {
+        if (config == null) {
+            return null;
+        }
         DbOperationChain firstOne = null;
         DbOperationChain last = null;
         List<RdbmsTableOperationConfig> opConfigs = config.getOps();
         for (RdbmsTableOperationConfig operationConfig : opConfigs) {
             DataUnitMetadata meta = getMetadata(operationConfig.getDataUnitMetaId());
-            DbOperationChain chain = buildDbOperationChain(findCorrespondingDataUnit(fact, meta.getName()), operationConfig, meta);
+            if (meta == null) {
+                continue;
+            }
+            DbOperationChain chain = buildDbOperationChain(fact, findCorrespondingDataUnit(fact, meta.getName()), operationConfig, meta);
             if (chain != null) {
                 if (firstOne == null) {
                     firstOne = chain;
@@ -47,26 +54,27 @@ public class RiskFactPersistStrategy {
         return firstOne;
     }
 
-    private static DbOperationChain buildDbOperationChain(DataUnit dataUnit, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, DataUnit dataUnit, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
         if (dataUnit == null) {
             return null;
         }
         DataUnitType type = DataUnitType.getByCode(dataUnit.getDefinition().getType());
         switch (type) {
             case SINGLE:
-                return buildDbOperationChain((Map<String, Object>) dataUnit.getData(), config, meta);
+                return buildDbOperationChain(fact, (Map<String, Object>) dataUnit.getData(), config, meta);
             case LIST:
-                return buildDbOperationChain((List<Map<String, Object>>) dataUnit.getData(), config, meta);
+                return buildDbOperationChain(fact, (List<Map<String, Object>>) dataUnit.getData(), config, meta);
         }
         return null;
     }
 
-    private static DbOperationChain buildDbOperationChain(List<Map<String, Object>> dataList, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, List<Map<String, Object>> dataList,
+                                                          RdbmsTableOperationConfig config, DataUnitMetadata meta) {
         DbOperationChain firstOne = null;
         DbOperationChain last = null;
         if (CollectionUtils.isNotEmpty(dataList)) {
             for (Map<String, Object> data : dataList) {
-                DbOperationChain chain = buildDbOperationChain(data, config, meta);
+                DbOperationChain chain = buildDbOperationChain(fact, data, config, meta);
                 if (chain != null) {
                     if (firstOne == null) {
                         firstOne = chain;
@@ -81,26 +89,62 @@ public class RiskFactPersistStrategy {
         return firstOne;
     }
 
-    private static DbOperationChain buildDbOperationChain(Map<String, Object> data, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, Map<String, Object> data,
+                                                          RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+        DbOperationChain chain = null;
         // 简单类型，对应一个落地操作
         Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
-        PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
-        DbOperationChain chain = null;
-        if (operationType == PersistOperationType.INSERT) {
-            RdbmsInsert insert = new RdbmsInsert();
-            insert.setChannel(config.getChannel());
-            insert.setTable(config.getTableName());
-            insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
-            chain = new DbOperationChain(insert);
-        }
-        Map<String, Object> complexFieldMap = extractFieldObject(data, meta);
-        if (MapUtils.isNotEmpty(complexFieldMap)){
-            for (Map.Entry<String, Object> entry : complexFieldMap.entrySet()) {
-
+        if (MapUtils.isNotEmpty(simpleFieldMap)) {
+            PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
+            if (operationType == PersistOperationType.INSERT) {
+                RdbmsInsert insert = new RdbmsInsert();
+                insert.setChannel(config.getChannel());
+                insert.setTable(config.getTableName());
+                insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
+                chain = new DbOperationChain(insert);
             }
-            // TODO
+        }
+        if (chain == null) {
+            chain = new DbOperationChain(new RdbmsEmptyOperation());
+        }
+        // 复杂类型（Map或List）
+        Map<String, Object> complexFieldMap = extractFieldObject(data, meta);
+        if (MapUtils.isNotEmpty(complexFieldMap)) {
+            if (MapUtils.isNotEmpty(complexFieldMap)) {
+                for (Map.Entry<String, Object> entry : complexFieldMap.entrySet()) {
+                    String colName = entry.getKey();
+                    DataUnitColumn metaColumn = meta.getColumn(colName);
+                    DataUnitColumnType columnType = DataUnitColumnType.getByIndex(metaColumn.getColumnType());
+                    switch (columnType) {
+                        case Object:
+                            Map<String, Object> map = (Map<String, Object>) entry.getValue();
+                            chain.addToChildOperationChain(buildDbOperationChain(fact, map, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
+                                    metaColumn.getNestedDataUnitMeta()));
+                            break;
+                        case List:
+                            List<Map<String, Object>> list = (List<Map<String, Object>>) entry.getValue();
+                            chain.addToChildOperationChain(buildDbOperationChain(fact, list, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
+                                    metaColumn.getNestedDataUnitMeta()));
+                            break;
+                        default:
+                            continue;
+                    }
+                }
+            }
         }
         return chain;
+    }
+
+    private static RdbmsTableOperationConfig getPersistConfig(InternalRiskFact fact, final String metadataId) {
+        InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
+        List<RdbmsTableOperationConfig> configOps = config.getOps();
+        return (RdbmsTableOperationConfig) CollectionUtils.find(configOps, new Predicate() {
+            @Override
+            public boolean evaluate(Object obj) {
+                RdbmsTableOperationConfig conf = (RdbmsTableOperationConfig) obj;
+                return StringUtils.equals(conf.getDataUnitMetaId(), metadataId);
+            }
+        });
     }
 
     private static Map<String, PersistColumnProperties> generateColumnProperties(Map<String, Object> simpleFieldMap, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
@@ -130,16 +174,18 @@ public class RiskFactPersistStrategy {
      */
     private static Map<String, Object> extractFieldData(Map<String, Object> data, DataUnitMetadata meta) {
         Map<String, Object> rt = null;
-        List<DataUnitColumn> columns = meta.getColumns();
-        if (CollectionUtils.isNotEmpty(columns)) {
-            rt = Maps.newHashMap();
-            for (DataUnitColumn column : columns) {
-                String name = column.getName();
-                DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());
-                if (colType != DataUnitColumnType.List && colType != DataUnitColumnType.Object) {
-                    Object val = data.get(name);
-                    if (val != null) {
-                        rt.put(name, val);
+        if (MapUtils.isNotEmpty(data)) {
+            List<DataUnitColumn> columns = meta.getColumns();
+            if (CollectionUtils.isNotEmpty(columns)) {
+                rt = Maps.newHashMap();
+                for (DataUnitColumn column : columns) {
+                    String name = column.getName();
+                    DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());
+                    if (colType != DataUnitColumnType.List && colType != DataUnitColumnType.Object) {
+                        Object val = data.get(name);
+                        if (val != null) {
+                            rt.put(name, val);
+                        }
                     }
                 }
             }
@@ -156,21 +202,23 @@ public class RiskFactPersistStrategy {
      */
     private static Map<String, Object> extractFieldObject(Map<String, Object> data, DataUnitMetadata meta) {
         Map<String, Object> rt = null;
-        List<DataUnitColumn> columns = meta.getColumns();
-        if (CollectionUtils.isNotEmpty(columns)) {
-            rt = Maps.newHashMap();
-            for (DataUnitColumn column : columns) {
-                String name = column.getName();
-                DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());
-                if (colType == DataUnitColumnType.List || colType == DataUnitColumnType.Object) {
-                    Object val = data.get(name);
-                    if (val != null) {
-                        rt.put(name, val);
+        if (MapUtils.isNotEmpty(data)) {
+            List<DataUnitColumn> columns = meta.getColumns();
+            if (CollectionUtils.isNotEmpty(columns)) {
+                rt = Maps.newHashMap();
+                for (DataUnitColumn column : columns) {
+                    String name = column.getName();
+                    DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());
+                    if (colType == DataUnitColumnType.List || colType == DataUnitColumnType.Object) {
+                        Object val = data.get(name);
+                        if (val != null) {
+                            rt.put(name, val);
+                        }
                     }
                 }
-            }
-            if (rt.size() == 0) {
-                rt = null;
+                if (rt.size() == 0) {
+                    rt = null;
+                }
             }
         }
         return rt;

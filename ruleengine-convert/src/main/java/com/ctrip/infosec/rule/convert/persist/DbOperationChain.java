@@ -10,7 +10,7 @@ public class DbOperationChain {
     private DbOperationChain nextOperationChain;
     private DbOperationChain childOperationChain;
 
-    public DbOperationChain(DbOperation operation){
+    public DbOperationChain(DbOperation operation) {
         this.currentOperation = operation;
     }
 
@@ -34,7 +34,31 @@ public class DbOperationChain {
         this.nextOperationChain = nextOperationChain;
     }
 
-    public void setChildOperationChain(DbOperationChain childOperationChain) {
-        this.childOperationChain = childOperationChain;
+    public void addToChildOperationChain(DbOperationChain chain) {
+        if (this.childOperationChain == null) {
+            this.childOperationChain = chain;
+        } else {
+            this.childOperationChain.addToTail(chain);
+        }
+    }
+
+    private void addToTail(DbOperationChain chain) {
+        if (chain == null) {
+            return;
+        }
+        DbOperationChain last = this;
+        while (last.nextOperationChain != null){
+            last = last.nextOperationChain;
+        }
+        last.nextOperationChain = chain;
+    }
+
+    @Override
+    public String toString() {
+        return "DbOperationChain{" +
+                "currentOperation=" + currentOperation +
+                ", nextOperationChain=" + nextOperationChain +
+                ", childOperationChain=" + childOperationChain +
+                '}';
     }
 }

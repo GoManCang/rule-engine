@@ -244,4 +244,13 @@ public class RdbmsInsert implements DbOperation {
     public void setColumnPropertiesMap(Map<String, PersistColumnProperties> columnPropertiesMap) {
         this.columnPropertiesMap = columnPropertiesMap;
     }
+
+    @Override
+    public String toString() {
+        return "RdbmsInsert{" +
+                "channel=" + channel +
+                ", table='" + table + '\'' +
+                ", columnPropertiesMap=" + columnPropertiesMap +
+                '}';
+    }
 }

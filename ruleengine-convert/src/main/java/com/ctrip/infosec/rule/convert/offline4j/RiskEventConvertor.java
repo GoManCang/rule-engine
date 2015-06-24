@@ -4,10 +4,12 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Caches;
 import com.ctrip.infosec.configs.event.DataUnitDefinition;
@@ -69,6 +71,11 @@ public class RiskEventConvertor {
 		if (null != (tmpField = getFieldByName(declaredFields, "reqId"))) {
 			logger.info("set reqId = " + internalRiskFact.getReqId());
 			tmpField.set(object, internalRiskFact.getReqId());
+		}
+		if (null != (tmpField = getFieldByName(declaredFields, "riskLevel"))) {
+			int riskLevel = MapUtils.getInteger(riskFact.finalResult, Constants.riskLevel, 0);
+			logger.info("set riskLevel = " + riskLevel);
+			tmpField.set(object, riskLevel);
 		}
 		
 		for (HeaderMapping headerMapping : headerMappings) {

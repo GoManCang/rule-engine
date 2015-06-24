@@ -8,10 +8,20 @@ public class RiskFactPersistManager {
     private DbOperationChain operationChain;
 
     public void persist() throws DbExecuteException {
-        operationChain.execute(ctx);
+        if (operationChain != null) {
+            operationChain.execute(ctx);
+        }
     }
 
     public void setOperationChain(DbOperationChain operationChain) {
         this.operationChain = operationChain;
+    }
+
+    @Override
+    public String toString() {
+        return "RiskFactPersistManager{" +
+                "ctx=" + ctx +
+                ", operationChain=" + operationChain +
+                '}';
     }
 }
