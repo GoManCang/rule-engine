@@ -5,6 +5,7 @@ import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.google.common.collect.Maps;
+import com.ctrip.infosec.configs.utils.Utils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class RdbmsInsertTest {
         rdbmsInsert.setTable("CardRisk_BlackListRuleColumnValue");
 
 
-        Map<String , PersistColumnProperties> map =new HashMap<>();
+        Map<String , PersistColumnProperties> map =new HashMap<String, PersistColumnProperties>();
 
         PersistColumnProperties pcp1 = new PersistColumnProperties();
         pcp1.setValue(0);
@@ -44,7 +45,7 @@ public class RdbmsInsertTest {
         map.put("RuleID",pcp1);
 
         PersistColumnProperties pcp2=new PersistColumnProperties();
-        pcp2.setValue(3);
+        pcp2.setValue(5);
         pcp2.setColumnType(DataUnitColumnType.Long);
         pcp2.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         map.put("ProcessType",pcp2);
@@ -63,6 +64,9 @@ public class RdbmsInsertTest {
     public void testExecute() throws Exception {
         rdbmsInsert.execute(ctx);
 
+        Map<String, Object> exposedValue = rdbmsInsert.getExposedValue();
+        System.out.println(Utils.JSON.toPrettyJSONString(exposedValue));
+
     }
 
 //    @Test
@@ -78,16 +82,16 @@ public class RdbmsInsertTest {
 //
 //    }
 
-    @Test
-    public void testValueByPersistSourceType() throws Exception {
-        Map<String, PersistColumnProperties> columnPropertiesMap = rdbmsInsert.getColumnPropertiesMap();
-        for(Map.Entry<String, PersistColumnProperties> entry: columnPropertiesMap.entrySet()) {
-            System.out.println("key:"+entry.getKey()+"           value:"+entry.getValue().getValue());
-            Object o = rdbmsInsert.valueByPersistSourceType(entry.getValue(), ctx);
-            System.out.println(o);
-            System.out.println(entry.getValue().getValue());
-        }
-    }
+//    @Test
+//    public void testValueByPersistSourceType() throws Exception {
+//        Map<String, PersistColumnProperties> columnPropertiesMap = rdbmsInsert.getColumnPropertiesMap();
+//        for(Map.Entry<String, PersistColumnProperties> entry: columnPropertiesMap.entrySet()) {
+//            System.out.println("key:"+entry.getKey()+"           value:"+entry.getValue().getValue());
+//            Object o = rdbmsInsert.valueByPersistSourceType(entry.getValue(), ctx);
+//            System.out.println(o);
+//            System.out.println(entry.getValue().getValue());
+//        }
+//    }
 
 
 

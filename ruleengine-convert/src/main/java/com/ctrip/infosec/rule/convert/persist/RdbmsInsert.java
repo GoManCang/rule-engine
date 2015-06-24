@@ -60,20 +60,11 @@ public class RdbmsInsert implements DbOperation {
                 dataSource = DataSourceLocator.newInstance().getDataSource(channel.getDatabaseURL());
                 Connection connection = dataSource.getConnection();
                 CallableStatement cs = connection.prepareCall(createSPA(table, columnPropertiesMap,ctx));
-
-//                cs.setObject("@RuleID",columnPropertiesMap.get("RuleID").getValue());
-//                cs.setObject(1,columnPropertiesMap.get("RuleID").getValue());
-//                cs.setObject("@RuleID",columnPropertiesMap.get("RuleID").getValue());
-//                cs.setObject("@ProcessType",columnPropertiesMap.get("ProcessType").getValue());
-//                cs.setObject(2,columnPropertiesMap.get("ProcessType").getValue());
-//                cs.setObject("@CheckValue",columnPropertiesMap.get("CheckValue").getValue());
-//                cs.setObject(3,columnPropertiesMap.get("CheckValue").getValue());
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
                 cs.execute();
                 if(pk_Index!=0) {
                     primary_key = cs.getLong(pk_Index);
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new DbExecuteException("insert操作异常", e);
@@ -117,7 +108,7 @@ public class RdbmsInsert implements DbOperation {
      * @return
      * @throws SQLException
      */
-    public int setValues(CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
+    private int setValues(CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
         int outputIndex = 0;
         int index = 1;
 //        int size = columnPropertiesMap.size();
@@ -153,7 +144,7 @@ public class RdbmsInsert implements DbOperation {
         return outputIndex;
     }
 
-    public Object valueByPersistSourceType(PersistColumnProperties persistColumnProperties, PersistContext ctx) {
+    private Object valueByPersistSourceType(PersistColumnProperties persistColumnProperties, PersistContext ctx) {
         PersistColumnSourceType sourceType = persistColumnProperties.getPersistColumnSourceType();
         switch (sourceType) {
             case DB_PK:
@@ -177,7 +168,7 @@ public class RdbmsInsert implements DbOperation {
      * @param ctx
      * @return
      */
-    public Object getCustomizeValue(String expression, PersistContext ctx) {
+    private Object getCustomizeValue(String expression, PersistContext ctx) {
         if (StringUtils.isBlank(expression) || ctx == null) {
             logger.warn("expression 表达式无效或者ctx 为空");
             return null;
@@ -208,7 +199,7 @@ public class RdbmsInsert implements DbOperation {
 
     @Override
     public Map<String, Object> getExposedValue() {
-        Map map = new HashMap<String, Object>();
+        Map map = new HashMap<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 map.put(entry.getKey(), entry.getValue().getValue());
