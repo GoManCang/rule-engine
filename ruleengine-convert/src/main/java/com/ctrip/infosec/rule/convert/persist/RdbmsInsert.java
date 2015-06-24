@@ -199,8 +199,7 @@ public class RdbmsInsert implements DbOperation {
                     return new Date();
             }
         } else if (strings.get(0).equalsIgnoreCase(CTX)) {
-            //return ctx.get(strings.get[1])
-            return null;
+            return ctx.getVar(strings.get(1));
         } else {
             logger.warn("自定义表达式无效返回null");
             return null;

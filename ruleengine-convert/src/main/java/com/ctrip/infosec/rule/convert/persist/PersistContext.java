@@ -9,21 +9,13 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/19.
  */
 public class PersistContext {
-    private Map<String, Object> ctxSharedValues = Maps.newHashMap();
     private InheritableSharedMap inheritableShared = new InheritableSharedMap();
 
     public void addCtxSharedValues(String prefix, Map<String, Object> sharedValues) {
-        if (StringUtils.isBlank(prefix)) {
-            ctxSharedValues.putAll(sharedValues);
-        } else {
-            for (Map.Entry<String, Object> entry : sharedValues.entrySet()) {
-                ctxSharedValues.put(prefix + "." + entry.getKey(), entry.getValue());
-            }
-        }
+        inheritableShared.addSharedValues(prefix, sharedValues);
     }
 
-    public void enterChildEnv(Map<String, Object> sharedValues) {
-        inheritableShared.getCurrentMap().putAll(sharedValues);
+    public void enterChildEnv() {
         inheritableShared.enterChild();
     }
 
@@ -32,7 +24,11 @@ public class PersistContext {
     }
 
     public Long getReqId() {
-        Object reqId = ctxSharedValues.get("CardRisk_DealInfo.ReqID");
+        Object reqId = getVar("CardRisk_DealInfo.ReqID");
         return reqId == null ? new Long(-1) : Long.valueOf(reqId.toString());
+    }
+
+    public Object getVar(String varName) {
+        return inheritableShared.getValue(varName);
     }
 }
