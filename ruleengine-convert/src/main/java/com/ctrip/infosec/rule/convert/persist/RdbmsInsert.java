@@ -59,10 +59,10 @@ public class RdbmsInsert implements DbOperation {
             try {
                 dataSource = DataSourceLocator.newInstance().getDataSource(channel.getDatabaseURL());
                 Connection connection = dataSource.getConnection();
-                CallableStatement cs = connection.prepareCall(createSPA(table, columnPropertiesMap,ctx));
+                CallableStatement cs = connection.prepareCall(createSPA(table, columnPropertiesMap, ctx));
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
                 cs.execute();
-                if(pk_Index!=0) {
+                if (pk_Index != 0) {
                     primary_key = cs.getLong(pk_Index);
                 }
             } catch (Exception e) {
@@ -77,21 +77,29 @@ public class RdbmsInsert implements DbOperation {
      * @param columnPropertiesMap
      * @return
      */
-    private String createSPA(String table, Map<String, PersistColumnProperties> columnPropertiesMap,PersistContext ctx) throws SQLException {
+    private String createSPA(String table, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
 //        String sqa = "{call spA_" + table + "_i  (@RuleID = ? , @ProcessType= ? , @CheckValue= ? )}";
         String sqa = "{call spA_" + table + "_i ( %s )}";
         String temp = "";
         int index = 0;
         int size = columnPropertiesMap.size();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
-            if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
-                Object o = valueByPersistSourceType(entry.getValue(), ctx);
-                if(o!=null) {
+            Object o = valueByPersistSourceType(entry.getValue(), ctx);
+            if(entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
+                if (o != null ) {
                     if (index + 1 < size) {
                         temp += "@" + entry.getKey() + " = ?, ";
                     } else {
                         temp += "@" + entry.getKey() + " = ?";
                     }
+                }
+
+            }
+            else{
+                if (index + 1 < size) {
+                    temp += "@" + entry.getKey() + " = ?, ";
+                } else {
+                    temp += "@" + entry.getKey() + " = ?";
                 }
             }
             index++;
@@ -115,8 +123,8 @@ public class RdbmsInsert implements DbOperation {
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             PersistColumnProperties value = entry.getValue();
             if (!value.getPersistColumnSourceType().equals(PersistColumnSourceType.DB_PK)) {
-                if(value.getValue()!=null) {
-                        cs.setObject(index, value.getValue());
+                if (value.getValue() != null) {
+                    cs.setObject(index, value.getValue());
                     //todo  后面根据type 类型 使用 setObject(String parameterName, Object x, int targetSqlType) 方法
 //                cs.set
 //
@@ -134,6 +142,9 @@ public class RdbmsInsert implements DbOperation {
 //                    default:
 //                        throw new SQLException("类型不匹配");
 //                }
+                }
+                else{
+                    continue;
                 }
             } else {
                 outputIndex = index;
