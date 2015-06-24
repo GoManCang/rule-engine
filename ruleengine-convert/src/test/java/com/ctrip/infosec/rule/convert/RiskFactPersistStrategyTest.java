@@ -1,11 +1,14 @@
 package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.configs.ConfigsDeamon;
+import com.ctrip.infosec.configs.Part;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.event.enums.PersistOperationType;
 import com.ctrip.infosec.configs.utils.Utils;
+import com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
@@ -26,7 +29,7 @@ import static org.junit.Assert.*;
 public class RiskFactPersistStrategyTest {
 
     @Test
-    public void testConvertAndPersist() {
+    public void testConvertAndPersist() throws Exception {
         String data = "{\n" +
                 "  \"eventPoint\" : \"CP0027004\",\n" +
                 "  \"eventBody\" : {\n" +
@@ -91,8 +94,21 @@ public class RiskFactPersistStrategyTest {
                 "    \"usedTime\" : \"2015-08-05 00:00:00\"\n" +
                 "  }\n" +
                 "}";
-        RiskFact fact = JSON.parseObject(data, RiskFact.class);
+        RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
+        ConfigsDeamon daemon = new ConfigsDeamon();
+        daemon.setUrl("http://localhost:8180/rest/loadconfig");
+        daemon.setPart(Part.FactPersistConfig);
+        daemon.setCallback(new ConvertRuleUpdateCallback());
+        daemon.start();
 
+        InternalRiskFact internalRiskFact = new RiskFactConvertRuleService().apply(fact);
+        System.out.println(Utils.JSON.toPrettyJSONString(internalRiskFact.getDataUnits()));
+        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
+
+        persistManager.persist();
+        internalRiskFact.setReqId(persistManager.getGeneratedReqId());
+
+        System.out.println(internalRiskFact.getReqId());
     }
 
     @Test
