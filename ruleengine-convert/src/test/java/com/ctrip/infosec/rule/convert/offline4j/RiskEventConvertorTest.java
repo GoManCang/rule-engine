@@ -3,6 +3,7 @@ package com.ctrip.infosec.rule.convert.offline4j;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.BeforeClass;
@@ -13,10 +14,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.configs.event.DataUnitDefinition;
+import com.ctrip.infosec.configs.event.DataUnitMetadata;
 import com.ctrip.infosec.configs.event.HeaderMappingBizType;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine.xml"})
@@ -170,7 +174,18 @@ public class RiskEventConvertorTest {
 		internalRiskFact.setEventId("test internal event id");
 		internalRiskFact.setEventPoint("CP0001008");
 		internalRiskFact.setReqId(123l);
-		internalRiskFact.setDataUnits(new ArrayList<DataUnit>());
+		
+		List<DataUnit> dataUnits = Lists.newArrayList();
+		DataUnit dataUnit = new DataUnit();
+		dataUnit.setData(eventBody);
+		DataUnitDefinition dataUnitDefinition = new DataUnitDefinition();
+		DataUnitMetadata dataUnitMetadata = new DataUnitMetadata();
+		dataUnitMetadata.setName("metaName");
+		dataUnitDefinition.setMetadata(dataUnitMetadata);
+		dataUnit.setDefinition(dataUnitDefinition);
+		dataUnits.add(dataUnit);
+		internalRiskFact.setDataUnits(dataUnits);
+		//internalRiskFact.setDataUnits(new ArrayList<DataUnit>());
 		
 		Object eventObject = null;
 		try {

@@ -45,7 +45,7 @@ public class RdbmsInsertTest {
         map.put("RuleID",pcp1);
 
         PersistColumnProperties pcp2=new PersistColumnProperties();
-        pcp2.setValue(5);
+        pcp2.setValue(6);
         pcp2.setColumnType(DataUnitColumnType.Long);
         pcp2.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         map.put("ProcessType",pcp2);
