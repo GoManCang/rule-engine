@@ -15,7 +15,6 @@ public class PersistContext {
         ctxSharedValues.putAll(ctxSharedValues);
     }
 
-
     public void enterChildEnv(Map<String, Object> sharedValues) {
         inheritableShared.getCurrentMap().putAll(sharedValues);
         inheritableShared.enterChild();

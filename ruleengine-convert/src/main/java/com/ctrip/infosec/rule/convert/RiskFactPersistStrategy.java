@@ -8,6 +8,7 @@ import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.*;
+import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -21,6 +22,10 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/15.
  */
 public class RiskFactPersistStrategy {
+    private static String allInOne4ReqId = GlobalConfig.getString("reqId.allInOne.name");
+    private static String table4ReqId = GlobalConfig.getString("reqId.table.name");
+    private static String column4ReqId = GlobalConfig.getString("reqId.column.name");
+
     public static RiskFactPersistManager preparePersistence(InternalRiskFact fact) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
         InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
@@ -32,7 +37,7 @@ public class RiskFactPersistStrategy {
         if (config == null) {
             return null;
         }
-        DbOperationChain firstOne = null;
+        DbOperationChain firstOne = genReqIdOperationChain();
         DbOperationChain last = null;
         List<RdbmsTableOperationConfig> opConfigs = config.getOps();
         for (RdbmsTableOperationConfig operationConfig : opConfigs) {
@@ -52,6 +57,24 @@ public class RiskFactPersistStrategy {
             }
         }
         return firstOne;
+    }
+
+    private static DbOperationChain genReqIdOperationChain() {
+        RdbmsInsert insert = new RdbmsInsert();
+        DistributionChannel ch = new DistributionChannel();
+        ch.setChannelNo(allInOne4ReqId);
+        ch.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+        ch.setChannelDesc(allInOne4ReqId);
+        ch.setDatabaseURL(allInOne4ReqId);
+        insert.setChannel(ch);
+        insert.setTable(table4ReqId);
+        PersistColumnProperties props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+        props.setColumnType(DataUnitColumnType.Long);
+        Map<String, PersistColumnProperties> map = Maps.newHashMap();
+        map.put(column4ReqId, props);
+        insert.setColumnPropertiesMap(map);
+        return new DbOperationChain(insert);
     }
 
     private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, DataUnit dataUnit, RdbmsTableOperationConfig config, DataUnitMetadata meta) {

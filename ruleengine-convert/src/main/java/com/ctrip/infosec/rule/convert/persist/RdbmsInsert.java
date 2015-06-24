@@ -220,6 +220,11 @@ public class RdbmsInsert implements DbOperation {
         return map;
     }
 
+    @Override
+    public String getPrefix() {
+        return this.table;
+    }
+
 
     public DistributionChannel getChannel() {
         return channel;

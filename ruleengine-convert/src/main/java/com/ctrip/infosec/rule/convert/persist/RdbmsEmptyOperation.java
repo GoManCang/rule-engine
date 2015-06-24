@@ -15,4 +15,9 @@ public class RdbmsEmptyOperation implements DbOperation {
     public Map<String, Object> getExposedValue() {
         return null;
     }
+
+    @Override
+    public String getPrefix() {
+        return null;
+    }
 }

@@ -4,6 +4,7 @@ import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
+import com.google.common.collect.Maps;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -92,6 +93,21 @@ public class RdbmsInsertTest {
 
     @Test
     public void testGetExposedValue() throws Exception {
-
+        RdbmsInsert insert = new RdbmsInsert();
+        DistributionChannel ch = new DistributionChannel();
+        ch.setChannelNo("");
+        ch.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+        ch.setChannelDesc("CardRiskDB_INSERT_1");
+        ch.setDatabaseURL("CardRiskDB_INSERT_1");
+        insert.setChannel(ch);
+        insert.setTable("CardRisk_DealInfo");
+        PersistColumnProperties props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+        props.setColumnType(DataUnitColumnType.Long);
+        Map<String, PersistColumnProperties> map = Maps.newHashMap();
+        map.put("ReqID", props);
+        insert.setColumnPropertiesMap(map);
+        insert.execute(ctx);
+        System.out.println(insert.getExposedValue());
     }
 }

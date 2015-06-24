@@ -8,4 +8,5 @@ import java.util.Map;
 public interface DbOperation {
     void execute(PersistContext ctx) throws DbExecuteException;
     Map<String, Object> getExposedValue();
+    String getPrefix();
 }
