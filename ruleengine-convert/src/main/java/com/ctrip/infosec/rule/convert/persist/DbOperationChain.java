@@ -17,7 +17,7 @@ public class DbOperationChain {
     public void execute(PersistContext ctx) throws DbExecuteException {
         currentOperation.execute(ctx);
         Map<String, Object> exposedValue = currentOperation.getExposedValue();
-        ctx.addCtxSharedValues(exposedValue);
+        ctx.addCtxSharedValues(currentOperation.getPrefix(), exposedValue);
         // 执行子操作
         if (childOperationChain != null) {
             ctx.enterChildEnv(exposedValue);
