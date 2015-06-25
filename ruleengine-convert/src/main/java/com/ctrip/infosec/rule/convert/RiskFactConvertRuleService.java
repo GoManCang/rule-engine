@@ -9,6 +9,7 @@ import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,7 @@ public class RiskFactConvertRuleService {
                 Integer columnType = checkColumnType(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".") + 1, trgName.length()), dataUnit.getDefinition().getMetadata());
                 if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType!=DataUnitColumnType.List.getIndex()) {
                     Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
-//                    System.out.println("[trgName]:" + trgName + "     [value]:" + Utils.JSON.toPrettyJSONString(results));
+                    System.out.println("[source]:" + srcName + "[target:]"+trgName+"     [value]:" + Utils.JSON.toPrettyJSONString(results));
                     /**
                      * 将获取的results结果输入格式化如：
                      *
@@ -204,9 +205,9 @@ public class RiskFactConvertRuleService {
         trgNameList.remove(0);
         if (dataUnit.getDefinition().getType() == OBJECT_TYPE) {
             Map data = (Map) dataUnit.getData();
-            Object firstMap = data.get(firstTrgName);
-            Object o = convert2InternalMapData(trgNameList, results, firstMap == null ? new HashMap<String, Object>() : (Map<String, Object>) firstMap, trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
-            data.putAll((Map) o);
+//            Object firstMap = data.get(firstTrgName);
+            Object o = convert2InternalMapData(trgNameList, results, data, trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
+//            data.putAll((Map) o);
         } else if (dataUnit.getDefinition().getType() == LIST_TYPE) {
             List  data = (List) dataUnit.getData();
             List items= (List) results;
@@ -231,11 +232,13 @@ public class RiskFactConvertRuleService {
         }
     }
 
-    private Map convert2InternalMapData(ArrayList<String> trgNames, Object result, Map<String, Object> data, String trgName, DataUnit dataUnit) {
+    private Map convert2InternalMapData(ArrayList<String> toCopytrgNames, Object result, Map<String, Object> data, String trgName, DataUnit dataUnit) {
         /**
          * 从完整targetname中获取 从头到当前 trgName[0]的前半段路径 。
          *
          */
+        ArrayList<String> trgNames=new ArrayList<>(toCopytrgNames);
+
         ArrayList<String> tempNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
         String chechTypePath = "";
         for (String name : tempNames) {
@@ -262,8 +265,8 @@ public class RiskFactConvertRuleService {
                 data.putAll(map);
             }
         }
-        if (integer == DataUnitColumnType.List.getIndex()) {
-            System.out.println("[key] : " + trgName + "[trgname] : " + trgNames.get(0) + "---------------list--------------------");
+        if (integer !=null && integer == DataUnitColumnType.List.getIndex()) {
+//            System.out.println("[key] : " + trgName + "[trgname] : " + trgNames.get(0) + "---------------list--------------------");
 //            List<Object> list=new ArrayList<Object>();
             Map<String, Object> map = new HashMap<String, Object>();
             /**
