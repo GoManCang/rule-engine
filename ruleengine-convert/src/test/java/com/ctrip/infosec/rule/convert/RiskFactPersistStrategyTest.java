@@ -101,7 +101,7 @@ public class RiskFactPersistStrategyTest {
         ConfigsDeamon daemon = new ConfigsDeamon();
 
         daemon.setUrl("http://localhost:8180/rest/loadconfig");
-        daemon.setPart(Part.FactPersistConfig);
+        daemon.setPart(Part.RuleEngine);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();
 

@@ -30,5 +30,7 @@
         
     <!-- RiskProfileClient -->
     <bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>
-    
+
+    <!--初始化连接R服务器-->
+    <!--<bean class="com.ctrip.infosec.rule.resource.RService" init-method="init" />-->
 </beans>

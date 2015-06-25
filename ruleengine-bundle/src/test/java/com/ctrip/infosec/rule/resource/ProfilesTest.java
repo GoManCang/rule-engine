@@ -18,24 +18,23 @@ import java.util.Map;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:spring/counter-venus-test.xml"})
-public class ProfilesTest
-{
+public class ProfilesTest {
+
     @Test
-    public void testWriteData()
-    {
+    @Ignore
+    public void testWriteData() {
         Map values = new HashMap();
-        values.put("MOB_BOUND","13917863756");
-        values.put("RECENT_IP","112.112.113.114");
+        values.put("MOB_BOUND", "13917863756");
+        values.put("RECENT_IP", "112.112.113.114");
         String pkgValue = "wwwwww";
         int storeType = 1;
         Map result = Profiles.writeData(values, pkgValue);
         Assert.assertNotNull(result);
     }
 
-    @Ignore
     @Test
-    public void testReadData()
-    {
+    @Ignore
+    public void testReadData() {
         List tags = new ArrayList();
         tags.add("\"MOB_BOUND\"");
         tags.add("\"RECENT_IP\"");

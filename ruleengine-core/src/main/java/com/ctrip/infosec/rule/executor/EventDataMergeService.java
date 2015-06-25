@@ -78,6 +78,48 @@ public class EventDataMergeService {
     }
 
     /**
+     * 处理从redis获取数据
+     */
+    public RiskFact executeRedisGet(RiskFact fact)
+    {
+        beforeInvoke();
+        try {
+            Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
+            //read and merge data to current fact
+            if (fieldsToGet != null && !fieldsToGet.isEmpty()) {
+                readAndMerge(fact, fieldsToGet);
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "exec executeRedisGet fault.", ex);
+        } finally {
+            afterInvoke("EventDataMergeService.executeRedisGet");
+        }
+        return fact;
+    }
+
+    /**
+     * 处理推送数据到redis
+     */
+    public RiskFact executeRedisPut(RiskFact fact)
+    {
+        beforeInvoke();
+        try {
+            //send data to redis for next get
+            Map<String, Set<String>> fieldsToPut = Configs.getEventMergeFieldsToPut(fact);
+            if (fieldsToPut != null && !fieldsToPut.isEmpty()) {
+                sendToRedis(fact, fieldsToPut);
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "exec executeRedisPut fault.", ex);
+        } finally {
+            afterInvoke("EventDataMergeService.executeRedisPut");
+        }
+        return fact;
+    }
+
+    /**
      * 从Redis获取数据并且合并到当前的fact中 获取的是多个eventPoint对应的合并的key
      */
     private RiskFact readAndMerge(RiskFact fact, Map<String, Map<String, String>> fields) {
@@ -90,13 +132,15 @@ public class EventDataMergeService {
             if (redisValue == null || redisValue.isEmpty()) {
                 continue;
             }
+
             Map<String, Object> redisValues = JSON.parseObject(redisValue, Map.class);//check this line
-            Iterator iteratorValues = redisValues.keySet().iterator();
-            while (iteratorValues.hasNext()) {
-                String oldName = (String) iteratorValues.next();
+            Iterator iteratorKeys = newNodeNames.keySet().iterator();
+            //Iterator iteratorValues = redisValues.keySet().iterator();
+            while (iteratorKeys.hasNext()) {
+                String oldName = (String) iteratorKeys.next();
                 String newName = newNodeNames.get(oldName);
                 Object newValue = redisValues.get(oldName);
-                if (newValue == null || newValue.toString().isEmpty()) {
+                if (newName == null || newName.toString().isEmpty()||newValue == null || newValue.toString().isEmpty()) {
                     continue;
                 }
                 fact.eventBody.put(newName, newValue);

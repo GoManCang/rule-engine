@@ -148,7 +148,7 @@ public class RiskFactConvertRuleService {
                 Integer columnType = checkColumnType(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".") + 1, trgName.length()), dataUnit.getDefinition().getMetadata());
                 if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType!=DataUnitColumnType.List.getIndex()) {
                     Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
-                    System.out.println("[source]:" + srcName + "[target:]"+trgName+"     [value]:" + Utils.JSON.toPrettyJSONString(results));
+//                    System.out.println("[source]:" + srcName + "[target:]"+trgName+"     [value]:" + Utils.JSON.toPrettyJSONString(results));
                     /**
                      * 将获取的results结果输入格式化如：
                      *
@@ -325,9 +325,9 @@ public class RiskFactConvertRuleService {
      * @return
      */
     private Integer checkColumnType(String trgName, DataUnitMetadata metadata) {
-        if(trgName.equals("list2.nestList.ValidationFailsReason")){
-            System.out.println(trgName);
-        }
+//        if(trgName.equals("list2.nestList.ValidationFailsReason")){
+//            System.out.println(trgName);
+//        }
         if (StringUtils.isBlank(trgName) || metadata == null) {
             logger.warn("targNme 或者 metadata 为空");
             return null;
