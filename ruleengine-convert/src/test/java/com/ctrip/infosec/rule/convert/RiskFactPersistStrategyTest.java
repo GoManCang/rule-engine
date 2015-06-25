@@ -12,10 +12,12 @@ import com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
+
 import org.junit.Test;
 
 import java.util.List;
@@ -54,9 +56,9 @@ public class RiskFactPersistStrategyTest {
                 "    \"message_CreateTime\" : \"2015-6-24 16:44:39\",\n" +
                 "    \"operateTime\" : \"2015-06-24 16:44:38\",\n" +
                 "    \"orderDescription\" : \"已付款\",\n" +
-                "    \"orderId\" : \"1368705150\",\n" +
+                "    \"orderId\" : 1368705150,\n" +
                 "    \"orderStatus\" : \"DIY_PAYED\",\n" +
-                "    \"orderType\" : \"机酒\",\n" +
+                "    \"orderType\" : 0,\n" +
                 "    \"orderVersion\" : \"1:1\",\n" +
                 "    \"passengers\" : [ {\n" +
                 "      \"AgeType\" : \"3\",\n" +
@@ -94,6 +96,7 @@ public class RiskFactPersistStrategyTest {
                 "    \"usedTime\" : \"2015-08-05 00:00:00\"\n" +
                 "  }\n" +
                 "}";
+        System.out.println(data);
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
 
@@ -109,8 +112,10 @@ public class RiskFactPersistStrategyTest {
 
         persistManager.persist();
         internalRiskFact.setReqId(persistManager.getGeneratedReqId());
-
         System.out.println(internalRiskFact.getReqId());
+        
+        Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
+        System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
     }
 
     @Test
