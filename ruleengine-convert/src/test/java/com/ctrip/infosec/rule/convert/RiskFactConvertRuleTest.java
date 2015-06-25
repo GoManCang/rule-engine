@@ -4,10 +4,8 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.BeanUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -43,14 +41,32 @@ public class RiskFactConvertRuleTest {
                 "                \"c\": \"First_o_l_c\",\n" +
                 "                \"o\": {\n" +
                 "                    \"b\": \"First_o_l_o_b\"\n" +
-                "                }\n" +
+                "                },\n" +
+                "\"l\":[\n" +
+                "\t\t\t\t{\t\"b\":\"1_1\"\n" +
+                ",\"c\":\"1_c_1\""+
+                "\t\t\t\t},\n" +
+                "\t\t\t\t{\n" +
+                "\t\t\t\t\"b\":\"1_2\"\n" +
+                ",\"c\":\"1_c_1\""+
+                "\t\t\t\t}\n" +
+                "\t\t\t\t]" +
                 "            },\n" +
                 "            {\n" +
                 "                \"b\": \"second_o_l_b\",\n" +
                 "                \"c\": \"second_o_l_c\",\n" +
                 "                \"o\": {\n" +
                 "                    \"b\": \"seconde_o_l_o_b\"\n" +
-                "                }\n" +
+                "                },\n" +
+                "\"l\":[\n" +
+                "{\"b\":\"2_1\"\n" +
+                ",\"c\":\"2_c_1\""+
+                "},\n" +
+                "{\n" +
+                "\"b\":\"2_2\"\n" +
+                ",\"c\":\"2_c_2\""+
+                "}\n" +
+                "]" +
                 "            }\n" +
                 "        ]\n" +
                 "    },\n" +
@@ -75,7 +91,7 @@ public class RiskFactConvertRuleTest {
         riskFact.setEventBody(map);
         RiskFactConvertRuleService riskFactConvertRule = new RiskFactConvertRuleService();
         InternalRiskFact apply = riskFactConvertRule.apply(riskFact);
-            List<DataUnit> dataUnits = apply.getDataUnits();
+        List<DataUnit> dataUnits = apply.getDataUnits();
         /**
          * 将获取的results结果输入格式化如：
          *
@@ -108,14 +124,13 @@ public class RiskFactConvertRuleTest {
          }
          *
          */
-            System.out.println("------------------format print----------------------");
-            for(DataUnit dataUnit:dataUnits) {
-                    System.out.println(Utils.JSON.toPrettyJSONString(dataUnit.getData()));
-            }
-            System.out.println("-----------------format print end-----------------------");
+        System.out.println("------------------format print----------------------");
+        for (DataUnit dataUnit : dataUnits) {
+            System.out.println(Utils.JSON.toPrettyJSONString(dataUnit.getData()));
+        }
+        System.out.println("-----------------format print end-----------------------");
 
     }
-
 
 
 }
