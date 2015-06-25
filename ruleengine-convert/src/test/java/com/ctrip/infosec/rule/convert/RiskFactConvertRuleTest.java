@@ -40,12 +40,14 @@ public class RiskFactConvertRuleTest {
                 "        \"l\": [\n" +
                 "            {\n" +
                 "                \"b\": \"First_o_l_b\",\n" +
+                "                \"c\": \"First_o_l_c\",\n" +
                 "                \"o\": {\n" +
                 "                    \"b\": \"First_o_l_o_b\"\n" +
                 "                }\n" +
                 "            },\n" +
                 "            {\n" +
                 "                \"b\": \"second_o_l_b\",\n" +
+                "                \"c\": \"second_o_l_c\",\n" +
                 "                \"o\": {\n" +
                 "                    \"b\": \"seconde_o_l_o_b\"\n" +
                 "                }\n" +
