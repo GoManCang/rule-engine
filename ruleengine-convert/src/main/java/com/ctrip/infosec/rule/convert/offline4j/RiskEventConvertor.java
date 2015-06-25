@@ -124,6 +124,58 @@ public class RiskEventConvertor {
 		return object;
 	}
 	
+	/**
+	 * 转换指定业务的risk event对象，用MAP的方式实现，收到消息解析的时候有可能出现字段类型不符合的情况
+	 * @param internalRiskFact
+	 * @param bizType
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<String, Object> convert(InternalRiskFact internalRiskFact, Integer riskLevel, 
+			HeaderMappingBizType bizType) throws Exception {
+		
+		if (null==internalRiskFact || null==bizType) {
+			logger.error("param should not be null");
+			throw new Exception("param should not be null");
+		}
+		
+		String eventPoint = internalRiskFact.getEventPoint();
+		List<HeaderMapping> headerMappings = getHeaderMappings(bizType, eventPoint);
+
+		if (null == headerMappings || headerMappings.size() == 0) {
+			logger.warn("no headerMapping found!");
+			throw new Exception("no headerMapping found!");
+		}
+		
+		//设置非eventBody字段的值
+		Map<String, Object> riskEventMap = Maps.newHashMap();
+		riskEventMap.put("eventPoint", internalRiskFact.getEventPoint());
+		riskEventMap.put("appId", internalRiskFact.getAppId());
+		riskEventMap.put("eventId", internalRiskFact.getEventId());
+		riskEventMap.put("reqId", internalRiskFact.getReqId());
+		riskEventMap.put("riskLevel", riskLevel);
+		
+		for (HeaderMapping headerMapping : headerMappings) {
+			
+			riskEventMap.put(headerMapping.getFieldName(), getValueByPath(internalRiskFact, headerMapping.getSrcPath()));
+		}
+		
+		//设置eventBody字段的值
+		Map<String, Object> eventBodyMap = Maps.newHashMap();
+		List<DataUnit> dataUnits = internalRiskFact.getDataUnits();
+		for (DataUnit dataUnit : dataUnits) {
+			Object data = dataUnit.getData();
+			DataUnitDefinition definition = dataUnit.getDefinition();
+			
+			logger.info("add eventBodyMap key : " + definition.getMetadata().getName() + ", value : " + data);
+			eventBodyMap.put(definition.getMetadata().getName(), data);
+		}
+		
+		riskEventMap.put("eventBody", eventBodyMap);
+		
+		return riskEventMap;
+	}
+	
 	private List<HeaderMapping> getHeaderMappings(HeaderMappingBizType bizType, String eventPoint) {
 		
 		List<HeaderMapping> headerMappings = Lists.newLinkedList();

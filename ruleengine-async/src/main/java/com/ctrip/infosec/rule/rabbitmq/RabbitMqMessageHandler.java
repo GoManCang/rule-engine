@@ -154,7 +154,7 @@ public class RabbitMqMessageHandler {
 
                     // 发送Offline4J
                     try {
-                    	Object eventObj = riskEventConvertor.convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
+                    	Object eventObj = riskEventConvertor.convert(internalRiskFact, riskLevel, HeaderMappingBizType.Offline4J);
                         beforeInvoke("offlineMessageSender.sendToOffline");
                         offlineMessageSender.sendToOffline(eventObj);
                     } catch (Exception ex) {
