@@ -59,6 +59,8 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+        <!--RSserve-->
+        <RService.Ip>10.3.6.244</RService.Ip>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -99,6 +101,8 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+        <!--RSserve-->
+        <RService.Ip>10.3.6.244</RService.Ip>
     </uat_nt>
     <prd>
         <sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
@@ -137,5 +141,7 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
+        <!--RSserve-->
+        <RService.Ip>riskmlrules.infosec.ctripcorp.com</RService.Ip>
     </prd>
 </profile>

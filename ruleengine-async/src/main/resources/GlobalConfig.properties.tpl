@@ -47,4 +47,7 @@ rabbitmq.event.vhost={$rabbitmq.event.vhost}
 rabbitmq.event.username={$rabbitmq.event.username}
 rabbitmq.event.password={$rabbitmq.event.password}
 
+#RService
+RService.Ip={$RService.Ip}
+
 

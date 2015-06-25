@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class RulesExecutorService {
+
     private static final Logger logger = LoggerFactory.getLogger(RulesExecutorService.class);
     private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
 
@@ -58,11 +59,37 @@ public class RulesExecutorService {
         // 返回结果
         Map<String, Object> finalResult = Constants.defaultResult;
         for (Map<String, Object> rs : fact.results.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
+            List<String> sceneList = (List) rs.get(Constants.riskScene);
+            if (sceneList == null || sceneList.isEmpty()) {
+                finalResult = compareAndReturn(finalResult, rs);
+            } else {
+
+                for (String scene : sceneList) {
+                    int riskLevel = MapUtils.getInteger(rs, Constants.riskLevel, 0);
+                    String riskMessage = MapUtils.getString(rs, Constants.riskMessage, "");
+
+                    //按scene分 往data中push最高分数的风险信息 
+                    Map<String, Object> currentSceneMap = fact.finalResultGroupByScene.get(scene);
+                    if (null == currentSceneMap) {
+                        currentSceneMap = new HashMap<String, Object>();
+                        currentSceneMap.put(Constants.riskLevel, riskLevel);
+                        currentSceneMap.put(Constants.riskMessage, riskMessage);
+                        fact.getFinalResultGroupByScene().put(scene, currentSceneMap);
+                    } else {
+                        int currentRiskLevel = MapUtils.getInteger(currentSceneMap, Constants.riskLevel, 0);
+
+                        //比较risklevel,最高的存到当前的scene map中
+                        if (riskLevel > currentRiskLevel) {
+                            currentSceneMap.put(Constants.riskLevel, riskLevel);
+                            currentSceneMap.put(Constants.riskMessage, riskMessage);
+                        }
+                    }
+                }
+            }
         }
-        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
-        }
+//        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
+//            finalResult = compareAndReturn(finalResult, rs);
+//        }
         fact.setFinalResult(
                 ImmutableMap.of(
                         Constants.riskLevel, finalResult.get(Constants.riskLevel),
@@ -90,11 +117,37 @@ public class RulesExecutorService {
         // 返回结果
         Map<String, Object> finalResult = Constants.defaultResult;
         for (Map<String, Object> rs : fact.results.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
+            List<String> sceneList = (List) rs.get(Constants.riskScene);
+            if (sceneList == null || sceneList.isEmpty()) {
+                finalResult = compareAndReturn(finalResult, rs);
+            } else {
+
+                for (String scene : sceneList) {
+                    int riskLevel = MapUtils.getInteger(rs, Constants.riskLevel, 0);
+                    String riskMessage = MapUtils.getString(rs, Constants.riskMessage, "");
+
+                    //按scene分 往data中push最高分数的风险信息 
+                    Map<String, Object> currentSceneMap = fact.finalResultGroupByScene.get(scene);
+                    if (null == currentSceneMap) {
+                        currentSceneMap = new HashMap<String, Object>();
+                        currentSceneMap.put(Constants.riskLevel, riskLevel);
+                        currentSceneMap.put(Constants.riskMessage, riskMessage);
+                        fact.getFinalResultGroupByScene().put(scene, currentSceneMap);
+                    } else {
+                        int currentRiskLevel = MapUtils.getInteger(currentSceneMap, Constants.riskLevel, 0);
+
+                        //比较risklevel,最高的存到当前的scene map中
+                        if (riskLevel > currentRiskLevel) {
+                            currentSceneMap.put(Constants.riskLevel, riskLevel);
+                            currentSceneMap.put(Constants.riskMessage, riskMessage);
+                        }
+                    }
+                }
+            }
         }
-        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
-        }
+//        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
+//            finalResult = compareAndReturn(finalResult, rs);
+//        }
         fact.setFinalResult(
                 ImmutableMap.of(
                         Constants.riskLevel, finalResult.get(Constants.riskLevel),
