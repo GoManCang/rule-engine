@@ -2,11 +2,11 @@ package com.ctrip.infosec.rule.convert.offline4j;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ public class RiskEventConvertor {
 			throw new Exception("param should not be null");
 		}
 		
-		String eventPoint = riskFact.getEventPoint();
+		String eventPoint = internalRiskFact.getEventPoint();
 		List<HeaderMapping> headerMappings = getHeaderMappings(bizType, eventPoint);
 
 		if (null == headerMappings || headerMappings.size() == 0) {
@@ -62,28 +62,28 @@ public class RiskEventConvertor {
 		if (null != (tmpField = getFieldByName(declaredFields, "eventPoint"))) {
 			logger.info("set eventPoint = " + internalRiskFact.getEventPoint());
 			//tmpField.set(object, internalRiskFact.getEventPoint());
-			setFiledValue(object, tmpField, internalRiskFact.getEventPoint());
+			setFieldValue(object, tmpField, internalRiskFact.getEventPoint());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "appId"))) {
 			logger.info("set appId = " + internalRiskFact.getAppId());
 			//tmpField.set(object, internalRiskFact.getAppId());
-			setFiledValue(object, tmpField, internalRiskFact.getAppId());
+			setFieldValue(object, tmpField, internalRiskFact.getAppId());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "eventId"))) {
 			logger.info("set eventId = " + internalRiskFact.getEventId());
 			//tmpField.set(object, internalRiskFact.getEventId());
-			setFiledValue(object, tmpField, internalRiskFact.getEventId());
+			setFieldValue(object, tmpField, internalRiskFact.getEventId());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "reqId"))) {
 			logger.info("set reqId = " + internalRiskFact.getReqId());
 			//tmpField.set(object, internalRiskFact.getReqId());
-			setFiledValue(object, tmpField, internalRiskFact.getReqId());
+			setFieldValue(object, tmpField, internalRiskFact.getReqId());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "riskLevel"))) {
 			int riskLevel = MapUtils.getInteger(riskFact.finalResult, Constants.riskLevel, 0);
 			logger.info("set riskLevel = " + riskLevel);
 			//tmpField.set(object, riskLevel);
-			setFiledValue(object, tmpField, riskLevel);
+			setFieldValue(object, tmpField, riskLevel);
 		}
 		
 		for (HeaderMapping headerMapping : headerMappings) {
@@ -97,7 +97,7 @@ public class RiskEventConvertor {
 			Object tmpValue = getValueByPath(internalRiskFact, headerMapping.getSrcPath());
 			logger.info("set " + headerMapping.getFieldName() + " = " + tmpValue);
 			//field.set(object, tmpValue);
-			setFiledValue(object, field, tmpValue);
+			setFieldValue(object, field, tmpValue);
 		}
 		
 		//设置eventBody字段的值
@@ -157,21 +157,28 @@ public class RiskEventConvertor {
 		return EventBodyUtils.value(riskFact.getEventBody(), path);
 	}
 
-	//暂不支持list
 	private Object getValueByPath(InternalRiskFact internalRiskFact, String path) {
+		
+		if (StringUtils.isBlank(path))
+			return null;
 		
 		List<String> pathList = Splitter.on(".").omitEmptyStrings().trimResults().limit(2).splitToList(path);
 		List<DataUnit> dataUnits = internalRiskFact.getDataUnits();
 		for (DataUnit dataUnit : dataUnits) {
-			if (dataUnit.getMetadata().getName().equals(pathList.get(0)) && (dataUnit.getData() instanceof Map)) {
-				return EventBodyUtils.value((Map)dataUnit.getData(), path/*pathList.get(1)*/);
+			if (dataUnit.getMetadata().getName().equals(pathList.get(0))) {
+				if (pathList.size() == 1) {
+					return dataUnit.getData();
+				}
+				else if (dataUnit.getData() instanceof Map) {//不支持list
+					return EventBodyUtils.value((Map)dataUnit.getData(), /*path*/pathList.get(1));
+				}
 			}
 		}
 		
 		return null;
 	}
 	
-	private void setFiledValue(Object object, Field field, Object value) {
+	private void setFieldValue(Object object, Field field, Object value) {
 		
 		try {
 			Class<?> typeClass = field.getType();
