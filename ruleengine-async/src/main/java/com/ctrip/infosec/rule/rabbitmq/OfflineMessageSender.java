@@ -5,13 +5,15 @@
  */
 package com.ctrip.infosec.rule.rabbitmq;
 
-import com.ctrip.infosec.common.Constants;
 import javax.annotation.Resource;
 
 import org.apache.commons.collections.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.stereotype.Service;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskEvent;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.meidusa.fastjson.JSON;
@@ -22,6 +24,8 @@ import com.meidusa.fastjson.JSON;
  */
 @Service
 public class OfflineMessageSender {
+	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Resource(name = "template_offline4j")
     private AmqpTemplate template;
@@ -46,7 +50,9 @@ public class OfflineMessageSender {
     
     public void sendToOffline(Object obj) {
     	
-    	template.convertAndSend(defaultRoutingKey, JSON.toJSONString(obj));
+    	String riskEvent = JSON.toJSONString(obj);
+    	logger.info("send event to offline4j : " + riskEvent);
+    	template.convertAndSend(defaultRoutingKey, riskEvent);
     }
 
     private RiskEvent dataConvert(RiskFact fact) {

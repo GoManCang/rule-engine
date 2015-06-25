@@ -1,6 +1,8 @@
 package com.ctrip.infosec.rule.convert.offline4j;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +20,7 @@ import com.ctrip.infosec.configs.event.HeaderMappingBizType;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -58,24 +61,29 @@ public class RiskEventConvertor {
 		Field tmpField = null;
 		if (null != (tmpField = getFieldByName(declaredFields, "eventPoint"))) {
 			logger.info("set eventPoint = " + internalRiskFact.getEventPoint());
-			tmpField.set(object, internalRiskFact.getEventPoint());
+			//tmpField.set(object, internalRiskFact.getEventPoint());
+			setFiledValue(object, tmpField, internalRiskFact.getEventPoint());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "appId"))) {
 			logger.info("set appId = " + internalRiskFact.getAppId());
-			tmpField.set(object, internalRiskFact.getAppId());
+			//tmpField.set(object, internalRiskFact.getAppId());
+			setFiledValue(object, tmpField, internalRiskFact.getAppId());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "eventId"))) {
 			logger.info("set eventId = " + internalRiskFact.getEventId());
-			tmpField.set(object, internalRiskFact.getEventId());
+			//tmpField.set(object, internalRiskFact.getEventId());
+			setFiledValue(object, tmpField, internalRiskFact.getEventId());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "reqId"))) {
 			logger.info("set reqId = " + internalRiskFact.getReqId());
-			tmpField.set(object, internalRiskFact.getReqId());
+			//tmpField.set(object, internalRiskFact.getReqId());
+			setFiledValue(object, tmpField, internalRiskFact.getReqId());
 		}
 		if (null != (tmpField = getFieldByName(declaredFields, "riskLevel"))) {
 			int riskLevel = MapUtils.getInteger(riskFact.finalResult, Constants.riskLevel, 0);
 			logger.info("set riskLevel = " + riskLevel);
-			tmpField.set(object, riskLevel);
+			//tmpField.set(object, riskLevel);
+			setFiledValue(object, tmpField, riskLevel);
 		}
 		
 		for (HeaderMapping headerMapping : headerMappings) {
@@ -85,9 +93,11 @@ public class RiskEventConvertor {
 				continue;
 			}
 			
-			Object tmpValue = getValueByPath(riskFact, headerMapping.getSrcPath());
+			//Object tmpValue = getValueByPath(riskFact, headerMapping.getSrcPath());
+			Object tmpValue = getValueByPath(internalRiskFact, headerMapping.getSrcPath());
 			logger.info("set " + headerMapping.getFieldName() + " = " + tmpValue);
-			field.set(object, tmpValue);
+			//field.set(object, tmpValue);
+			setFiledValue(object, field, tmpValue);
 		}
 		
 		//设置eventBody字段的值
@@ -146,10 +156,48 @@ public class RiskEventConvertor {
 		//不支持list
 		return EventBodyUtils.value(riskFact.getEventBody(), path);
 	}
-	
+
+	//暂不支持list
 	private Object getValueByPath(InternalRiskFact internalRiskFact, String path) {
 		
-		//TODO:待实现
+		List<String> pathList = Splitter.on(".").omitEmptyStrings().trimResults().limit(2).splitToList(path);
+		List<DataUnit> dataUnits = internalRiskFact.getDataUnits();
+		for (DataUnit dataUnit : dataUnits) {
+			if (dataUnit.getMetadata().getName().equals(pathList.get(0)) && (dataUnit.getData() instanceof Map)) {
+				return EventBodyUtils.value((Map)dataUnit.getData(), path/*pathList.get(1)*/);
+			}
+		}
+		
 		return null;
+	}
+	
+	private void setFiledValue(Object object, Field field, Object value) {
+		
+		try {
+			Class<?> typeClass = field.getType();
+			if (value==null && 
+					(field.getName().equalsIgnoreCase("orderType") 
+							|| field.getName().equalsIgnoreCase("subOrderType") 
+							|| field.getName().equalsIgnoreCase("orderId"))) {
+				value = "0";
+			}
+			
+			Constructor<?> constructor = null;
+			try {
+				constructor = typeClass.getConstructor(String.class);
+			} catch (Exception e) {
+				logger.warn(e.toString());
+			}
+			
+			if (null==value || null== constructor) {
+				field.set(object, value);
+			}
+			else {
+				field.set(object, constructor.newInstance(value.toString()));
+			}
+			
+		} catch (Exception e) {
+			logger.warn(e.toString());
+		}
 	}
 }
