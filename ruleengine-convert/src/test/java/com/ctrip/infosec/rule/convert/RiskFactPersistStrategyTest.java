@@ -97,7 +97,7 @@ public class RiskFactPersistStrategyTest {
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
 
-        daemon.setUrl("http://localhost:8080/configsws/rest/loadconfig");
+        daemon.setUrl("http://localhost:8180/rest/loadconfig");
         daemon.setPart(Part.FactPersistConfig);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();
