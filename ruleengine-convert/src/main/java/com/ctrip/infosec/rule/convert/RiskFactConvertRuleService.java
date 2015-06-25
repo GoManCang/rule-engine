@@ -146,7 +146,7 @@ public class RiskFactConvertRuleService {
                 Integer columnType = checkColumnType(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".") + 1, trgName.length()), dataUnit.getDefinition().getMetadata());
                 if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType!=DataUnitColumnType.List.getIndex()) {
                     Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
-                    System.out.println("[trgName]:" + trgName + "     [value]:" + Utils.JSON.toPrettyJSONString(results));
+//                    System.out.println("[trgName]:" + trgName + "     [value]:" + Utils.JSON.toPrettyJSONString(results));
                     /**
                      * 将获取的results结果输入格式化如：
                      *
@@ -206,7 +206,7 @@ public class RiskFactConvertRuleService {
             Map data = (Map) dataUnit.getData();
             Object firstMap = data.get(firstTrgName);
             Object o = convert2InternalMapData(trgNameList, results, firstMap == null ? new HashMap<String, Object>() : (Map<String, Object>) firstMap, trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
-            data.put(firstTrgName, o);
+            data.putAll((Map) o);
         } else if (dataUnit.getDefinition().getType() == LIST_TYPE) {
             List  data = (List) dataUnit.getData();
             List items= (List) results;
