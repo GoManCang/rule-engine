@@ -4,6 +4,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
+import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.google.common.base.Joiner;
@@ -48,11 +49,11 @@ public class RiskFactConvertRuleService {
          * 根据 DataUnit.DataUnitDefinition.type 的类型来决定 是取list[0] 还是 遍历list
          */
         Map<String, DataUnit> dataUnitMapping = new HashMap<String, DataUnit>();
-        if (!InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().containsKey(riskFact.getEventPoint())) {
+        if (!InternalConvertConfigHolder.localRiskFactDefinitionConfigMap.containsKey(riskFact.getEventPoint())) {
             logger.warn("业务点" + riskFact.getEventPoint() + "所对应的InternalRiskFactDefinitionConfig未找到！！");
             return null;
         }
-        InternalRiskFactDefinitionConfig internalRiskFactDefinitionConfig = InternalConvertConfigHolder.getRiskFactDefinitionConfigMap().get(riskFact.getEventPoint());
+        InternalRiskFactDefinitionConfig internalRiskFactDefinitionConfig = InternalConvertConfigHolder.localRiskFactDefinitionConfigMap.get(riskFact.getEventPoint());
         List<DataUnitDefinition> dataUnitDefinitions = internalRiskFactDefinitionConfig.getDataUnitMetas();
         if (dataUnitDefinitions == null) {
             logger.warn("业务点" + riskFact.getEventPoint() + "所对应的DataUnitDefinition未找到！！");
@@ -94,11 +95,11 @@ public class RiskFactConvertRuleService {
          * 获得eventPoint对应的FieldMapping
          *
          */
-        if (!InternalConvertConfigHolder.getRiskConvertMappings().containsKey(riskFact.getEventPoint())) {
+        if (!InternalConvertConfigHolder.localRiskConvertMappings.containsKey(riskFact.getEventPoint())) {
             logger.warn("业务点" + riskFact.getEventPoint() + "所对应的RiskFactConvertRuleConfig未找到！！");
             return null;
         }
-        RiskFactConvertRuleConfig riskFactConvertRuleConfigs = InternalConvertConfigHolder.getRiskConvertMappings().get(riskFact.getEventPoint());
+        RiskFactConvertRuleConfig riskFactConvertRuleConfigs = InternalConvertConfigHolder.localRiskConvertMappings.get(riskFact.getEventPoint());
         List<FieldMapping> fieldMappingList = riskFactConvertRuleConfigs.getMappings();
         if (fieldMappingList == null) {
             logger.warn("业务点" + riskFact.getEventPoint() + "所对应的FieldMapping未找到！！");
@@ -358,7 +359,7 @@ public class RiskFactConvertRuleService {
         else {
                 trgNames.remove(0);
                 if (StringUtils.isNotBlank(dataUnitColumn.getNestedDataUnitMataNo())) {
-                    DataUnitMetadata dataUnitMetadata = InternalConvertConfigHolder.getRiskFactMetadataMap().get(dataUnitColumn.getNestedDataUnitMataNo());
+                    DataUnitMetadata dataUnitMetadata = RiskFactPersistConfigHolder.localDataUnitMetadatas.get(dataUnitColumn.getNestedDataUnitMataNo());
                     return checkColumnType(Joiner.on('.').join(trgNames), dataUnitMetadata);
                 } else {
                     logger.warn("trgname:" + trgNames.get(0) + "作为object 和 list 对象没有找到 元数据Id");
