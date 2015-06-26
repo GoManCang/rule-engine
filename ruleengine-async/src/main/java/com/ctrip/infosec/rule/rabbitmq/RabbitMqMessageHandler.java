@@ -20,6 +20,7 @@ import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +109,7 @@ public class RabbitMqMessageHandler {
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
             // 数据落地
-            String operation = internalRiskFact.getEventId() + ".persist-info";
+            String operation = (internalRiskFact == null ? "SKIP" : internalRiskFact.getEventId()) + ".persist-info";
             try {
                 beforeInvoke(operation);
                 RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
