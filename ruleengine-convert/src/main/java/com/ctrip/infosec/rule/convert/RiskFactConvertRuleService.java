@@ -216,7 +216,13 @@ public class RiskFactConvertRuleService {
 //            data.putAll((Map) o);
         } else if (dataUnit.getDefinition().getType() == LIST_TYPE) {
             List  data = (List) dataUnit.getData();
-            List items= (List) results;
+            List items;
+            if(results!=null && results instanceof List){
+                items= (List) results;
+            }
+            else{
+                return;
+            }
             //第一次
             if(data.size()==0){
                  for(Object item:items){
