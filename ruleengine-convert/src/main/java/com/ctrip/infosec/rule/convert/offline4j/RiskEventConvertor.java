@@ -135,8 +135,8 @@ public class RiskEventConvertor {
 			HeaderMappingBizType bizType) throws Exception {
 		
 		if (null==internalRiskFact || null==bizType) {
-			logger.error("param should not be null");
-			throw new Exception("param should not be null");
+			logger.warn("param should not be null");
+			return null;
 		}
 		
 		String eventPoint = internalRiskFact.getEventPoint();
@@ -144,7 +144,6 @@ public class RiskEventConvertor {
 
 		if (null == headerMappings || headerMappings.size() == 0) {
 			logger.warn("no headerMapping found!");
-			throw new Exception("no headerMapping found!");
 		}
 		
 		//设置非eventBody字段的值
