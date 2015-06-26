@@ -42,10 +42,6 @@ public class RiskFactConvertRuleService {
 //    private static  List<FieldMapping> fieldMappingList;
     public InternalRiskFact apply(RiskFact riskFact) {
 
-        logger.info(Utils.JSON.toPrettyJSONString(InternalConvertConfigHolder.localRiskFactDefinitionConfigMap));
-        logger.info(Utils.JSON.toPrettyJSONString(InternalConvertConfigHolder.localRiskConvertMappings));
-
-
         /**
          * dataUnitMapping 的 key 是 dataUnitDefinition 的 id
          * 不管DataUnit中的data 是 list 还是 单个 object 全部放在 list<Map<Stirng,Object>> 中

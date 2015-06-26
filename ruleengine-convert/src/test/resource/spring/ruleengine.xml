@@ -27,13 +27,13 @@
     <!--<bean id="statelessRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessRuleEngine" init-method="initEngine"  depends-on="statelessPostRuleEngine"/>-->
     <bean id="convertRuleUpdateCallback" class="com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback" />
 
-    <!-- 初始化缓存 -->
+    <!--&lt;!&ndash; 初始化缓存 &ndash;&gt;-->
     <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" >
         <property name="url" value="http://localhost:8080/configsws/rest/loadconfig"/>
         <property name="part" value="ALL"/>
         <property name="callback">
             <bean class="com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback"/>
-        </property>  
+        </property>
     </bean>
     
     <!-- 初始化trace工具 -->
@@ -41,10 +41,10 @@
         <property name="url" value="${Configs.Trace.URL}"/>
     </bean>
 
-    <!--&lt;!&ndash; 数据合并 &ndash;&gt;-->
+    <!--<!-- 数据合并 -->-->
     <!--<bean class="com.ctrip.infosec.rule.executor.EventDataMergeService" init-method="init"/>-->
 
-    <!--&lt;!&ndash; 初始化RiskProfile &ndash;&gt;-->
+    <!--<!-- 初始化RiskProfile -->-->
     <!--<bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>-->
     
 </beans>

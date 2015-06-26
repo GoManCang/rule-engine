@@ -24,14 +24,14 @@
     <bean id="statelessPostRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPostRuleEngine" init-method="initEngine" depends-on="statelessPreRuleEngine"/>
     <bean id="statelessRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessRuleEngine" init-method="initEngine"  depends-on="statelessPostRuleEngine"/>
     
-    <!-- 初始化缓存 -->
-    <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" depends-on="statelessRuleEngine">
-        <property name="url" value="${Configs.URL}"/>
-        <property name="part" value="RuleEngine"/>   
-        <property name="callback">
-            <bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>
-        </property>  
-    </bean>
+    <!--&lt;!&ndash; 初始化缓存 &ndash;&gt;-->
+    <!--<bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" depends-on="statelessRuleEngine">-->
+        <!--<property name="url" value="${Configs.URL}"/>-->
+        <!--<property name="part" value="RuleEngine"/>   -->
+        <!--<property name="callback">-->
+            <!--<bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>-->
+        <!--</property>  -->
+    <!--</bean>-->
     
     <!-- 初始化trace工具 -->
     <bean class="com.ctrip.infosec.configs.rule.trace.TraceDeamon" init-method="start" destroy-method="stop">

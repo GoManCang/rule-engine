@@ -37,4 +37,13 @@
         <property name="postUrl" value="${sars.monitor.rest.url}"/>
     </bean>
 
+    <!-- 初始化缓存 -->
+    <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" >
+        <property name="url" value="${Configs.URL}"/>
+        <property name="part" value="RuleEngine"/>
+        <property name="callback">
+            <bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>
+        </property>
+    </bean>
+
 </beans>
