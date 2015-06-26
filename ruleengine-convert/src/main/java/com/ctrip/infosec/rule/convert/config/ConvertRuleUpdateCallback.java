@@ -14,8 +14,8 @@ public class ConvertRuleUpdateCallback implements ConfigsLoadedCallback {
 //        Caches.
 //        ConverterLocator.updateInteralConvertConfig();
         InternalConvertConfigHolder.reconfigure(Caches.riskFactConvertRuleConfigs,
-                Caches.internalRiskFactDefinitionConfigs,
-                Caches.dataUnitMetadatas);
+                Caches.internalRiskFactDefinitionConfigs
+                );
         RiskFactPersistConfigHolder.reconfigure(Caches.internalRiskFactPersistConfigs, Caches.dataUnitMetadatas);
     }
 }
