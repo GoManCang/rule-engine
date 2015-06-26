@@ -33,7 +33,7 @@ public class InternalConvertConfigHolder {
      * 重新配置
      *
      */
-    public static synchronized void reconfigure(Map<String, RiskFactConvertRuleConfig> riskFactConvertRuleConfigMap,
+    public static void reconfigure(Map<String, RiskFactConvertRuleConfig> riskFactConvertRuleConfigMap,
                                                   Map<String,InternalRiskFactDefinitionConfig> riskFactDefinitionConfigMap
                                                  ){
         logger.info("==========================================================");
