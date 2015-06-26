@@ -24,13 +24,11 @@
     </appender>
     
     <!-- Output to central logging -->
-    <!--    
     <appender name="CLoggingAppender" class="com.ctrip.framework.clogging.agent.appender.CLoggingAppender">
         <appId>100000559</appId>
         <serverIp>{$CLogging.serverIp}</serverIp>
         <serverPort>{$CLogging.serverPort}</serverPort>
     </appender>
-    -->
     
     <logger name="com.ctrip.infosec.rule" additivity="false">
         <level value="INFO" />
