@@ -61,6 +61,10 @@
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
         <!--RSserve-->
         <RService.Ip>10.3.6.244</RService.Ip>
+        <!--RiskFact persistence config-->
+        <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
+        <reqId.table.name>CardRisk_DealInfo</reqId.table.name>
+        <reqId.column.name>ReqID</reqId.column.name>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -103,6 +107,10 @@
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
         <!--RSserve-->
         <RService.Ip>10.3.6.244</RService.Ip>
+        <!--RiskFact persistence config-->
+        <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
+        <reqId.table.name>CardRisk_DealInfo</reqId.table.name>
+        <reqId.column.name>ReqID</reqId.column.name>
     </uat_nt>
     <prd>
         <sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
@@ -143,5 +151,9 @@
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
         <!--RSserve-->
         <RService.Ip>riskmlrules.infosec.ctripcorp.com</RService.Ip>
+        <!--RiskFact persistence config-->
+        <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
+        <reqId.table.name>CardRisk_DealInfo</reqId.table.name>
+        <reqId.column.name>ReqID</reqId.column.name>
     </prd>
 </profile>
