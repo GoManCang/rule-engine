@@ -20,6 +20,12 @@
         <dependency>
             <groupId>com.ctrip.infosec.ruleengine</groupId>
             <artifactId>ruleengine-core</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         
         <dependency>
@@ -37,10 +43,12 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jstl</groupId>
@@ -74,7 +82,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
+    
     <build>
         <plugins>            
             <plugin>
@@ -84,6 +92,23 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <!-- tomcat7 -->
+            <plugin>
+                <groupId>org.apache.tomcat.maven</groupId>
+                <artifactId>tomcat7-maven-plugin</artifactId>
+                <version>2.0</version>
+                <configuration>
+                  <!-- http port -->
+                  <port>8080</port>
+                  <!-- application path always starts with /-->
+                  <path>/</path>
+                  <useTestClasspath>false</useTestClasspath>
+                  <!-- optionnal if you want to add some extra directories in the class loader -->
+                  <additionalClasspathDirs>
+                    <additionalClasspathDir></additionalClasspathDir>
+                  </additionalClasspathDirs>
+                </configuration>
+              </plugin>            
         </plugins>
         <finalName>${project.artifactId}</finalName>
     </build>

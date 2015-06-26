@@ -28,7 +28,7 @@
         <CRedis.serviceUrl>http://ws.config.framework.fws.qa.nt.ctripcorp.com/configws/</CRedis.serviceUrl>
         <CRedis.logging>false</CRedis.logging>
         <!-- CLogging -->
-        <CLogging.serverIp>collector.logging.uat.qa.nt.ctripcorp.com</CLogging.serverIp>
+        <CLogging.serverIp>collector.logging.fws.qa.nt.ctripcorp.com</CLogging.serverIp>
         <CLogging.serverPort>63100</CLogging.serverPort>
         <!-- Configs -->
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
