@@ -36,10 +36,10 @@ public class InternalConvertConfigHolder {
     public static void reconfigure(Map<String, RiskFactConvertRuleConfig> riskFactConvertRuleConfigMap,
                                                   Map<String,InternalRiskFactDefinitionConfig> riskFactDefinitionConfigMap
                                                  ){
-        logger.info("==========================================================");
-        logger.info(Utils.JSON.toPrettyJSONString(riskFactConvertRuleConfigMap));
-        logger.info(Utils.JSON.toPrettyJSONString(riskFactDefinitionConfigMap));
-        logger.info("==========================================================");
+//        logger.info("==========================================================");
+//        logger.info(Utils.JSON.toPrettyJSONString(riskFactConvertRuleConfigMap));
+//        logger.info(Utils.JSON.toPrettyJSONString(riskFactDefinitionConfigMap));
+//        logger.info("==========================================================");
 
 
         if (MapUtils.isNotEmpty(riskFactConvertRuleConfigMap)){
@@ -63,10 +63,10 @@ public class InternalConvertConfigHolder {
                 }
             }
         }
-        logger.info("==========================================================");
-        logger.info(Utils.JSON.toPrettyJSONString(localRiskConvertMappings));
-        logger.info(Utils.JSON.toPrettyJSONString(localRiskFactDefinitionConfigMap));
-        logger.info("==========================================================");
+//        logger.info("==========================================================");
+//        logger.info(Utils.JSON.toPrettyJSONString(localRiskConvertMappings));
+//        logger.info(Utils.JSON.toPrettyJSONString(localRiskFactDefinitionConfigMap));
+//        logger.info("==========================================================");
 
         // 清空过期配置
         long curTime = System.currentTimeMillis();
@@ -85,10 +85,10 @@ public class InternalConvertConfigHolder {
             }
         }
 
-        logger.info("==========================================================");
-        logger.info(Utils.JSON.toPrettyJSONString(localRiskConvertMappings));
-        logger.info(Utils.JSON.toPrettyJSONString(localRiskFactDefinitionConfigMap));
-        logger.info("==========================================================");
+//        logger.info("==========================================================");
+//        logger.info(Utils.JSON.toPrettyJSONString(localRiskConvertMappings));
+//        logger.info(Utils.JSON.toPrettyJSONString(localRiskFactDefinitionConfigMap));
+//        logger.info("==========================================================");
 
 
 
