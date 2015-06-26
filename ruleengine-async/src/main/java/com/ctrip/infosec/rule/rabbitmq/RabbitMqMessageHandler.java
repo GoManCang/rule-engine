@@ -108,17 +108,19 @@ public class RabbitMqMessageHandler {
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
             // 数据落地
-            String operation = internalRiskFact.getEventId() + ".persist-info";
-            try {
-                beforeInvoke(operation);
-                RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
-                persistManager.persist();
-                internalRiskFact.setReqId(persistManager.getGeneratedReqId());
-            } catch (Exception ex) {
-                fault(operation);
-                logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
-            } finally {
-                afterInvoke(operation);
+            if (internalRiskFact != null) {
+                String operation = internalRiskFact.getEventId() + ".persist-info";
+                try {
+                    beforeInvoke(operation);
+                    RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
+                    persistManager.persist();
+                    internalRiskFact.setReqId(persistManager.getGeneratedReqId());
+                } catch (Exception ex) {
+                    fault(operation);
+                    logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
+                } finally {
+                    afterInvoke(operation);
+                }
             }
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
@@ -153,15 +155,17 @@ public class RabbitMqMessageHandler {
                     }
 
                     // 发送Offline4J
-                    try {
-                    	Object eventObj = riskEventConvertor.convert(internalRiskFact, riskLevel, HeaderMappingBizType.Offline4J);
-                        beforeInvoke("offlineMessageSender.sendToOffline");
-                        offlineMessageSender.sendToOffline(eventObj);
-                    } catch (Exception ex) {
-                        fault("offlineMessageSender.sendToOffline");
-                        logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
-                    } finally {
-                        afterInvoke("offlineMessageSender.sendToOffline");
+                    if (internalRiskFact != null) {
+                        try {
+                            Object eventObj = riskEventConvertor.convert(internalRiskFact, riskLevel, HeaderMappingBizType.Offline4J);
+                            beforeInvoke("offlineMessageSender.sendToOffline");
+                            offlineMessageSender.sendToOffline(eventObj);
+                        } catch (Exception ex) {
+                            fault("offlineMessageSender.sendToOffline");
+                            logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
+                        } finally {
+                            afterInvoke("offlineMessageSender.sendToOffline");
+                        }
                     }
                 }
 
