@@ -73,10 +73,11 @@
     <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" >
         <property name="url" value="${Configs.URL}"/>
         <property name="part" value="RuleEngine"/>
-        <util:list>
-            <bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>
-            <bean class="com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback"/>
-        </util:list>
+        <property name="callback">
+                <bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>
+            <!--<bean class="com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback"/>-->
+        </property>
+
     </bean>
 		
 </beans>
