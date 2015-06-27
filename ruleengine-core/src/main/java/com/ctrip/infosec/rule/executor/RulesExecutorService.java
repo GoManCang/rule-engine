@@ -87,9 +87,9 @@ public class RulesExecutorService {
                 }
             }
         }
-//        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
-//            finalResult = compareAndReturn(finalResult, rs);
-//        }
+        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
+            finalResult = compareAndReturn(finalResult, rs);
+        }
         fact.setFinalResult(
                 ImmutableMap.of(
                         Constants.riskLevel, finalResult.get(Constants.riskLevel),
@@ -145,9 +145,9 @@ public class RulesExecutorService {
                 }
             }
         }
-//        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
-//            finalResult = compareAndReturn(finalResult, rs);
-//        }
+        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
+            finalResult = compareAndReturn(finalResult, rs);
+        }
         fact.setFinalResult(
                 ImmutableMap.of(
                         Constants.riskLevel, finalResult.get(Constants.riskLevel),
