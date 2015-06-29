@@ -13,11 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.*;
+import java.util.Date;
 
 /**
  * Created by jizhao on 2015/6/23.
@@ -141,7 +139,7 @@ public class RdbmsInsert implements DbOperation {
                     } else if (o instanceof Logger) {
                         cs.setLong(index, (Long) o);
                     } else if (o instanceof Date) {
-                        cs.setDate(index, new java.sql.Date(((Date) o).getTime()));
+                        cs.setTimestamp(index,new Timestamp(((Date) o).getTime()));
                     } else if (o instanceof String) {
                         cs.setString(index, (String) o);
                     } else if ( o instanceof Double) {

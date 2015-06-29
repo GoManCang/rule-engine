@@ -29,6 +29,7 @@
 
     <!--&lt;!&ndash; 初始化缓存 &ndash;&gt;-->
     <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" >
+        <!--<property name="url" value="http://10.32.13.132:8080/configs-ws/rest/loadconfig"/>-->
         <property name="url" value="http://localhost:8080/configsws/rest/loadconfig"/>
         <property name="part" value="ALL"/>
         <property name="callback">
@@ -41,10 +42,10 @@
         <property name="url" value="${Configs.Trace.URL}"/>
     </bean>
 
-    <!--<!-- 数据合并 -->-->
+    <!--- 数据合并 -->
     <!--<bean class="com.ctrip.infosec.rule.executor.EventDataMergeService" init-method="init"/>-->
 
-    <!--<!-- 初始化RiskProfile -->-->
+    <!--- 初始化RiskProfile -->
     <!--<bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>-->
     
 </beans>
