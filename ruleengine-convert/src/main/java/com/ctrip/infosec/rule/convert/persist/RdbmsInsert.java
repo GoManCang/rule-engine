@@ -63,6 +63,7 @@ public class RdbmsInsert implements DbOperation {
                 dataSource = DalDataSourceHolder.getDataSource(channel.getDatabaseURL());
                 connection = dataSource.getConnection();
                 String spa = createSPA(table, columnPropertiesMap, ctx);
+                logger.info("spa: {}, parameters: {}" , spa, columnPropertiesMap);
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
                 cs.execute();
@@ -208,7 +209,7 @@ public class RdbmsInsert implements DbOperation {
         } else if (strings.get(0).equalsIgnoreCase(CTX)) {
             return ctx.getVar(strings.get(1));
         } else {
-            logger.warn("自定义表达式无效返回null");
+            logger.warn("自定义表达式无效返回null, {}", expression);
             return null;
         }
     }
