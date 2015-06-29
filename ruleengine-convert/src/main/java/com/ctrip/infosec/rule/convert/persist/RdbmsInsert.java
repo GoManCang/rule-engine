@@ -61,6 +61,10 @@ public class RdbmsInsert implements DbOperation {
                 dataSource = DalDataSourceHolder.getDataSource(channel.getDatabaseURL());
                 connection = dataSource.getConnection();
                 String spa = createSPA(table, columnPropertiesMap, ctx);
+                if(StringUtils.isBlank(spa)){
+                    logger.info("columnPropertiesMap 中的value为空 未构成spa");
+                    return;
+                }
                 logger.info("spa: {}, parameters: {}", spa, columnPropertiesMap);
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
@@ -92,20 +96,27 @@ public class RdbmsInsert implements DbOperation {
     private String createSPA(String table, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
 //        String sqa = "{call spA_" + table + "_i  (@RuleID = ? , @ProcessType= ? , @CheckValue= ? )}";
         String sqa = "{call spA_" + table + "_i ( %s )}";
-        String temp = "";
+        String temp;
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             Object o = valueByPersistSourceType(entry.getValue(), ctx);
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 if (o != null) {
                     temp = "@" + entry.getKey() + " = ?";
+                    list.add(temp);
                 }
             } else {
                 temp = "@" + entry.getKey() + " = ?";
+                list.add(temp);
             }
-            list.add(temp);
         }
-        return String.format(sqa, Joiner.on(',').join(list));
+        String join = Joiner.on(',').join(list);
+        if(StringUtils.isNotBlank(join)) {
+            return String.format(sqa, join);
+        }
+        else {
+            return null;
+        }
     }
 
     /**
