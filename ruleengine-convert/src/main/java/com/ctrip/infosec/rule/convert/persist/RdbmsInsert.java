@@ -4,6 +4,7 @@ import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.util.DalDataSourceHolder;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -16,17 +17,14 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by jizhao on 2015/6/23.
  */
 public class RdbmsInsert implements DbOperation {
 
-    private static String DATA = "data";
+    private static String DATE = "date";
     private static String CTX = "ctx";
     /**
      * 数据分发通道
@@ -63,7 +61,7 @@ public class RdbmsInsert implements DbOperation {
                 dataSource = DalDataSourceHolder.getDataSource(channel.getDatabaseURL());
                 connection = dataSource.getConnection();
                 String spa = createSPA(table, columnPropertiesMap, ctx);
-                logger.info("spa: {}, parameters: {}" , spa, columnPropertiesMap);
+                logger.info("spa: {}, parameters: {}", spa, columnPropertiesMap);
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
                 cs.execute();
@@ -79,8 +77,8 @@ public class RdbmsInsert implements DbOperation {
                     if (connection != null) {
                         connection.close();
                     }
-                }catch(SQLException e){
-                    throw new DbExecuteException("connect 关闭错误",e);
+                } catch (SQLException e) {
+                    throw new DbExecuteException("connect 关闭错误", e);
                 }
             }
         }
@@ -95,30 +93,19 @@ public class RdbmsInsert implements DbOperation {
 //        String sqa = "{call spA_" + table + "_i  (@RuleID = ? , @ProcessType= ? , @CheckValue= ? )}";
         String sqa = "{call spA_" + table + "_i ( %s )}";
         String temp = "";
-        int index = 0;
-        int size = columnPropertiesMap.size();
+        List<String> list = new ArrayList<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             Object o = valueByPersistSourceType(entry.getValue(), ctx);
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 if (o != null) {
-                    if (index + 1 < size) {
-                        temp += "@" + entry.getKey() + " = ?, ";
-                    } else {
-                        temp += "@" + entry.getKey() + " = ?";
-                    }
+                    temp = "@" + entry.getKey() + " = ?";
                 }
-
             } else {
-                if (index + 1 < size) {
-                    temp += "@" + entry.getKey() + " = ?, ";
-                } else {
-                    temp += "@" + entry.getKey() + " = ?";
-                }
+                temp = "@" + entry.getKey() + " = ?";
             }
-            index++;
+            list.add(temp);
         }
-        return String.format(sqa, temp);
-//        return sqa;
+        return String.format(sqa, Joiner.on(',').join(list));
     }
 
     /**
@@ -197,7 +184,7 @@ public class RdbmsInsert implements DbOperation {
         if (strings.size() != 2) {
             return null;
         }
-        if (strings.get(0).equalsIgnoreCase(DATA)) {
+        if (strings.get(0).equalsIgnoreCase(DATE)) {
             String data = strings.get(1);
             switch (data) {
                 case "now":
