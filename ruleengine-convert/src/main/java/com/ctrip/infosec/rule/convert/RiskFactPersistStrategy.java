@@ -8,6 +8,7 @@ import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.*;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
@@ -191,7 +192,7 @@ public class RiskFactPersistStrategy {
                     props.setValue(simpleFieldMap.get(metaColumnName));
                     props.setColumnType(DataUnitColumnType.getByIndex(metaColumn.getColumnType()));
                 } else {
-                    logger.warn("failed to match column from metadata from [{}.{}]", meta.getName(), metaColumnName);
+                    logger.warn("{}failed to match column from metadata from [{}.{}]", SarsMonitorContext.getLogPrefix(), meta.getName(), metaColumnName);
                 }
             }
             rt.put(columnConfig.getName(), props);
