@@ -186,7 +186,7 @@ public class RiskFactPersistStrategyTest {
 
     private List<RdbmsTableColumnConfig> getRdbmsTableColumnConfigs() {
         List<RdbmsTableColumnConfig> columnConfigs = Lists.newArrayList();
-        columnConfigs.add(getRdbmsTableColumnConfig("ReqID", PersistColumnSourceType.CUSTOMIZE, "ctx:CardRisk_DealInfo.ReqID"));
+        columnConfigs.add(getRdbmsTableColumnConfig("ReqID", PersistColumnSourceType.CUSTOMIZE, "ctx:InfoSecurity_DealInfo.ReqID"));
         columnConfigs.add(getRdbmsTableColumnConfig("OrderInfoExternalURL", PersistColumnSourceType.DATA_UNIT, "name"));
         columnConfigs.add(getRdbmsTableColumnConfig("DataChange_LastTime", PersistColumnSourceType.CUSTOMIZE, "data:now"));
         return columnConfigs;
