@@ -144,9 +144,14 @@ public class RdbmsInsert implements DbOperation {
                         cs.setDate(index, new java.sql.Date(((Date) o).getTime()));
                     } else if (o instanceof String) {
                         cs.setString(index, (String) o);
-                    } else if (o instanceof Float || o instanceof Double) {
-                        cs.setBigDecimal(index, (BigDecimal) o);
-                    } else {
+                    } else if ( o instanceof Double) {
+                        Double d = (Double) o;
+                        cs.setBigDecimal(index, new BigDecimal(d));
+                    } else if(o instanceof  Float){
+                        Float f = (Float) o;
+                        cs.setBigDecimal(index,new BigDecimal(f.doubleValue()));
+                    }
+                    else {
                         cs.setObject(index, o);
                     }
                 } else {
