@@ -1,6 +1,7 @@
 package com.ctrip.infosec.rule.convert.persist;
 
 import com.google.common.collect.Maps;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Deque;
@@ -47,11 +48,13 @@ public class InheritableSharedMap {
     }
 
     public void addSharedValues(String prefix, Map<String, Object> sharedValues) {
-        if (StringUtils.isBlank(prefix)) {
-            currentMap.putAll(sharedValues);
-        } else {
-            for (Map.Entry<String, Object> entry : sharedValues.entrySet()) {
-                currentMap.put(prefix + "." + entry.getKey(), entry.getValue());
+        if(MapUtils.isNotEmpty(sharedValues)) {
+            if (StringUtils.isBlank(prefix)) {
+                currentMap.putAll(sharedValues);
+            } else {
+                for (Map.Entry<String, Object> entry : sharedValues.entrySet()) {
+                    currentMap.put(prefix + "." + entry.getKey(), entry.getValue());
+                }
             }
         }
     }

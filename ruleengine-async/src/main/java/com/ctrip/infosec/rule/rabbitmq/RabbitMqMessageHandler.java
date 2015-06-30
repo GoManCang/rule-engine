@@ -109,7 +109,7 @@ public class RabbitMqMessageHandler {
             internalRiskFact = riskFactConvertRuleService.apply(fact);
             // 数据落地
             if (internalRiskFact != null) {
-                String operation = internalRiskFact.getEventId() + ".persist-info";
+                String operation = internalRiskFact.getEventPoint() + ".persist-info";
                 try {
                     beforeInvoke(operation);
                     RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
