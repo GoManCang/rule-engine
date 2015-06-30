@@ -65,7 +65,7 @@ public class Emitter {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
         }
-        int riskLevel = NumberUtils.toInt(riskLevelTxt);
+        int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
@@ -87,10 +87,13 @@ public class Emitter {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
 
-                    Map<String, Object> result = Maps.newHashMap();
-                    result.put(Constants.riskLevel, ruleExecuteResult.getResultCode());
-                    result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
-                    fact.results.put(ruleExecuteResult.getRuleNo(), result);
+                    int riskLevel = NumberUtils.toInt(ruleExecuteResult.getResultCode(), 0);
+                    if (riskLevel > 0) {
+                        Map<String, Object> result = Maps.newHashMap();
+                        result.put(Constants.riskLevel, riskLevel);
+                        result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
+                        fact.results.put(ruleExecuteResult.getRuleNo(), result);
+                    }
                 }
             }
         }
