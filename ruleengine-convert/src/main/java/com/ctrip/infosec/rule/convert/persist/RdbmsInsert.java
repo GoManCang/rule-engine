@@ -4,6 +4,7 @@ import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.util.DalDataSourceHolder;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -64,7 +65,7 @@ public class RdbmsInsert implements DbOperation {
                     logger.info("columnPropertiesMap 中的value为空 未构成spa");
                     return;
                 }
-                logger.info("spa: {}, parameters: {}", spa, columnPropertiesMap);
+                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, columnPropertiesMap);
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
                 cs.execute();
@@ -140,7 +141,7 @@ public class RdbmsInsert implements DbOperation {
                     } else if (o instanceof Long) {
                         cs.setLong(index, (Long) o);
                     } else if (o instanceof Date) {
-                        cs.setTimestamp(index,new Timestamp(((Date) o).getTime()));
+                        cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
                     } else if (o instanceof String) {
                         cs.setString(index, (String) o);
                     } else if ( o instanceof Double) {
