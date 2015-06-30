@@ -55,13 +55,13 @@ public class RiskFactConvertRuleService {
          */
         Map<String, DataUnit> dataUnitMapping = new HashMap<String, DataUnit>();
         if (!InternalConvertConfigHolder.localRiskFactDefinitionConfigMap.containsKey(riskFact.getEventPoint())) {
-            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的InternalRiskFactDefinitionConfig未找到！！");
+            logger.debug("业务点" + riskFact.getEventPoint() + "所对应的InternalRiskFactDefinitionConfig未找到！！");
             return null;
         }
         InternalRiskFactDefinitionConfig internalRiskFactDefinitionConfig = InternalConvertConfigHolder.localRiskFactDefinitionConfigMap.get(riskFact.getEventPoint());
         List<DataUnitDefinition> dataUnitDefinitions = internalRiskFactDefinitionConfig.getDataUnitMetas();
         if (dataUnitDefinitions == null) {
-            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的DataUnitDefinition未找到！！");
+            logger.debug("业务点" + riskFact.getEventPoint() + "所对应的DataUnitDefinition未找到！！");
             return null;
         }
         for (DataUnitDefinition definition : dataUnitDefinitions) {
