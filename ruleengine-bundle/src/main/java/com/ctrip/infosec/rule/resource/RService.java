@@ -25,8 +25,8 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 /**
  * Created by lpxie on 15-6-18.
  */
-public class RService
-{
+public class RService {
+
     private static final Logger logger = LoggerFactory.getLogger(RService.class);
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
@@ -50,15 +50,12 @@ public class RService
     private static final int queueSize = GlobalConfig.getInteger("pooled.sync.queueSize", -1);
     private static Lock lock = new ReentrantLock();
 
-    public void init()
-    {
+    public void init() {
         check();
-        try
-        {
+        try {
             rConnection = new RConnection(rServiceIp);
-        } catch (RserveException e)
-        {
-            logger.warn("连接Rserve异常:"+e.getMessage());
+        } catch (RserveException e) {
+            logger.warn("连接Rserve异常:" + e.getMessage());
         }
     }
 
@@ -89,17 +86,14 @@ public class RService
         }
     }
 
-    public static double getScore(String expression)
-    {
+    public static double getScore(String expression) {
         check();
         beforeInvoke();
-        beforeInvoke("RService.getScore");
         double score = 0.0;
         try {
-            score = RServiceProxy.syncInvoke(500,expression);
+            score = RServiceProxy.syncInvoke(500, expression);
         } catch (Exception ex) {
             fault();
-            fault("RService.getScore");
             logger.error(Contexts.getLogPrefix() + "invoke RService.getScore fault.", ex);
         } finally {
             afterInvoke("RService.getScore");
@@ -107,29 +101,22 @@ public class RService
         return score;
     }
 
-    public double getRScore(String expression)
-    {
+    public double getRScore(String expression) {
         double score = 0.0;
-        try
-        {
+        try {
             score = rConnection.eval(expression).asDouble();
-        } catch (RserveException e)
-        {
-            logger.warn("获取RServer分数异常:"+e.getMessage());
-        } catch (REXPMismatchException e)
-        {
+        } catch (RserveException e) {
+            logger.warn("获取RServer分数异常:" + e.getMessage());
+        } catch (REXPMismatchException e) {
             logger.warn("获取RServer分数异常:" + e.getMessage());
         }
         return score;
     }
 
-    public void destroy()
-    {
-        if(rConnection.close())
-        {
+    public void destroy() {
+        if (rConnection.close()) {
             logger.info("Rserve断开连接成功");
-        }else
-        {
+        } else {
             logger.warn("Rserve断开连接异常");
         }
 
