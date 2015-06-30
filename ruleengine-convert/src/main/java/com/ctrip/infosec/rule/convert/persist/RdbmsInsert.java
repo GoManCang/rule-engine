@@ -24,6 +24,7 @@ public class RdbmsInsert implements DbOperation {
 
     private static String DATE = "date";
     private static String CTX = "ctx";
+    private static String CONST="const";
     /**
      * 数据分发通道
      */
@@ -43,7 +44,7 @@ public class RdbmsInsert implements DbOperation {
 
     @Override
     public void execute(PersistContext ctx) throws DbExecuteException {
-        //todo dataSource  传进来如何
+
 
         if (columnPropertiesMap == null || columnPropertiesMap.size() == 0) {
             logger.warn("columnPropertiesMap为空无数据插入");
@@ -136,7 +137,7 @@ public class RdbmsInsert implements DbOperation {
                 if (o != null) {
                     if (o instanceof Integer) {
                         cs.setInt(index, (Integer) o);
-                    } else if (o instanceof Logger) {
+                    } else if (o instanceof Long) {
                         cs.setLong(index, (Long) o);
                     } else if (o instanceof Date) {
                         cs.setTimestamp(index,new Timestamp(((Date) o).getTime()));
@@ -195,21 +196,38 @@ public class RdbmsInsert implements DbOperation {
         }
 
         ArrayList<String> strings = Lists.newArrayList(Splitter.on(':').trimResults().omitEmptyStrings().split(expression));
-        if (strings.size() != 2) {
+        if (strings.size() <= 1 || strings.size()>3) {
             return null;
         }
-        if (strings.get(0).equalsIgnoreCase(DATE)) {
-            String data = strings.get(1);
-            switch (data) {
-                case "now":
-                    return new Date();
-                default:
-                    logger.warn("日期表达式无效 默认返回当前日期");
-                    return new Date();
-            }
-        } else if (strings.get(0).equalsIgnoreCase(CTX)) {
+        if (strings.get(0).equalsIgnoreCase(CTX)) {
             return ctx.getVar(strings.get(1));
-        } else {
+        } else if(strings.get(0).equalsIgnoreCase(CONST)){
+            String value = strings.get(1);
+            if(strings.size()==3){
+                String type = strings.get(2);
+                switch (type.toLowerCase()){
+                    case "int":
+                        return Integer.valueOf(value);
+                    case "long":
+                        return Long.valueOf(value);
+                    case "date":
+                        if(value.equalsIgnoreCase("now")){
+                            return new Date();
+                        }
+                        else{
+                            return new Date();
+                        }
+                    case "double":
+                        return Double.valueOf(value);
+                    default:
+                        return null;
+                }
+            }
+            else{
+                return value;
+            }
+        }
+        else {
             logger.warn("自定义表达式无效返回null, {}", expression);
             return null;
         }
