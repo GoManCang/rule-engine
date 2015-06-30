@@ -1,11 +1,14 @@
 package com.ctrip.infosec.rule.convert.persist;
 
-import java.util.Map;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by yxjiang on 2015/6/23.
  */
 public class DbOperationChain {
+    private static final Logger logger = LoggerFactory.getLogger(DbOperationChain.class);
     private DbOperation currentOperation;
     private DbOperationChain nextOperationChain;
     private DbOperationChain childOperationChain;
@@ -15,8 +18,12 @@ public class DbOperationChain {
     }
 
     public void execute(PersistContext ctx) throws DbExecuteException {
-        currentOperation.execute(ctx);
-        ctx.addCtxSharedValues(currentOperation.getPrefix(), currentOperation.getExposedValue());
+        try {
+            currentOperation.execute(ctx);
+            ctx.addCtxSharedValues(currentOperation.getPrefix(), currentOperation.getExposedValue());
+        } catch (DbExecuteException e) {
+            logger.warn(SarsMonitorContext.getLogPrefix() + "operation failed: " + currentOperation, e);
+        }
         // 执行子操作
         if (childOperationChain != null) {
             ctx.enterChildEnv();
