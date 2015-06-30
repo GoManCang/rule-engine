@@ -63,7 +63,7 @@
         <RService.Ip>10.3.6.244</RService.Ip>
         <!--RiskFact persistence config-->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
-        <reqId.table.name>CardRisk_DealInfo</reqId.table.name>
+        <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
     </fat>
     <lpt></lpt>
@@ -109,7 +109,7 @@
         <RService.Ip>10.3.6.244</RService.Ip>
         <!--RiskFact persistence config-->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
-        <reqId.table.name>CardRisk_DealInfo</reqId.table.name>
+        <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
     </uat_nt>
     <prd>
@@ -153,7 +153,7 @@
         <RService.Ip>riskmlrules.infosec.ctripcorp.com</RService.Ip>
         <!--RiskFact persistence config-->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
-        <reqId.table.name>CardRisk_DealInfo</reqId.table.name>
+        <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
     </prd>
 </profile>

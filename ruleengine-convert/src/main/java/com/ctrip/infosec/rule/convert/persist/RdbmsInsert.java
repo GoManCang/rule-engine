@@ -4,6 +4,8 @@ import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.util.DalDataSourceHolder;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
@@ -12,22 +14,18 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.ArrayList;
+import java.sql.*;
+import java.util.*;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by jizhao on 2015/6/23.
  */
 public class RdbmsInsert implements DbOperation {
 
-    private static String DATA = "data";
+    private static String DATE = "date";
     private static String CTX = "ctx";
+    private static String CONST="const";
     /**
      * 数据分发通道
      */
@@ -47,7 +45,7 @@ public class RdbmsInsert implements DbOperation {
 
     @Override
     public void execute(PersistContext ctx) throws DbExecuteException {
-        //todo dataSource  传进来如何
+
 
         if (columnPropertiesMap == null || columnPropertiesMap.size() == 0) {
             logger.warn("columnPropertiesMap为空无数据插入");
@@ -63,6 +61,11 @@ public class RdbmsInsert implements DbOperation {
                 dataSource = DalDataSourceHolder.getDataSource(channel.getDatabaseURL());
                 connection = dataSource.getConnection();
                 String spa = createSPA(table, columnPropertiesMap, ctx);
+                if(StringUtils.isBlank(spa)){
+                    logger.info("columnPropertiesMap 中的value为空 未构成spa");
+                    return;
+                }
+                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, columnPropertiesMap);
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(cs, columnPropertiesMap, ctx);
                 cs.execute();
@@ -78,8 +81,8 @@ public class RdbmsInsert implements DbOperation {
                     if (connection != null) {
                         connection.close();
                     }
-                }catch(SQLException e){
-                    throw new DbExecuteException("connect 关闭错误",e);
+                } catch (SQLException e) {
+                    throw new DbExecuteException("connect 关闭错误", e);
                 }
             }
         }
@@ -93,31 +96,27 @@ public class RdbmsInsert implements DbOperation {
     private String createSPA(String table, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
 //        String sqa = "{call spA_" + table + "_i  (@RuleID = ? , @ProcessType= ? , @CheckValue= ? )}";
         String sqa = "{call spA_" + table + "_i ( %s )}";
-        String temp = "";
-        int index = 0;
-        int size = columnPropertiesMap.size();
+        String temp;
+        List<String> list = new ArrayList<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             Object o = valueByPersistSourceType(entry.getValue(), ctx);
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 if (o != null) {
-                    if (index + 1 < size) {
-                        temp += "@" + entry.getKey() + " = ?, ";
-                    } else {
-                        temp += "@" + entry.getKey() + " = ?";
-                    }
+                    temp = "@" + entry.getKey() + " = ?";
+                    list.add(temp);
                 }
-
             } else {
-                if (index + 1 < size) {
-                    temp += "@" + entry.getKey() + " = ?, ";
-                } else {
-                    temp += "@" + entry.getKey() + " = ?";
-                }
+                temp = "@" + entry.getKey() + " = ?";
+                list.add(temp);
             }
-            index++;
         }
-        return String.format(sqa, temp);
-//        return sqa;
+        String join = Joiner.on(',').join(list);
+        if(StringUtils.isNotBlank(join)) {
+            return String.format(sqa, join);
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -139,15 +138,20 @@ public class RdbmsInsert implements DbOperation {
                 if (o != null) {
                     if (o instanceof Integer) {
                         cs.setInt(index, (Integer) o);
-                    } else if (o instanceof Logger) {
+                    } else if (o instanceof Long) {
                         cs.setLong(index, (Long) o);
                     } else if (o instanceof Date) {
-                        cs.setDate(index, new java.sql.Date(((Date) o).getTime()));
+                        cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
                     } else if (o instanceof String) {
                         cs.setString(index, (String) o);
-                    } else if (o instanceof Float || o instanceof Double) {
-                        cs.setBigDecimal(index, (BigDecimal) o);
-                    } else {
+                    } else if ( o instanceof Double) {
+                        Double d = (Double) o;
+                        cs.setBigDecimal(index, new BigDecimal(d));
+                    } else if(o instanceof  Float){
+                        Float f = (Float) o;
+                        cs.setBigDecimal(index,new BigDecimal(f.doubleValue()));
+                    }
+                    else {
                         cs.setObject(index, o);
                     }
                 } else {
@@ -193,22 +197,39 @@ public class RdbmsInsert implements DbOperation {
         }
 
         ArrayList<String> strings = Lists.newArrayList(Splitter.on(':').trimResults().omitEmptyStrings().split(expression));
-        if (strings.size() != 2) {
+        if (strings.size() <= 1 || strings.size()>3) {
             return null;
         }
-        if (strings.get(0).equalsIgnoreCase(DATA)) {
-            String data = strings.get(1);
-            switch (data) {
-                case "now":
-                    return new Date();
-                default:
-                    logger.warn("日期表达式无效 默认返回当前日期");
-                    return new Date();
-            }
-        } else if (strings.get(0).equalsIgnoreCase(CTX)) {
+        if (strings.get(0).equalsIgnoreCase(CTX)) {
             return ctx.getVar(strings.get(1));
-        } else {
-            logger.warn("自定义表达式无效返回null");
+        } else if(strings.get(0).equalsIgnoreCase(CONST)){
+            String value = strings.get(1);
+            if(strings.size()==3){
+                String type = strings.get(2);
+                switch (type.toLowerCase()){
+                    case "int":
+                        return Integer.valueOf(value);
+                    case "long":
+                        return Long.valueOf(value);
+                    case "date":
+                        if(value.equalsIgnoreCase("now")){
+                            return new Date();
+                        }
+                        else{
+                            return new Date();
+                        }
+                    case "double":
+                        return Double.valueOf(value);
+                    default:
+                        return null;
+                }
+            }
+            else{
+                return value;
+            }
+        }
+        else {
+            logger.warn("自定义表达式无效返回null, {}", expression);
             return null;
         }
     }

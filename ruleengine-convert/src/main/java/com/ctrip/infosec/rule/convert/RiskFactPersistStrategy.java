@@ -8,12 +8,15 @@ import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.*;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +25,8 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/15.
  */
 public class RiskFactPersistStrategy {
+    private static Logger logger = LoggerFactory.getLogger(RiskFactPersistStrategy.class);
+
     private static String allInOne4ReqId = GlobalConfig.getString("reqId.allInOne.name");
     private static String table4ReqId = GlobalConfig.getString("reqId.table.name");
     private static String column4ReqId = GlobalConfig.getString("reqId.column.name");
@@ -182,8 +187,13 @@ public class RiskFactPersistStrategy {
             props.setPersistColumnSourceType(sourceType);
             if (sourceType == PersistColumnSourceType.DATA_UNIT) {
                 String metaColumnName = columnConfig.getSource();
-                props.setValue(simpleFieldMap.get(metaColumnName));
-                props.setColumnType(DataUnitColumnType.getByIndex(meta.getColumn(metaColumnName).getColumnType()));
+                DataUnitColumn metaColumn = meta.getColumn(metaColumnName);
+                if (metaColumn != null) {
+                    props.setValue(simpleFieldMap.get(metaColumnName));
+                    props.setColumnType(DataUnitColumnType.getByIndex(metaColumn.getColumnType()));
+                } else {
+                    logger.warn("{}failed to match column from metadata from [{}.{}]", SarsMonitorContext.getLogPrefix(), meta.getName(), metaColumnName);
+                }
             }
             rt.put(columnConfig.getName(), props);
         }
