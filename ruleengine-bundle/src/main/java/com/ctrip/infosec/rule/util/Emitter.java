@@ -7,9 +7,11 @@ package com.ctrip.infosec.rule.util;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.Constants;
+import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -73,6 +75,24 @@ public class Emitter {
                 result.put(Constants.riskScene, Lists.newArrayList(riskScenes));
             }
             fact.results.put(ruleNo, result);
+        }
+    }
+
+    /**
+     * 合并CounterServer的规则结果
+     */
+    public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> ruleExecuteResults) {
+        if (ruleExecuteResults != null && !ruleExecuteResults.isEmpty()) {
+            for (CounterRuleExecuteResult ruleExecuteResult : ruleExecuteResults) {
+                if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
+                        && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put(Constants.riskLevel, ruleExecuteResult.getResultCode());
+                    result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
+                    fact.results.put(ruleExecuteResult.getRuleNo(), result);
+                }
+            }
         }
     }
 }
