@@ -117,7 +117,10 @@ public class Emitter {
      * 合并CounterServer的规则结果
      */
     public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> ruleExecuteResults) {
-        if (ruleExecuteResults != null && !ruleExecuteResults.isEmpty()) {
+        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
+        if (!Strings.isNullOrEmpty(ruleNo)
+                && ruleExecuteResults != null && !ruleExecuteResults.isEmpty()) {
+
             for (CounterRuleExecuteResult ruleExecuteResult : ruleExecuteResults) {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
@@ -127,7 +130,7 @@ public class Emitter {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put(Constants.riskLevel, riskLevel);
                         result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
-                        fact.results.put(ruleExecuteResult.getRuleNo(), result);
+                        fact.results.put(ruleNo + "." + ruleExecuteResult.getRuleNo(), result);
                     }
                 }
             }
