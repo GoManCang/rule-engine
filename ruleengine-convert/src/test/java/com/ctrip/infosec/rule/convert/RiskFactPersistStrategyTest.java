@@ -33,74 +33,127 @@ public class RiskFactPersistStrategyTest {
     @Test
     public void testConvertAndPersist() throws Exception {
         String data = "{\n" +
-                "  \"eventPoint\" : \"CP0027004\",\n" +
-                "  \"eventBody\" : {\n" +
-                "    \"amount\" : \"12631\",\n" +
-                "    \"bizCategory\" : \"DIY\",\n" +
-                "    \"bizType\" : \"90\",\n" +
-                "    \"bookingDate\" : \"2015-06-23 20:32:58\",\n" +
-                "    \"currentAmount\" : \"10631\",\n" +
-                "    \"finalResultGroupByScene\" : { },\n" +
-                "    \"isHide\" : \"false\",\n" +
-                "    \"itemInfos\" : [ {\n" +
-                "      \"DestCityId\" : \"623\",\n" +
-                "      \"DestCityName\" : \"清迈\",\n" +
-                "      \"EndDate\" : \"2015-08-12 00:00:00\",\n" +
-                "      \"ProductName\" : \"清迈+普吉岛8日7晚自由行·清迈进普吉出 清迈3晚+普吉4晚\",\n" +
-                "      \"Remark\" : \"1365008322 最多2人，烦请改订，谢谢//已下1365042339，烦请预订，烦请取消1365008322，差价70元，待确认后补款\",\n" +
-                "      \"StartCityId\" : \"2\",\n" +
-                "      \"StartCityName\" : \"上海\",\n" +
-                "      \"StartDate\" : \"2015-08-05 00:00:00\"\n" +
-                "    } ],\n" +
-                "    \"merchantOrderType\" : \"机酒\",\n" +
-                "    \"message_CreateTime\" : \"2015-6-24 16:44:39\",\n" +
-                "    \"operateTime\" : \"2015-06-24 16:44:38\",\n" +
-                "    \"orderDescription\" : \"已付款\",\n" +
-                "    \"orderId\" : 1368705150,\n" +
-                "    \"orderStatus\" : \"DIY_PAYED\",\n" +
-                "    \"orderType\" : 0,\n" +
-                "    \"orderVersion\" : \"1:1\",\n" +
-                "    \"passengers\" : [ {\n" +
-                "      \"AgeType\" : \"3\",\n" +
-                "      \"BirthDate\" : \"1976-10-13 0:00:00\",\n" +
-                "      \"CardNo\" : \"G36616883\",\n" +
-                "      \"CardType\" : \"2\",\n" +
-                "      \"EName\" : \"ZHANG/JUNCHEN\",\n" +
-                "      \"Gender\" : \"1\",\n" +
-                "      \"Mobile\" : \"18918182882\",\n" +
-                "      \"Nationality\" : \"CN\"\n" +
-                "    }, {\n" +
-                "      \"AgeType\" : \"3\",\n" +
-                "      \"BirthDate\" : \"1978-10-27 0:00:00\",\n" +
-                "      \"CardNo\" : \"E17489998\",\n" +
-                "      \"CardType\" : \"2\",\n" +
-                "      \"EName\" : \"WU/WENQING\",\n" +
-                "      \"Gender\" : \"0\",\n" +
-                "      \"Mobile\" : \"13331952188\",\n" +
-                "      \"Nationality\" : \"CN\"\n" +
-                "    }, {\n" +
-                "      \"AgeType\" : \"2\",\n" +
-                "      \"BirthDate\" : \"2004-7-10 0:00:00\",\n" +
-                "      \"CardNo\" : \"E17489997\",\n" +
-                "      \"CardType\" : \"2\",\n" +
-                "      \"EName\" : \"ZHANG/YUQING\",\n" +
-                "      \"Gender\" : \"0\",\n" +
-                "      \"Mobile\" : \"18916167872\",\n" +
-                "      \"Nationality\" : \"CN\"\n" +
-                "    } ],\n" +
-                "    \"postActions\" : { },\n" +
-                "    \"priceAdjust\" : \"0.0000\",\n" +
-                "    \"processOper\" : \"n09728\",\n" +
-                "    \"sourceFromCode\" : \"Web\",\n" +
-                "    \"uid\" : \"w10wq27\",\n" +
-                "    \"usedTime\" : \"2015-08-05 00:00:00\"\n" +
-                "  }\n" +
+                "  \"eventPoint\": \"CP0041001\",\n" +
+                "  \"eventId\": \"76086930-029a-11e5-967d-5f475aeafb8c\",\n" +
+                "  \"appId\": \"670203\",\n" +
+                "  \"eventBody\": {\n" +
+                "    \"aCity\": 5,\n" +
+                "    \"accountBook\": \"\",\n" +
+                "    \"bookingName\": \"\",\n" +
+                "    \"businessItem\": \"\",\n" +
+                "    \"checkType\": 1,\n" +
+                "    \"contactEMail\": \"lxyy1118@163.com\",\n" +
+                "    \"contactName\": \"ContactName\",\n" +
+                "    \"contactTel\": \"0519-8117755\",\n" +
+                "    \"dCity\": 6,\n" +
+                "    \"departureDate\": \"2014-08-15 10:26:15.302\",\n" +
+                "    \"isOnline\": \"T\",\n" +
+                "    \"latitude\": 0,\n" +
+                "    \"longitude\": 0,\n" +
+                "    \"merchantID\": \"12358\",\n" +
+                "    \"mobilePhone\": \"15161121660\",\n" +
+                "    \"optionItems\": [\n" +
+                "      {\n" +
+                "        \"optionID\": 15,\n" +
+                "        \"optionName\": \"OptionName1\",\n" +
+                "        \"optionQty\": 15\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"optionID\": 16,\n" +
+                "        \"optionName\": \"OptionName2\",\n" +
+                "        \"optionQty\": 66\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"orderAmount\": 12,\n" +
+                "    \"orderDate\": \"2014-08-15 10:26:15.302\",\n" +
+                "    \"orderID\": 4563086,\n" +
+                "    \"orderInfoExternalURL\": \"OrderInfoExternalURL\",\n" +
+                "    \"orderPrepayType\": \"CCARD\",\n" +
+                "    \"orderType\": 29,\n" +
+                "    \"paymentInfos\": [\n" +
+                "      {\n" +
+                "        \"amount\": 0,\n" +
+                "        \"cardInfoID\": 0,\n" +
+                "        \"creditCardInfo\": {\n" +
+                "          \"bankOfCardIssue\": \"\",\n" +
+                "          \"billingAddress\": \"\",\n" +
+                "          \"cCardLastNoCode\": \"\",\n" +
+                "          \"cCardNoCode\": \"\",\n" +
+                "          \"cCardPreNoCode\": \"\",\n" +
+                "          \"cValidityCode\": \"\",\n" +
+                "          \"cardBin\": \"\",\n" +
+                "          \"cardHolder\": \"\",\n" +
+                "          \"cardInfoID\": 0,\n" +
+                "          \"creditCardType\": 0,\n" +
+                "          \"infoID\": 0,\n" +
+                "          \"isForigenCard\": \"\",\n" +
+                "          \"nationality\": \"\",\n" +
+                "          \"nationalityofisuue\": \"\",\n" +
+                "          \"stateName\": \"\"\n" +
+                "        },\n" +
+                "        \"prepayType\": \"\",\n" +
+                "        \"refNo\": 0\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"amount\": 0,\n" +
+                "        \"cardInfoID\": 0,\n" +
+                "        \"creditCardInfo\": {\n" +
+                "          \"bankOfCardIssue\": \"\",\n" +
+                "          \"billingAddress\": \"\",\n" +
+                "          \"cCardLastNoCode\": \"\",\n" +
+                "          \"cCardNoCode\": \"\",\n" +
+                "          \"cCardPreNoCode\": \"\",\n" +
+                "          \"cValidityCode\": \"\",\n" +
+                "          \"cardBin\": \"\",\n" +
+                "          \"cardHolder\": \"\",\n" +
+                "          \"cardInfoID\": 0,\n" +
+                "          \"creditCardType\": 0,\n" +
+                "          \"infoID\": 0,\n" +
+                "          \"isForigenCard\": \"\",\n" +
+                "          \"nationality\": \"\",\n" +
+                "          \"nationalityofisuue\": \"\",\n" +
+                "          \"stateName\": \"\"\n" +
+                "        },\n" +
+                "        \"prepayType\": \"\",\n" +
+                "        \"refNo\": 0\n" +
+                "      }\n" +
+                "    ],\n" +
+                "    \"productName\": \"ProductName\",\n" +
+                "    \"referenceNo\": \"ReferenceNo\",\n" +
+                "    \"sendTickerAddr\": \"8117755\",\n" +
+                "    \"serverfrom\": \"Serverfrom\",\n" +
+                "    \"subOrderType\": 0,\n" +
+                "    \"uid\": \"test111111\",\n" +
+                "    \"userIP\": \"192.168.1.1\",\n" +
+                "    \"userInfos\": [\n" +
+                "      {\n" +
+                "        \"visitorCardNo\": \"VisitorCardNo2\",\n" +
+                "        \"visitorContactInfo\": \"VisitorContactInfo1\",\n" +
+                "        \"visitorIDCardType\": 32,\n" +
+                "        \"visitorName\": \"VisitorName1\",\n" +
+                "        \"visitorNationality\": \"CN\"\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"visitorCardNo\": \"VisitorCardNo2\",\n" +
+                "        \"visitorContactInfo\": \"VisitorContactInfo3\",\n" +
+                "        \"visitorIDCardType\": 34,\n" +
+                "        \"visitorName\": \"VisitorName2\",\n" +
+                "        \"visitorNationality\": \"US\"\n" +
+                "      }\n" +
+                "    ]\n" +
+                "  },\n" +
+                "  \"ext\": {\n" +
+                "    \"CHANNEL\": \"REST\",\n" +
+                "    \"descTimestamp\": 2638350186685\n" +
+                "  },\n" +
+                "  \"requestTime\": \"2015-05-25 12:56:53.342\",\n" +
+                "  \"requestReceive\": \"2015-05-25 12:56:53.315\"\n" +
                 "}";
         System.out.println(data);
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
 
-        daemon.setUrl("http://localhost:8180/rest/loadconfig");
+        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
         daemon.setPart(Part.RuleEngine);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();
