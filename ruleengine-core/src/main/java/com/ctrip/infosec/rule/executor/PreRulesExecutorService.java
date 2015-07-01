@@ -19,6 +19,7 @@ import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +51,9 @@ public class PreRulesExecutorService {
     void execute(RiskFact fact, boolean isAsync) {
         // matchRules      
 //        List<PreRule> matchedRules = Configs.matchPreRules(fact);
-    	List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact,isAsync);
-    	logger.info(Contexts.getLogPrefix() + "matched pre rules: " + matchedRules.size());
-    	
+        List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
+        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(matchedRules, ", "));
+
         List<String> scriptRulePackageNames = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
@@ -70,7 +71,7 @@ public class PreRulesExecutorService {
                 scriptRulePackageNames.add(rule.getRuleNo());
             }
         }
-        
+
         StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
 
         StopWatch clock = new StopWatch();

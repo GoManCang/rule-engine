@@ -15,6 +15,7 @@ import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class PostRulesExecutorService {
      * 执行预处理规则
      */
     public RiskFact executePostRules(RiskFact fact, boolean isAsync) {
-        execute(fact, false);
+        execute(fact, isAsync);
         return fact;
     }
 
@@ -45,7 +46,7 @@ public class PostRulesExecutorService {
         // matchRules      
         List<PostRule> matchedRules = Configs.matchPostRules(fact);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
-        logger.info(Contexts.getLogPrefix() + "matched post rules: " + scriptRulePackageNames.size());
+        logger.info(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
 
         StopWatch clock = new StopWatch();

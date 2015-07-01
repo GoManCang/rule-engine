@@ -32,7 +32,7 @@ public class CounterPushRulesExecutorService {
     private static final Logger logger = LoggerFactory.getLogger(CounterPushRulesExecutorService.class);
 
     public RiskFact executeCounterPushRules(RiskFact fact, boolean isAsync) {
-        execute(fact, false);
+        execute(fact, isAsync);
         return fact;
     }
 
