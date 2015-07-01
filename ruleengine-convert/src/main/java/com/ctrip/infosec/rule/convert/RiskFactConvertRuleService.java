@@ -42,17 +42,14 @@ public class RiskFactConvertRuleService {
 //    private static  List<FieldMapping> fieldMappingList;
     public InternalRiskFact apply(RiskFact riskFact) {
 
+        logger.info("转换报文："+Utils.JSON.toJSONString(riskFact));
+
 //        logger.info("======================查看localRiskFactDefinitionConfigMap====================================");
 //        logger.info(Utils.JSON.toPrettyJSONString(InternalConvertConfigHolder.localRiskConvertMappings));
 //        logger.info(Utils.JSON.toPrettyJSONString(InternalConvertConfigHolder.localRiskFactDefinitionConfigMap));
 //        logger.info(Utils.JSON.toPrettyJSONString(RiskFactPersistConfigHolder.localDataUnitMetadatas));
 //        logger.info(Utils.JSON.toPrettyJSONString(RiskFactPersistConfigHolder.localPersistConfigs));
 //        logger.info("=======================查看localRiskFactDefinitionConfigMap end ===================================");
-        /**
-         * dataUnitMapping 的 key 是 dataUnitDefinition 的 id
-         * 不管DataUnit中的data 是 list 还是 单个 object 全部放在 list<Map<Stirng,Object>> 中
-         * 根据 DataUnit.DataUnitDefinition.type 的类型来决定 是取list[0] 还是 遍历list
-         */
         Map<String, DataUnit> dataUnitMapping = new HashMap<String, DataUnit>();
         if (!InternalConvertConfigHolder.localRiskFactDefinitionConfigMap.containsKey(riskFact.getEventPoint())) {
             logger.debug("业务点" + riskFact.getEventPoint() + "所对应的InternalRiskFactDefinitionConfig未找到！！");
