@@ -40,7 +40,7 @@
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.fat70.qa.nt.ctripcorp.com:8080/userprofilews</DataProxy.REST.URL.Prefix>		
         <DataProxy.Venus.ipAddressList>10.2.9.130:16800</DataProxy.Venus.ipAddressList>
-        <DataProxy.query.timeout>2000</DataProxy.query.timeout>
+        <DataProxy.query.timeout>60000</DataProxy.query.timeout>
         <!-- ESB -->
         <SOA.ESB.URL>http://soa.fws.qa.nt.ctripcorp.com/SOA.ESB/Ctrip.SOA.ESB.asmx</SOA.ESB.URL>
         <!-- CryptoGraphy -->
