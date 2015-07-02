@@ -16,6 +16,7 @@ import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -52,7 +53,8 @@ public class PreRulesExecutorService {
         // matchRules      
 //        List<PreRule> matchedRules = Configs.matchPreRules(fact);
         List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
-        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(matchedRules, ", "));
+        List<String> ruleNos = Collections3.extractToList(matchedRules, "ruleNo");
+        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
 
         List<String> scriptRulePackageNames = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
