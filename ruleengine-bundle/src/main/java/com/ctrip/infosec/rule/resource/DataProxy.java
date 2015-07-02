@@ -42,7 +42,10 @@ public class DataProxy {
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
      */
+    static final String REST = "REST";
+    static final String VENUS = "VENUS";
     static final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
+    static final String apiMode = GlobalConfig.getString("DataProxy.API.MODE", VENUS);
 
     static final JavaType javaType = JSON.constructCollectionType(List.class, DataProxyResponse.class);
 
@@ -126,6 +129,8 @@ public class DataProxy {
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/query")
                     .body(new StringEntity(JSON.toJSONString(request), ContentType.APPLICATION_JSON))
+                    .connectTimeout(queryTimeout)
+                    .socketTimeout(queryTimeout)
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DataProxyResponse.class);
         } catch (Exception ex) {
@@ -180,20 +185,24 @@ public class DataProxy {
             request.setServiceName(serviceName);
             request.setOperationName(operationName);
             request.setParams(params);
-            List<DataProxyRequest> requests = new ArrayList<DataProxyRequest>();
+            List<DataProxyRequest> requests = new ArrayList<>();
             requests.add(request);
 
 //            DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
 //            List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
-            List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(queryTimeout, requests);
-
-            if (responses == null || responses.size() < 1) {
-                return new HashMap();
-            }
-            DataProxyResponse response = responses.get(0);
-            if (response.getRtnCode() != 0) {
-                logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
-                return null;
+            DataProxyResponse response = null;
+            if (VENUS.equals(apiMode)) {
+                List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(queryTimeout, requests);
+                if (responses == null || responses.size() < 1) {
+                    return new HashMap();
+                }
+                response = responses.get(0);
+                if (response.getRtnCode() != 0) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
+                    return null;
+                }
+            } else {
+                response = query(request);
             }
 
             Map newResult = null;
@@ -205,9 +214,9 @@ public class DataProxy {
             return newResult;
 
         } catch (Exception ex) {
-        	fault();
-        	fault("DataProxy." + serviceName + "." + operationName);
-        	logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
+            fault();
+            fault("DataProxy." + serviceName + "." + operationName);
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForMap");
             afterInvoke("DataProxy." + serviceName + "." + operationName);
