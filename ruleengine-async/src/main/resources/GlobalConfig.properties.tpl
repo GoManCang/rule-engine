@@ -25,6 +25,7 @@ Counter.Venus.ipAddressList={$Counter.Venus.ipAddressList}
 # DataProxy
 DataProxy.REST.URL.Prefix={$DataProxy.REST.URL.Prefix}
 DataProxy.Venus.ipAddressList={$DataProxy.Venus.ipAddressList}
+DataProxy.query.timeout = {$DataProxy.query.timeout}
 
 # ESB
 SOA.ESB.URL={$SOA.ESB.URL}

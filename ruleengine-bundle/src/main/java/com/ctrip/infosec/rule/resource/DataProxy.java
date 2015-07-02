@@ -60,6 +60,7 @@ public class DataProxy {
     private static final int maxThreadSize = GlobalConfig.getInteger("pooled.sync.maxThreadSize", 512);
     private static final int keepAliveTime = GlobalConfig.getInteger("pooled.sync.keepAliveTime", 60);
     private static final int queueSize = GlobalConfig.getInteger("pooled.sync.queueSize", -1);
+    private static final int queryTimeout = GlobalConfig.getInteger("DataProxy.query.timeout", 500);
     private static Lock lock = new ReentrantLock();
 
     /**
@@ -184,7 +185,7 @@ public class DataProxy {
 
 //            DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
 //            List<DataProxyResponse> responses = dataProxyVenusService.dataproxyQueries(requests);
-            List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(500, requests);
+            List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(queryTimeout, requests);
 
             if (responses == null || responses.size() < 1) {
                 return new HashMap();
