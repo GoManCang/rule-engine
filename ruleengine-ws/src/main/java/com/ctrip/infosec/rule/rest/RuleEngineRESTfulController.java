@@ -54,7 +54,7 @@ public class RuleEngineRESTfulController {
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
         TraceLogger.beginTrans(fact.eventId);
-        TraceLogger.setLogPrefix("[同步] ");
+        TraceLogger.setLogPrefix("[同步]");
         try {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);

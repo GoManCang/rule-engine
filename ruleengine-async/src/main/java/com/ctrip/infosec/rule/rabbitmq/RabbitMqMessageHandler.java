@@ -93,7 +93,7 @@ public class RabbitMqMessageHandler {
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
             TraceLogger.beginTrans(fact.eventId);
-            TraceLogger.setLogPrefix("[异步] ");
+            TraceLogger.setLogPrefix("[异步]");
 
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);

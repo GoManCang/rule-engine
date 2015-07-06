@@ -43,7 +43,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
     public RiskFact verify(RiskFact fact) {
         beforeInvoke();
         TraceLogger.beginTrans(fact.eventId);
-        TraceLogger.setLogPrefix("[同步] ");
+        TraceLogger.setLogPrefix("[同步]");
 
         logger.info("VENUS: fact=" + JSON.toJSONString(fact));
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
