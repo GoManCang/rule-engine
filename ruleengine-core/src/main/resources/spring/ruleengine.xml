@@ -31,7 +31,7 @@
     
     <!-- TraceLogger -->
     <bean class="com.ctrip.infosec.configs.rule.trace.logger.TraceLoggerDeamon" init-method="start">
-        <property name="url" value="${Configs.traceLogger.url}"/>
+        <property name="url" value="${Configs.traceLogger.URL}"/>
     </bean>
 
     <!-- 数据合并 -->
