@@ -20,8 +20,11 @@ public class CryptoTest {
         //解密
         //fat   CTRP7D4A9037D45BB0B8B3297DC607D3281D
         //uat  CTRPA13F75FE8D370C6862BEB376016607BB
+        
+        String e = Crypto.encrypt("zhengby");
+        System.out.println("encrypt: " + e);
 
-        System.out.println(Crypto.decrypt("CTRP9E9813AD0A161F3B815ADCA59834C6EB"));
+        System.out.println(Crypto.decrypt(e));
     }
 
     @Test

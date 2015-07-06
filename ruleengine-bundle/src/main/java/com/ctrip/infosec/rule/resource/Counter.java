@@ -223,6 +223,8 @@ public class Counter {
             FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
 //            response = flowPolicyRemoteService.execute(policyNo, kvData);
             PolicyExecuteRequest policyExecuteRequest = new PolicyExecuteRequest();
+            policyExecuteRequest.setPolicyNo(policyNo);
+            policyExecuteRequest.setKvData(kvData);
 
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
