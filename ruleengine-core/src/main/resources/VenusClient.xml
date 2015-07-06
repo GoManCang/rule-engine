@@ -49,6 +49,7 @@
     
     <services>
         <service beanName="flowPolicyRemoteService" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteService" remote="remote"/>
+        <service beanName="flowPolicyRemoteServiceV2" type="com.ctrip.infosec.counter.venus.FlowPolicyRemoteServiceV2" remote="remote"/>
         <service beanName="decisionDataRemoteService" type="com.ctrip.infosec.counter.venus.DecisionDataRemoteService" remote="remote"/>
         <!-- 名单库 -->
         <service beanName="listRepoRemoteService" type="com.ctrip.infosec.counter.venus.ListRepoRemoteService" remote="remote"/>

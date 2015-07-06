@@ -24,18 +24,14 @@
     <bean id="statelessPostRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPostRuleEngine" init-method="initEngine" depends-on="statelessPreRuleEngine"/>
     <bean id="statelessRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessRuleEngine" init-method="initEngine"  depends-on="statelessPostRuleEngine"/>
     
-    <!--&lt;!&ndash; 初始化缓存 &ndash;&gt;-->
-    <!--<bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" depends-on="statelessRuleEngine">-->
-        <!--<property name="url" value="${Configs.URL}"/>-->
-        <!--<property name="part" value="RuleEngine"/>   -->
-        <!--<property name="callback">-->
-            <!--<bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>-->
-        <!--</property>  -->
-    <!--</bean>-->
-    
     <!-- 初始化trace工具 -->
     <bean class="com.ctrip.infosec.configs.rule.trace.TraceDeamon" init-method="start" destroy-method="stop">
         <property name="url" value="${Configs.Trace.URL}"/>
+    </bean>
+    
+    <!-- TraceLogger -->
+    <bean class="com.ctrip.infosec.configs.rule.trace.logger.TraceLoggerDeamon" init-method="start">
+        <property name="url" value="${Configs.traceLogger.url}"/>
     </bean>
 
     <!-- 数据合并 -->
@@ -45,6 +41,6 @@
     <bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>
 
     <!-- 初始化连接R服务器 -->
-    <!--<bean class="com.ctrip.infosec.rule.resource.RService" init-method="init" destroy-method="destroy" lazy-init="true"/>-->
+    <bean class="com.ctrip.infosec.rule.resource.RService" init-method="init" destroy-method="destroy" lazy-init="true"/>
     
 </beans>

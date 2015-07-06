@@ -33,6 +33,7 @@
         <!-- Configs -->
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
+        <Configs.traceLogger.URL>http://10.2.10.76:8080/configsws/rest/traceLogger</Configs.traceLogger.URL>
         <Configs.RuleMonitor.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor</Configs.RuleMonitor.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.10.75:8080/counterws</Counter.REST.URL.Prefix>
@@ -81,6 +82,7 @@
         <!-- Configs -->
         <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
+        <Configs.traceLogger.URL>http://10.2.25.53:8080/configsws/rest/traceLogger</Configs.traceLogger.URL>
         <Configs.RuleMonitor.URL>http://10.2.25.53:8080/configsws/rest/rulemonitor</Configs.RuleMonitor.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.25.54:8080/counterws</Counter.REST.URL.Prefix>
@@ -127,6 +129,7 @@
         <!-- Configs -->
         <Configs.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
+        <Configs.traceLogger.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/traceLogger</Configs.traceLogger.URL>
         <Configs.RuleMonitor.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/rulemonitor</Configs.RuleMonitor.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://ws.counter.infosec.ctripcorp.com/counterws</Counter.REST.URL.Prefix>

@@ -8,19 +8,24 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLoggerHeader;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.counter.enums.ErrorCode;
 import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.DecisionDataPushResponse;
 import com.ctrip.infosec.counter.model.DecisionDataQueryResponse;
 import com.ctrip.infosec.counter.model.DecisionDataRemoveResponse;
+import com.ctrip.infosec.counter.model.FlowPushRequest;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
 import com.ctrip.infosec.counter.model.PolicyBatchExecuteResponse;
+import com.ctrip.infosec.counter.model.PolicyExecuteRequest;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.venus.DecisionDataRemoteService;
 import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
+import com.ctrip.infosec.counter.venus.FlowPolicyRemoteServiceV2;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
@@ -28,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
@@ -94,8 +100,24 @@ public class Counter {
 //                            .build(), Charset.forName("UTF-8"))
 //                    .execute().returnContent().asString();
 //            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            response = flowPolicyRemoteService.push(bizNo, kvData);
+//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//            response = flowPolicyRemoteService.push(bizNo, kvData);
+            FlowPushRequest flowPushRequest = new FlowPushRequest();
+            flowPushRequest.setBizNo(bizNo);
+            flowPushRequest.setKvData(kvData);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                header.setParentTransId(TraceLogger.getTransId());
+                flowPushRequest.setTraceLoggerHeader(header);
+            }
+
+            response = flowPolicyRemoteService.push(flowPushRequest);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.push fault.", ex);
@@ -197,8 +219,22 @@ public class Counter {
 //                            .build(), Charset.forName("UTF-8"))
 //                    .execute().returnContent().asString();
 //            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            response = flowPolicyRemoteService.execute(policyNo, kvData);
+//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//            response = flowPolicyRemoteService.execute(policyNo, kvData);
+            PolicyExecuteRequest policyExecuteRequest = new PolicyExecuteRequest();
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                header.setParentTransId(TraceLogger.getTransId());
+                policyExecuteRequest.setTraceLoggerHeader(header);
+            }
+
+            response = flowPolicyRemoteService.execute(policyExecuteRequest);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.execute fault.", ex);

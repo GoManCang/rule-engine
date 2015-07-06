@@ -10,13 +10,14 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.meidusa.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
     @Override
     public RiskFact verify(RiskFact fact) {
         beforeInvoke();
+        TraceLogger.beginTrans(fact.eventId);
+        TraceLogger.setLogPrefix("[同步] ");
+
         logger.info("VENUS: fact=" + JSON.toJSONString(fact));
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
@@ -61,6 +65,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             logger.error(Contexts.getLogPrefix() + "invoke verify exception.", ex);
         } finally {
             afterInvoke("RuleEngineRemoteService.verify");
+            TraceLogger.commitTrans();
         }
         return fact;
     }

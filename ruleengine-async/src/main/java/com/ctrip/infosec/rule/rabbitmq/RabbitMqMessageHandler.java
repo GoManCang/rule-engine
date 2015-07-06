@@ -8,7 +8,6 @@ package com.ctrip.infosec.rule.rabbitmq;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 import java.util.Date;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.Map.Entry;
 
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
-import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
@@ -32,6 +30,7 @@ import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.CallbackRule;
 import com.ctrip.infosec.configs.event.HeaderMappingBizType;
 import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
@@ -42,6 +41,7 @@ import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.meidusa.fastjson.JSON;
 
 /**
  *
@@ -92,6 +92,8 @@ public class RabbitMqMessageHandler {
             fact = JSON.parseObject((String) factTxt, RiskFact.class);
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
+            TraceLogger.beginTrans(fact.eventId);
+            TraceLogger.setLogPrefix("[异步] ");
 
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
@@ -123,8 +125,11 @@ public class RabbitMqMessageHandler {
                 }
             }
         } catch (Throwable ex) {
-            logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
+            logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
+            // Trace
+            TraceLogger.commitTrans();
+
             if (fact != null) {
                 // 发送给DataDispatcher
                 try {

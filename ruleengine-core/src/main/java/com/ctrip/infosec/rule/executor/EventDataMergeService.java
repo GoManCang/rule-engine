@@ -7,6 +7,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
+import com.meidusa.fastjson.JSON;
 import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
 import credis.java.client.util.CacheFactory;
@@ -15,8 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 /**
  * Created by lpxie on 15-3-20.
@@ -80,8 +79,7 @@ public class EventDataMergeService {
     /**
      * 处理从redis获取数据
      */
-    public RiskFact executeRedisGet(RiskFact fact)
-    {
+    public RiskFact executeRedisGet(RiskFact fact) {
         beforeInvoke();
         try {
             Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
@@ -101,8 +99,7 @@ public class EventDataMergeService {
     /**
      * 处理推送数据到redis
      */
-    public RiskFact executeRedisPut(RiskFact fact)
-    {
+    public RiskFact executeRedisPut(RiskFact fact) {
         beforeInvoke();
         try {
             //send data to redis for next get
@@ -140,7 +137,7 @@ public class EventDataMergeService {
                 String oldName = (String) iteratorKeys.next();
                 String newName = newNodeNames.get(oldName);
                 Object newValue = redisValues.get(oldName);
-                if (newName == null || newName.toString().isEmpty()||newValue == null || newValue.toString().isEmpty()) {
+                if (newName == null || newName.toString().isEmpty() || newValue == null || newValue.toString().isEmpty()) {
                     continue;
                 }
                 fact.eventBody.put(newName, newValue);

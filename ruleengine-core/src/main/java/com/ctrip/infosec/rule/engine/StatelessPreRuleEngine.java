@@ -3,7 +3,6 @@ package com.ctrip.infosec.rule.engine;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
-import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.*;
@@ -20,15 +19,12 @@ import org.drools.runtime.StatelessKnowledgeSession;
 import org.drools.runtime.rule.AgendaFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jmx.export.annotation.ManagedAttribute;
-import org.springframework.jmx.export.annotation.ManagedResource;
 
 /**
  * 预处理引擎
  *
  * @author zhengbaiyun
  */
-@ManagedResource
 public class StatelessPreRuleEngine extends RuleEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(StatelessPreRuleEngine.class);
@@ -37,14 +33,6 @@ public class StatelessPreRuleEngine extends RuleEngine {
      * Cache, Key为: packageName
      */
     Map<String, PreRule> preRulesInKBase = Maps.newHashMap();
-
-    /**
-     * 使用JMX查询规则集
-     */
-    @ManagedAttribute
-    public String getPackageNamesInKBase() {
-        return JSON.toPrettyJSONString(preRulesInKBase.keySet());
-    }
 
     public void execute(List<String> packageNames, RiskFact fact) {
         List<String> executablePackageNames = Lists.newArrayList();

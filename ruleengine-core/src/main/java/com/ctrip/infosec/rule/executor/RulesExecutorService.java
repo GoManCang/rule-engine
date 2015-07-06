@@ -10,6 +10,7 @@ import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.Rule;
 import com.ctrip.infosec.configs.utils.BeanMapper;
 import com.ctrip.infosec.common.Constants;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
@@ -54,7 +55,7 @@ public class RulesExecutorService {
         if (fact.ext == null) {
             fact.setExt(new HashMap<String, Object>());
         }
-        executeParallel(fact, false); //execute(fact, false);
+        executeParallel(fact);
 
         // 返回结果
         Map<String, Object> finalResult = Constants.defaultResult;
@@ -112,7 +113,7 @@ public class RulesExecutorService {
         if (fact.ext == null) {
             fact.setExt(new HashMap<String, Object>());
         }
-        execute(fact, true);
+        executeSerial(fact);
 
         // 返回结果
         Map<String, Object> finalResult = Constants.defaultResult;
@@ -161,10 +162,10 @@ public class RulesExecutorService {
     /**
      * 串行执行
      */
-    void execute(RiskFact fact, boolean isAsync) {
+    void executeSerial(RiskFact fact) {
 
         // matchRules      
-        List<Rule> matchedRules = Configs.matchRules(fact, isAsync);
+        List<Rule> matchedRules = Configs.matchRules(fact, true);
         logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
         StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
 
@@ -184,18 +185,20 @@ public class RulesExecutorService {
                 // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+                fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
 
                 statelessRuleEngine.execute(packageName, fact);
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
                 fact.ext.remove(Constants.key_logPrefix);
+                fact.ext.remove(Constants.key_traceLoggerParentTransId);
 
                 clock.stop();
                 long handlingTime = clock.getTime();
 
                 Map<String, Object> result = fact.results.get(packageName);
-                result.put(Constants.async, isAsync);
+                result.put(Constants.async, true);
                 result.put(Constants.timeUsage, handlingTime);
                 logger.info(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
@@ -209,10 +212,10 @@ public class RulesExecutorService {
     /**
      * 并行执行
      */
-    void executeParallel(RiskFact fact, boolean isAsync) {
+    void executeParallel(RiskFact fact) {
 
         // matchRules        
-        List<Rule> matchedRules = Configs.matchRules(fact, isAsync);
+        List<Rule> matchedRules = Configs.matchRules(fact, false);
         logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
         List<Callable<RuleExecuteResultWithEvent>> runs = Lists.newArrayList();
         for (Rule rule : matchedRules) {
@@ -227,11 +230,12 @@ public class RulesExecutorService {
             final StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
             final String packageName = rule.getRuleNo();
             final String logPrefix = Contexts.getLogPrefix();
-            final boolean async = isAsync;
+
             try {
                 //add current execute ruleNo before execution
                 factCopy.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 factCopy.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+                factCopy.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
 
                 runs.add(new Callable<RuleExecuteResultWithEvent>() {
 
@@ -242,8 +246,10 @@ public class RulesExecutorService {
                             //remove current execute ruleNo when finished execution.
                             statelessRuleEngine.execute(packageName, factCopy);
                             factCopy.ext.remove(Constants.key_ruleNo);
+                            factCopy.ext.remove(Constants.key_logPrefix);
+                            factCopy.ext.remove(Constants.key_traceLoggerParentTransId);
                             Map<String, Object> result = factCopy.results.get(packageName);
-                            result.put(Constants.async, async);
+                            result.put(Constants.async, false);
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
                             logger.info(logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");

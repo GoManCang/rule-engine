@@ -37,7 +37,7 @@ public class RulesExecutorServiceTest {
 
         String jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1_1.txt").getInputStream());
         RiskFact fact = JSON.parseObject(jsonData, RiskFact.class);
-        rulesExecutorService.execute(fact, true);
+        rulesExecutorService.executeSerial(fact);
 
         jsonData = IOUtils.toString(new DefaultResourceLoader().getResource("/1.txt").getInputStream());
         fact = JSON.parseObject(jsonData, RiskFact.class);
