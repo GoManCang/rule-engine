@@ -248,6 +248,8 @@ public class RulesExecutorService {
 
                     @Override
                     public RuleExecuteResultWithEvent call() throws Exception {
+                        TraceLogger.beginTrans(factCopy.eventId);
+                        TraceLogger.setParentTransId((String) factCopy.ext.get(Constants.key_traceLoggerParentTransId));
                         try {
                             long start = System.currentTimeMillis();
                             //remove current execute ruleNo when finished execution.
@@ -266,6 +268,8 @@ public class RulesExecutorService {
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.finalResultGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
                             logger.warn(logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
+                        } finally {
+                            TraceLogger.commitTrans();
                         }
                         return null;
                     }
