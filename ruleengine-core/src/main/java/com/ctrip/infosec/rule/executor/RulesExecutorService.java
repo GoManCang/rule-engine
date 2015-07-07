@@ -249,13 +249,13 @@ public class RulesExecutorService {
 
                     @Override
                     public RuleExecuteResultWithEvent call() throws Exception {
-                        TraceLogger.beginTrans(factCopy.eventId);
+                        String transId = TraceLogger.beginTrans(factCopy.eventId);
                         TraceLogger.setParentTransId((String) factCopy.ext.get(Constants.key_traceLoggerParentTransId));
+                        factCopy.ext.put(Constants.key_traceLoggerParentTransId, transId);
                         try {
                             long start = System.currentTimeMillis();
                             // remove current execute ruleNo when finished execution.
                             TraceLogger.traceLog("执行规则[" + packageName + "] ...");
-                            factCopy.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
                             statelessRuleEngine.execute(packageName, factCopy);
                             factCopy.ext.remove(Constants.key_ruleNo);
                             factCopy.ext.remove(Constants.key_logPrefix);
