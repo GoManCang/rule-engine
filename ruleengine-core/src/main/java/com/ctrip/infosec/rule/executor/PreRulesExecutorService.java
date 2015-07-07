@@ -10,6 +10,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
 import com.ctrip.infosec.configs.event.RuleType;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
@@ -55,6 +56,7 @@ public class PreRulesExecutorService {
         List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
         List<String> ruleNos = Collections3.extractToList(matchedRules, "ruleNo");
         logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
+        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
 
         List<String> scriptRulePackageNames = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
@@ -63,10 +65,12 @@ public class PreRulesExecutorService {
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
                 if (preAction != null) {
                     try {
+                        TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
                         Converter converter = converterLocator.getConverter(preAction);
                         converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
                     } catch (Exception ex) {
                         logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
+                        TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
             } else if (rule.getRuleType() == RuleType.Script) {
@@ -83,11 +87,13 @@ public class PreRulesExecutorService {
 
             // add current execute logPrefix before execution
             fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
 
             statelessPreRuleEngine.execute(scriptRulePackageNames, fact);
 
             // remove current execute ruleNo when finished execution.
             fact.ext.remove(Constants.key_logPrefix);
+            fact.ext.remove(Constants.key_traceLoggerParentTransId);
 
             clock.stop();
             long handlingTime = clock.getTime();

@@ -10,14 +10,18 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
+import com.ctrip.infosec.rule.resource.RiskLevelData;
+import com.google.common.collect.Lists;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,14 +113,18 @@ public class RabbitMqMessageHandler {
             counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
-            // 数据落地
             if (internalRiskFact != null) {
+                // 数据落地
                 String operation = internalRiskFact.getEventPoint() + ".persist-info";
                 try {
                     beforeInvoke(operation);
+                    Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
+                    String resultRemark = "NEW: " + resultToString(fact.results);
                     RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
-                    persistManager.persist();
+                    persistManager.persist(riskLevel, resultRemark);
                     internalRiskFact.setReqId(persistManager.getGeneratedReqId());
+                    // 调用远程服务落地
+                    RiskLevelData.save(persistManager.getGeneratedReqId(), riskLevel, persistManager.getOrderId());
                 } catch (Exception ex) {
                     fault(operation);
                     logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
@@ -193,6 +201,29 @@ public class RabbitMqMessageHandler {
 
             }
         }
+    }
+
+    private String resultToString(Map<String, Map<String, Object>> results) {
+        List<String> result = Lists.newArrayList();
+        if(MapUtils.isNotEmpty(results)){
+            for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
+                try {
+                    Map<String, Object> val = entry.getValue();
+                    if (val != null) {
+                        Object level = val.get("riskLevel");
+                        if (level != null) {
+                            int riskLevel = Integer.valueOf(level.toString());
+                            if (riskLevel > 0){
+                                result.add(entry.getKey());
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    logger.error("get risk level from results failed.", e);
+                }
+            }
+        }
+        return StringUtils.join(result, ',');
     }
 
     /**

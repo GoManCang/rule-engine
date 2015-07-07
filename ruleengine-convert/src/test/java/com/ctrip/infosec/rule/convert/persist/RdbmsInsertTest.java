@@ -104,7 +104,7 @@ public class RdbmsInsertTest {
         ch.setChannelDesc("CardRiskDB_INSERT_1");
         ch.setDatabaseURL("CardRiskDB_INSERT_1");
         insert.setChannel(ch);
-        insert.setTable("CardRisk_DealInfo");
+        insert.setTable("InfoSecurity_DealInfo");
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
         props.setColumnType(DataUnitColumnType.Long);
