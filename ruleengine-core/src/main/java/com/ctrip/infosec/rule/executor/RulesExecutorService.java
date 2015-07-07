@@ -255,10 +255,11 @@ public class RulesExecutorService {
                             long start = System.currentTimeMillis();
                             // remove current execute ruleNo when finished execution.
                             TraceLogger.traceLog("执行规则[" + packageName + "] ...");
+                            factCopy.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
                             statelessRuleEngine.execute(packageName, factCopy);
                             factCopy.ext.remove(Constants.key_ruleNo);
                             factCopy.ext.remove(Constants.key_logPrefix);
-                            factCopy.ext.remove(TraceLogger.getTransId());
+                            factCopy.ext.remove(Constants.key_traceLoggerParentTransId);
                             Map<String, Object> result = factCopy.results.get(packageName);
                             result.put(Constants.async, false);
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
