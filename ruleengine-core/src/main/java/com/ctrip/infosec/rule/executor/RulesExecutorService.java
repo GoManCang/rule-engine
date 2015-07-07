@@ -207,7 +207,7 @@ public class RulesExecutorService {
                 result.put(Constants.timeUsage, handlingTime);
                 logger.info(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                TraceLogger.traceLog("rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
+                TraceLogger.traceLog("规则执行结果, riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
             } catch (Throwable ex) {
@@ -252,8 +252,8 @@ public class RulesExecutorService {
                         TraceLogger.setParentTransId((String) factCopy.ext.get(Constants.key_traceLoggerParentTransId));
                         try {
                             long start = System.currentTimeMillis();
-                            //remove current execute ruleNo when finished execution.
-                            TraceLogger.traceLog("exec rule: " + packageName + " ...");
+                            // remove current execute ruleNo when finished execution.
+                            TraceLogger.traceLog("执行规则[" + packageName + "] ...");
                             statelessRuleEngine.execute(packageName, factCopy);
                             factCopy.ext.remove(Constants.key_ruleNo);
                             factCopy.ext.remove(Constants.key_logPrefix);
@@ -263,7 +263,7 @@ public class RulesExecutorService {
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
                             logger.info(logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                            TraceLogger.traceLog("rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
+                            TraceLogger.traceLog("规则执行结果, riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.finalResultGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
