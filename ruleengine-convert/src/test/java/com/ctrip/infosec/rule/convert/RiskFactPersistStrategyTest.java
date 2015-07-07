@@ -16,14 +16,11 @@ import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.meidusa.fastjson.JSON;
 
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
-
-import static org.junit.Assert.*;
 
 /**
  * Created by yxjiang on 2015/6/24.
@@ -163,9 +160,10 @@ public class RiskFactPersistStrategyTest {
         System.out.println(Utils.JSON.toPrettyJSONString(internalRiskFact.getDataUnits()));
         RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
 
-        persistManager.persist();
+        persistManager.persist(120, "NEW:测试");
         internalRiskFact.setReqId(persistManager.getGeneratedReqId());
         System.out.println(internalRiskFact.getReqId());
+        System.out.println(persistManager.getOrderId());
         
         Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
         System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
@@ -210,7 +208,7 @@ public class RiskFactPersistStrategyTest {
 
         // 获取persistManager
         RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact);
-        persistManager.persist();
+        persistManager.persist(10, "NEW:测试");
         System.out.println(persistManager.getGeneratedReqId());
     }
 
