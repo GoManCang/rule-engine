@@ -56,9 +56,10 @@ public class PreRulesExecutorService {
         List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
         List<String> ruleNos = Collections3.extractToList(matchedRules, "ruleNo");
         logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
-        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
+        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则: " + StringUtils.join(ruleNos, ", "));
 
-        List<String> scriptRulePackageNames = Lists.newArrayList();
+        StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
+//        List<String> scriptRulePackageNames = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
                 // 执行可视化预处理
@@ -74,35 +75,27 @@ public class PreRulesExecutorService {
                     }
                 }
             } else if (rule.getRuleType() == RuleType.Script) {
-                scriptRulePackageNames.add(rule.getRuleNo());
+                try {
+                    long start = System.currentTimeMillis();
+
+                    // add current execute logPrefix before execution
+                    fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+
+                    TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
+                    statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
+
+                    // remove current execute ruleNo when finished execution.
+                    fact.ext.remove(Constants.key_logPrefix);
+
+                    long handlingTime = System.currentTimeMillis() - start;
+                    if (handlingTime > 50) {
+                        logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                    }
+
+                } catch (Throwable ex) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
+                }
             }
-        }
-
-        StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
-
-        StopWatch clock = new StopWatch();
-        try {
-            clock.reset();
-            clock.start();
-
-            // add current execute logPrefix before execution
-            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
-
-            statelessPreRuleEngine.execute(scriptRulePackageNames, fact);
-
-            // remove current execute ruleNo when finished execution.
-            fact.ext.remove(Constants.key_logPrefix);
-            fact.ext.remove(Constants.key_traceLoggerParentTransId);
-
-            clock.stop();
-            long handlingTime = clock.getTime();
-            if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "preRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
-            }
-
-        } catch (Throwable ex) {
-            logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. packageNames: " + scriptRulePackageNames, ex);
         }
     }
 }

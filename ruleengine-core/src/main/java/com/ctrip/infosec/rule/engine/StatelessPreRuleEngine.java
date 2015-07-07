@@ -34,6 +34,17 @@ public class StatelessPreRuleEngine extends RuleEngine {
      */
     Map<String, PreRule> preRulesInKBase = Maps.newHashMap();
 
+    public void execute(String packageName, RiskFact fact) {
+        if (isRuleInKBase(packageName)) {
+            try {
+                AgendaFilter filter = new PackageAgendaFilter(packageName);
+                execStatelessRule(filter, fact);
+            } catch (Exception ex) {
+                logger.error("execute \"" + packageName + "\" exception.", ex);
+            }
+        }
+    }
+
     public void execute(List<String> packageNames, RiskFact fact) {
         List<String> executablePackageNames = Lists.newArrayList();
         for (String packageName : packageNames) {

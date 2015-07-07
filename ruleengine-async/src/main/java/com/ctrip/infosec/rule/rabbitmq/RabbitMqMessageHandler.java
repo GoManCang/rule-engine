@@ -96,21 +96,43 @@ public class RabbitMqMessageHandler {
             fact = JSON.parseObject((String) factTxt, RiskFact.class);
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
-            TraceLogger.beginTrans(fact.eventId);
-            TraceLogger.setLogPrefix("[异步]");
 
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
-            // 执行预处理
-            preRulesExecutorService.executePreRules(fact, true);
+            // 执行预处理            
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[预处理]");
+                preRulesExecutorService.executePreRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
-            rulesExecutorService.executeAsyncRules(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步]");
+                rulesExecutorService.executeAsyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行后处理
-            postRulesExecutorService.executePostRules(fact, true);
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[后处理]");
+                postRulesExecutorService.executePostRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             //Counter推送规则处理
-            counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[Counter推送]");
+                counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
             if (internalRiskFact != null) {
@@ -135,9 +157,6 @@ public class RabbitMqMessageHandler {
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
-            // Trace
-            TraceLogger.commitTrans();
-
             if (fact != null) {
                 // 发送给DataDispatcher
                 try {
@@ -205,7 +224,7 @@ public class RabbitMqMessageHandler {
 
     private String resultToString(Map<String, Map<String, Object>> results) {
         List<String> result = Lists.newArrayList();
-        if(MapUtils.isNotEmpty(results)){
+        if (MapUtils.isNotEmpty(results)) {
             for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
                 try {
                     Map<String, Object> val = entry.getValue();
@@ -213,12 +232,12 @@ public class RabbitMqMessageHandler {
                         Object level = val.get("riskLevel");
                         if (level != null) {
                             int riskLevel = Integer.valueOf(level.toString());
-                            if (riskLevel > 0){
+                            if (riskLevel > 0) {
                                 result.add(entry.getKey());
                             }
                         }
                     }
-                }catch (Exception e){
+                } catch (Exception e) {
                     logger.error("get risk level from results failed.", e);
                 }
             }
