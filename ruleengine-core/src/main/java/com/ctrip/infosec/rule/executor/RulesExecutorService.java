@@ -258,7 +258,7 @@ public class RulesExecutorService {
                             statelessRuleEngine.execute(packageName, factCopy);
                             factCopy.ext.remove(Constants.key_ruleNo);
                             factCopy.ext.remove(Constants.key_logPrefix);
-                            factCopy.ext.remove(Constants.key_traceLoggerParentTransId);
+                            factCopy.ext.remove(TraceLogger.getTransId());
                             Map<String, Object> result = factCopy.results.get(packageName);
                             result.put(Constants.async, false);
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
