@@ -23,15 +23,14 @@ public class CryptoTest {
         
         String e = Crypto.encrypt("zhengby");
         System.out.println("encrypt: " + e);
-
         System.out.println(Crypto.decrypt(e));
     }
 
     @Test
     public void testDecryptProd() {
         //加密
-        System.out.println(Crypto.decrypt("3214566987"));
+        System.out.println(Crypto.encrypt("kkk32187kjhjkkkljk"));
         //解密
-        //System.out.println(EnAndDecryption.decryption("CTRP7D4A9037D45BB0B8B3297DC607D3281D"));
+        //System.out.println(Crypto.decrypt("CTRP7D4A9037D45BB0B8B3297DC607D3281D"));
     }
 }
