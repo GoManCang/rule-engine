@@ -170,7 +170,7 @@ public class RulesExecutorService {
         // matchRules      
         List<Rule> matchedRules = Configs.matchRules(fact, true);
         logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
-        TraceLogger.traceLog("matched rules: " + matchedRules.size());
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条规则 ...");
         StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
 
         StopWatch clock = new StopWatch();
@@ -224,6 +224,7 @@ public class RulesExecutorService {
         // matchRules        
         List<Rule> matchedRules = Configs.matchRules(fact, false);
         logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条规则 ...");
         List<Callable<RuleExecuteResultWithEvent>> runs = Lists.newArrayList();
         for (Rule rule : matchedRules) {
             final RiskFact factCopy = BeanMapper.copy(fact, RiskFact.class);
