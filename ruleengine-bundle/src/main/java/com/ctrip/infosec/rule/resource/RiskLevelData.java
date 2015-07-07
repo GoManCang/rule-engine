@@ -33,9 +33,9 @@ public class RiskLevelData {
         request.setReqID(reqId);
         request.setOrderID(orderId);
         request.setRiskLevel(riskLevel);
-        String xml = xstream.toXML(request);
         SaveRiskLevelDataResponse result = null;
         try {
+            String xml = xstream.toXML(request);
             String respXml = ESBClient.requestESB("AccCash.EasyPay.SaveRiskLevelData", xml);
             result = ((ESBResponse)xstream.fromXML(respXml)).getSaveRiskLevelDataResponse();
         } catch (Exception ex) {
