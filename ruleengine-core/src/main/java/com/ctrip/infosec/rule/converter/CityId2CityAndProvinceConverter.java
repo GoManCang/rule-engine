@@ -1,6 +1,7 @@
 package com.ctrip.infosec.rule.converter;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.resource.DataProxy;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -16,15 +17,15 @@ import java.util.Map;
  * Created by lpxie on 15-4-23.
  */
 @Service("cityId2CityAndProvinceConverter")
-public class CityId2CityAndProvinceConverter implements Converter
-{
+public class CityId2CityAndProvinceConverter implements Converter {
+
     private static final Logger logger = LoggerFactory.getLogger(CityId2CityAndProvinceConverter.class);
 
     static final String serviceName = "ConvertService";
     static final String operationName = "getCityNameByCityId";
+
     @Override
-    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception
-    {
+    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String cityFieldName = (String) fieldMapping.get(fields[0].getParamName());
         String cityFieldValue = BeanUtils.getNestedProperty(fact.eventBody, cityFieldName);
@@ -43,6 +44,8 @@ public class CityId2CityAndProvinceConverter implements Converter
             Map result = DataProxy.queryForMap(serviceName, operationName, params);
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);
+            } else {
+                TraceLogger.traceLog("预处理结果为空. cityId=" + cityFieldValue);
             }
         }
     }
