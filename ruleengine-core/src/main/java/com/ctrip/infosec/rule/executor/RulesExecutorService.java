@@ -191,7 +191,7 @@ public class RulesExecutorService {
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
                 fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
 
-                TraceLogger.traceLog("exec rule: " + packageName + " ...");
+                TraceLogger.traceLog("执行规则[" + packageName + "] ...");
                 statelessRuleEngine.execute(packageName, fact);
 
                 // remove current execute ruleNo when finished execution.
