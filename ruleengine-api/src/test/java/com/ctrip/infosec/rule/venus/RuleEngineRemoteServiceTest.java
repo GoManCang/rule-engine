@@ -18,6 +18,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.meidusa.fastjson.JSON;
+import org.junit.Ignore;
 
 /**
  *
@@ -32,6 +33,7 @@ public class RuleEngineRemoteServiceTest {
     RuleEngineRemoteService ruleEngineRemoteService;
 
     @Test
+    @Ignore
     public void testVerify() throws IOException {
     	
     	
