@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.converter;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.resource.CardInfo;
+import com.ctrip.infosec.rule.resource.Crypto;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -23,9 +24,9 @@ import org.springframework.stereotype.Service;
  */
 @Service("cardInfoDecryptConverter")
 public class CardInfoDecryptConverter implements Converter {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(CardInfoDecryptConverter.class);
-
+    
     @Override
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
         PreActionParam[] fields = preAction.getFields();
@@ -40,16 +41,25 @@ public class CardInfoDecryptConverter implements Converter {
         if (fact.eventBody.containsKey(resultWrapper)) {
             return;
         }
-
+        
         if (StringUtils.isNotBlank(cardInfoIdFieldValue)) {
             Map params = ImmutableMap.of("cardInfoId", cardInfoIdFieldValue);
             Map<String, Object> result = CardInfo.query("getinfo", params);
             if (result != null && !result.isEmpty()) {
+                try {
+                    String CreditCardNumber = (String) result.get("CreditCardNumber");
+                    String CreditCardNumberPlaintext = Crypto.decrypt(CreditCardNumber);
+                    if (StringUtils.isNotBlank(CreditCardNumberPlaintext)) {
+                        result.put("CreditCardNumberPlaintext", CreditCardNumberPlaintext);
+                    }
+                } catch (Exception ex) {
+                    TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
+                }
                 fact.eventBody.put(resultWrapper, result);
             } else {
                 TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
             }
         }
     }
-
+    
 }
