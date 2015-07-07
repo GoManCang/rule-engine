@@ -62,9 +62,9 @@ public class PreRulesExecutorService {
 
         // 先执行脚、后执行可视化
         for (PreRule rule : matchedRules) {
-            long start = System.currentTimeMillis();
             // 脚本
             if (rule.getRuleType() == RuleType.Script) {
+                long start = System.currentTimeMillis();
                 try {
                     // add current execute logPrefix before execution
                     fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
@@ -77,16 +77,16 @@ public class PreRulesExecutorService {
                 } catch (Throwable ex) {
                     logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
                 }
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 50) {
+                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
             }
-            long handlingTime = System.currentTimeMillis() - start;
-            if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-            }
-            TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
         }
         for (PreRule rule : matchedRules) {
-            long start = System.currentTimeMillis();
             if (rule.getRuleType() == RuleType.Visual) {
+                long start = System.currentTimeMillis();
                 // 执行可视化预处理
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
                 if (preAction != null) {
@@ -99,12 +99,12 @@ public class PreRulesExecutorService {
                         TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 50) {
+                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
             }
-            long handlingTime = System.currentTimeMillis() - start;
-            if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-            }
-            TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
         }
     }
 }
