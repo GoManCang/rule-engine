@@ -48,6 +48,7 @@ public class PostRulesExecutorService {
         List<PostRule> matchedRules = Configs.matchPostRules(fact);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
         logger.info(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条后处理规则 ...");
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
 
         StopWatch clock = new StopWatch();
