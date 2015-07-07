@@ -52,9 +52,8 @@ public class PostRulesExecutorService {
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
         for (PostRule rule : matchedRules) {
+            long start = System.currentTimeMillis();
             try {
-                long start = System.currentTimeMillis();
-
                 // add current execute logPrefix before execution
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
 
@@ -63,15 +62,14 @@ public class PostRulesExecutorService {
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_logPrefix);
-
-                long handlingTime = System.currentTimeMillis() - start;
-                if (handlingTime > 50) {
-                    logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-                }
-
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. postRule: " + rule.getRuleNo(), ex);
             }
+            long handlingTime = System.currentTimeMillis() - start;
+            if (handlingTime > 50) {
+                logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+            }
+            TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
         }
 
 //        StopWatch clock = new StopWatch();

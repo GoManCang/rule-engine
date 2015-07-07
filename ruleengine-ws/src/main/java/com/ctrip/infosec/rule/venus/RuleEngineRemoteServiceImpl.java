@@ -51,7 +51,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             // 执行预处理            
             try {
                 TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[预处理]");
+                TraceLogger.setLogPrefix("[同步预处理]");
                 preRulesExecutorService.executePreRules(fact, false);
             } finally {
                 TraceLogger.commitTrans();
@@ -61,7 +61,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             // 执行同步规则
             try {
                 TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[同步]");
+                TraceLogger.setLogPrefix("[同步规则]");
                 rulesExecutorService.executeSyncRules(fact);
             } finally {
                 TraceLogger.commitTrans();

@@ -102,7 +102,7 @@ public class RabbitMqMessageHandler {
             // 执行预处理            
             try {
                 TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[预处理]");
+                TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
             } finally {
                 TraceLogger.commitTrans();
@@ -112,7 +112,7 @@ public class RabbitMqMessageHandler {
             // 执行异步规则
             try {
                 TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[异步]");
+                TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
             } finally {
                 TraceLogger.commitTrans();
