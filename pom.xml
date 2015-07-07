@@ -592,7 +592,6 @@
         <module>ruleengine-ws</module>
         <module>ruleengine-async</module>
         <module>ruleengine-convert</module>
-        <module>ruleengine-integration</module>
     </modules>
 
 </project>
