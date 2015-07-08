@@ -130,7 +130,8 @@ public class Emitter {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put(Constants.riskLevel, riskLevel);
                         result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
-                        fact.results.put(ruleNo + "." + ruleExecuteResult.getRuleNo(), result);
+//                        fact.results.put(ruleNo + "." + ruleExecuteResult.getRuleNo(), result);
+                        fact.results.put(ruleExecuteResult.getRuleNo(), result);
                     }
                 }
             }
