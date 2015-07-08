@@ -209,16 +209,17 @@ public class PreRulesExecutorService {
                         try {
                             // 执行预处理脚本
                             statelessPreRuleEngine.execute(packageName, fact);
+
+                            long handlingTime = System.currentTimeMillis() - start;
+                            if (handlingTime > 50) {
+                                logger.info(_logPrefix + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
+                            }
+                            TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
                         } catch (Throwable ex) {
-                            logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + packageName, ex);
+                            logger.warn(_logPrefix + "invoke stateless pre rule failed. preRule: " + packageName, ex);
                         } finally {
                             TraceLogger.commitTrans();
                         }
-                        long handlingTime = System.currentTimeMillis() - start;
-                        if (handlingTime > 50) {
-                            logger.info(Contexts.getLogPrefix() + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
-                        }
-                        TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
                         return null;
                     }
 
@@ -237,31 +238,25 @@ public class PreRulesExecutorService {
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
-                        long start = System.currentTimeMillis();
-                        try {
-                            // 执行可视化预处理
-                            if (preAction != null) {
-                                try {
-                                    Converter converter = converterLocator.getConverter(preAction);
-                                    converter.convert(preAction, preActionFieldMapping, fact, preActionResultWrapper);
-                                } catch (Exception ex) {
-                                    logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + packageName + ", exception: " + ex.getMessage());
-                                    TraceLogger.traceLog("EXCEPTION: " + ex.toString());
-                                } finally {
-                                    TraceLogger.commitTrans();
-                                }
-                            }
+                        // 执行可视化预处理
+                        if (preAction != null) {
+                            long start = System.currentTimeMillis();
+                            try {
+                                Converter converter = converterLocator.getConverter(preAction);
+                                converter.convert(preAction, preActionFieldMapping, fact, preActionResultWrapper);
 
-                        } catch (Throwable ex) {
-                            logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + packageName, ex);
-                        } finally {
-                            TraceLogger.commitTrans();
+                                long handlingTime = System.currentTimeMillis() - start;
+                                if (handlingTime > 50) {
+                                    logger.info(Contexts.getLogPrefix() + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
+                                }
+                                TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
+                            } catch (Exception ex) {
+                                logger.warn(_logPrefix + "invoke visual pre rule failed. ruleNo: " + packageName + ", exception: " + ex.getMessage());
+                                TraceLogger.traceLog("EXCEPTION: " + ex.toString());
+                            } finally {
+                                TraceLogger.commitTrans();
+                            }
                         }
-                        long handlingTime = System.currentTimeMillis() - start;
-                        if (handlingTime > 50) {
-                            logger.info(Contexts.getLogPrefix() + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
-                        }
-                        TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
                         return null;
                     }
 
