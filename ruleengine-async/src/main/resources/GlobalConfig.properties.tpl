@@ -1,6 +1,10 @@
 # applicationId
 appId=100000559
 
+# executor.timeout(S)
+Rules.executor.timeout={$Rules.executor.timeout}
+PreRules.executor.timeout={$PreRules.executor.timeout}
+
 # sars monitor
 sars.monitor.rest.url={$sars.monitor.rest.url}
 

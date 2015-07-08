@@ -14,6 +14,7 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -42,7 +43,8 @@ import org.springframework.stereotype.Service;
 public class RulesExecutorService {
 
     private static final Logger logger = LoggerFactory.getLogger(RulesExecutorService.class);
-    private ThreadPoolExecutor excutor = new ThreadPoolExecutor(64, 512, 60, TimeUnit.SECONDS, new SynchronousQueue(), new ThreadPoolExecutor.CallerRunsPolicy());
+    // 秒
+    private int timeout = GlobalConfig.getInteger("Rules.executor.timeout", 2);
 
     /**
      * 执行同步规则
@@ -188,16 +190,12 @@ public class RulesExecutorService {
 
                 // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
-                fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-                fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
 
                 TraceLogger.traceLog("[" + packageName + "]");
                 statelessRuleEngine.execute(packageName, fact);
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
-                fact.ext.remove(Constants.key_logPrefix);
-                fact.ext.remove(Constants.key_traceLoggerParentTransId);
 
                 clock.stop();
                 long handlingTime = clock.getTime();
@@ -237,39 +235,35 @@ public class RulesExecutorService {
 
             final StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
             final String packageName = rule.getRuleNo();
-            final String logPrefix = Contexts.getLogPrefix();
+            final String _logPrefix = Contexts.getLogPrefix();
+            final String _traceLoggerParentTransId = TraceLogger.getTransId();
 
             try {
-                //add current execute ruleNo before execution
+                // add current execute ruleNo before execution
                 factCopy.ext.put(Constants.key_ruleNo, rule.getRuleNo());
-                factCopy.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-                factCopy.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
 
                 runs.add(new Callable<RuleExecuteResultWithEvent>() {
 
                     @Override
                     public RuleExecuteResultWithEvent call() throws Exception {
-                        String transId = TraceLogger.beginTrans(factCopy.eventId);
-                        TraceLogger.setParentTransId((String) factCopy.ext.get(Constants.key_traceLoggerParentTransId));
-                        factCopy.ext.put(Constants.key_traceLoggerParentTransId, transId);
+                        TraceLogger.beginTrans(factCopy.eventId);
+                        TraceLogger.setParentTransId(_traceLoggerParentTransId);
+                        TraceLogger.setLogPrefix("[" + packageName + "]");
                         try {
                             long start = System.currentTimeMillis();
                             // remove current execute ruleNo when finished execution.
-                            TraceLogger.traceLog("[" + packageName + "]");
                             statelessRuleEngine.execute(packageName, factCopy);
-                            factCopy.ext.remove(Constants.key_ruleNo);
-                            factCopy.ext.remove(Constants.key_logPrefix);
-                            factCopy.ext.remove(Constants.key_traceLoggerParentTransId);
+
                             Map<String, Object> result = factCopy.results.get(packageName);
                             result.put(Constants.async, false);
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
-                            logger.info(logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
+                            logger.info(_logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                             TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.finalResultGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
-                            logger.warn(logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
+                            logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
                         } finally {
                             TraceLogger.commitTrans();
                         }
@@ -279,13 +273,13 @@ public class RulesExecutorService {
                 });
 
             } catch (Throwable ex) {
-                logger.warn(logPrefix + "invoke stateless rule failed. packageName: " + packageName, ex);
+                logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, ex);
             }
 
         }
         List<RuleExecuteResultWithEvent> rawResult = new ArrayList<RuleExecuteResultWithEvent>();
         try {
-            List<Future<RuleExecuteResultWithEvent>> result = excutor.invokeAll(runs, 2L, TimeUnit.SECONDS);
+            List<Future<RuleExecuteResultWithEvent>> result = ParallelExecutorHolder.excutor.invokeAll(runs, timeout, TimeUnit.SECONDS);
             for (Future f : result) {
                 try {
                     if (f.isDone()) {
