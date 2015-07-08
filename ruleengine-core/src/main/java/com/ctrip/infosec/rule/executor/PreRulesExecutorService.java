@@ -186,14 +186,14 @@ public class PreRulesExecutorService {
     void executeParallel(final RiskFact fact, List<PreRule> matchedRules) {
 
         final StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
+        final String _logPrefix = Contexts.getLogPrefix();
+        final String _traceLoggerParentTransId = TraceLogger.getTransId();
 
-        List<Callable<RiskFact>> runs1 = Lists.newArrayList();
-        List<Callable<RiskFact>> runs2 = Lists.newArrayList();
+        List runs1 = Lists.newArrayList();
+        List runs2 = Lists.newArrayList();
         for (PreRule rule : matchedRules) {
 
             final String packageName = rule.getRuleNo();
-            final String _logPrefix = Contexts.getLogPrefix();
-            final String _traceLoggerParentTransId = TraceLogger.getTransId();
 
             // 脚本
             if (rule.getRuleType() == RuleType.Script) {
@@ -239,9 +239,9 @@ public class PreRulesExecutorService {
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
                         // 执行可视化预处理
-                        if (preAction != null) {
-                            long start = System.currentTimeMillis();
-                            try {
+                        long start = System.currentTimeMillis();
+                        try {
+                            if (preAction != null) {
                                 Converter converter = converterLocator.getConverter(preAction);
                                 converter.convert(preAction, preActionFieldMapping, fact, preActionResultWrapper);
 
@@ -250,12 +250,12 @@ public class PreRulesExecutorService {
                                     logger.info(Contexts.getLogPrefix() + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
                                 }
                                 TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
-                            } catch (Exception ex) {
-                                logger.warn(_logPrefix + "invoke visual pre rule failed. ruleNo: " + packageName + ", exception: " + ex.getMessage());
-                                TraceLogger.traceLog("EXCEPTION: " + ex.toString());
-                            } finally {
-                                TraceLogger.commitTrans();
                             }
+                        } catch (Exception ex) {
+                            logger.warn(_logPrefix + "invoke visual pre rule failed. ruleNo: " + packageName + ", exception: " + ex.getMessage());
+                            TraceLogger.traceLog("EXCEPTION: " + ex.toString());
+                        } finally {
+                            TraceLogger.commitTrans();
                         }
                         return null;
                     }
@@ -263,18 +263,18 @@ public class PreRulesExecutorService {
                 });
             }
 
-            // run
-            try {
-                if (!runs1.isEmpty()) {
-                    ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.SECONDS);
-                }
-                if (!runs2.isEmpty()) {
-                    ParallelExecutorHolder.excutor.invokeAll(runs2, timeout, TimeUnit.SECONDS);
-                }
-            } catch (Exception ex) {
-                // ignored
-            }
+        }
 
+        // run
+        try {
+            if (!runs1.isEmpty()) {
+                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.SECONDS);
+            }
+            if (!runs2.isEmpty()) {
+                ParallelExecutorHolder.excutor.invokeAll(runs2, timeout, TimeUnit.SECONDS);
+            }
+        } catch (Exception ex) {
+            // ignored
         }
     }
 }
