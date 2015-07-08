@@ -29,8 +29,8 @@ public class CryptoTest {
     @Test
     public void testDecryptProd() {
         //加密
-        System.out.println(Crypto.encrypt("kkk32187kjhjkkkljk"));
+        //System.out.println(Crypto.encrypt("4218709905707143"));
         //解密
-        //System.out.println(Crypto.decrypt("CTRP7D4A9037D45BB0B8B3297DC607D3281D"));
+        System.out.println(Crypto.decrypt("CTRP00014800490C1D5037F1A06D3056918C07930155F09B97CF8AB3F216A577"));
     }
 }
