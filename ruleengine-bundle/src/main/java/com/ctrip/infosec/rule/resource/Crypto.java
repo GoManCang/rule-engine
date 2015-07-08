@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import java.util.concurrent.locks.Lock;
@@ -101,6 +102,7 @@ public class Crypto {
         } catch (Exception ex) {
             fault();
             logger.warn(Contexts.getLogPrefix() + "decrypt fault. complexText=" + complexText, ex);
+            TraceLogger.traceLog("解密异常: complexText=" + complexText + ", EXCEPTION: " + ex.toString());
         } finally {
             afterInvoke("Crypto.decrypt");
         }

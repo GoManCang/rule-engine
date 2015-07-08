@@ -42,21 +42,30 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
     @Override
     public RiskFact verify(RiskFact fact) {
         beforeInvoke();
-        TraceLogger.beginTrans(fact.eventId);
-        TraceLogger.setLogPrefix("[同步]");
-
         logger.info("VENUS: fact=" + JSON.toJSONString(fact));
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
         try {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
-            // 执行预处理
-            preRulesExecutorService.executePreRules(fact, false);
+            // 执行预处理            
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[同步预处理]");
+                preRulesExecutorService.executePreRules(fact, false);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行同步规则
-            rulesExecutorService.executeSyncRules(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[同步规则]");
+                rulesExecutorService.executeSyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
         } catch (Throwable ex) {
             fault();
             if (fact.finalResult == null) {
@@ -65,7 +74,6 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             logger.error(Contexts.getLogPrefix() + "invoke verify exception.", ex);
         } finally {
             afterInvoke("RuleEngineRemoteService.verify");
-            TraceLogger.commitTrans();
         }
         return fact;
     }

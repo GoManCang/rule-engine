@@ -58,9 +58,35 @@ public class PreRulesExecutorService {
         logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
         TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
 
-        List<String> scriptRulePackageNames = Lists.newArrayList();
+        StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
+
+        // 先执行脚、后执行可视化
+        for (PreRule rule : matchedRules) {
+            // 脚本
+            if (rule.getRuleType() == RuleType.Script) {
+                long start = System.currentTimeMillis();
+                try {
+                    // add current execute logPrefix before execution
+                    fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+
+                    TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
+                    statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
+
+                    // remove current execute ruleNo when finished execution.
+                    fact.ext.remove(Constants.key_logPrefix);
+                } catch (Throwable ex) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
+                }
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 50) {
+                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+            }
+        }
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
+                long start = System.currentTimeMillis();
                 // 执行可视化预处理
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
                 if (preAction != null) {
@@ -73,36 +99,12 @@ public class PreRulesExecutorService {
                         TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
-            } else if (rule.getRuleType() == RuleType.Script) {
-                scriptRulePackageNames.add(rule.getRuleNo());
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 50) {
+                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
             }
-        }
-
-        StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
-
-        StopWatch clock = new StopWatch();
-        try {
-            clock.reset();
-            clock.start();
-
-            // add current execute logPrefix before execution
-            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
-
-            statelessPreRuleEngine.execute(scriptRulePackageNames, fact);
-
-            // remove current execute ruleNo when finished execution.
-            fact.ext.remove(Constants.key_logPrefix);
-            fact.ext.remove(Constants.key_traceLoggerParentTransId);
-
-            clock.stop();
-            long handlingTime = clock.getTime();
-            if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "preRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
-            }
-
-        } catch (Throwable ex) {
-            logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. packageNames: " + scriptRulePackageNames, ex);
         }
     }
 }

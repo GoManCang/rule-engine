@@ -53,24 +53,32 @@ public class RuleEngineRESTfulController {
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
-        TraceLogger.beginTrans(fact.eventId);
-        TraceLogger.setLogPrefix("[同步]");
         try {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
-            // 执行预处理
-            preRulesExecutorService.executePreRules(fact, false);
+            // 执行预处理            
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[同步预处理]");
+                preRulesExecutorService.executePreRules(fact, false);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行同步规则
-            rulesExecutorService.executeSyncRules(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[同步规则]");
+                rulesExecutorService.executeSyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
         } catch (Throwable ex) {
             if (fact.finalResult == null) {
                 fact.setFinalResult(Constants.defaultResult);
             }
             logger.error(Contexts.getLogPrefix() + "invoke query exception.", ex);
-        } finally {
-            TraceLogger.commitTrans();
         }
         return new ResponseEntity(fact, HttpStatus.OK);
     }

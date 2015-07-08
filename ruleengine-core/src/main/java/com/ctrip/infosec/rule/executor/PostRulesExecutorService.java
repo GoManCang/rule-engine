@@ -49,32 +49,53 @@ public class PostRulesExecutorService {
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
         logger.info(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条后处理规则 ...");
+
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
+        for (PostRule rule : matchedRules) {
+            long start = System.currentTimeMillis();
+            try {
+                // add current execute logPrefix before execution
+                fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
 
-        StopWatch clock = new StopWatch();
-        try {
-            clock.reset();
-            clock.start();
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
+                statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
 
-            // add current execute logPrefix before execution
-            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
-
-            // TODO: 需要判断ruleType == Script
-            statelessPostRuleEngine.execute(scriptRulePackageNames, fact);
-
-            // remove current execute ruleNo when finished execution.
-            fact.ext.remove(Constants.key_logPrefix);
-            fact.ext.remove(Constants.key_traceLoggerParentTransId);
-
-            clock.stop();
-            long handlingTime = clock.getTime();
-            if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "postRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
+                // remove current execute ruleNo when finished execution.
+                fact.ext.remove(Constants.key_logPrefix);
+            } catch (Throwable ex) {
+                logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. postRule: " + rule.getRuleNo(), ex);
             }
-
-        } catch (Throwable ex) {
-            logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. packageNames: " + scriptRulePackageNames, ex);
+            long handlingTime = System.currentTimeMillis() - start;
+            if (handlingTime > 50) {
+                logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+            }
+            TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
         }
+
+//        StopWatch clock = new StopWatch();
+//        try {
+//            clock.reset();
+//            clock.start();
+//
+//            // add current execute logPrefix before execution
+//            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+//            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
+//
+//            // TODO: 需要判断ruleType == Script
+//            statelessPostRuleEngine.execute(scriptRulePackageNames, fact);
+//
+//            // remove current execute ruleNo when finished execution.
+//            fact.ext.remove(Constants.key_logPrefix);
+//            fact.ext.remove(Constants.key_traceLoggerParentTransId);
+//
+//            clock.stop();
+//            long handlingTime = clock.getTime();
+//            if (handlingTime > 50) {
+//                logger.info(Contexts.getLogPrefix() + "postRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
+//            }
+//
+//        } catch (Throwable ex) {
+//            logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. packageNames: " + scriptRulePackageNames, ex);
+//        }
     }
 }

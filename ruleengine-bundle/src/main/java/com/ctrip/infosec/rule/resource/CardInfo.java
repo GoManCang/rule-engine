@@ -3,6 +3,7 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.ESB.ESBClient;
 import org.dom4j.Document;
@@ -47,6 +48,7 @@ public class CardInfo {
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke CardInfo.query fault.", ex);
+            TraceLogger.traceLog("执行GetCreditCardInfo异常: " + ex.toString());
         } finally {
             afterInvoke("CardInfo.query");
         }

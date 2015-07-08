@@ -44,6 +44,13 @@ public class ConverterTest {
         converter.convert(PreActionEnums.Mobile2ProvinceCity, ImmutableMap.of("mobile", "mobile"), fact, null);
 
         System.out.println("convert: " + JSON.toJSONString(fact));
+        
+        converter = converterLocator.getConverter(PreActionEnums.CardInfoDecrypt);
+        fact = new RiskFact();
+        fact.eventBody.put("cardInfoID", "28996388");
+        converter.convert(PreActionEnums.CardInfoDecrypt, ImmutableMap.of("cardInfoId", "cardInfoID"), fact, null);
+
+        System.out.println("convert: " + JSON.toJSONString(fact));
     }
 
 }
