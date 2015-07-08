@@ -133,12 +133,12 @@
             <dependency>
                 <groupId>CtripDataAES</groupId>
                 <artifactId>CtripDataAESDev</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
             <dependency>
                 <groupId>CtripDataAES</groupId>
                 <artifactId>CtripDataAESPro</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.0</version>
             </dependency>
             
             <!-- Venus 3.x -->
