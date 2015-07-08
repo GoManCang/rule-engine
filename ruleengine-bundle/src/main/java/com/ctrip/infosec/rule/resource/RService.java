@@ -3,11 +3,13 @@ package com.ctrip.infosec.rule.resource;
 import com.ctrip.infosec.configs.utils.concurrent.MethodProxyFactory;
 import com.ctrip.infosec.configs.utils.concurrent.PoolConfig;
 import com.ctrip.infosec.configs.utils.concurrent.PooledMethodProxy;
+import com.ctrip.infosec.rclient.Rclient;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import org.apache.commons.lang3.Validate;
+import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
@@ -33,7 +35,7 @@ public class RService {
      */
     static final String rServiceIp = GlobalConfig.getString("RService.Ip");
 
-    static RConnection rConnection = null;
+    static Rclient rclient = null;
 
     static void check() {
         Validate.notEmpty(rServiceIp, "在GlobalConfig.properties里没有找到\"RService.Ip\"配置项.");
@@ -53,8 +55,9 @@ public class RService {
     public void init() {
         check();
         try {
-            rConnection = new RConnection(rServiceIp);
-        } catch (RserveException e) {
+            rclient = new Rclient(rServiceIp,1,1);//一个连接，每个规则引擎连接一台机器
+            rclient.init();
+        } catch (Exception e) {
             logger.warn("连接Rserve异常:" + e.getMessage());
         }
     }
@@ -104,21 +107,11 @@ public class RService {
     public double getRScore(String expression) {
         double score = 0.0;
         try {
-            score = rConnection.eval(expression).asDouble();
-        } catch (RserveException e) {
-            logger.warn("获取RServer分数异常:" + e.getMessage());
+            REXP rexp = (REXP)rclient.run(expression);
+            score = rexp.asDouble();
         } catch (REXPMismatchException e) {
             logger.warn("获取RServer分数异常:" + e.getMessage());
         }
         return score;
-    }
-
-    public void destroy() {
-        if (rConnection.close()) {
-            logger.info("Rserve断开连接成功");
-        } else {
-            logger.warn("Rserve断开连接异常");
-        }
-
     }
 }

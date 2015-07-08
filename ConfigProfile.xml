@@ -159,7 +159,7 @@
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
         <!--RSserve-->
-        <RService.Ip>riskmlrules.infosec.ctripcorp.com</RService.Ip>
+        <RService.Ip>10.8.118.140,10.8.118.141,10.8.118.142</RService.Ip>
         <!--RiskFact persistence config-->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
