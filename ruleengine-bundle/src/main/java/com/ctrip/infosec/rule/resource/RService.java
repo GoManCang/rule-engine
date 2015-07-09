@@ -39,7 +39,6 @@ public class RService {
 
     static void check() {
         Validate.notEmpty(rServiceIp, "在GlobalConfig.properties里没有找到\"RService.Ip\"配置项.");
-        initRServiceProxy();
     }
 
     /**
