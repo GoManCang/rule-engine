@@ -13,8 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 /**
@@ -119,7 +119,7 @@ public class Emitter {
      */
     public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> ruleExecuteResults) {
 //        String _ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        String _isAsync = (String) fact.ext.get(Constants.key_isAsync);
+        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
         if (ruleExecuteResults != null && !ruleExecuteResults.isEmpty()) {
 
             for (CounterRuleExecuteResult ruleExecuteResult : ruleExecuteResults) {
@@ -131,7 +131,9 @@ public class Emitter {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put(Constants.riskLevel, riskLevel);
                         result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
-                        result.put(Constants.async, BooleanUtils.toBoolean(_isAsync));
+                        if (_isAsync != null) {
+                            result.put(Constants.async, _isAsync);
+                        }
 //                        fact.results.put(ruleNo + "." + ruleExecuteResult.getRuleNo(), result);
                         fact.results.put(ruleExecuteResult.getRuleNo(), result);
                     }
