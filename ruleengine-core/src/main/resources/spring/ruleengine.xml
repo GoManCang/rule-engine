@@ -38,11 +38,12 @@
     <bean class="com.ctrip.infosec.rule.executor.EventDataMergeService" init-method="init"/>
 
     <!-- 初始化RiskProfile -->
-    <bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init"/>
+    <bean class="com.ctrip.infosec.rule.resource.RiskProfileClient" init-method="init" lazy-init="true"/>
 
     <!-- 初始化连接R服务器 -->
-    <bean class="com.ctrip.infosec.rule.resource.RService" init-method="init"/>
+    <bean class="com.ctrip.infosec.rule.resource.RService" init-method="init" lazy-init="true"/>
 
     <!--初始化从DataProxy取出城市和省对应关系的所有记录-->
-    <bean class="com.ctrip.infosec.rule.resource.CityToProvince" init-method="init" />
+    <bean class="com.ctrip.infosec.rule.resource.CityToProvince" init-method="init" lazy-init="true"/>
+    
 </beans>
