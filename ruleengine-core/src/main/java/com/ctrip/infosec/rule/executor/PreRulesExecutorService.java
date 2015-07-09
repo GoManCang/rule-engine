@@ -11,26 +11,20 @@ import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
 import com.ctrip.infosec.configs.event.RuleType;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
-import com.ctrip.infosec.configs.utils.BeanMapper;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
-import com.ctrip.infosec.rule.executor.RulesExecutorService.RuleExecuteResultWithEvent;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +126,29 @@ public class PreRulesExecutorService {
 
         StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
 
-        // 先执行脚、后执行可视化
+        // 先执可视化、后执行行脚
+        for (PreRule rule : matchedRules) {
+            if (rule.getRuleType() == RuleType.Visual) {
+                long start = System.currentTimeMillis();
+                // 执行可视化预处理
+                PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
+                if (preAction != null) {
+                    try {
+                        TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
+                        Converter converter = converterLocator.getConverter(preAction);
+                        converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
+                    } catch (Exception ex) {
+                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
+                        TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+                    }
+                }
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 50) {
+                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+            }
+        }
         for (PreRule rule : matchedRules) {
             // 脚本
             if (rule.getRuleType() == RuleType.Script) {
@@ -148,28 +164,6 @@ public class PreRulesExecutorService {
                     fact.ext.remove(Constants.key_logPrefix);
                 } catch (Throwable ex) {
                     logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
-                }
-                long handlingTime = System.currentTimeMillis() - start;
-                if (handlingTime > 50) {
-                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-                }
-                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
-            }
-        }
-        for (PreRule rule : matchedRules) {
-            if (rule.getRuleType() == RuleType.Visual) {
-                long start = System.currentTimeMillis();
-                // 执行可视化预处理
-                PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
-                if (preAction != null) {
-                    try {
-                        TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
-                        Converter converter = converterLocator.getConverter(preAction);
-                        converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
-                    } catch (Exception ex) {
-                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
-                        TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
-                    }
                 }
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 50) {
@@ -267,11 +261,11 @@ public class PreRulesExecutorService {
 
         // run
         try {
-            if (!runs1.isEmpty()) {
-                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.SECONDS);
-            }
             if (!runs2.isEmpty()) {
                 ParallelExecutorHolder.excutor.invokeAll(runs2, timeout, TimeUnit.SECONDS);
+            }
+            if (!runs1.isEmpty()) {
+                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.SECONDS);
             }
         } catch (Exception ex) {
             // ignored
