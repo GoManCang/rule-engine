@@ -13,7 +13,6 @@ import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
-import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.ImmutableMap;
@@ -25,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.time.StopWatch;
@@ -190,12 +187,14 @@ public class RulesExecutorService {
 
                 // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                fact.ext.put(Constants.key_isAsync, true);
 
                 TraceLogger.traceLog("[" + packageName + "]");
                 statelessRuleEngine.execute(packageName, fact);
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
+                fact.ext.remove(Constants.key_isAsync);
 
                 clock.stop();
                 long handlingTime = clock.getTime();
@@ -241,6 +240,7 @@ public class RulesExecutorService {
             try {
                 // add current execute ruleNo before execution
                 factCopy.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                factCopy.ext.put(Constants.key_isAsync, false);
 
                 runs.add(new Callable<RuleExecuteResultWithEvent>() {
 
