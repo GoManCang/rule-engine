@@ -39,7 +39,6 @@ public class RService {
 
     static void check() {
         Validate.notEmpty(rServiceIp, "在GlobalConfig.properties里没有找到\"RService.Ip\"配置项.");
-        initRServiceProxy();
     }
 
     /**
@@ -52,7 +51,7 @@ public class RService {
     private static final int queueSize = GlobalConfig.getInteger("pooled.sync.queueSize", -1);
     private static Lock lock = new ReentrantLock();
 
-    public void init() {
+    private static void connect() {
         check();
         try {
             rclient = new Rclient(rServiceIp,1,1);//一个连接，每个规则引擎连接一台机器
@@ -68,6 +67,7 @@ public class RService {
             try {
                 if (RServiceProxy == null) {
                     logger.info(SarsMonitorContext.getLogPrefix() + "init RServiceProxy ...");
+                    connect();
                     RService service = SpringContextHolder.getBean(RService.class);
                     PooledMethodProxy proxy = MethodProxyFactory
                             .newMethodProxy(service, "getRScore", String.class)
@@ -90,6 +90,7 @@ public class RService {
     }
 
     public static double getScore(String expression) {
+        initRServiceProxy();
         check();
         beforeInvoke();
         double score = 0.0;
