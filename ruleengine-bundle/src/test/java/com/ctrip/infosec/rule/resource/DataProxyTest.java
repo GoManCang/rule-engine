@@ -108,9 +108,14 @@ public class DataProxyTest {
          System.out.println(result.size());*/
 
         String serviceName = "ConvertService";
+        String operationName = "getBranchCityByBranchNO";
+        Map params = ImmutableMap.of("branchno", "011");
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+
+        /*String serviceName = "ConvertService";
         String operationName = "getCityNameByCityId";
         Map params = ImmutableMap.of("cityId", "2");
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
