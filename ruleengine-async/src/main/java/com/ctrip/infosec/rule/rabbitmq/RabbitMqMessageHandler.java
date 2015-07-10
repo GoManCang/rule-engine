@@ -14,11 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.ctrip.infosec.configs.event.*;
+import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
-import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
+import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -31,8 +34,6 @@ import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.model.RiskResult;
 import com.ctrip.infosec.configs.Configs;
-import com.ctrip.infosec.configs.event.CallbackRule;
-import com.ctrip.infosec.configs.event.HeaderMappingBizType;
 import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.Utils;
@@ -48,7 +49,6 @@ import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.meidusa.fastjson.JSON;
 
 /**
- *
  * @author zhengby
  */
 public class RabbitMqMessageHandler {
@@ -154,6 +154,11 @@ public class RabbitMqMessageHandler {
                     afterInvoke(operation);
                 }
             }
+            // 落地规则结果
+            Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
+            if (riskReqId != null) {
+                saveRuleResult(riskReqId, fact.results);
+            }
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
@@ -218,6 +223,102 @@ public class RabbitMqMessageHandler {
                     logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
                 }
 
+            }
+        }
+    }
+
+    private void saveRuleResult(Long riskReqId, Map<String, Map<String, Object>> results) throws DbExecuteException {
+        RdbmsInsert insert = new RdbmsInsert();
+        DistributionChannel channel = new DistributionChannel();
+        channel.setChannelNo("CardRiskDB_INSERT_1");
+        channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+        channel.setChannelDesc("CardRiskDB_INSERT_1");
+        channel.setDatabaseURL("CardRiskDB_INSERT_1");
+        insert.setChannel(channel);
+        insert.setTable("InfoSecurity_CheckResultLog");
+
+        /**
+         * [LogID] = 主键
+         * [ReqID]
+         * [RuleType]
+         * [RuleID] = 0
+         * [RuleName]
+         * [RiskLevel]
+         * [RuleRemark]
+         * [CreateDate] = now
+         * [DataChange_LastTime] = now
+         * [IsHighlight] = 1
+         */
+        if (MapUtils.isNotEmpty(results)) {
+            for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
+                try {
+                    Map<String, PersistColumnProperties> map = Maps.newHashMap();
+                    PersistColumnProperties props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+                    props.setColumnType(DataUnitColumnType.Long);
+                    map.put("LogID", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.Long);
+                    props.setValue(riskReqId);
+                    map.put("ReqID", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.String);
+                    props.setValue("N");
+                    map.put("RuleType", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.Int);
+                    props.setValue(0);
+                    map.put("RuleID", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.String);
+                    props.setValue(entry.getKey());
+                    map.put("RuleName", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.Long);
+                    props.setValue(entry.getValue().get("riskLevel"));
+                    map.put("RiskLevel", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.String);
+                    props.setValue(entry.getValue().get("riskMessage"));
+                    map.put("RuleRemark", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
+                    props.setColumnType(DataUnitColumnType.Data);
+                    props.setExpression("const:now:date");
+                    map.put("CreateDate", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
+                    props.setColumnType(DataUnitColumnType.Data);
+                    props.setExpression("const:now:date");
+                    map.put("DataChange_LastTime", props);
+
+                    props = new PersistColumnProperties();
+                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                    props.setColumnType(DataUnitColumnType.Int);
+                    props.setValue(1);
+                    map.put("IsHighlight", props);
+
+                    insert.setColumnPropertiesMap(map);
+
+                    PersistContext ctx = new PersistContext();
+                    insert.execute(ctx);
+                } catch (Exception e) {
+                    logger.error("save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
+                }
             }
         }
     }

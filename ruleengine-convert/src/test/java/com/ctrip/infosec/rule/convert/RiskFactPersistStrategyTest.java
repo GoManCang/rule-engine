@@ -13,7 +13,7 @@ import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
-import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
+import com.ctrip.infosec.rule.convert.persist.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -210,6 +210,96 @@ public class RiskFactPersistStrategyTest {
         RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact);
         persistManager.persist(10, "NEW:测试");
         System.out.println(persistManager.getGeneratedReqId());
+    }
+
+    @Test
+    public void testInsert() throws DbExecuteException {
+
+        RdbmsInsert insert = new RdbmsInsert();
+        DistributionChannel channel = new DistributionChannel();
+        channel.setChannelNo("CardRiskDB_INSERT_1");
+        channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+        channel.setChannelDesc("CardRiskDB_INSERT_1");
+        channel.setDatabaseURL("CardRiskDB_INSERT_1");
+        insert.setChannel(channel);
+        insert.setTable("InfoSecurity_CheckResultLog");
+
+        /**
+         * [LogID] = 主键
+         * [ReqID]
+         * [RuleType]
+         * [RuleID] = 0
+         * [RuleName]
+         * [RiskLevel]
+         * [RuleRemark]
+         * [CreateDate] = now
+         * [DataChange_LastTime] = now
+         * [IsHighlight] = 1
+         */
+        Map<String, PersistColumnProperties> map = Maps.newHashMap();
+        PersistColumnProperties props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+        props.setColumnType(DataUnitColumnType.Long);
+        map.put("LogID", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Long);
+        props.setValue(11L);
+        map.put("ReqID", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.String);
+        props.setValue("N");
+        map.put("RuleType", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Int);
+        props.setValue(0);
+        map.put("RuleID", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.String);
+        props.setValue("test");
+        map.put("RuleName", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Long);
+        props.setValue(102);
+        map.put("RiskLevel", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.String);
+        props.setValue("test remark");
+        map.put("RuleRemark", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
+        props.setColumnType(DataUnitColumnType.Data);
+        props.setExpression("const:now:date");
+        map.put("CreateDate", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
+        props.setColumnType(DataUnitColumnType.Data);
+        props.setExpression("const:now:date");
+        map.put("DataChange_LastTime", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Int);
+        props.setValue(1);
+        map.put("IsHighlight", props);
+
+        insert.setColumnPropertiesMap(map);
+
+        PersistContext ctx = new PersistContext();
+        insert.execute(ctx);
     }
 
     private List<RdbmsTableOperationConfig> getRdbmsTableOperationConfigs() {
