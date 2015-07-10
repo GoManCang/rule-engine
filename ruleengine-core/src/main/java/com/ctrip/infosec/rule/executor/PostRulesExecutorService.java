@@ -17,7 +17,6 @@ import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -52,12 +51,13 @@ public class PostRulesExecutorService {
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
         for (PostRule rule : matchedRules) {
+            String _nestedTransId = TraceLogger.beginNestedTrans(fact.eventId);
+            TraceLogger.setNestedLogPrefix(_nestedTransId, "[" + rule.getRuleNo() + "]");
             long start = System.currentTimeMillis();
             try {
                 // add current execute logPrefix before execution
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
 
-                TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
 
                 // remove current execute ruleNo when finished execution.
@@ -69,7 +69,7 @@ public class PostRulesExecutorService {
             if (handlingTime > 50) {
                 logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
             }
-            TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+            TraceLogger.traceNestedLog(_nestedTransId, "[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
         }
 
 //        StopWatch clock = new StopWatch();

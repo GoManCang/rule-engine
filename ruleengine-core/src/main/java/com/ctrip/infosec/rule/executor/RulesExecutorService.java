@@ -175,6 +175,8 @@ public class RulesExecutorService {
         StopWatch clock = new StopWatch();
         for (Rule rule : matchedRules) {
             String packageName = rule.getRuleNo();
+            String _nestedTransId = TraceLogger.beginNestedTrans(fact.eventId);
+            TraceLogger.setNestedLogPrefix(_nestedTransId, "[" + packageName + "]");
             try {
                 clock.reset();
                 clock.start();
@@ -189,7 +191,6 @@ public class RulesExecutorService {
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_isAsync, true);
 
-                TraceLogger.traceLog("[" + packageName + "]");
                 statelessRuleEngine.execute(packageName, fact);
 
                 // remove current execute ruleNo when finished execution.
@@ -204,7 +205,8 @@ public class RulesExecutorService {
                 result.put(Constants.timeUsage, handlingTime);
                 logger.info(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
+
+                TraceLogger.traceNestedLog(_nestedTransId, "[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
             } catch (Throwable ex) {
