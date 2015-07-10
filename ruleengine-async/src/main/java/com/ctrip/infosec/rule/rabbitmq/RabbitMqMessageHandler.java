@@ -100,38 +100,54 @@ public class RabbitMqMessageHandler {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[异步预处理]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[异步预处理]");
+                    preRulesExecutorService.executePreRules(fact, true);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 preRulesExecutorService.executePreRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[异步规则]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[异步规则]");
+                    rulesExecutorService.executeAsyncRules(fact);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 rulesExecutorService.executeAsyncRules(fact);
-            } finally {
-                TraceLogger.commitTrans();
             }
             // 执行后处理
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[后处理]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[后处理]");
+                    postRulesExecutorService.executePostRules(fact, true);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 postRulesExecutorService.executePostRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
             }
             //Counter推送规则处理
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[Counter推送]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[Counter推送]");
+                    counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
             }
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
@@ -238,15 +254,8 @@ public class RabbitMqMessageHandler {
         insert.setTable("InfoSecurity_CheckResultLog");
 
         /**
-         * [LogID] = 主键
-         * [ReqID]
-         * [RuleType]
-         * [RuleID] = 0
-         * [RuleName]
-         * [RiskLevel]
-         * [RuleRemark]
-         * [CreateDate] = now
-         * [DataChange_LastTime] = now
+         * [LogID] = 主键 [ReqID] [RuleType] [RuleID] = 0 [RuleName] [RiskLevel]
+         * [RuleRemark] [CreateDate] = now [DataChange_LastTime] = now
          * [IsHighlight] = 1
          */
         if (MapUtils.isNotEmpty(results)) {

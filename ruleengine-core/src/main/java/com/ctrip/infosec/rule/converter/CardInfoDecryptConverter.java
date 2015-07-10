@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.converter;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.resource.CardInfo;
@@ -42,6 +43,8 @@ public class CardInfoDecryptConverter implements Converter {
             return;
         }
 
+        String _nestedTransId = (String) fact.ext.get(Constants.key_nestedTransId);
+
         if (StringUtils.isNotBlank(cardInfoIdFieldValue)) {
             Map params = ImmutableMap.of("cardInfoId", cardInfoIdFieldValue);
             Map<String, Object> result = CardInfo.query("getinfo", params);
@@ -55,11 +58,19 @@ public class CardInfoDecryptConverter implements Converter {
                         }
                     }
                 } catch (Exception ex) {
-                    TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
+                    if (TraceLogger.hasNestedTrans() && StringUtils.isNotBlank(_nestedTransId)) {
+                        TraceLogger.traceNestedLog(_nestedTransId, "解密CreditCardNumber异常: " + ex.toString());
+                    } else {
+                        TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
+                    }
                 }
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
+                if (TraceLogger.hasNestedTrans() && StringUtils.isNotBlank(_nestedTransId)) {
+                    TraceLogger.traceNestedLog(_nestedTransId, "预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
+                } else {
+                    TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
+                }
             }
         }
     }

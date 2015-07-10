@@ -136,11 +136,17 @@ public class PreRulesExecutorService {
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
                 if (preAction != null) {
                     try {
+                        // add current execute logPrefix before execution
+                        fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
+
                         Converter converter = converterLocator.getConverter(preAction);
                         converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
+
+                        // remove current execute ruleNo when finished execution.
+                        fact.ext.remove(Constants.key_nestedTransId);
                     } catch (Exception ex) {
                         logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
-                        TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+                        TraceLogger.traceNestedLog(_nestedTransId, "[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
                 long handlingTime = System.currentTimeMillis() - start;
@@ -159,11 +165,13 @@ public class PreRulesExecutorService {
                 try {
                     // add current execute logPrefix before execution
                     fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+                    fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
 
                     statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
 
                     // remove current execute ruleNo when finished execution.
                     fact.ext.remove(Constants.key_logPrefix);
+                    fact.ext.remove(Constants.key_nestedTransId);
                 } catch (Throwable ex) {
                     logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
                 }

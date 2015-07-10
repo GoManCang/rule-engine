@@ -57,11 +57,13 @@ public class PostRulesExecutorService {
             try {
                 // add current execute logPrefix before execution
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+                fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
 
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_logPrefix);
+                fact.ext.remove(Constants.key_nestedTransId);
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. postRule: " + rule.getRuleNo(), ex);
             }
