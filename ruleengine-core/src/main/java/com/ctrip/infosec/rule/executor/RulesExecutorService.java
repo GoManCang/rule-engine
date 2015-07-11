@@ -211,6 +211,7 @@ public class RulesExecutorService {
 
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless rule failed. packageName: " + packageName, ex);
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
             }
