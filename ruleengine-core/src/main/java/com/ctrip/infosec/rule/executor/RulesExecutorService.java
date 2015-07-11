@@ -175,8 +175,8 @@ public class RulesExecutorService {
         StopWatch clock = new StopWatch();
         for (Rule rule : matchedRules) {
             String packageName = rule.getRuleNo();
-            String _nestedTransId = TraceLogger.beginNestedTrans(fact.eventId);
-            TraceLogger.setNestedLogPrefix(_nestedTransId, "[" + packageName + "]");
+            TraceLogger.beginNestedTrans(fact.eventId);
+            TraceLogger.setNestedLogPrefix("[" + packageName + "]");
             try {
                 clock.reset();
                 clock.start();
@@ -190,14 +190,12 @@ public class RulesExecutorService {
                 // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_isAsync, true);
-                fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
 
                 statelessRuleEngine.execute(packageName, fact);
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
                 fact.ext.remove(Constants.key_isAsync);
-                fact.ext.remove(Constants.key_nestedTransId);
 
                 clock.stop();
                 long handlingTime = clock.getTime();
@@ -208,11 +206,13 @@ public class RulesExecutorService {
                 logger.info(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
-                TraceLogger.traceNestedLog(_nestedTransId, "[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
+                TraceLogger.traceNestedLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless rule failed. packageName: " + packageName, ex);
+            } finally {
+                TraceLogger.commitNestedTrans();
             }
         }
     }

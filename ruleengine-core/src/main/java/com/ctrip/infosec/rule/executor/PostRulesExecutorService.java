@@ -51,13 +51,12 @@ public class PostRulesExecutorService {
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
         for (PostRule rule : matchedRules) {
-            String _nestedTransId = TraceLogger.beginNestedTrans(fact.eventId);
-            TraceLogger.setNestedLogPrefix(_nestedTransId, "[" + rule.getRuleNo() + "]");
+            TraceLogger.beginNestedTrans(fact.eventId);
+            TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             long start = System.currentTimeMillis();
             try {
                 // add current execute logPrefix before execution
                 fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-                fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
 
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
 
@@ -71,7 +70,8 @@ public class PostRulesExecutorService {
             if (handlingTime > 50) {
                 logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
             }
-            TraceLogger.traceNestedLog(_nestedTransId, "[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+            TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+            TraceLogger.commitNestedTrans();
         }
 
 //        StopWatch clock = new StopWatch();

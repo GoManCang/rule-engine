@@ -129,49 +129,42 @@ public class PreRulesExecutorService {
         // 先执可视化、后执行行脚
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
-                String _nestedTransId = TraceLogger.beginNestedTrans(fact.eventId);
-                TraceLogger.setNestedLogPrefix(_nestedTransId, "[" + rule.getRuleNo() + "]");
+                TraceLogger.beginNestedTrans(fact.eventId);
+                TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
                 long start = System.currentTimeMillis();
                 // 执行可视化预处理
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
                 if (preAction != null) {
                     try {
-                        // add current execute logPrefix before execution
-                        fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
-
                         Converter converter = converterLocator.getConverter(preAction);
                         converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
-
-                        // remove current execute ruleNo when finished execution.
-                        fact.ext.remove(Constants.key_nestedTransId);
                     } catch (Exception ex) {
                         logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
-                        TraceLogger.traceNestedLog(_nestedTransId, "[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+                        TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 50) {
                     logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
-                TraceLogger.traceNestedLog(_nestedTransId, "[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+                TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+                TraceLogger.commitNestedTrans();
             }
         }
         for (PreRule rule : matchedRules) {
             // 脚本
             if (rule.getRuleType() == RuleType.Script) {
-                String _nestedTransId = TraceLogger.beginNestedTrans(fact.eventId);
-                TraceLogger.setNestedLogPrefix(_nestedTransId, "[" + rule.getRuleNo() + "]");
+                TraceLogger.beginNestedTrans(fact.eventId);
+                TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
                 long start = System.currentTimeMillis();
                 try {
                     // add current execute logPrefix before execution
                     fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-                    fact.ext.put(Constants.key_nestedTransId, _nestedTransId);
 
                     statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
 
                     // remove current execute ruleNo when finished execution.
                     fact.ext.remove(Constants.key_logPrefix);
-                    fact.ext.remove(Constants.key_nestedTransId);
                 } catch (Throwable ex) {
                     logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
                 }
@@ -179,7 +172,8 @@ public class PreRulesExecutorService {
                 if (handlingTime > 50) {
                     logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
-                TraceLogger.traceNestedLog(_nestedTransId, "[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+                TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+                TraceLogger.commitNestedTrans();
             }
         }
     }
