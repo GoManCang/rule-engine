@@ -50,11 +50,7 @@ public class CrmMemberInfoConverter implements Converter {
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                if (TraceLogger.hasNestedTrans()) {
-                    TraceLogger.traceNestedLog("预处理结果为空. uid=" + uidFieldValue);
-                } else {
-                    TraceLogger.traceLog("预处理结果为空. uid=" + uidFieldValue);
-                }
+                TraceLogger.traceLog("预处理结果为空. uid=" + uidFieldValue);
             }
         }
     }

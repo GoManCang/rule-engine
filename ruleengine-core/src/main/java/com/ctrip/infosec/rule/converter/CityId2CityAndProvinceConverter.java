@@ -45,11 +45,7 @@ public class CityId2CityAndProvinceConverter implements Converter {
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                if (TraceLogger.hasNestedTrans()) {
-                    TraceLogger.traceNestedLog("预处理结果为空. cityId=" + cityFieldValue);
-                } else {
-                    TraceLogger.traceLog("预处理结果为空. cityId=" + cityFieldValue);
-                }
+                TraceLogger.traceLog("预处理结果为空. cityId=" + cityFieldValue);
             }
         }
     }

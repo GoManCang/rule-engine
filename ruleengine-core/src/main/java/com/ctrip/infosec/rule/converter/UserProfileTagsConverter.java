@@ -58,11 +58,7 @@ public class UserProfileTagsConverter implements Converter {
         if (result != null && !result.isEmpty()) {
             fact.eventBody.put(resultWrapper, result);
         } else {
-            if (TraceLogger.hasNestedTrans()) {
-                TraceLogger.traceNestedLog("预处理结果为空. " + uidFieldName + "=" + uidFieldValue);
-            } else {
-                TraceLogger.traceLog("预处理结果为空. " + uidFieldName + "=" + uidFieldValue);
-            }
+            TraceLogger.traceLog("预处理结果为空. " + uidFieldName + "=" + uidFieldValue);
         }
     }
 

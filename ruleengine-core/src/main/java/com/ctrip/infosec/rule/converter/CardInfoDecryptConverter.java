@@ -55,19 +55,11 @@ public class CardInfoDecryptConverter implements Converter {
                         }
                     }
                 } catch (Exception ex) {
-                    if (TraceLogger.hasNestedTrans()) {
-                        TraceLogger.traceNestedLog("解密CreditCardNumber异常: " + ex.toString());
-                    } else {
-                        TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
-                    }
+                    TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
                 }
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                if (TraceLogger.hasNestedTrans()) {
-                    TraceLogger.traceNestedLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
-                } else {
-                    TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
-                }
+                TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
             }
         }
     }

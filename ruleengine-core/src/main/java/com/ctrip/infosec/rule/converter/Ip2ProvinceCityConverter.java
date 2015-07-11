@@ -50,11 +50,7 @@ public class Ip2ProvinceCityConverter implements Converter {
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                if (TraceLogger.hasNestedTrans()) {
-                    TraceLogger.traceNestedLog("预处理结果为空. ip=" + ipFieldValue);
-                } else {
-                    TraceLogger.traceLog("预处理结果为空. ip=" + ipFieldValue);
-                }
+                TraceLogger.traceLog("预处理结果为空. ip=" + ipFieldValue);
             }
         }
     }

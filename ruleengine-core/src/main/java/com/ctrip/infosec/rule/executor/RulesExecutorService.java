@@ -206,7 +206,7 @@ public class RulesExecutorService {
                 logger.info(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
-                TraceLogger.traceNestedLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
+                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
             } catch (Throwable ex) {

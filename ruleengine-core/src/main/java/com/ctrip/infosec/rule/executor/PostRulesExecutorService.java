@@ -53,51 +53,24 @@ public class PostRulesExecutorService {
         for (PostRule rule : matchedRules) {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
-            long start = System.currentTimeMillis();
             try {
-                // add current execute logPrefix before execution
-                fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+                long start = System.currentTimeMillis();
 
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
 
-                // remove current execute ruleNo when finished execution.
-                fact.ext.remove(Constants.key_logPrefix);
-                fact.ext.remove(Constants.key_nestedTransId);
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 50) {
+                    logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. postRule: " + rule.getRuleNo(), ex);
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+            } finally {
+                TraceLogger.commitNestedTrans();
             }
-            long handlingTime = System.currentTimeMillis() - start;
-            if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-            }
-            TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
-            TraceLogger.commitNestedTrans();
         }
 
-//        StopWatch clock = new StopWatch();
-//        try {
-//            clock.reset();
-//            clock.start();
-//
-//            // add current execute logPrefix before execution
-//            fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-//            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
-//
-//            // TODO: 需要判断ruleType == Script
-//            statelessPostRuleEngine.execute(scriptRulePackageNames, fact);
-//
-//            // remove current execute ruleNo when finished execution.
-//            fact.ext.remove(Constants.key_logPrefix);
-//            fact.ext.remove(Constants.key_traceLoggerParentTransId);
-//
-//            clock.stop();
-//            long handlingTime = clock.getTime();
-//            if (handlingTime > 50) {
-//                logger.info(Contexts.getLogPrefix() + "postRules: " + scriptRulePackageNames + ", usage: " + handlingTime + "ms");
-//            }
-//
-//        } catch (Throwable ex) {
-//            logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. packageNames: " + scriptRulePackageNames, ex);
-//        }
     }
 }

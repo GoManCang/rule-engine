@@ -50,11 +50,7 @@ public class Mobile2ProvinceCityConverter implements Converter {
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                if (TraceLogger.hasNestedTrans()) {
-                    TraceLogger.traceNestedLog("预处理结果为空. mobileNumber=" + mobileFieldValue);
-                } else {
-                    TraceLogger.traceLog("预处理结果为空. mobileNumber=" + mobileFieldValue);
-                }
+                TraceLogger.traceLog("预处理结果为空. mobileNumber=" + mobileFieldValue);
             }
         }
     }

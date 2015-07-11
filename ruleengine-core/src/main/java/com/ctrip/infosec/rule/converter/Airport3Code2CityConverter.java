@@ -50,11 +50,7 @@ public class Airport3Code2CityConverter implements Converter {
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);
             } else {
-                if (TraceLogger.hasNestedTrans()) {
-                    TraceLogger.traceNestedLog("预处理结果为空. airport=" + airport3codeFieldValue);
-                } else {
-                    TraceLogger.traceLog("预处理结果为空. airport=" + airport3codeFieldValue);
-                }
+                TraceLogger.traceLog("预处理结果为空. airport=" + airport3codeFieldValue);
             }
         }
     }

@@ -5,7 +5,6 @@
  */
 package com.ctrip.infosec.rule.executor;
 
-import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
@@ -16,7 +15,6 @@ import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
-import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
@@ -140,14 +138,14 @@ public class PreRulesExecutorService {
                         converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
                     } catch (Exception ex) {
                         logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
-                        TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+                        TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 50) {
                     logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
-                TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
                 TraceLogger.commitNestedTrans();
             }
         }
@@ -156,24 +154,22 @@ public class PreRulesExecutorService {
             if (rule.getRuleType() == RuleType.Script) {
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
-                long start = System.currentTimeMillis();
                 try {
-                    // add current execute logPrefix before execution
-                    fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
+                    long start = System.currentTimeMillis();
 
                     statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
 
-                    // remove current execute ruleNo when finished execution.
-                    fact.ext.remove(Constants.key_logPrefix);
+                    long handlingTime = System.currentTimeMillis() - start;
+                    if (handlingTime > 50) {
+                        logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                    }
+                    TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
                 } catch (Throwable ex) {
                     logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
+                    TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+                } finally {
+                    TraceLogger.commitNestedTrans();
                 }
-                long handlingTime = System.currentTimeMillis() - start;
-                if (handlingTime > 50) {
-                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-                }
-                TraceLogger.traceNestedLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
-                TraceLogger.commitNestedTrans();
             }
         }
     }
