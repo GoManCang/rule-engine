@@ -113,7 +113,11 @@ public class Counter {
 
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
-                header.setParentTransId(TraceLogger.getTransId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
@@ -232,7 +236,11 @@ public class Counter {
 
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
-                header.setParentTransId(TraceLogger.getTransId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
                 policyExecuteRequest.setTraceLoggerHeader(header);
             }
 
