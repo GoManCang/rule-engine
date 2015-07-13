@@ -240,6 +240,7 @@ public class RiskFactPersistStrategyTest {
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
         props.setColumnType(DataUnitColumnType.Long);
+        props.setValue(new Long(0));
         map.put("LogID", props);
 
         props = new PersistColumnProperties();

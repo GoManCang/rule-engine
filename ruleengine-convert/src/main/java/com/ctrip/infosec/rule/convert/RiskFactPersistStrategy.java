@@ -1,19 +1,15 @@
 package com.ctrip.infosec.rule.convert;
 
-import com.ctrip.infosec.configs.Caches;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.event.enums.PersistOperationType;
-import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -31,9 +27,9 @@ import java.util.Map;
 public class RiskFactPersistStrategy {
     private static Logger logger = LoggerFactory.getLogger(RiskFactPersistStrategy.class);
 
-    private static String allInOne4ReqId = GlobalConfig.getString("reqId.allInOne.name");
-    private static String table4ReqId = GlobalConfig.getString("reqId.table.name");
-    private static String column4ReqId = GlobalConfig.getString("reqId.column.name");
+    public static final String allInOne4ReqId = GlobalConfig.getString("reqId.allInOne.name");
+    public static final String table4ReqId = GlobalConfig.getString("reqId.table.name");
+    public static final String column4ReqId = GlobalConfig.getString("reqId.column.name");
 
     public static RiskFactPersistManager preparePersistence(InternalRiskFact fact) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
