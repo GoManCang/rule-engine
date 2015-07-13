@@ -21,6 +21,7 @@ import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
+import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataRequest;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -106,7 +107,7 @@ public class RabbitMqMessageHandler {
                 try {
                     TraceLogger.beginTrans(fact.eventId);
                     TraceLogger.setLogPrefix("[异步预处理]");
-                    preRulesExecutorService.executePreRules(fact, true);
+//                    preRulesExecutorService.executePreRules(fact, true);
                 } finally {
                     TraceLogger.commitTrans();
                 }
@@ -166,8 +167,21 @@ public class RabbitMqMessageHandler {
                     internalRiskFact.setReqId(reqId);
                     // 调用远程服务落地
                     if (MapUtils.getBoolean(fact.ext, "offline4j-push-ebank", false)) {
-                        SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(reqId, riskLevel, persistManager.getOrderId());
-                        if(new Integer(0).equals(ebankResp.getRetCode())){
+                        SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
+                        request.setResID(reqId);
+                        request.setReqID(reqId);
+                        request.setOrderID(persistManager.getLong("InfoSecurity_RiskLevelData.OrderID"));
+                        request.setRiskLevel(riskLevel);
+                        request.setRemark(persistManager.getString("InfoSecurity_RiskLevelData.Remark"));
+                        request.setOrderType(persistManager.getInteger("InfoSecurity_RiskLevelData.OrderID"));
+                        request.setOriginalRiskLevel(riskLevel);
+                        Map<String, Object> ebankData = MapUtils.getMap(fact.ext, "ebank-data");
+                        request.setInfoID(MapUtils.getInteger(ebankData, "infoId", 0));
+                        request.setIsForigenCard(MapUtils.getString(ebankData, "isForeignCard", ""));
+                        request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
+
+                        SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
+                        if(ebankResp != null){
                             // 更新InfoSecurity_RiskLevelData的TransFlag = 32
                             RdbmsUpdate update = new RdbmsUpdate();
                             DistributionChannel channel = new DistributionChannel();
