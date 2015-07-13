@@ -120,6 +120,12 @@ public class RiskFactConvertRuleService {
             internalRiskFact.getDataUnits().add(dataUnitMapping.get(key));
         }
 
+        logger.warn("输出报文");
+        List<DataUnit> dataUnits = internalRiskFact.getDataUnits();
+        for (DataUnit dataUnit : dataUnits) {
+            logger.warn(Utils.JSON.toJSONString(dataUnit.getData()));
+        }
+        logger.warn("输出结束");
         return internalRiskFact;
     }
 
