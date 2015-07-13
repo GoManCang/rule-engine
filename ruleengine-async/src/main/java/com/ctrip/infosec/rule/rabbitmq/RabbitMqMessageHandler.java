@@ -10,6 +10,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,7 @@ import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
+import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -159,10 +161,39 @@ public class RabbitMqMessageHandler {
                     Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
                     String resultRemark = "NEW: " + resultToString(fact.results);
                     RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
-                    persistManager.persist(riskLevel, resultRemark);
-                    internalRiskFact.setReqId(persistManager.getGeneratedReqId());
+                    PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
+                    reqId = persistManager.getGeneratedReqId();
+                    internalRiskFact.setReqId(reqId);
                     // 调用远程服务落地
-                    RiskLevelData.save(persistManager.getGeneratedReqId(), riskLevel, persistManager.getOrderId());
+                    if (MapUtils.getBoolean(fact.ext, "offline4j-push-ebank", false)) {
+                        SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(reqId, riskLevel, persistManager.getOrderId());
+                        if(new Integer(0).equals(ebankResp.getRetCode())){
+                            // 更新InfoSecurity_RiskLevelData的TransFlag = 32
+                            RdbmsUpdate update = new RdbmsUpdate();
+                            DistributionChannel channel = new DistributionChannel();
+                            String allInOneDb = RiskFactPersistStrategy.allInOne4ReqId;
+                            channel.setChannelNo(allInOneDb);
+                            channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+                            channel.setChannelDesc(allInOneDb);
+                            channel.setDatabaseURL(allInOneDb);
+                            update.setChannel(channel);
+
+                            Map<String , PersistColumnProperties> map =new HashMap<>();
+                            PersistColumnProperties pcp=new PersistColumnProperties();
+                            pcp.setValue(reqId);
+                            pcp.setColumnType(DataUnitColumnType.Long);
+                            pcp.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+                            map.put("ReqID", pcp);
+
+                            pcp = new PersistColumnProperties();
+                            pcp.setValue(32);
+                            pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            pcp.setColumnType(DataUnitColumnType.Int);
+                            map.put("TransFlag", pcp);
+
+                            update.execute(persistContext);
+                        }
+                    }
                 } catch (Exception ex) {
                     fault(operation);
                     logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);

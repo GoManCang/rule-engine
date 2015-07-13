@@ -11,7 +11,7 @@ public class RiskFactPersistManager {
     private final PersistContext ctx = new PersistContext();
     private DbOperationChain operationChain;
 
-    public void persist(Integer riskLevel, String resultRemark) throws DbExecuteException {
+    public PersistContext persist(Integer riskLevel, String resultRemark) throws DbExecuteException {
         Map<String, Object> rootSharedValues = Maps.newHashMap();
         rootSharedValues.put("riskLevel", riskLevel);
         rootSharedValues.put("riskRemark", resultRemark);
@@ -19,6 +19,7 @@ public class RiskFactPersistManager {
         if (operationChain != null) {
             operationChain.execute(ctx);
         }
+        return ctx;
     }
 
     public void setOperationChain(DbOperationChain operationChain) {

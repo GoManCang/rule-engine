@@ -21,22 +21,7 @@ import java.util.Date;
 /**
  * Created by jizhao on 2015/6/23.
  */
-public class RdbmsInsert implements DbOperation {
-
-    private static String DATE = "date";
-    private static String CTX = "ctx";
-    private static String CONST="const";
-    /**
-     * 数据分发通道
-     */
-    private DistributionChannel channel;
-
-    private String table;
-
-    /**
-     * key: 数据序列  value： 数据来源和 表达式
-     */
-    private Map<String, PersistColumnProperties> columnPropertiesMap;
+public class RdbmsInsert extends AbstractRdbmsOperation {
 
     private Long primary_key;
 
@@ -45,29 +30,27 @@ public class RdbmsInsert implements DbOperation {
 
     @Override
     public void execute(PersistContext ctx) throws DbExecuteException {
-
-
-        if (columnPropertiesMap == null || columnPropertiesMap.size() == 0) {
+        if (getColumnPropertiesMap() == null || getColumnPropertiesMap().size() == 0) {
             logger.warn("columnPropertiesMap为空无数据插入");
             return;
         }
 
-        DatabaseType databaseType = channel.getDatabaseType();
+        DatabaseType databaseType = getChannel().getDatabaseType();
         if (databaseType.equals(DatabaseType.AllInOne_SqlServer)) {
 
             DataSource dataSource;
             Connection connection = null;
             try {
-                dataSource = DalDataSourceHolder.getDataSource(channel.getDatabaseURL());
+                dataSource = getDatasource();
                 connection = dataSource.getConnection();
-                String spa = createSPA(table, columnPropertiesMap, ctx);
+                String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
                 if(StringUtils.isBlank(spa)){
                     logger.info("columnPropertiesMap 中的value为空 未构成spa");
                     return;
                 }
-                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, columnPropertiesMap);
+                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
                 CallableStatement cs = connection.prepareCall(spa);
-                int pk_Index = setValues(cs, columnPropertiesMap, ctx);
+                int pk_Index = setValues(cs, getColumnPropertiesMap(), ctx);
                 cs.execute();
                 if (pk_Index != 0) {
                     primary_key = cs.getLong(pk_Index);
@@ -166,79 +149,11 @@ public class RdbmsInsert implements DbOperation {
         return outputIndex;
     }
 
-    private Object valueByPersistSourceType(PersistColumnProperties persistColumnProperties, PersistContext ctx) {
-        PersistColumnSourceType sourceType = persistColumnProperties.getPersistColumnSourceType();
-        switch (sourceType) {
-            case DB_PK:
-                return null;
-            case DATA_UNIT:
-                return persistColumnProperties.getValue();
-            case CUSTOMIZE:
-                //todo 自定义
-                persistColumnProperties.setValue(getCustomizeValue(persistColumnProperties.getExpression(), ctx));
-                return persistColumnProperties.getValue();
-            default:
-                logger.warn("列来源错误 返回null");
-                return null;
-        }
-    }
-
-    /**
-     * todo 写
-     *
-     * @param expression
-     * @param ctx
-     * @return
-     */
-    private Object getCustomizeValue(String expression, PersistContext ctx) {
-        if (StringUtils.isBlank(expression) || ctx == null) {
-            logger.warn("expression 表达式无效或者ctx 为空");
-            return null;
-        }
-
-        ArrayList<String> strings = Lists.newArrayList(Splitter.on(':').trimResults().omitEmptyStrings().split(expression));
-        if (strings.size() <= 1 || strings.size()>3) {
-            return null;
-        }
-        if (strings.get(0).equalsIgnoreCase(CTX)) {
-            return ctx.getVar(strings.get(1));
-        } else if(strings.get(0).equalsIgnoreCase(CONST)){
-            String value = strings.get(1);
-            if(strings.size()==3){
-                String type = strings.get(2);
-                switch (type.toLowerCase()){
-                    case "int":
-                        return Integer.valueOf(value);
-                    case "long":
-                        return Long.valueOf(value);
-                    case "date":
-                        if(value.equalsIgnoreCase("now")){
-                            return new Date();
-                        }
-                        else{
-                            return new Date();
-                        }
-                    case "double":
-                        return Double.valueOf(value);
-                    default:
-                        return null;
-                }
-            }
-            else{
-                return value;
-            }
-        }
-        else {
-            logger.warn("自定义表达式无效返回null, {}", expression);
-            return null;
-        }
-    }
-
 
     @Override
     public Map<String, Object> getExposedValue() {
         Map map = new HashMap<>();
-        for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
+        for (Map.Entry<String, PersistColumnProperties> entry : getColumnPropertiesMap().entrySet()) {
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 map.put(entry.getKey(), entry.getValue().getValue());
             } else {
@@ -249,42 +164,5 @@ public class RdbmsInsert implements DbOperation {
         return map;
     }
 
-    @Override
-    public String getPrefix() {
-        return this.table;
-    }
 
-
-    public DistributionChannel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(DistributionChannel channel) {
-        this.channel = channel;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public Map<String, PersistColumnProperties> getColumnPropertiesMap() {
-        return columnPropertiesMap;
-    }
-
-    public void setColumnPropertiesMap(Map<String, PersistColumnProperties> columnPropertiesMap) {
-        this.columnPropertiesMap = columnPropertiesMap;
-    }
-
-    @Override
-    public String toString() {
-        return "RdbmsInsert{" +
-                "channel=" + channel +
-                ", table='" + table + '\'' +
-                ", columnPropertiesMap=" + columnPropertiesMap +
-                '}';
-    }
 }
