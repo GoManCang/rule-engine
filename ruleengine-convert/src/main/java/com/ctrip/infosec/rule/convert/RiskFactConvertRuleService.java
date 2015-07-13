@@ -399,7 +399,8 @@ public class RiskFactConvertRuleService {
         } else {
             if (keys.size() > 1) {
                 logger.warn("sourceFieldName未走到底！！当前key是：" + key + " value：" + object);
-                logger.warn(" value:[" + Utils.JSON.toPrettyJSONString(object)+"]");
+                logger.warn(" value:[" + Utils.JSON.toPrettyJSONString(object)+"]" );
+                logger.warn(object.getClass().toString());
                 return null;
             } else {
                 return object;
