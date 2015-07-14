@@ -262,7 +262,7 @@ public class RabbitMqMessageHandler {
                         int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
                         if (rLevel > 0) {
-                            RuleMonitorRepository.increaseCounter(ruleNo);
+                            RuleMonitorRepository.increaseCounter(fact.getEventPoint(),ruleNo);
                         }
 
                     }
