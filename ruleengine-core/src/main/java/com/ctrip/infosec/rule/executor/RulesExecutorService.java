@@ -94,11 +94,12 @@ public class RulesExecutorService {
         for (Map<String, Object> rs : fact.results.values()) {
             finalResult = compareAndReturn(finalResult, rs);
         }
-        fact.setFinalResult(finalResult);
+        fact.setFinalResult(Maps.newHashMap(finalResult));
         fact.finalResult.remove(Constants.async);
         fact.finalResult.remove(Constants.timeUsage);
 
         // finalResultGroupByScene
+        Map<String, Map<String, Object>> finalResultGroupByScene = fact.finalResultGroupByScene;
         for (Map<String, Object> rs : fact.resultsGroupByScene.values()) {
             List<String> sceneTypeList = (List) rs.get(Constants.riskScene);
             if (sceneTypeList != null) {
@@ -107,12 +108,12 @@ public class RulesExecutorService {
                     String riskMessage = MapUtils.getString(rs, Constants.riskMessage, "");
 
                     // 按场景往finalResultGroupByScene中put最高分数的结果 
-                    Map<String, Object> sceneResult = fact.finalResultGroupByScene.get(sceneType);
+                    Map<String, Object> sceneResult = finalResultGroupByScene.get(sceneType);
                     if (null == sceneResult) {
                         sceneResult = new HashMap<>();
                         sceneResult.put(Constants.riskLevel, riskLevel);
                         sceneResult.put(Constants.riskMessage, riskMessage);
-                        fact.finalResultGroupByScene.put(sceneType, sceneResult);
+                        finalResultGroupByScene.put(sceneType, sceneResult);
                     } else {
                         int lastRiskLevel = MapUtils.getInteger(sceneResult, Constants.riskLevel, 0);
                         if (riskLevel > lastRiskLevel) {
@@ -123,6 +124,7 @@ public class RulesExecutorService {
                 }
             }
         }
+        fact.setFinalResultGroupByScene(Maps.newHashMap(finalResultGroupByScene));
         fact.finalResultGroupByScene.remove(Constants.async);
         fact.finalResultGroupByScene.remove(Constants.timeUsage);
     }
