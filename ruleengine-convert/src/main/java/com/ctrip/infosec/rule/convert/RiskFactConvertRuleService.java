@@ -2,6 +2,7 @@ package com.ctrip.infosec.rule.convert;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.event.*;
+import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.config.InternalConvertConfigHolder;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
@@ -16,10 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.lang.model.element.Element;
+import java.util.*;
 
 /**
  * Created by jizhao on 2015/6/15.
@@ -121,6 +120,12 @@ public class RiskFactConvertRuleService {
             internalRiskFact.getDataUnits().add(dataUnitMapping.get(key));
         }
 
+        logger.warn("输出报文");
+        List<DataUnit> dataUnits = internalRiskFact.getDataUnits();
+        for (DataUnit dataUnit : dataUnits) {
+            logger.warn(Utils.JSON.toJSONString(dataUnit.getData()));
+        }
+        logger.warn("输出结束");
         return internalRiskFact;
     }
 
@@ -380,6 +385,10 @@ public class RiskFactConvertRuleService {
         ArrayList<String> keys = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().limit(2).split(sourceFieldName));
         String key = keys.get(0);
         Object object = mapping.get(key);
+        if(object == null){
+            return null;
+        }
+
 
         if (object instanceof Map) {
             if (keys.size() == 1) {
@@ -390,15 +399,28 @@ public class RiskFactConvertRuleService {
                 return valueFromMap;
             }
         } else if (object instanceof List) {
+//        } else if (object.getClass().isArray() || object instanceof List) {
             if (keys.size() == 1) {
                 logger.warn("取到的最后key：" + key + "的值是一个List 当前版本暂不支持，值被丢弃返回null");
                 return null;
             } else {
                 return getValueFromList((List) object, keys.get(1), dataUnit, metadata);
             }
-        } else {
+        }
+        else if(object instanceof Object[]){
+            if (keys.size() == 1) {
+                logger.warn("取到的最后key：" + key + "的值是一个List 当前版本暂不支持，值被丢弃返回null");
+                return null;
+            } else {
+                ArrayList<Object> list = Lists.newArrayList((Object[]) object);
+                return getValueFromList( list , keys.get(1), dataUnit, metadata);
+            }
+        }
+        else {
             if (keys.size() > 1) {
                 logger.warn("sourceFieldName未走到底！！当前key是：" + key + " value：" + object);
+                logger.warn(" value:[" + Utils.JSON.toPrettyJSONString(object)+"]" );
+//                logger.warn(object.getClass().toString());
                 return null;
             } else {
                 return object;

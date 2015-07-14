@@ -1,19 +1,15 @@
 package com.ctrip.infosec.rule.convert;
 
-import com.ctrip.infosec.configs.Caches;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.event.enums.PersistOperationType;
-import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.GlobalConfig;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -31,9 +27,9 @@ import java.util.Map;
 public class RiskFactPersistStrategy {
     private static Logger logger = LoggerFactory.getLogger(RiskFactPersistStrategy.class);
 
-    private static String allInOne4ReqId = GlobalConfig.getString("reqId.allInOne.name");
-    private static String table4ReqId = GlobalConfig.getString("reqId.table.name");
-    private static String column4ReqId = GlobalConfig.getString("reqId.column.name");
+    public static final String allInOne4ReqId = GlobalConfig.getString("reqId.allInOne.name");
+    public static final String table4ReqId = GlobalConfig.getString("reqId.table.name");
+    public static final String column4ReqId = GlobalConfig.getString("reqId.column.name");
 
     public static RiskFactPersistManager preparePersistence(InternalRiskFact fact) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
@@ -63,107 +59,14 @@ public class RiskFactPersistStrategy {
                     firstOne = chain;
                 }
                 if (last != null) {
-                    last.setNextOperationChain(chain);
+                    last.addToTail(chain);
                 }
                 last = chain;
             }
         }
-        // 规则结果落地
-//        String eventPoint = fact.getEventPoint();
-//        List<HeaderMapping> headerMappings = getHeaderMappings(HeaderMappingBizType.Offline4J, eventPoint);
-//        if (CollectionUtils.isNotEmpty(headerMappings)) {
-//            RdbmsInsert insert = genRiskLevelInsert();
-//            Map<String, PersistColumnProperties> map = Maps.newHashMap();
-//            // ReqId
-//            PersistColumnProperties props = new PersistColumnProperties();
-//            props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
-//            props.setColumnType(DataUnitColumnType.Long);
-//            props.setExpression("ctx:" + table4ReqId + "." + column4ReqId);
-//            map.put("ReqID", props);
-//            // RiskLevel
-//            props = new PersistColumnProperties();
-//            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-//            props.setColumnType(DataUnitColumnType.Int);
-//            props.setValue(riskLevel);
-//            map.put("RiskLevel", props);
-//            // OriginalRiskLevel
-//            props = new PersistColumnProperties();
-//            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-//            props.setColumnType(DataUnitColumnType.Int);
-//            props.setValue(riskLevel);
-//            map.put("OriginalRiskLevel", props);
-//            for (HeaderMapping headerMapping : headerMappings) {
-//                String fieldName = headerMapping.getFieldName();
-//                // 没有配置功能，暂时硬编码
-//                if (StringUtils.equals(fieldName, "orderId")) {
-//                    props = new PersistColumnProperties();
-//                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-//                    props.setColumnType(DataUnitColumnType.Long);
-//                    props.setValue(getValueByPath(fact, headerMapping.getSrcPath()));
-//                    map.put("OrderID", props);
-//                }
-//                if (StringUtils.equals(fieldName, "orderType")) {
-//                    props = new PersistColumnProperties();
-//                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-//                    props.setColumnType(DataUnitColumnType.Int);
-//                    props.setValue(getValueByPath(fact, headerMapping.getSrcPath()));
-//                    map.put("OrderType", props);
-//                }
-//                if (StringUtils.equals(fieldName, "subOrderType")) {
-//                    props = new PersistColumnProperties();
-//                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-//                    props.setColumnType(DataUnitColumnType.Int);
-//                    props.setValue(getValueByPath(fact, headerMapping.getSrcPath()));
-//                    map.put("SubOrderType", props);
-//                }
-//            }
-//            insert.setColumnPropertiesMap(map);
-//            last.setNextOperationChain(new DbOperationChain(insert));
-//        }
         return firstOne;
     }
 
-//    private static List<HeaderMapping> getHeaderMappings(HeaderMappingBizType bizType, String eventPoint) {
-//        List<HeaderMapping> headerMappings = Lists.newLinkedList();
-//        List<HeaderMapping> headerMappingAllList = Caches.headerMappings;
-//
-//        for (HeaderMapping headerMapping : headerMappingAllList) {
-//
-//            if (bizType.equals(headerMapping.getBiz()) && eventPoint.equals(headerMapping.getEventPoint())) {
-//                headerMappings.add(headerMapping);
-//            }
-//        }
-//        return headerMappings;
-//    }
-
-//    private static Object getValueByPath(InternalRiskFact internalRiskFact, String path) {
-//        if (StringUtils.isBlank(path))
-//            return null;
-//
-//        List<String> pathList = Splitter.on(".").omitEmptyStrings().trimResults().limit(2).splitToList(path);
-//        List<DataUnit> dataUnits = internalRiskFact.getDataUnits();
-//        for (DataUnit dataUnit : dataUnits) {
-//            if (dataUnit.getMetadata().getName().equals(pathList.get(0))) {
-//                if (pathList.size() == 1) {
-//                    return dataUnit.getData();
-//                } else if (dataUnit.getData() instanceof Map) {//不支持list
-//                    return EventBodyUtils.value((Map) dataUnit.getData(), /*path*/pathList.get(1));
-//                }
-//            }
-//        }
-//        return null;
-//    }
-
-//    private static RdbmsInsert genRiskLevelInsert() {
-//        RdbmsInsert insert = new RdbmsInsert();
-//        DistributionChannel ch = new DistributionChannel();
-//        ch.setChannelNo(allInOne4ReqId);
-//        ch.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-//        ch.setChannelDesc(allInOne4ReqId);
-//        ch.setDatabaseURL(allInOne4ReqId);
-//        insert.setChannel(ch);
-//        insert.setTable("InfoSecurity_RiskLevelData");
-//        return insert;
 //    }
 
     private static DbOperationChain genReqIdOperationChain() {

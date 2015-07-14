@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.resource;
 
+import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.ESB.ESBClient;
 import com.ctrip.infosec.rule.resource.model.ESBResponse;
@@ -7,8 +8,12 @@ import com.ctrip.infosec.rule.resource.model.Header;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataRequest;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.basic.DateConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+import java.util.TimeZone;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.*;
 
@@ -24,15 +29,11 @@ public class RiskLevelData {
         xstream.alias("Response", ESBResponse.class);
         xstream.alias("Header", Header.class);
         xstream.alias("SaveRiskLevelDataResponse", SaveRiskLevelDataResponse.class);
+        xstream.registerConverter(new DateConverter("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX", new String[]{"yyyy-MM-dd'T'HH:mm:ss.SSSSSSSXXX"}));
     }
 
-    public static SaveRiskLevelDataResponse save(long reqId, int riskLevel, long orderId){
+    public static SaveRiskLevelDataResponse save(SaveRiskLevelDataRequest request){
         beforeInvoke("SaveRiskLevelData");
-        SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
-        request.setResID(reqId);
-        request.setReqID(reqId);
-        request.setOrderID(orderId);
-        request.setRiskLevel(riskLevel);
         SaveRiskLevelDataResponse result = null;
         try {
             String xml = xstream.toXML(request);
@@ -46,4 +47,5 @@ public class RiskLevelData {
         }
         return result;
     }
+
 }

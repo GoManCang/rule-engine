@@ -48,7 +48,7 @@ public class DbOperationChain {
         }
     }
 
-    private void addToTail(DbOperationChain chain) {
+    public void addToTail(DbOperationChain chain) {
         if (chain == null) {
             return;
         }

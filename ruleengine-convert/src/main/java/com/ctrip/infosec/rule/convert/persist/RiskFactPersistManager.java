@@ -11,7 +11,7 @@ public class RiskFactPersistManager {
     private final PersistContext ctx = new PersistContext();
     private DbOperationChain operationChain;
 
-    public void persist(Integer riskLevel, String resultRemark) throws DbExecuteException {
+    public PersistContext persist(Integer riskLevel, String resultRemark) throws DbExecuteException {
         Map<String, Object> rootSharedValues = Maps.newHashMap();
         rootSharedValues.put("riskLevel", riskLevel);
         rootSharedValues.put("riskRemark", resultRemark);
@@ -19,6 +19,7 @@ public class RiskFactPersistManager {
         if (operationChain != null) {
             operationChain.execute(ctx);
         }
+        return ctx;
     }
 
     public void setOperationChain(DbOperationChain operationChain) {
@@ -43,16 +44,52 @@ public class RiskFactPersistManager {
 
     public long getOrderId() {
         // 硬编码的值，考虑以后采用页面配置方式
-        Object orderId = ctx.getVar("InfoSecurity_MainInfo.OrderId");
-        if (orderId instanceof Long) {
-            return (Long)orderId;
+        return getLong("InfoSecurity_MainInfo.OrderId");
+    }
+
+    public Object getValue(String name) {
+        return ctx.getVar(name);
+    }
+
+    public Long getLong(String name) {
+        Object val = getValue(name);
+        if (val instanceof Long) {
+            return (Long) val;
         }
-        if (orderId == null) {
+        if (val == null) {
+            return 0L;
+        } else {
+            try {
+                return Long.valueOf(val.toString());
+            } catch (NumberFormatException e) {
+                return 0L;
+            }
+        }
+    }
+
+    public String getString(String name) {
+        Object val = getValue(name);
+        if (val instanceof String) {
+            return (String) val;
+        }
+        if (val == null) {
+            return null;
+        } else {
+            return val.toString();
+        }
+    }
+
+    public Integer getInteger(String name) {
+        Object val = getValue(name);
+        if (val instanceof Integer) {
+            return (Integer) val;
+        }
+        if (val == null) {
             return 0;
         } else {
             try {
-                return Long.valueOf(orderId.toString());
-            }catch (NumberFormatException e){
+                return Integer.valueOf(val.toString());
+            } catch (NumberFormatException e) {
                 return 0;
             }
         }
