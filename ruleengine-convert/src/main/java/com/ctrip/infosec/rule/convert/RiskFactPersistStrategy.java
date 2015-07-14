@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.convert;
 
+import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
@@ -125,42 +126,44 @@ public class RiskFactPersistStrategy {
     private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, Map<String, Object> data,
                                                           RdbmsTableOperationConfig config, DataUnitMetadata meta) {
         DbOperationChain chain = null;
-        // 简单类型，对应一个落地操作
-        Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
-        if (MapUtils.isNotEmpty(simpleFieldMap)) {
-            PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
-            if (operationType == PersistOperationType.INSERT) {
-                RdbmsInsert insert = new RdbmsInsert();
-                insert.setChannel(config.getChannel());
-                insert.setTable(config.getTableName());
-                insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
-                chain = new DbOperationChain(insert);
+        if(Configs.match(config.getConditions(), config.getConditionsLogical(), data)) {
+            // 简单类型，对应一个落地操作
+            Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
+            if (MapUtils.isNotEmpty(simpleFieldMap)) {
+                PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
+                if (operationType == PersistOperationType.INSERT) {
+                    RdbmsInsert insert = new RdbmsInsert();
+                    insert.setChannel(config.getChannel());
+                    insert.setTable(config.getTableName());
+                    insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
+                    chain = new DbOperationChain(insert);
+                }
             }
-        }
-        if (chain == null) {
-            chain = new DbOperationChain(new RdbmsEmptyOperation());
-        }
-        // 复杂类型（Map或List）
-        Map<String, Object> complexFieldMap = extractFieldObject(data, meta);
-        if (MapUtils.isNotEmpty(complexFieldMap)) {
+            if (chain == null) {
+                chain = new DbOperationChain(new RdbmsEmptyOperation());
+            }
+            // 复杂类型（Map或List）
+            Map<String, Object> complexFieldMap = extractFieldObject(data, meta);
             if (MapUtils.isNotEmpty(complexFieldMap)) {
-                for (Map.Entry<String, Object> entry : complexFieldMap.entrySet()) {
-                    String colName = entry.getKey();
-                    DataUnitColumn metaColumn = meta.getColumn(colName);
-                    DataUnitColumnType columnType = DataUnitColumnType.getByIndex(metaColumn.getColumnType());
-                    switch (columnType) {
-                        case Object:
-                            Map<String, Object> map = (Map<String, Object>) entry.getValue();
-                            chain.addToChildOperationChain(buildDbOperationChain(fact, map, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
-                                    metaColumn.getNestedDataUnitMeta()));
-                            break;
-                        case List:
-                            List<Map<String, Object>> list = (List<Map<String, Object>>) entry.getValue();
-                            chain.addToChildOperationChain(buildDbOperationChain(fact, list, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
-                                    metaColumn.getNestedDataUnitMeta()));
-                            break;
-                        default:
-                            continue;
+                if (MapUtils.isNotEmpty(complexFieldMap)) {
+                    for (Map.Entry<String, Object> entry : complexFieldMap.entrySet()) {
+                        String colName = entry.getKey();
+                        DataUnitColumn metaColumn = meta.getColumn(colName);
+                        DataUnitColumnType columnType = DataUnitColumnType.getByIndex(metaColumn.getColumnType());
+                        switch (columnType) {
+                            case Object:
+                                Map<String, Object> map = (Map<String, Object>) entry.getValue();
+                                chain.addToChildOperationChain(buildDbOperationChain(fact, map, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
+                                        metaColumn.getNestedDataUnitMeta()));
+                                break;
+                            case List:
+                                List<Map<String, Object>> list = (List<Map<String, Object>>) entry.getValue();
+                                chain.addToChildOperationChain(buildDbOperationChain(fact, list, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
+                                        metaColumn.getNestedDataUnitMeta()));
+                                break;
+                            default:
+                                continue;
+                        }
                     }
                 }
             }
