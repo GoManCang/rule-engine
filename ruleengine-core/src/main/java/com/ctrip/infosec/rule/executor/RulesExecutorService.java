@@ -95,6 +95,8 @@ public class RulesExecutorService {
             finalResult = compareAndReturn(finalResult, rs);
         }
         fact.setFinalResult(finalResult);
+        fact.finalResult.remove(Constants.async);
+        fact.finalResult.remove(Constants.timeUsage);
 
         // finalResultGroupByScene
         for (Map<String, Object> rs : fact.resultsGroupByScene.values()) {
@@ -121,6 +123,8 @@ public class RulesExecutorService {
                 }
             }
         }
+        fact.finalResultGroupByScene.remove(Constants.async);
+        fact.finalResultGroupByScene.remove(Constants.timeUsage);
     }
 
     /**
