@@ -47,7 +47,7 @@ public class RulesExecutorService {
      * 执行同步规则
      */
     public RiskFact executeSyncRules(RiskFact fact) {
-        logger.info(Contexts.getLogPrefix() + "execute sync rules ...");
+        logger.debug(Contexts.getLogPrefix() + "execute sync rules ...");
         if (fact.results == null) {
             fact.setResults(new HashMap<String, Map<String, Object>>());
         }
@@ -95,7 +95,7 @@ public class RulesExecutorService {
                         Constants.riskLevel, finalResult.get(Constants.riskLevel),
                         Constants.riskMessage, finalResult.get(Constants.riskMessage)
                 ));
-        logger.info(Contexts.getLogPrefix() + "execute sync rules finished. finalResult: riskLevel="
+        logger.debug(Contexts.getLogPrefix() + "execute sync rules finished. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
         TraceLogger.traceLog("执行同步规则完成. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
@@ -106,7 +106,7 @@ public class RulesExecutorService {
      * 执行异步规则
      */
     public RiskFact executeAsyncRules(RiskFact fact) {
-        logger.info(Contexts.getLogPrefix() + "execute async rules ...");
+        logger.debug(Contexts.getLogPrefix() + "execute async rules ...");
         if (fact.results == null) {
             fact.setResults(new HashMap<String, Map<String, Object>>());
         }
@@ -154,7 +154,7 @@ public class RulesExecutorService {
                         Constants.riskLevel, finalResult.get(Constants.riskLevel),
                         Constants.riskMessage, finalResult.get(Constants.riskMessage)
                 ));
-        logger.info(Contexts.getLogPrefix() + "execute async rules finished. finalResult: riskLevel="
+        logger.debug(Contexts.getLogPrefix() + "execute async rules finished. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
         TraceLogger.traceLog("执行异步规则完成. finalResult: riskLevel="
                 + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
@@ -168,7 +168,7 @@ public class RulesExecutorService {
 
         // matchRules      
         List<Rule> matchedRules = Configs.matchRules(fact, true);
-        logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
+        logger.debug(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条规则 ...");
         StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
 
@@ -203,7 +203,7 @@ public class RulesExecutorService {
                 Map<String, Object> result = fact.results.get(packageName);
                 result.put(Constants.async, true);
                 result.put(Constants.timeUsage, handlingTime);
-                logger.info(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
+                logger.debug(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
 
                 TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
@@ -225,7 +225,7 @@ public class RulesExecutorService {
 
         // matchRules        
         List<Rule> matchedRules = Configs.matchRules(fact, false);
-        logger.info(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
+        logger.debug(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条规则 ...");
         List<Callable<RuleExecuteResultWithEvent>> runs = Lists.newArrayList();
         for (Rule rule : matchedRules) {
@@ -262,7 +262,7 @@ public class RulesExecutorService {
                             Map<String, Object> result = factCopy.results.get(packageName);
                             result.put(Constants.async, false);
                             result.put(Constants.timeUsage, System.currentTimeMillis() - start);
-                            logger.info(_logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
+                            logger.debug(_logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                             TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
                                     + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");

@@ -58,7 +58,7 @@ public class PreRulesExecutorService {
 //        List<PreRule> matchedRules = Configs.matchPreRules(fact);
         List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
         List<String> ruleNos = Collections3.extractToList(matchedRules, "ruleNo");
-        logger.info(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
+        logger.debug(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
         TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
 
         if (isAsync) {
@@ -142,7 +142,7 @@ public class PreRulesExecutorService {
                     }
                 }
                 long handlingTime = System.currentTimeMillis() - start;
-                if (handlingTime > 50) {
+                if (handlingTime > 100) {
                     logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
@@ -160,7 +160,7 @@ public class PreRulesExecutorService {
                     statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
 
                     long handlingTime = System.currentTimeMillis() - start;
-                    if (handlingTime > 50) {
+                    if (handlingTime > 100) {
                         logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                     }
                     TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
@@ -205,7 +205,7 @@ public class PreRulesExecutorService {
                             statelessPreRuleEngine.execute(packageName, fact);
 
                             long handlingTime = System.currentTimeMillis() - start;
-                            if (handlingTime > 50) {
+                            if (handlingTime > 100) {
                                 logger.info(_logPrefix + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
                             }
                             TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
@@ -240,7 +240,7 @@ public class PreRulesExecutorService {
                                 converter.convert(preAction, preActionFieldMapping, fact, preActionResultWrapper);
 
                                 long handlingTime = System.currentTimeMillis() - start;
-                                if (handlingTime > 50) {
+                                if (handlingTime > 100) {
                                     logger.info(Contexts.getLogPrefix() + "preRule: " + packageName + ", usage: " + handlingTime + "ms");
                                 }
                                 TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");

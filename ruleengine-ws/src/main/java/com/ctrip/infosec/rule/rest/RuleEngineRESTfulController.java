@@ -74,6 +74,14 @@ public class RuleEngineRESTfulController {
             } finally {
                 TraceLogger.commitTrans();
             }
+            // 执行后处理
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[同步后处理]");
+                postRulesExecutorService.executePostRules(fact, false);
+            } finally {
+                TraceLogger.commitTrans();
+            }
         } catch (Throwable ex) {
             if (fact.finalResult == null) {
                 fact.setFinalResult(Constants.defaultResult);
