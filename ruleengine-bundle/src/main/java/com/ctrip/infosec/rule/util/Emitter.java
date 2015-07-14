@@ -25,56 +25,31 @@ public class Emitter {
 
     public static void emit(RiskFact fact, int riskLevel, String riskMessage) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        if (!Strings.isNullOrEmpty(ruleNo)) {
-            Map<String, Object> result = Maps.newHashMap();
-            result.put(Constants.riskLevel, riskLevel);
-            result.put(Constants.riskMessage, riskMessage);
-            fact.results.put(ruleNo, result);
-        }
+        emit(fact, ruleNo, riskLevel, riskMessage);
     }
 
     public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage) {
-        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
         }
         int riskLevel = NumberUtils.toInt(riskLevelTxt);
-        if (!Strings.isNullOrEmpty(ruleNo)) {
-            Map<String, Object> result = Maps.newHashMap();
-            result.put(Constants.riskLevel, riskLevel);
-            result.put(Constants.riskMessage, riskMessage);
-            fact.results.put(ruleNo, result);
-        }
+        emit(fact, riskLevel, riskMessage);
     }
 
     public static void emit(RiskFact fact, int riskLevel, String riskMessage, String... riskScenes) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        if (!Strings.isNullOrEmpty(ruleNo)) {
-            Map<String, Object> result = Maps.newHashMap();
-            result.put(Constants.riskLevel, riskLevel);
-            result.put(Constants.riskMessage, riskMessage);
-            // 风险场景
-            if (riskScenes != null && riskScenes.length > 0) {
-                result.put(Constants.riskScene, Lists.newArrayList(riskScenes));
-            }
-            fact.results.put(ruleNo, result);
-        }
+        emit(fact, ruleNo, riskLevel, riskMessage, riskScenes);
     }
 
-    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
-        if (!Strings.isNullOrEmpty(ruleNo)) {
-            Map<String, Object> result = Maps.newHashMap();
-            result.put(Constants.riskLevel, riskLevel);
-            result.put(Constants.riskMessage, riskMessage);
-            fact.results.put(ruleNo, result);
-        }
-    }
-
-    public static void emit(RiskFact fact, String ruleNo, String riskLevelTxt, String riskMessage) {
+    public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage, String... riskScenes) {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
         }
-        int riskLevel = NumberUtils.toInt(riskLevelTxt);
+        int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
+        emit(fact, riskLevel, riskMessage, riskScenes);
+    }
+
+    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
@@ -88,29 +63,8 @@ public class Emitter {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
-            // 风险场景
-            if (riskScenes != null && riskScenes.length > 0) {
-                result.put(Constants.riskScene, Lists.newArrayList(riskScenes));
-            }
-            fact.results.put(ruleNo, result);
-        }
-    }
-
-    public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage, String... riskScenes) {
-        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        if (!StringUtils.isNumeric(riskLevelTxt)) {
-            throw new IllegalArgumentException("\"riskLevel\"必须为数字");
-        }
-        int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
-        if (!Strings.isNullOrEmpty(ruleNo)) {
-            Map<String, Object> result = Maps.newHashMap();
-            result.put(Constants.riskLevel, riskLevel);
-            result.put(Constants.riskMessage, riskMessage);
-            // 风险场景
-            if (riskScenes != null && riskScenes.length > 0) {
-                result.put(Constants.riskScene, Lists.newArrayList(riskScenes));
-            }
-            fact.results.put(ruleNo, result);
+            result.put(Constants.riskScene, Lists.newArrayList(riskScenes));
+            fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
 
