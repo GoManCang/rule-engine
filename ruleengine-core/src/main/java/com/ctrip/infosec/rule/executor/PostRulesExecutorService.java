@@ -5,14 +5,12 @@
  */
 package com.ctrip.infosec.rule.executor;
 
-import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PostRule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
-import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.List;
@@ -44,9 +42,9 @@ public class PostRulesExecutorService {
     void execute(RiskFact fact, boolean isAsync) {
 
         // matchRules      
-        List<PostRule> matchedRules = Configs.matchPostRules(fact);
+        List<PostRule> matchedRules = Configs.matchPostRules(fact, isAsync);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
-        logger.info(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
+        logger.debug(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条后处理规则 ...");
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
@@ -59,7 +57,7 @@ public class PostRulesExecutorService {
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
 
                 long handlingTime = System.currentTimeMillis() - start;
-                if (handlingTime > 50) {
+                if (handlingTime > 100) {
                     logger.info(Contexts.getLogPrefix() + "postRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");

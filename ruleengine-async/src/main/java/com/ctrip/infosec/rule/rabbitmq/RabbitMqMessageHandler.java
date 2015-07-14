@@ -103,55 +103,41 @@ public class RabbitMqMessageHandler {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[异步预处理]");
-//                    preRulesExecutorService.executePreRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[异步规则]");
-                    rulesExecutorService.executeAsyncRules(fact);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
             }
             // 执行后处理
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[后处理]");
-                    postRulesExecutorService.executePostRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步后处理]");
                 postRulesExecutorService.executePostRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             //Counter推送规则处理
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[Counter推送]");
-                    counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[Counter推送]");
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
+            // -------------------------------- 规则引擎结束 -------------------------------------- //
+
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
             if (internalRiskFact != null) {
@@ -181,7 +167,7 @@ public class RabbitMqMessageHandler {
                         request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
 
                         SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
-                        if(ebankResp != null){
+                        if (ebankResp != null) {
                             // 更新InfoSecurity_RiskLevelData的TransFlag = 32
                             RdbmsUpdate update = new RdbmsUpdate();
                             DistributionChannel channel = new DistributionChannel();
@@ -192,8 +178,8 @@ public class RabbitMqMessageHandler {
                             channel.setDatabaseURL(allInOneDb);
                             update.setChannel(channel);
 
-                            Map<String , PersistColumnProperties> map =new HashMap<>();
-                            PersistColumnProperties pcp=new PersistColumnProperties();
+                            Map<String, PersistColumnProperties> map = new HashMap<>();
+                            PersistColumnProperties pcp = new PersistColumnProperties();
                             pcp.setValue(reqId);
                             pcp.setColumnType(DataUnitColumnType.Long);
                             pcp.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
