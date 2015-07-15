@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.convert.persist;
 
+import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
@@ -9,6 +10,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.text.ParseException;
 import java.util.*;
 import java.util.Date;
 
@@ -38,7 +41,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
         try {
             JdbcTemplate template = new JdbcTemplate(getDatasource());
 
-            DatabaseType databaseType = getChannel().getDatabaseType();
+            final DatabaseType databaseType = getChannel().getDatabaseType();
             if (databaseType.equals(DatabaseType.AllInOne_SqlServer)) {
                 String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
                 if (StringUtils.isBlank(spa)) {
@@ -49,7 +52,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
                 template.execute(spa, new CallableStatementCallback<Object>() {
                     @Override
                     public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
-                        setValues(cs, getColumnPropertiesMap(), ctx);
+                        setValues(databaseType, cs, getColumnPropertiesMap());
                         cs.execute();
                         return null;
                     }
@@ -86,7 +89,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
 
     }
 
-    private int setValues(CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
+    private int setValues(DatabaseType databaseType, CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap) throws SQLException {
         int outputIndex = 0;
         int index = 1;
 //        int size = columnPropertiesMap.size();
@@ -101,7 +104,25 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
                 } else if (o instanceof Date) {
                     cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
                 } else if (o instanceof String) {
-                    cs.setString(index, (String) o);
+                    if (value.getColumnType() == DataUnitColumnType.Data) {
+                        try {
+                            Date date = DateUtils.parseDate((String) o, new String[]{"yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"});
+                            if (databaseType == DatabaseType.AllInOne_SqlServer) {
+                                Date firstSupportedDate = DateUtils.parseDate("1753-01-01", new String[]{"yyyy-MM-dd HH:mm:ss"});
+                                if (date.after(firstSupportedDate)) {
+                                    cs.setTimestamp(index, new Timestamp(date.getTime()));
+                                } else {
+                                    cs.setTimestamp(index, new Timestamp(firstSupportedDate.getTime()));
+                                }
+                            } else {
+                                cs.setTimestamp(index, new Timestamp(date.getTime()));
+                            }
+                        } catch (ParseException e) {
+                            logger.error("parse date[" + o + "] error.", e);
+                        }
+                    } else {
+                        cs.setString(index, (String) o);
+                    }
                 } else if (o instanceof Double) {
                     Double d = (Double) o;
                     cs.setBigDecimal(index, new BigDecimal(d));

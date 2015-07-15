@@ -1,0 +1,64 @@
+{
+  "eventPoint": "CP0001002",
+  "eventBody": {
+    "UserProfileInfo": {
+      "CUSCHARACTER": "NEW"
+    },
+    "checkType": "2",
+    "clientIDOrIP": "10.2.211.12",
+    "clientOS": "H5",
+    "deductType": "1",
+    "groupHotelID": "0",
+    "groupVendorId": "0",
+    "groupVendorType": "-1",
+    "isNetworkIp": "T",
+    "isNormalMobilePhone": "T",
+    "latitude": "0",
+    "longitude": "0",
+    "merchantID": "200056",
+    "mobilePhone": "13761076299",
+    "mobilePhoneDomain": "1376107",
+    "orderAmount": "69",
+    "orderDate": "0001-01-01 00:00:00.000",
+    "orderID": "1221909",
+    "orderType": "14",
+    "payMethod": "0",
+    "paymentInfos": [
+      {
+        "amount": 69,
+        "cardInfoID": 0,
+        "creditCardInfo": {
+          "cardInfoID": 0,
+          "creditCardType": 0,
+          "infoID": 0
+        },
+        "prepayType": "MAPAY",
+        "refNo": 0
+      }
+    ],
+    "postActions": {},
+    "productID": "0",
+    "quantity": "0",
+    "saleBeginTime": "0001-01-01 00:00:00.000",
+    "saleEndTime": "0001-01-01 00:00:00.000",
+    "uid": "13761076299",
+    "uidMemberInfo": {
+      "birth": "0001-01-01T00:00:00",
+      "city": "0",
+      "email": "123@qq.com",
+      "experience": "0",
+      "gender": "M",
+      "mD5Password": "E10ADC3949BA59ABBE56E057F20F883E",
+      "maxGrade": "30",
+      "mileageIncluding": "HF",
+      "mobilePhone": "13761076299",
+      "signupdate": "2015-07-07T09:58:33",
+      "sourceid": "1",
+      "uid": "13761076299",
+      "updateTime": "0001-01-01T00:00:00",
+      "vip": "T",
+      "vipGrade": "30"
+    }
+  },
+  "requestTime": "2015-07-15 13:05:46.003"
+}
