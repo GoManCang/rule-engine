@@ -178,11 +178,13 @@ public class RulesExecutorService {
                             + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                 } else {
                     Map<String, Object> result = fact.resultsGroupByScene.get(packageName);
-                    result.put(Constants.async, true);
-                    result.put(Constants.timeUsage, handlingTime);
+                    if (result != null) {
+                        result.put(Constants.async, true);
+                        result.put(Constants.timeUsage, handlingTime);
 
-                    TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
-                            + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                        TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
+                                + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                    }
                 }
 
             } catch (Throwable ex) {
@@ -246,11 +248,13 @@ public class RulesExecutorService {
                                         + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                             } else {
                                 Map<String, Object> result = factCopy.resultsGroupByScene.get(packageName);
-                                result.put(Constants.async, false);
-                                result.put(Constants.timeUsage, System.currentTimeMillis() - start);
+                                if (result != null) {
+                                    result.put(Constants.async, false);
+                                    result.put(Constants.timeUsage, System.currentTimeMillis() - start);
 
-                                TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
-                                        + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                                    TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
+                                            + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                                }
                             }
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
