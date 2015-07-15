@@ -256,7 +256,7 @@ public class RulesExecutorService {
                                             + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
                                 }
                             }
-                            return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody);
+                            return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody, factCopy.ext);
                         } catch (Exception e) {
                             logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
                         } finally {
@@ -301,6 +301,15 @@ public class RulesExecutorService {
                         }
                     }
                 }
+                // merge ext
+                if (item.getExt() != null) {
+                    for (String key : item.getExt().keySet()) {
+                        Object value = item.getExt().get(key);
+                        if (!fact.ext.containsKey(key) && value != null) {
+                            fact.ext.put(key, value);
+                        }
+                    }
+                }
                 // merge results
                 if (item.getResults() != null) {
                     fact.results.putAll(item.getResults());
@@ -319,12 +328,14 @@ public class RulesExecutorService {
         private Map<String, Map<String, Object>> results;
         private Map<String, Map<String, Object>> resultsGroupByScene;
         private Map<String, Object> eventBody;
+        private Map<String, Object> ext;
 
-        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Map<String, Object>> results, Map<String, Map<String, Object>> resultsGroupByScene, Map<String, Object> eventBody) {
+        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Map<String, Object>> results, Map<String, Map<String, Object>> resultsGroupByScene, Map<String, Object> eventBody, Map<String, Object> ext) {
             this.ruleNo = ruleNo;
             this.results = results;
             this.resultsGroupByScene = resultsGroupByScene;
             this.eventBody = eventBody;
+            this.ext = ext;
         }
 
         public String getRuleNo() {
@@ -357,6 +368,14 @@ public class RulesExecutorService {
 
         public void setEventBody(Map<String, Object> eventBody) {
             this.eventBody = eventBody;
+        }
+
+        public Map<String, Object> getExt() {
+            return ext;
+        }
+
+        public void setExt(Map<String, Object> ext) {
+            this.ext = ext;
         }
 
     }
