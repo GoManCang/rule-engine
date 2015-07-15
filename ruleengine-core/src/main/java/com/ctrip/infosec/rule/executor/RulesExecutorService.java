@@ -184,8 +184,6 @@ public class RulesExecutorService {
 
                         TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
                                 + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                    } else {
-                        TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: " + ", usage: " + result.get(Constants.timeUsage) + "ms");
                     }
                 }
 
@@ -256,8 +254,6 @@ public class RulesExecutorService {
 
                                     TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
                                             + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                                } else {
-                                    TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: " + ", usage: " + result.get(Constants.timeUsage) + "ms");
                                 }
                             }
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody);
