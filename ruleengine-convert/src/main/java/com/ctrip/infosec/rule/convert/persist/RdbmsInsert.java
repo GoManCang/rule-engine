@@ -1,5 +1,7 @@
 package com.ctrip.infosec.rule.convert.persist;
 
+import com.ctrip.infosec.configs.event.ColumnType;
+import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
@@ -8,6 +10,8 @@ import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,14 +54,13 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                 }
                 logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
                 CallableStatement cs = connection.prepareCall(spa);
-                int pk_Index = setValues(cs, getColumnPropertiesMap(), ctx);
+                int pk_Index = setValues(databaseType, cs, getColumnPropertiesMap());
                 cs.execute();
                 if (pk_Index != 0) {
                     primary_key = cs.getLong(pk_Index);
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new DbExecuteException("insert操作异常", e);
             } finally {
                 try {
@@ -105,12 +108,14 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
     /**
      * outPUtIndex 主键index；
      *
+     *
+     * @param databaseType
      * @param cs
      * @param columnPropertiesMap
      * @return
      * @throws java.sql.SQLException
      */
-    private int setValues(CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
+    private int setValues(DatabaseType databaseType, CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap) throws Exception {
         int outputIndex = 0;
         int index = 1;
 //        int size = columnPropertiesMap.size();
@@ -126,7 +131,21 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                     } else if (o instanceof Date) {
                         cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
                     } else if (o instanceof String) {
-                        cs.setString(index, (String) o);
+                        if (value.getColumnType() == DataUnitColumnType.Data){
+                            Date date = DateUtils.parseDate((String) o, new String[]{"yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"});
+                            if (databaseType == DatabaseType.AllInOne_SqlServer) {
+                                Date firstSupportedDate = DateUtils.parseDate("1970-01-01", new String[]{"yyyy-MM-dd"});
+                                if (date.after(firstSupportedDate)){
+                                    cs.setTimestamp(index, new Timestamp(date.getTime()));
+                                } else {
+                                    cs.setTimestamp(index, new Timestamp(firstSupportedDate.getTime()));
+                                }
+                            } else {
+                                cs.setTimestamp(index, new Timestamp(date.getTime()));
+                            }
+                        }else {
+                            cs.setString(index, (String) o);
+                        }
                     } else if ( o instanceof Double) {
                         Double d = (Double) o;
                         cs.setBigDecimal(index, new BigDecimal(d));
