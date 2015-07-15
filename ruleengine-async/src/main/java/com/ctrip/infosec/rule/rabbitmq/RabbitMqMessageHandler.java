@@ -20,6 +20,7 @@ import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.persist.*;
+import com.ctrip.infosec.rule.executor.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataRequest;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
@@ -43,11 +44,6 @@ import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
-import com.ctrip.infosec.rule.executor.CounterPushRulesExecutorService;
-import com.ctrip.infosec.rule.executor.EventDataMergeService;
-import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
-import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
-import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.meidusa.fastjson.JSON;
 
@@ -64,6 +60,8 @@ public class RabbitMqMessageHandler {
     private PreRulesExecutorService preRulesExecutorService;
     @Autowired
     private PostRulesExecutorService postRulesExecutorService;
+    @Autowired
+    private PersistPreRuleExecutorService persistPreRuleExecutorService;
     @Autowired
     private DispatcherMessageSender dispatcherMessageSender;
     @Autowired
@@ -138,6 +136,8 @@ public class RabbitMqMessageHandler {
             }
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
+            // 执行落地前规则
+            persistPreRuleExecutorService.executePostRules(fact, false);
             //riskfact 数据映射转换
             internalRiskFact = riskFactConvertRuleService.apply(fact);
             if (internalRiskFact != null) {
