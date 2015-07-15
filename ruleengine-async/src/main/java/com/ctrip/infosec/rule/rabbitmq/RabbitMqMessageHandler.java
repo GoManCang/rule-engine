@@ -201,11 +201,25 @@ public class RabbitMqMessageHandler {
                     afterInvoke(operation);
                 }
             }
+
             // 落地规则结果
-            Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
-            if (riskReqId != null && riskReqId > 0) {
-                saveRuleResult(riskReqId, fact.eventPoint, fact.results);
+            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+            try {
+                Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
+                if (riskReqId != null && riskReqId > 0) {
+                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                        saveRuleResult(riskReqId, fact.eventPoint, fact.results);
+                    } else {
+                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene);
+                    }
+                }
+            } catch (Exception ex) {
+                fault("CardRiskDB.CheckResultLog.saveRuleResult");
+                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
+            } finally {
+                afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
             }
+
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
@@ -256,7 +270,17 @@ public class RabbitMqMessageHandler {
                 try {
 
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
-                    for (Entry<String, Map<String, Object>> entry : fact.getResults().entrySet()) {
+                    for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
+
+                        String ruleNo = entry.getKey();
+                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+
+                        if (rLevel > 0) {
+                            RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                        }
+
+                    }
+                    for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
                         String ruleNo = entry.getKey();
                         int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
@@ -295,8 +319,8 @@ public class RabbitMqMessageHandler {
                     Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
                     Boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async);
                     if (riskLevel > 0) {
-                        boolean isCP0001001 = StringUtils.equalsIgnoreCase(eventPoint, "CP0001001");
-                        if (isCP0001001 || isAsync) {
+                        boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
+                        if (withScene || isAsync) {
                             Map<String, PersistColumnProperties> map = Maps.newHashMap();
                             PersistColumnProperties props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
@@ -312,7 +336,7 @@ public class RabbitMqMessageHandler {
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.String);
-                            String ruleType = isCP0001001 ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "");
+                            String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "");
                             props.setValue(ruleType);
                             map.put("RuleType", props);
 
@@ -365,7 +389,7 @@ public class RabbitMqMessageHandler {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
+                    logger.error(Contexts.getLogPrefix() + "save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
                 }
             }
         }
@@ -387,7 +411,7 @@ public class RabbitMqMessageHandler {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("get risk level from results failed.", e);
+                    logger.error(Contexts.getLogPrefix() + "get risk level from results failed.", e);
                 }
             }
         }

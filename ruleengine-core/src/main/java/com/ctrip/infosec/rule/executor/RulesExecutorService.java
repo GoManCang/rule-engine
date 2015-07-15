@@ -15,9 +15,9 @@ import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.meidusa.fastjson.JSON;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +47,7 @@ public class RulesExecutorService {
      * 执行同步规则
      */
     public RiskFact executeSyncRules(RiskFact fact) {
-        logger.debug(Contexts.getLogPrefix() + "execute sync rules ...");
+
         if (fact.results == null) {
             fact.setResults(new HashMap<String, Map<String, Object>>());
         }
@@ -55,50 +55,13 @@ public class RulesExecutorService {
             fact.setExt(new HashMap<String, Object>());
         }
         executeParallel(fact);
+        buidFinalResult(fact);
 
-        // 返回结果
-        Map<String, Object> finalResult = Constants.defaultResult;
-        for (Map<String, Object> rs : fact.results.values()) {
-            List<String> sceneList = (List) rs.get(Constants.riskScene);
-            if (sceneList == null || sceneList.isEmpty()) {
-                finalResult = compareAndReturn(finalResult, rs);
-            } else {
-
-                for (String scene : sceneList) {
-                    int riskLevel = MapUtils.getInteger(rs, Constants.riskLevel, 0);
-                    String riskMessage = MapUtils.getString(rs, Constants.riskMessage, "");
-
-                    //按scene分 往data中push最高分数的风险信息 
-                    Map<String, Object> currentSceneMap = fact.finalResultGroupByScene.get(scene);
-                    if (null == currentSceneMap) {
-                        currentSceneMap = new HashMap<String, Object>();
-                        currentSceneMap.put(Constants.riskLevel, riskLevel);
-                        currentSceneMap.put(Constants.riskMessage, riskMessage);
-                        fact.getFinalResultGroupByScene().put(scene, currentSceneMap);
-                    } else {
-                        int currentRiskLevel = MapUtils.getInteger(currentSceneMap, Constants.riskLevel, 0);
-
-                        //比较risklevel,最高的存到当前的scene map中
-                        if (riskLevel > currentRiskLevel) {
-                            currentSceneMap.put(Constants.riskLevel, riskLevel);
-                            currentSceneMap.put(Constants.riskMessage, riskMessage);
-                        }
-                    }
-                }
-            }
+        if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+            TraceLogger.traceLog("同步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult));
+        } else {
+            TraceLogger.traceLog("同步规则执行完成[分场景]. finalResultGroupByScene: " + JSON.toJSONString(fact.finalResultGroupByScene));
         }
-        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
-        }
-        fact.setFinalResult(
-                ImmutableMap.of(
-                        Constants.riskLevel, finalResult.get(Constants.riskLevel),
-                        Constants.riskMessage, finalResult.get(Constants.riskMessage)
-                ));
-        logger.debug(Contexts.getLogPrefix() + "execute sync rules finished. finalResult: riskLevel="
-                + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
-        TraceLogger.traceLog("执行同步规则完成. finalResult: riskLevel="
-                + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
         return fact;
     }
 
@@ -106,7 +69,7 @@ public class RulesExecutorService {
      * 执行异步规则
      */
     public RiskFact executeAsyncRules(RiskFact fact) {
-        logger.debug(Contexts.getLogPrefix() + "execute async rules ...");
+
         if (fact.results == null) {
             fact.setResults(new HashMap<String, Map<String, Object>>());
         }
@@ -114,51 +77,56 @@ public class RulesExecutorService {
             fact.setExt(new HashMap<String, Object>());
         }
         executeSerial(fact);
+        buidFinalResult(fact);
 
-        // 返回结果
+        if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+            TraceLogger.traceLog("异步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult));
+        } else {
+            TraceLogger.traceLog("异步规则执行完成[分场景]. finalResultGroupByScene: " + JSON.toJSONString(fact.finalResultGroupByScene));
+        }
+        return fact;
+    }
+
+    void buidFinalResult(RiskFact fact) {
+
+        // finalResult
         Map<String, Object> finalResult = Constants.defaultResult;
         for (Map<String, Object> rs : fact.results.values()) {
-            List<String> sceneList = (List) rs.get(Constants.riskScene);
-            if (sceneList == null || sceneList.isEmpty()) {
-                finalResult = compareAndReturn(finalResult, rs);
-            } else {
+            finalResult = compareAndReturn(finalResult, rs);
+        }
+        fact.setFinalResult(Maps.newHashMap(finalResult));
+        fact.finalResult.remove(Constants.async);
+        fact.finalResult.remove(Constants.timeUsage);
 
-                for (String scene : sceneList) {
+        // finalResultGroupByScene
+        Map<String, Map<String, Object>> finalResultGroupByScene = fact.finalResultGroupByScene;
+        for (Map<String, Object> rs : fact.resultsGroupByScene.values()) {
+            List<String> sceneTypeList = (List) rs.get(Constants.riskScene);
+            if (sceneTypeList != null) {
+                for (String sceneType : sceneTypeList) {
                     int riskLevel = MapUtils.getInteger(rs, Constants.riskLevel, 0);
                     String riskMessage = MapUtils.getString(rs, Constants.riskMessage, "");
 
-                    //按scene分 往data中push最高分数的风险信息 
-                    Map<String, Object> currentSceneMap = fact.finalResultGroupByScene.get(scene);
-                    if (null == currentSceneMap) {
-                        currentSceneMap = new HashMap<String, Object>();
-                        currentSceneMap.put(Constants.riskLevel, riskLevel);
-                        currentSceneMap.put(Constants.riskMessage, riskMessage);
-                        fact.getFinalResultGroupByScene().put(scene, currentSceneMap);
+                    // 按场景往finalResultGroupByScene中put最高分数的结果 
+                    Map<String, Object> sceneResult = finalResultGroupByScene.get(sceneType);
+                    if (null == sceneResult) {
+                        sceneResult = new HashMap<>();
+                        sceneResult.put(Constants.riskLevel, riskLevel);
+                        sceneResult.put(Constants.riskMessage, riskMessage);
+                        finalResultGroupByScene.put(sceneType, sceneResult);
                     } else {
-                        int currentRiskLevel = MapUtils.getInteger(currentSceneMap, Constants.riskLevel, 0);
-
-                        //比较risklevel,最高的存到当前的scene map中
-                        if (riskLevel > currentRiskLevel) {
-                            currentSceneMap.put(Constants.riskLevel, riskLevel);
-                            currentSceneMap.put(Constants.riskMessage, riskMessage);
+                        int lastRiskLevel = MapUtils.getInteger(sceneResult, Constants.riskLevel, 0);
+                        if (riskLevel > lastRiskLevel) {
+                            sceneResult.put(Constants.riskLevel, riskLevel);
+                            sceneResult.put(Constants.riskMessage, riskMessage);
                         }
                     }
                 }
             }
         }
-        for (Map<String, Object> rs : fact.finalResultGroupByScene.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
-        }
-        fact.setFinalResult(
-                ImmutableMap.of(
-                        Constants.riskLevel, finalResult.get(Constants.riskLevel),
-                        Constants.riskMessage, finalResult.get(Constants.riskMessage)
-                ));
-        logger.debug(Contexts.getLogPrefix() + "execute async rules finished. finalResult: riskLevel="
-                + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
-        TraceLogger.traceLog("执行异步规则完成. finalResult: riskLevel="
-                + finalResult.get(Constants.riskLevel) + ", riskMessage=" + finalResult.get(Constants.riskMessage));
-        return fact;
+        fact.setFinalResultGroupByScene(Maps.newHashMap(finalResultGroupByScene));
+        fact.finalResultGroupByScene.remove(Constants.async);
+        fact.finalResultGroupByScene.remove(Constants.timeUsage);
     }
 
     /**
@@ -168,7 +136,6 @@ public class RulesExecutorService {
 
         // matchRules      
         List<Rule> matchedRules = Configs.matchRules(fact, true);
-        logger.debug(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条规则 ...");
         StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
 
@@ -182,10 +149,12 @@ public class RulesExecutorService {
                 clock.start();
 
                 // set default result
-                Map<String, Object> defaultResult = Maps.newHashMap();
-                defaultResult.put(Constants.riskLevel, 0);
-                defaultResult.put(Constants.riskMessage, "PASS");
-                fact.results.put(rule.getRuleNo(), defaultResult);
+                if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                    Map<String, Object> defaultResult = Maps.newHashMap();
+                    defaultResult.put(Constants.riskLevel, 0);
+                    defaultResult.put(Constants.riskMessage, "PASS");
+                    fact.results.put(rule.getRuleNo(), defaultResult);
+                }
 
                 // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
@@ -200,14 +169,23 @@ public class RulesExecutorService {
                 clock.stop();
                 long handlingTime = clock.getTime();
 
-                Map<String, Object> result = fact.results.get(packageName);
-                result.put(Constants.async, true);
-                result.put(Constants.timeUsage, handlingTime);
-                logger.debug(Contexts.getLogPrefix() + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
-                        + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                    Map<String, Object> result = fact.results.get(packageName);
+                    result.put(Constants.async, true);
+                    result.put(Constants.timeUsage, handlingTime);
 
-                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
-                        + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                    TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
+                            + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                } else {
+                    Map<String, Object> result = fact.resultsGroupByScene.get(packageName);
+                    if (result != null) {
+                        result.put(Constants.async, true);
+                        result.put(Constants.timeUsage, handlingTime);
+
+                        TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
+                                + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                    }
+                }
 
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless rule failed. packageName: " + packageName, ex);
@@ -225,17 +203,19 @@ public class RulesExecutorService {
 
         // matchRules        
         List<Rule> matchedRules = Configs.matchRules(fact, false);
-        logger.debug(Contexts.getLogPrefix() + "matched rules: " + matchedRules.size());
+
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条规则 ...");
         List<Callable<RuleExecuteResultWithEvent>> runs = Lists.newArrayList();
         for (Rule rule : matchedRules) {
             final RiskFact factCopy = BeanMapper.copy(fact, RiskFact.class);
 
             // set default result
-            Map<String, Object> defaultResult = Maps.newHashMap();
-            defaultResult.put(Constants.riskLevel, 0);
-            defaultResult.put(Constants.riskMessage, "PASS");
-            factCopy.results.put(rule.getRuleNo(), defaultResult);
+            if (!Constants.eventPointsWithScene.contains(factCopy.eventPoint)) {
+                Map<String, Object> defaultResult = Maps.newHashMap();
+                defaultResult.put(Constants.riskLevel, 0);
+                defaultResult.put(Constants.riskMessage, "PASS");
+                factCopy.results.put(rule.getRuleNo(), defaultResult);
+            }
 
             final StatelessRuleEngine statelessRuleEngine = SpringContextHolder.getBean(StatelessRuleEngine.class);
             final String packageName = rule.getRuleNo();
@@ -259,14 +239,24 @@ public class RulesExecutorService {
                             // remove current execute ruleNo when finished execution.
                             statelessRuleEngine.execute(packageName, factCopy);
 
-                            Map<String, Object> result = factCopy.results.get(packageName);
-                            result.put(Constants.async, false);
-                            result.put(Constants.timeUsage, System.currentTimeMillis() - start);
-                            logger.debug(_logPrefix + "rule: " + packageName + ", riskLevel: " + result.get(Constants.riskLevel)
-                                    + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                            TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
-                                    + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
-                            return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.finalResultGroupByScene, factCopy.eventBody);
+                            if (!Constants.eventPointsWithScene.contains(factCopy.eventPoint)) {
+                                Map<String, Object> result = factCopy.results.get(packageName);
+                                result.put(Constants.async, false);
+                                result.put(Constants.timeUsage, System.currentTimeMillis() - start);
+
+                                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel: " + result.get(Constants.riskLevel)
+                                        + ", riskMessage: " + result.get(Constants.riskMessage) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                            } else {
+                                Map<String, Object> result = factCopy.resultsGroupByScene.get(packageName);
+                                if (result != null) {
+                                    result.put(Constants.async, false);
+                                    result.put(Constants.timeUsage, System.currentTimeMillis() - start);
+
+                                    TraceLogger.traceLog("[" + packageName + "] 执行结果[分场景]: riskLevel: " + result.get(Constants.riskLevel)
+                                            + ", riskMessage: " + result.get(Constants.riskMessage) + ", riskScene: " + result.get(Constants.riskScene) + ", usage: " + result.get(Constants.timeUsage) + "ms");
+                                }
+                            }
+                            return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody);
                         } catch (Exception e) {
                             logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
                         } finally {
@@ -294,19 +284,20 @@ public class RulesExecutorService {
                         f.cancel(true);
                     }
                 } catch (Exception e) {
-
+                    // ignored
                 }
             }
         } catch (Exception e) {
-
+            // ignored
         }
         if (rawResult.size() > 0) {
             for (RuleExecuteResultWithEvent item : rawResult) {
                 // merge eventBody
                 if (item.getEventBody() != null) {
                     for (String key : item.getEventBody().keySet()) {
-                        if (!fact.eventBody.containsKey(key)) {
-                            fact.eventBody.put(key, item.getEventBody().get(key));
+                        Object value = item.getEventBody().get(key);
+                        if (!fact.eventBody.containsKey(key) && value != null) {
+                            fact.eventBody.put(key, value);
                         }
                     }
                 }
@@ -314,23 +305,9 @@ public class RulesExecutorService {
                 if (item.getResults() != null) {
                     fact.results.putAll(item.getResults());
                 }
-                // merge finalResultGroupByScene
-                if (item.getFinalResultGroupByScene() != null) {
-                    for (String r : item.getFinalResultGroupByScene().keySet()) {
-                        Map<String, Object> rs = item.getFinalResultGroupByScene().get(r);
-                        if (rs != null) {
-                            Map<String, Object> rsInFact = fact.finalResultGroupByScene.get(r);
-                            if (rsInFact != null) {
-                                int riskLevel = MapUtils.getIntValue(rs, Constants.riskLevel, 0);
-                                int riskLevelInFact = MapUtils.getIntValue(rsInFact, Constants.riskLevel, 0);
-                                if (riskLevel > riskLevelInFact) {
-                                    fact.finalResultGroupByScene.put(r, rs);
-                                }
-                            } else {
-                                fact.finalResultGroupByScene.put(r, rs);
-                            }
-                        }
-                    }
+                // merge resultsGroupByScene
+                if (item.getResultsGroupByScene() != null) {
+                    fact.resultsGroupByScene.putAll(item.getResultsGroupByScene());
                 }
             }
         }
@@ -340,13 +317,13 @@ public class RulesExecutorService {
 
         private String ruleNo;
         private Map<String, Map<String, Object>> results;
-        private Map<String, Map<String, Object>> finalResultGroupByScene;
+        private Map<String, Map<String, Object>> resultsGroupByScene;
         private Map<String, Object> eventBody;
 
-        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Map<String, Object>> results, Map<String, Map<String, Object>> finalResultGroupByScene, Map<String, Object> eventBody) {
+        public RuleExecuteResultWithEvent(String ruleNo, Map<String, Map<String, Object>> results, Map<String, Map<String, Object>> resultsGroupByScene, Map<String, Object> eventBody) {
             this.ruleNo = ruleNo;
             this.results = results;
-            this.finalResultGroupByScene = finalResultGroupByScene;
+            this.resultsGroupByScene = resultsGroupByScene;
             this.eventBody = eventBody;
         }
 
@@ -366,12 +343,12 @@ public class RulesExecutorService {
             this.results = results;
         }
 
-        public Map<String, Map<String, Object>> getFinalResultGroupByScene() {
-            return finalResultGroupByScene;
+        public Map<String, Map<String, Object>> getResultsGroupByScene() {
+            return resultsGroupByScene;
         }
 
-        public void setFinalResultGroupByScene(Map<String, Map<String, Object>> finalResultGroupByScene) {
-            this.finalResultGroupByScene = finalResultGroupByScene;
+        public void setResultsGroupByScene(Map<String, Map<String, Object>> resultsGroupByScene) {
+            this.resultsGroupByScene = resultsGroupByScene;
         }
 
         public Map<String, Object> getEventBody() {
