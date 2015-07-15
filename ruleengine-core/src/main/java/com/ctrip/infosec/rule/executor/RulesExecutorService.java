@@ -11,6 +11,7 @@ import com.ctrip.infosec.configs.event.Rule;
 import com.ctrip.infosec.configs.utils.BeanMapper;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsList;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.GlobalConfig;
@@ -95,13 +96,12 @@ public class RulesExecutorService {
             finalResult = compareAndReturn(finalResult, rs);
         }
         fact.setFinalResult(Maps.newHashMap(finalResult));
-        fact.finalResult.remove(Constants.async);
         fact.finalResult.remove(Constants.timeUsage);
 
         // finalResultGroupByScene
         Map<String, Map<String, Object>> finalResultGroupByScene = fact.finalResultGroupByScene;
         for (Map<String, Object> rs : fact.resultsGroupByScene.values()) {
-            List<String> sceneTypeList = (List) rs.get(Constants.riskScene);
+            List<String> sceneTypeList = valueAsList(rs, Constants.riskScene);
             if (sceneTypeList != null) {
                 for (String sceneType : sceneTypeList) {
                     int riskLevel = MapUtils.getInteger(rs, Constants.riskLevel, 0);
@@ -125,7 +125,6 @@ public class RulesExecutorService {
             }
         }
         fact.setFinalResultGroupByScene(Maps.newHashMap(finalResultGroupByScene));
-        fact.finalResultGroupByScene.remove(Constants.async);
         fact.finalResultGroupByScene.remove(Constants.timeUsage);
     }
 

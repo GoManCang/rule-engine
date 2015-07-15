@@ -51,9 +51,9 @@ import com.meidusa.fastjson.JSON;
  * @author zhengby
  */
 public class RabbitMqMessageHandler {
-    
+
     private static Logger logger = LoggerFactory.getLogger(RabbitMqMessageHandler.class);
-    
+
     @Autowired
     private RulesExecutorService rulesExecutorService;
     @Autowired
@@ -74,17 +74,17 @@ public class RabbitMqMessageHandler {
     private CounterPushRulesExecutorService counterPushRuleExrcutorService;
     @Autowired
     private RiskEventConvertor riskEventConvertor;
-    
+
     @Autowired
     private RiskFactConvertRuleService riskFactConvertRuleService;
-    
+
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
         String factTxt = null;
         long reqId;
         InternalRiskFact internalRiskFact = null;
         try {
-            
+
             if (message instanceof byte[]) {
                 factTxt = new String((byte[]) message, Constants.defaultCharset);
             } else if (message instanceof String) {
@@ -92,7 +92,7 @@ public class RabbitMqMessageHandler {
             } else {
                 throw new IllegalArgumentException("消息格式只支持\"String\"或\"byte[]\"");
             }
-            
+
             logger.info("MQ: fact=" + factTxt);
             fact = JSON.parseObject((String) factTxt, RiskFact.class);
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
@@ -165,7 +165,7 @@ public class RabbitMqMessageHandler {
                         request.setInfoID(MapUtils.getInteger(ebankData, "infoId", 0));
                         request.setIsForigenCard(MapUtils.getString(ebankData, "isForeignCard", ""));
                         request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
-                        
+
                         SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
                         if (ebankResp != null) {
                             // 更新InfoSecurity_RiskLevelData的TransFlag = 32
@@ -177,20 +177,20 @@ public class RabbitMqMessageHandler {
                             channel.setChannelDesc(allInOneDb);
                             channel.setDatabaseURL(allInOneDb);
                             update.setChannel(channel);
-                            
+
                             Map<String, PersistColumnProperties> map = new HashMap<>();
                             PersistColumnProperties pcp = new PersistColumnProperties();
                             pcp.setValue(reqId);
                             pcp.setColumnType(DataUnitColumnType.Long);
                             pcp.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
                             map.put("ReqID", pcp);
-                            
+
                             pcp = new PersistColumnProperties();
                             pcp.setValue(32);
                             pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             pcp.setColumnType(DataUnitColumnType.Int);
                             map.put("TransFlag", pcp);
-                            
+
                             update.execute(persistContext);
                         }
                     }
@@ -207,7 +207,7 @@ public class RabbitMqMessageHandler {
             try {
                 TraceLogger.beginTrans(fact.eventId);
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
-                Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
+                Long riskReqId = MapUtils.getLong(fact.ext, Constants.reqId);
                 if (riskReqId != null && riskReqId > 0) {
                     if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                         TraceLogger.traceLog("reqId = " + riskReqId);
@@ -221,10 +221,11 @@ public class RabbitMqMessageHandler {
                 fault("CardRiskDB.CheckResultLog.saveRuleResult");
                 logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
             } finally {
-                afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+                long usage = afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+                TraceLogger.traceLog("耗时: " + usage + "ms");
                 TraceLogger.commitTrans();
             }
-            
+
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
@@ -239,7 +240,7 @@ public class RabbitMqMessageHandler {
                 } finally {
                     afterInvoke("DispatcherMessageSender.sendToDataDispatcher");
                 }
-                
+
                 int riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
                 if (riskLevel > 0) {
 
@@ -271,38 +272,38 @@ public class RabbitMqMessageHandler {
                         }
                     }
                 }
-                
+
                 try {
 
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
                     for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
-                        
+
                         String ruleNo = entry.getKey();
                         int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
-                        
+
                         if (rLevel > 0) {
                             RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                         }
-                        
+
                     }
                     for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
-                        
+
                         String ruleNo = entry.getKey();
                         int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
-                        
+
                         if (rLevel > 0) {
                             RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                         }
-                        
+
                     }
                 } catch (Exception ex) {
                     logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
                 }
-                
+
             }
         }
     }
-    
+
     private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results) throws DbExecuteException {
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
@@ -322,7 +323,7 @@ public class RabbitMqMessageHandler {
             for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
                 try {
                     Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
-                    Boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async);
+                    boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
                         boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
                         if (withScene || isAsync) {
@@ -331,65 +332,65 @@ public class RabbitMqMessageHandler {
                             props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
                             props.setColumnType(DataUnitColumnType.Long);
                             map.put("LogID", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.Long);
                             props.setValue(riskReqId);
                             map.put("ReqID", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.String);
                             String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "");
                             props.setValue(ruleType);
                             map.put("RuleType", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.Int);
                             props.setValue(0);
                             map.put("RuleID", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.String);
                             props.setValue(entry.getKey());
                             map.put("RuleName", props);
                             TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.Long);
                             props.setValue(riskLevel);
                             map.put("RiskLevel", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.String);
                             props.setValue(MapUtils.getString(entry.getValue(), Constants.riskMessage));
                             map.put("RuleRemark", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
                             props.setColumnType(DataUnitColumnType.Data);
                             props.setExpression("const:now:date");
                             map.put("CreateDate", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
                             props.setColumnType(DataUnitColumnType.Data);
                             props.setExpression("const:now:date");
                             map.put("DataChange_LastTime", props);
-                            
+
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.Int);
                             props.setValue(0);
                             map.put("IsHighlight", props);
-                            
+
                             insert.setColumnPropertiesMap(map);
-                            
+
                             PersistContext ctx = new PersistContext();
                             insert.execute(ctx);
                         }
@@ -400,7 +401,7 @@ public class RabbitMqMessageHandler {
             }
         }
     }
-    
+
     private String resultToString(Map<String, Map<String, Object>> results) {
         List<String> result = Lists.newArrayList();
         if (MapUtils.isNotEmpty(results)) {
@@ -452,7 +453,7 @@ public class RabbitMqMessageHandler {
         result.setResponseTime(Utils.fastDateFormatInMicroSecond.format(new Date()));
         return result;
     }
-    
+
     Object getNestedProperty(Object factOrEventBody, String columnExpression) {
         try {
             Object value = PropertyUtils.getNestedProperty(factOrEventBody, columnExpression);
