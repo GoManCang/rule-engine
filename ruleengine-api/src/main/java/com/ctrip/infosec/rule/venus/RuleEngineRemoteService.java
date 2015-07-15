@@ -27,4 +27,7 @@ public interface RuleEngineRemoteService {
     @Endpoint
     public RiskFact verify(@Param(name = "fact") RiskFact fact);
 
+    @Endpoint
+    public String execute(@Param(name = "fact") String factTxt);
+
 }

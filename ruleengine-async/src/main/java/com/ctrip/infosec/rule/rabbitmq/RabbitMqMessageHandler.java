@@ -292,25 +292,28 @@ public class RabbitMqMessageHandler {
                 try {
 
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
-                    for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
+                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                        for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
-                        String ruleNo = entry.getKey();
-                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
-                        if (rLevel > 0) {
-                            RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            if (rLevel > 0) {
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            }
+
                         }
+                    } else {
+                        for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
-                    }
-                    for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
-                        String ruleNo = entry.getKey();
-                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            if (rLevel > 0) {
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            }
 
-                        if (rLevel > 0) {
-                            RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                         }
-
                     }
                 } catch (Exception ex) {
                     logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
