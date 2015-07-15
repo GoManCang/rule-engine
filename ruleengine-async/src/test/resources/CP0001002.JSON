@@ -1,5 +1,6 @@
 {
   "eventPoint": "CP0001002",
+  "eventId": "f124",
   "eventBody": {
     "UserProfileInfo": {
       "CUSCHARACTER": "NEW"
