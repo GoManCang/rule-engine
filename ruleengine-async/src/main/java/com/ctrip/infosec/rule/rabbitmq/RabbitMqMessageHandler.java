@@ -201,15 +201,25 @@ public class RabbitMqMessageHandler {
                     afterInvoke(operation);
                 }
             }
+
             // 落地规则结果
-            Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
-            if (riskReqId != null && riskReqId > 0) {
-                if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.results);
-                } else {
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene);
+            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+            try {
+                Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
+                if (riskReqId != null && riskReqId > 0) {
+                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                        saveRuleResult(riskReqId, fact.eventPoint, fact.results);
+                    } else {
+                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene);
+                    }
                 }
+            } catch (Exception ex) {
+                fault("CardRiskDB.CheckResultLog.saveRuleResult");
+                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
+            } finally {
+                afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
             }
+
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
@@ -379,7 +389,7 @@ public class RabbitMqMessageHandler {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
+                    logger.error(Contexts.getLogPrefix() + "save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
                 }
             }
         }
@@ -401,7 +411,7 @@ public class RabbitMqMessageHandler {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("get risk level from results failed.", e);
+                    logger.error(Contexts.getLogPrefix() + "get risk level from results failed.", e);
                 }
             }
         }
