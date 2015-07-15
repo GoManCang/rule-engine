@@ -207,7 +207,7 @@ public class RabbitMqMessageHandler {
             try {
                 TraceLogger.beginTrans(fact.eventId);
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
-                Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
+                Long riskReqId = MapUtils.getLong(fact.ext, Constants.reqId);
                 if (riskReqId != null && riskReqId > 0) {
                     if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                         TraceLogger.traceLog("reqId = " + riskReqId);
@@ -323,7 +323,7 @@ public class RabbitMqMessageHandler {
             for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
                 try {
                     Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
-                    Boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async);
+                    boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
                         boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
                         if (withScene || isAsync) {
