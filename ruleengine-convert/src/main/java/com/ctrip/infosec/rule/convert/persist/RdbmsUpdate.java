@@ -108,7 +108,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
                         try {
                             Date date = DateUtils.parseDate((String) o, new String[]{"yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"});
                             if (databaseType == DatabaseType.AllInOne_SqlServer) {
-                                Date firstSupportedDate = DateUtils.parseDate("1970-01-01", new String[]{"yyyy-MM-dd HH:mm:ss"});
+                                Date firstSupportedDate = DateUtils.parseDate("1753-01-01", new String[]{"yyyy-MM-dd HH:mm:ss"});
                                 if (date.after(firstSupportedDate)) {
                                     cs.setTimestamp(index, new Timestamp(date.getTime()));
                                 } else {

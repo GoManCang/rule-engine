@@ -134,7 +134,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                         if (value.getColumnType() == DataUnitColumnType.Data){
                             Date date = DateUtils.parseDate((String) o, new String[]{"yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"});
                             if (databaseType == DatabaseType.AllInOne_SqlServer) {
-                                Date firstSupportedDate = DateUtils.parseDate("1970-01-01", new String[]{"yyyy-MM-dd"});
+                                Date firstSupportedDate = DateUtils.parseDate("1753-01-01", new String[]{"yyyy-MM-dd"});
                                 if (date.after(firstSupportedDate)){
                                     cs.setTimestamp(index, new Timestamp(date.getTime()));
                                 } else {
