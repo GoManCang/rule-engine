@@ -169,12 +169,6 @@ public class RulesExecutorService {
                 long handlingTime = clock.getTime();
 
                 if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                    Map<String, Object> result = fact.results.get(packageName);
-                    result.put(Constants.async, true);
-                    result.put(Constants.timeUsage, handlingTime);
-
-                    TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
-                            + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
 
                     Map<String, Object> resultWithScene = fact.resultsGroupByScene.get(packageName);
                     if (resultWithScene != null) {
@@ -185,6 +179,13 @@ public class RulesExecutorService {
                                 + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
                                 + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                     }
+
+                    Map<String, Object> result = fact.results.get(packageName);
+                    result.put(Constants.async, true);
+                    result.put(Constants.timeUsage, handlingTime);
+
+                    TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
+                            + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
 
                 } else {
 
@@ -262,12 +263,6 @@ public class RulesExecutorService {
                             statelessRuleEngine.execute(packageName, factCopy);
 
                             if (!Constants.eventPointsWithScene.contains(factCopy.eventPoint)) {
-                                Map<String, Object> result = factCopy.results.get(packageName);
-                                result.put(Constants.async, false);
-                                result.put(Constants.timeUsage, System.currentTimeMillis() - start);
-
-                                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
-                                        + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
 
                                 Map<String, Object> resultWithScene = factCopy.resultsGroupByScene.get(packageName);
                                 if (resultWithScene != null) {
@@ -275,8 +270,16 @@ public class RulesExecutorService {
                                     resultWithScene.put(Constants.timeUsage, System.currentTimeMillis() - start);
 
                                     TraceLogger.traceLog("[" + packageName + "] 执行结果: [在非适配点指定了场景、忽略此次结果] riskLevel = " + resultWithScene.get(Constants.riskLevel)
-                                            + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene) + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
+                                            + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
+                                            + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;");
                                 }
+
+                                Map<String, Object> result = factCopy.results.get(packageName);
+                                result.put(Constants.async, false);
+                                result.put(Constants.timeUsage, System.currentTimeMillis() - start);
+
+                                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
+                                        + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
 
                             } else {
 
@@ -285,7 +288,8 @@ public class RulesExecutorService {
                                     int riskLevel = MapUtils.getIntValue(result, Constants.riskLevel, 0);
                                     if (riskLevel > 0) {
                                         TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: [适配接入点必须指定场景、忽略此次结果] riskLevel = " + result.get(Constants.riskLevel)
-                                                + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
+                                                + ", riskMessage = " + result.get(Constants.riskMessage)
+                                                + ", usage = " + result.get(Constants.timeUsage) + "ms &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;");
                                     }
                                 }
 
@@ -295,7 +299,8 @@ public class RulesExecutorService {
                                     resultWithScene.put(Constants.timeUsage, System.currentTimeMillis() - start);
 
                                     TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: riskLevel = " + resultWithScene.get(Constants.riskLevel)
-                                            + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene) + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
+                                            + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
+                                            + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                                 } else {
                                     TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: 没有命中适配规则");
                                 }
