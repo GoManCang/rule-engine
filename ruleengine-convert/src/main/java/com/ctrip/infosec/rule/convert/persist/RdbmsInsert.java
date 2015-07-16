@@ -46,10 +46,10 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                 connection = dataSource.getConnection();
                 String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
                 if (StringUtils.isBlank(spa)) {
-                    logger.info("columnPropertiesMap 中的value为空 未构成spa");
+                    logger.warn("columnPropertiesMap 中的value为空 未构成spa");
                     return;
                 }
-                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
+                logger.debug("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
                 CallableStatement cs = connection.prepareCall(spa);
                 int pk_Index = setValues(databaseType, cs, getColumnPropertiesMap());
                 cs.execute();

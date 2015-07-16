@@ -46,10 +46,10 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
             if (databaseType.equals(DatabaseType.AllInOne_SqlServer)) {
                 String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
                 if (StringUtils.isBlank(spa)) {
-                    logger.info("columnPropertiesMap 中的value为空 未构成spa");
+                    logger.warn("columnPropertiesMap 中的value为空 未构成spa");
                     return;
                 }
-                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
+                logger.debug("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
                 template.execute(spa, new CallableStatementCallback<Object>() {
                     @Override
                     public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {

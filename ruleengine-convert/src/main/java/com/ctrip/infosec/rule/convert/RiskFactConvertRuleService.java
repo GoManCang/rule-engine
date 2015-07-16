@@ -41,7 +41,7 @@ public class RiskFactConvertRuleService {
 //    private static  List<FieldMapping> fieldMappingList;
     public InternalRiskFact apply(RiskFact riskFact) {
 
-        logger.info("转换报文："+Utils.JSON.toJSONString(riskFact));
+        logger.debug("转换报文："+Utils.JSON.toJSONString(riskFact));
 
 //        logger.info("======================查看localRiskFactDefinitionConfigMap====================================");
 //        logger.info(Utils.JSON.toPrettyJSONString(InternalConvertConfigHolder.localRiskConvertMappings));
