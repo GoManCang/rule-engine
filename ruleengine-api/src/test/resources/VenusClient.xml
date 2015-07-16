@@ -19,6 +19,10 @@
                 <property name="testOnBorrow">true</property>
                 <property name="testWhileIdle">true</property>
             </pool>
+            <!-- 对象系列化方式，目前支持3种 ： 0:json ,1：bson , 2: java对象系列化 -->
+            <authenticator class="com.meidusa.venus.client.authenticate.DummyAuthenticator">
+                <property name="serializeType">0</property>
+            </authenticator>
         </remote>       
     </remotes>
     
