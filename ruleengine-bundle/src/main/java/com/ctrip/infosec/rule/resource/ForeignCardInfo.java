@@ -23,6 +23,8 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 /**
+ * 根据卡的id和卡的rule来获取卡的信息
+ * 返回的是一个map，包含了当前卡的相关信息
  * Created by lpxie on 15-7-16.
  */
 public class ForeignCardInfo
