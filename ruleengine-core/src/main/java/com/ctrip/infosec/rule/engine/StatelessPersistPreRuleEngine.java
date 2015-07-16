@@ -106,7 +106,7 @@ public class StatelessPersistPreRuleEngine extends RuleEngine {
         Map<String, PersistPreRule> newPostRulesInKBase = Maps.newHashMap();
 
         // 删除&更新Route规则
-        if (Caches.persistPreRuleConfigs == null) {
+        if (Caches.persistPreRuleConfigs != null) {
             for (PersistPreRule rule : Caches.persistPreRuleConfigs) {
                 String packageName = rule.getEventPoint();
                 PersistPreRule ruleInKBase = this.persistPreRulesInKBase.get(packageName);
