@@ -136,8 +136,8 @@ public class RabbitMqMessageHandler {
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
                 Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
                 boolean outerReqId = true;
-                if (internalRiskFact != null) {
-                    riskReqId = (riskReqId == null) ? internalRiskFact.getReqId() : riskReqId;
+                if (internalRiskFact != null && riskReqId == null) {
+                    riskReqId = internalRiskFact.getReqId();
                     outerReqId = false;
                 }
                 if (riskReqId != null && riskReqId > 0) {
