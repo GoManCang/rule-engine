@@ -257,7 +257,7 @@ public class RabbitMqMessageHandler {
                     Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
                     boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
-                        boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
+                        boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
                         if (withScene || isAsync) {
                             Map<String, PersistColumnProperties> map = Maps.newHashMap();
                             PersistColumnProperties props = new PersistColumnProperties();
