@@ -140,7 +140,7 @@ public class RabbitMqMessageHandler {
                         TraceLogger.traceLog("reqId = " + riskReqId);
                         saveRuleResult(riskReqId, fact.eventPoint, fact.results);
                     } else {
-                        TraceLogger.traceLog("reqId = " + riskReqId + " [分场景]");
+                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
                         saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene);
                     }
                 }
