@@ -25,7 +25,7 @@ public class RabbitMqMessageHandlerTest extends AbstractJUnit4SpringContextTests
         handler.handleMessage(msg);
         
         RiskFact fact = JSON.parseObject(msg, RiskFact.class);
-        Long riskReqId = MapUtils.getLong(fact.ext, Constants.reqId);
+        Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_);
         System.out.println("riskReqId = " + riskReqId);
     }
 }

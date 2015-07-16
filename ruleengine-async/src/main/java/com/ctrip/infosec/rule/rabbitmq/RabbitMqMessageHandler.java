@@ -28,7 +28,6 @@ import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,57 +86,44 @@ public class RabbitMqMessageHandler {
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 
+            boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
+            TraceLogger.enabled(traceLoggerEnabled);
+
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[异步预处理]");
-                    preRulesExecutorService.executePreRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[异步规则]");
-                    rulesExecutorService.executeAsyncRules(fact);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
             }
             // 执行后处理
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[后处理]");
-                    postRulesExecutorService.executePostRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步后处理]");
                 postRulesExecutorService.executePostRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             //Counter推送规则处理
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[Counter推送]");
-                    counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[Counter推送]");
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
@@ -148,7 +134,7 @@ public class RabbitMqMessageHandler {
             try {
                 TraceLogger.beginTrans(fact.eventId);
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
-                Long riskReqId = MapUtils.getLong(fact.ext, Constants.reqId);
+                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_);
                 if (riskReqId != null && riskReqId > 0) {
                     if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                         TraceLogger.traceLog("reqId = " + riskReqId);
