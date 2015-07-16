@@ -15,6 +15,7 @@ import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.convert.persist.DbExecuteException;
@@ -250,10 +251,10 @@ public class RabbitMqMessageHandler {
     private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results) throws DbExecuteException {
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
-        channel.setChannelNo("CardRiskDB_INSERT_1");
+        channel.setChannelNo(RiskFactPersistStrategy.allInOne4ReqId);
         channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-        channel.setChannelDesc("CardRiskDB_INSERT_1");
-        channel.setDatabaseURL("CardRiskDB_INSERT_1");
+        channel.setChannelDesc(RiskFactPersistStrategy.allInOne4ReqId);
+        channel.setDatabaseURL(RiskFactPersistStrategy.allInOne4ReqId);
         insert.setChannel(channel);
         insert.setTable("InfoSecurity_CheckResultLog");
 
