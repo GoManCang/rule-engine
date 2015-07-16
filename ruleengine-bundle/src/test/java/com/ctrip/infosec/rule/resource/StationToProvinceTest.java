@@ -10,13 +10,6 @@ import java.util.List;
 public class StationToProvinceTest
 {
     @Test
-    public void testInt()
-    {
-        StationToProvince cityToProvince = new StationToProvince();
-        //CityToProvince.init();
-    }
-
-    @Test
     public void testGetPro()
     {
         String single = "六安";
