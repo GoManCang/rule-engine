@@ -101,38 +101,54 @@ public class RabbitMqMessageHandler {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[异步预处理]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[异步预处理]");
+//                    preRulesExecutorService.executePreRules(fact, true);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 preRulesExecutorService.executePreRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[异步规则]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[异步规则]");
+                    rulesExecutorService.executeAsyncRules(fact);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 rulesExecutorService.executeAsyncRules(fact);
-            } finally {
-                TraceLogger.commitTrans();
             }
             // 执行后处理
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[异步后处理]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[后处理]");
+                    postRulesExecutorService.executePostRules(fact, true);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 postRulesExecutorService.executePostRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
             }
             //Counter推送规则处理
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[Counter推送]");
+            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
+                try {
+                    TraceLogger.beginTrans(fact.eventId);
+                    TraceLogger.setLogPrefix("[Counter推送]");
+                    counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+                } finally {
+                    TraceLogger.commitTrans();
+                }
+            } else {
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
             }
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
@@ -276,25 +292,28 @@ public class RabbitMqMessageHandler {
                 try {
 
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
-                    for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
+                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                        for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
-                        String ruleNo = entry.getKey();
-                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
-                        if (rLevel > 0) {
-                            RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            if (rLevel > 0) {
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            }
+
                         }
+                    } else {
+                        for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
-                    }
-                    for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
-                        String ruleNo = entry.getKey();
-                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            if (rLevel > 0) {
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            }
 
-                        if (rLevel > 0) {
-                            RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                         }
-
                     }
                 } catch (Exception ex) {
                     logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
