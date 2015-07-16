@@ -125,6 +125,8 @@ public class Offline4jService {
         pcp.setColumnType(DataUnitColumnType.Int);
         map.put("TransFlag", pcp);
 
+        update.setColumnPropertiesMap(map);
+
         update.execute(persistContext);
     }
 
