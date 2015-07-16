@@ -5,22 +5,26 @@
  */
 package com.ctrip.infosec.rule.rabbitmq;
 
-import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
-import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
-import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.ctrip.infosec.common.Constants;
+import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.common.model.RiskResult;
+import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
-import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
-import com.ctrip.infosec.rule.convert.persist.*;
+import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.utils.Utils;
+import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
+import com.ctrip.infosec.rule.convert.persist.DbExecuteException;
+import com.ctrip.infosec.rule.convert.persist.PersistColumnProperties;
+import com.ctrip.infosec.rule.convert.persist.PersistContext;
+import com.ctrip.infosec.rule.convert.persist.RdbmsInsert;
 import com.ctrip.infosec.rule.executor.*;
-import com.google.common.collect.Lists;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.collect.Maps;
+import com.meidusa.fastjson.JSON;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -29,18 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ctrip.infosec.common.Constants;
-import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.common.model.RiskResult;
-import com.ctrip.infosec.configs.Configs;
-import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
-import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
-import com.ctrip.infosec.configs.utils.Utils;
-import com.ctrip.infosec.rule.Contexts;
-import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
-import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
-import com.meidusa.fastjson.JSON;
+import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static com.ctrip.infosec.common.SarsMonitorWrapper.*;
 
 /**
  * @author zhengby
