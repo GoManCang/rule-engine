@@ -106,38 +106,40 @@ public class StatelessPersistPreRuleEngine extends RuleEngine {
         Map<String, PersistPreRule> newPostRulesInKBase = Maps.newHashMap();
 
         // 删除&更新Route规则
-        for (PersistPreRule rule : Caches.persistPreRuleConfigs) {
-            String packageName = rule.getEventPoint();
-            PersistPreRule ruleInKBase = this.persistPreRulesInKBase.get(packageName);
-            if (!rule.isEnabled()) {
-                if (ruleInKBase != null) {
-                    try {
-                        logger.warn("remove rule: " + packageName);
-                        Collection<KnowledgePackage> kpackagesInBase = this.getKnowledgePackagesFromString(ruleInKBase.getRuleContent());
-                        this.removeKnowledgePackages(kpackagesInBase);
-                    } catch (Exception ex) {
-                        logger.error("remove rule failed.", ex);
+        if (Caches.persistPreRuleConfigs == null) {
+            for (PersistPreRule rule : Caches.persistPreRuleConfigs) {
+                String packageName = rule.getEventPoint();
+                PersistPreRule ruleInKBase = this.persistPreRulesInKBase.get(packageName);
+                if (!rule.isEnabled()) {
+                    if (ruleInKBase != null) {
+                        try {
+                            logger.warn("remove rule: " + packageName);
+                            Collection<KnowledgePackage> kpackagesInBase = this.getKnowledgePackagesFromString(ruleInKBase.getRuleContent());
+                            this.removeKnowledgePackages(kpackagesInBase);
+                        } catch (Exception ex) {
+                            logger.error("remove rule failed.", ex);
+                        }
                     }
-                }
-            } else {
-                if (ruleInKBase == null
-                        || ruleInKBase.getUpdatedAt().before(rule.getUpdatedAt())) {
-                    try {
-                        logger.warn("update rule: " + packageName);
-                        Collection<KnowledgePackage> kpackages = this.getKnowledgePackagesFromString(rule.getRuleContent());
-                        this.addKnowledgePackages(kpackages);
-                    } catch (Exception ex) {
-                        logger.error("update rule failed.", ex);
+                } else {
+                    if (ruleInKBase == null
+                            || ruleInKBase.getUpdatedAt().before(rule.getUpdatedAt())) {
+                        try {
+                            logger.warn("update rule: " + packageName);
+                            Collection<KnowledgePackage> kpackages = this.getKnowledgePackagesFromString(rule.getRuleContent());
+                            this.addKnowledgePackages(kpackages);
+                        } catch (Exception ex) {
+                            logger.error("update rule failed.", ex);
+                        }
                     }
-                }
 
-                newPostRulesInKBase.put(packageName, rule);
+                    newPostRulesInKBase.put(packageName, rule);
+                }
             }
-        }
-        logger.warn("exec updateRules() end.");
+            logger.warn("exec updateRules() end.");
 
-        // 最后更新缓存
-        this.persistPreRulesInKBase = newPostRulesInKBase;
+            // 最后更新缓存
+            this.persistPreRulesInKBase = newPostRulesInKBase;
+        }
     }
 
     /**
