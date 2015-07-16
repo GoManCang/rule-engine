@@ -107,7 +107,7 @@ public class RabbitMqMessageHandler {
                 try {
                     TraceLogger.beginTrans(fact.eventId);
                     TraceLogger.setLogPrefix("[异步预处理]");
-//                    preRulesExecutorService.executePreRules(fact, true);
+                    preRulesExecutorService.executePreRules(fact, true);
                 } finally {
                     TraceLogger.commitTrans();
                 }
