@@ -56,3 +56,8 @@ venus.socket.sendBufferSize=64
 
 #RService
 RService.Ip={$RService.Ip}
+
+# RiskFact persistence config
+reqId.allInOne.name = {$reqId.allInOne.name}
+reqId.table.name = {$reqId.table.name}
+reqId.column.name = {$reqId.column.name}
