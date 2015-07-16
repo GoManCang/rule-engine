@@ -130,33 +130,33 @@ public class RabbitMqMessageHandler {
             internalRiskFact = offline4jService.saveForOffline(fact);
 
             // 落地规则结果
-            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[保存CheckResultLog]");
-                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
-                boolean outerReqId = true;
-                if (internalRiskFact != null && riskReqId == null) {
-                    riskReqId = internalRiskFact.getReqId();
-                    outerReqId = false;
-                }
-                if (riskReqId != null && riskReqId > 0) {
-                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                        TraceLogger.traceLog("reqId = " + riskReqId);
-                        saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
-                    } else {
-                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
-                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
-                    }
-                }
-            } catch (Exception ex) {
-                fault("CardRiskDB.CheckResultLog.saveRuleResult");
-                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
-            } finally {
-                long usage = afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
-                TraceLogger.traceLog("耗时: " + usage + "ms");
-                TraceLogger.commitTrans();
-            }
+//            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+//            try {
+//                TraceLogger.beginTrans(fact.eventId);
+//                TraceLogger.setLogPrefix("[保存CheckResultLog]");
+//                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
+//                boolean outerReqId = true;
+//                if (internalRiskFact != null && riskReqId == null) {
+//                    riskReqId = internalRiskFact.getReqId();
+//                    outerReqId = false;
+//                }
+//                if (riskReqId != null && riskReqId > 0) {
+//                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+//                        TraceLogger.traceLog("reqId = " + riskReqId);
+//                        saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
+//                    } else {
+//                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
+//                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
+//                    }
+//                }
+//            } catch (Exception ex) {
+//                fault("CardRiskDB.CheckResultLog.saveRuleResult");
+//                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
+//            } finally {
+//                long usage = afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+//                TraceLogger.traceLog("耗时: " + usage + "ms");
+//                TraceLogger.commitTrans();
+//            }
 
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
