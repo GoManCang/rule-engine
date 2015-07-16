@@ -50,8 +50,8 @@ public class RiskFactPersistStrategyTest {
         System.out.println(internalRiskFact.getReqId());
         System.out.println(persistManager.getOrderId());
         
-        Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
-        System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
+//        Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
+//        System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
     }
 
     @Test

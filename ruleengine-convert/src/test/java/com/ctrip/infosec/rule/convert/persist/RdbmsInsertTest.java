@@ -7,6 +7,7 @@ import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.google.common.collect.Maps;
 import com.ctrip.infosec.configs.utils.Utils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -54,13 +55,14 @@ public class RdbmsInsertTest {
         pcp3.setValue("from offline test");
         pcp3.setColumnType(DataUnitColumnType.String);
         pcp3.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-        map.put("CheckValue",pcp3);
+        map.put("DataChange_CreateTime",pcp3);
 
         rdbmsInsert.setColumnPropertiesMap(map);
 
     }
 
     @Test
+    @Ignore
     public void testExecute() throws Exception {
         rdbmsInsert.execute(ctx);
 

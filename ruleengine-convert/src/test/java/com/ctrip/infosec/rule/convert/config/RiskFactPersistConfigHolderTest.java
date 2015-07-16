@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @ContextConfiguration("classpath:spring/configs.xml")
 public class RiskFactPersistConfigHolderTest extends AbstractJUnit4SpringContextTests {
     @Test
-//    @Ignore
+    @Ignore
     public void testLoadConfig() throws Exception {
         ConfigsDeamon deamon = new ConfigsDeamon();
         deamon.setUrl("http://localhost:8180/rest/loadconfig");
