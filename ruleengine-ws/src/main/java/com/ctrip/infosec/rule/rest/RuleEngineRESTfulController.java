@@ -15,6 +15,7 @@ import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.meidusa.fastjson.JSON;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,10 @@ public class RuleEngineRESTfulController {
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
+
+        boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
+        TraceLogger.enabled(traceLoggerEnabled);
+
         try {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);

@@ -140,7 +140,7 @@ public class RabbitMqMessageHandler {
                         TraceLogger.traceLog("reqId = " + riskReqId);
                         saveRuleResult(riskReqId, fact.eventPoint, fact.results);
                     } else {
-                        TraceLogger.traceLog("reqId = " + riskReqId + " [分场景]");
+                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
                         saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene);
                     }
                 }
@@ -203,7 +203,8 @@ public class RabbitMqMessageHandler {
                 try {
 
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
-                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                    boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
+                    if (!withScene) {
                         for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -226,6 +227,7 @@ public class RabbitMqMessageHandler {
 
                         }
                     }
+
                 } catch (Exception ex) {
                     logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
                 }
@@ -255,7 +257,7 @@ public class RabbitMqMessageHandler {
                     Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
                     boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
-                        boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
+                        boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                         if (withScene || isAsync) {
                             Map<String, PersistColumnProperties> map = Maps.newHashMap();
                             PersistColumnProperties props = new PersistColumnProperties();
