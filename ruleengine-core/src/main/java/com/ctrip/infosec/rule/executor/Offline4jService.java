@@ -10,10 +10,7 @@ import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-import com.ctrip.infosec.rule.convert.persist.PersistColumnProperties;
-import com.ctrip.infosec.rule.convert.persist.PersistContext;
-import com.ctrip.infosec.rule.convert.persist.RdbmsUpdate;
-import com.ctrip.infosec.rule.convert.persist.RiskFactPersistManager;
+import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataRequest;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
@@ -60,7 +57,7 @@ public class Offline4jService {
                 PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
                 reqId = persistManager.getGeneratedReqId();
                 internalRiskFact.setReqId(reqId);
-                // 调用远程服务落地
+                // 调用远程服务落地，
                 if (MapUtils.getBoolean(fact.ext, "offline4j-push-ebank", false)) {
                     SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
                     request.setResID(reqId);
@@ -77,31 +74,12 @@ public class Offline4jService {
 
                     SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
                     if (ebankResp != null) {
-                        // 更新InfoSecurity_RiskLevelData的TransFlag = 32
-                        RdbmsUpdate update = new RdbmsUpdate();
-                        DistributionChannel channel = new DistributionChannel();
-                        String allInOneDb = RiskFactPersistStrategy.allInOne4ReqId;
-                        channel.setChannelNo(allInOneDb);
-                        channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-                        channel.setChannelDesc(allInOneDb);
-                        channel.setDatabaseURL(allInOneDb);
-                        update.setChannel(channel);
-
-                        Map<String, PersistColumnProperties> map = new HashMap<>();
-                        PersistColumnProperties pcp = new PersistColumnProperties();
-                        pcp.setValue(reqId);
-                        pcp.setColumnType(DataUnitColumnType.Long);
-                        pcp.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
-                        map.put("ReqID", pcp);
-
-                        pcp = new PersistColumnProperties();
-                        pcp.setValue(32);
-                        pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                        pcp.setColumnType(DataUnitColumnType.Int);
-                        map.put("TransFlag", pcp);
-
-                        update.execute(persistContext);
+                        // 调用ebank成功，修改InfoSecurity_RiskLevelData.TransFlag
+                        updateTransFlag(reqId, persistContext);
                     }
+                } else {
+                    // 无需调用ebank，直接修改InfoSecurity_RiskLevelData.TransFlag
+                    updateTransFlag(reqId, persistContext);
                 }
             } catch (Exception ex) {
                 fault(operation);
@@ -111,6 +89,33 @@ public class Offline4jService {
             }
         }
         return internalRiskFact;
+    }
+
+    private void updateTransFlag(long reqId, PersistContext persistContext) throws DbExecuteException {
+        // 更新InfoSecurity_RiskLevelData的TransFlag = 32
+        RdbmsUpdate update = new RdbmsUpdate();
+        DistributionChannel channel = new DistributionChannel();
+        String allInOneDb = RiskFactPersistStrategy.allInOne4ReqId;
+        channel.setChannelNo(allInOneDb);
+        channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+        channel.setChannelDesc(allInOneDb);
+        channel.setDatabaseURL(allInOneDb);
+        update.setChannel(channel);
+
+        Map<String, PersistColumnProperties> map = new HashMap<>();
+        PersistColumnProperties pcp = new PersistColumnProperties();
+        pcp.setValue(reqId);
+        pcp.setColumnType(DataUnitColumnType.Long);
+        pcp.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+        map.put("ReqID", pcp);
+
+        pcp = new PersistColumnProperties();
+        pcp.setValue(32);
+        pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        pcp.setColumnType(DataUnitColumnType.Int);
+        map.put("TransFlag", pcp);
+
+        update.execute(persistContext);
     }
 
     private String resultToString(Map<String, Map<String, Object>> results) {

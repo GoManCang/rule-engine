@@ -3,6 +3,7 @@ package com.ctrip.infosec.rule.convert.persist;
 import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
+import com.ctrip.infosec.rule.convert.util.PersistConvertUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -106,7 +107,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
                 } else if (o instanceof String) {
                     if (value.getColumnType() == DataUnitColumnType.Data) {
                         try {
-                            Date date = DateUtils.parseDate((String) o, new String[]{"yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"});
+                            Date date = PersistConvertUtils.parseDate((String) o);
                             if (databaseType == DatabaseType.AllInOne_SqlServer) {
                                 Date firstSupportedDate = DateUtils.parseDate("1753-01-01", new String[]{"yyyy-MM-dd HH:mm:ss"});
                                 if (date.after(firstSupportedDate)) {

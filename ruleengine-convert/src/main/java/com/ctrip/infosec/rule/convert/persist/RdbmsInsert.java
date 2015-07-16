@@ -6,6 +6,7 @@ import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.util.DalDataSourceHolder;
+import com.ctrip.infosec.rule.convert.util.PersistConvertUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -132,7 +133,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                         cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
                     } else if (o instanceof String) {
                         if (value.getColumnType() == DataUnitColumnType.Data){
-                            Date date = DateUtils.parseDate((String) o, new String[]{"yyyy-MM-dd HH:mm:ss.SSS", "yyyy-MM-dd HH:mm:ss"});
+                            Date date = PersistConvertUtils.parseDate((String) o);
                             if (databaseType == DatabaseType.AllInOne_SqlServer) {
                                 Date firstSupportedDate = DateUtils.parseDate("1753-01-01", new String[]{"yyyy-MM-dd"});
                                 if (date.after(firstSupportedDate)){
