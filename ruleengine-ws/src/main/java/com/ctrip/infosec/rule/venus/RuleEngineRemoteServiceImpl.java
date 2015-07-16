@@ -18,6 +18,7 @@ import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +40,19 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
     @Autowired
     private PostRulesExecutorService postRulesExecutorService;
 
+    /**
+     * 复杂嵌套JSON可能导致OOM, 慎用
+     */
     @Override
     public RiskFact verify(RiskFact fact) {
         beforeInvoke();
         logger.info("VENUS: fact=" + JSON.toJSONString(fact));
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
+
+        boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
+        TraceLogger.enabled(traceLoggerEnabled);
+
         try {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
@@ -81,7 +89,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             }
             logger.error(Contexts.getLogPrefix() + "invoke verify exception.", ex);
         } finally {
-            afterInvoke("RuleEngineRemoteService.verify");
+            afterInvoke("RuleEngine.verify");
         }
         return fact;
     }
@@ -93,6 +101,10 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
+
+        boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
+        TraceLogger.enabled(traceLoggerEnabled);
+
         try {
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
@@ -129,7 +141,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             }
             logger.error(Contexts.getLogPrefix() + "invoke execute exception.", ex);
         } finally {
-            afterInvoke("RuleEngineRemoteService.execute");
+            afterInvoke("RuleEngine.execute");
         }
         return JSON.toJSONString(fact);
     }
