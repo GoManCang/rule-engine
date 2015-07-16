@@ -13,6 +13,8 @@ import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,9 @@ public class PersistPreRuleExecutorService {
     }
 
     private List<PersistPreRule> matchRules(RiskFact fact) {
+        if(CollectionUtils.isEmpty(Caches.persistPreRuleConfigs)){
+            return ListUtils.EMPTY_LIST;
+        }
         final String eventPoint = fact.getEventPoint();
         return Lists.newArrayList(Collections2.filter(Caches.persistPreRuleConfigs, new Predicate<PersistPreRule>() {
             @Override

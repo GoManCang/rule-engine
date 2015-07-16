@@ -32,7 +32,7 @@ public class RiskFactPersistStrategy {
     public static final String table4ReqId = GlobalConfig.getString("reqId.table.name");
     public static final String column4ReqId = GlobalConfig.getString("reqId.column.name");
 
-    public static boolean supportLocally(InternalRiskFact fact){
+    public static boolean supportLocally(InternalRiskFact fact) {
         InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
         return config != null;
     }
@@ -54,20 +54,22 @@ public class RiskFactPersistStrategy {
         // 业务消息落地
         DbOperationChain last = firstOne;
         List<RdbmsTableOperationConfig> opConfigs = config.getOps();
-        for (RdbmsTableOperationConfig operationConfig : opConfigs) {
-            DataUnitMetadata meta = getMetadata(operationConfig.getDataUnitMetaId());
-            if (meta == null) {
-                continue;
-            }
-            DbOperationChain chain = buildDbOperationChain(fact, findCorrespondingDataUnit(fact, meta.getName()), operationConfig, meta);
-            if (chain != null) {
-                if (firstOne == null) {
-                    firstOne = chain;
+        if (CollectionUtils.isNotEmpty(opConfigs)) {
+            for (RdbmsTableOperationConfig operationConfig : opConfigs) {
+                DataUnitMetadata meta = getMetadata(operationConfig.getDataUnitMetaId());
+                if (meta == null) {
+                    continue;
                 }
-                if (last != null) {
-                    last.addToTail(chain);
+                DbOperationChain chain = buildDbOperationChain(fact, findCorrespondingDataUnit(fact, meta.getName()), operationConfig, meta);
+                if (chain != null) {
+                    if (firstOne == null) {
+                        firstOne = chain;
+                    }
+                    if (last != null) {
+                        last.addToTail(chain);
+                    }
+                    last = chain;
                 }
-                last = chain;
             }
         }
         return firstOne;
@@ -131,7 +133,7 @@ public class RiskFactPersistStrategy {
     private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, Map<String, Object> data,
                                                           RdbmsTableOperationConfig config, DataUnitMetadata meta) {
         DbOperationChain chain = null;
-        if(Configs.match(config.getConditions(), config.getConditionsLogical(), data)) {
+        if (Configs.match(config.getConditions(), config.getConditionsLogical(), data)) {
             // 简单类型，对应一个落地操作
             Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
             if (MapUtils.isNotEmpty(simpleFieldMap)) {
