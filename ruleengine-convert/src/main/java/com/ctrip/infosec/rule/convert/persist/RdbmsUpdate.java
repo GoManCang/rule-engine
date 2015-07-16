@@ -98,40 +98,10 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
             PersistColumnProperties value = entry.getValue();
             Object o = value.getValue();
             if (o != null) {
-                if (o instanceof Integer) {
-                    cs.setInt(index, (Integer) o);
-                } else if (o instanceof Long) {
-                    cs.setLong(index, (Long) o);
-                } else if (o instanceof Date) {
-                    cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
-                } else if (o instanceof String) {
-                    if (value.getColumnType() == DataUnitColumnType.Data) {
-                        try {
-                            Date date = PersistConvertUtils.parseDate((String) o);
-                            if (databaseType == DatabaseType.AllInOne_SqlServer) {
-                                Date firstSupportedDate = DateUtils.parseDate("1753-01-01", new String[]{"yyyy-MM-dd HH:mm:ss"});
-                                if (date.after(firstSupportedDate)) {
-                                    cs.setTimestamp(index, new Timestamp(date.getTime()));
-                                } else {
-                                    cs.setTimestamp(index, new Timestamp(firstSupportedDate.getTime()));
-                                }
-                            } else {
-                                cs.setTimestamp(index, new Timestamp(date.getTime()));
-                            }
-                        } catch (ParseException e) {
-                            logger.error("parse date[" + o + "] error.", e);
-                        }
-                    } else {
-                        cs.setString(index, (String) o);
-                    }
-                } else if (o instanceof Double) {
-                    Double d = (Double) o;
-                    cs.setBigDecimal(index, new BigDecimal(d));
-                } else if (o instanceof Float) {
-                    Float f = (Float) o;
-                    cs.setBigDecimal(index, new BigDecimal(f.doubleValue()));
-                } else {
-                    cs.setObject(index, o);
+                try {
+                    setValue(databaseType, cs, index, value, o);
+                } catch (ParseException e) {
+                    throw new SQLException("set callable statement error. value=" + o, e);
                 }
             } else {
                 continue;
@@ -237,7 +207,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
         Map map = new HashMap<>();
         for (Map.Entry<String, PersistColumnProperties> entry : getColumnPropertiesMap().entrySet()) {
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
-                map.put(entry.getKey(), entry.getValue().getValue());
+                map.put(entry.getKey(), normalize(entry.getValue().getValue()));
             }
         }
 

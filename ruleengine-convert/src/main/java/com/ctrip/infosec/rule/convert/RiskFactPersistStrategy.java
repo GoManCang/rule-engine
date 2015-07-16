@@ -32,8 +32,8 @@ public class RiskFactPersistStrategy {
     public static final String table4ReqId = GlobalConfig.getString("reqId.table.name");
     public static final String column4ReqId = GlobalConfig.getString("reqId.column.name");
 
-    public static boolean supportLocally(InternalRiskFact fact) {
-        InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
+    public static boolean supportLocally(String eventPoint) {
+        InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(eventPoint);
         return config != null;
     }
 

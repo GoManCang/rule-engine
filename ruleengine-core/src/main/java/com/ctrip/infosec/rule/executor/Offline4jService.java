@@ -35,6 +35,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  */
 @Service
 public class Offline4jService {
+    public static final String PUSH_EBANK_KEY = "offline4j-push-ebank";
+    public static final String REMOTE_PERSIST_KEY = "offline4j-persist-remote";
+
     private static final Logger logger = LoggerFactory.getLogger(Offline4jService.class);
     @Autowired
     private PersistPreRuleExecutorService persistPreRuleExecutorService;
@@ -48,10 +51,11 @@ public class Offline4jService {
         InternalRiskFact internalRiskFact = riskFactConvertRuleService.apply(fact);
         if (internalRiskFact != null) {
             // 数据落地
-            if (RiskFactPersistStrategy.supportLocally(internalRiskFact)) {
+            if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
                 localSave(fact, internalRiskFact);
-            } else {
-                //调用外部存储服务
+            }
+            //调用外部存储服务
+            if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false)) {
 
             }
         }
@@ -69,8 +73,8 @@ public class Offline4jService {
             PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
             reqId = persistManager.getGeneratedReqId();
             internalRiskFact.setReqId(reqId);
-            // 调用远程服务落地，
-            if (MapUtils.getBoolean(fact.ext, "offline4j-push-ebank", false)) {
+            // 调用ebank远程服务落地
+            if (MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false)) {
                 SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
                 request.setResID(reqId);
                 request.setReqID(reqId);
