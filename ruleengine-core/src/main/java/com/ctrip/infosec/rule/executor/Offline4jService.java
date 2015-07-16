@@ -111,6 +111,7 @@ public class Offline4jService {
         channel.setChannelDesc(allInOneDb);
         channel.setDatabaseURL(allInOneDb);
         update.setChannel(channel);
+        update.setTable("InfoSecurity_RiskLevelData");
 
         Map<String, PersistColumnProperties> map = new HashMap<>();
         PersistColumnProperties pcp = new PersistColumnProperties();
@@ -124,6 +125,8 @@ public class Offline4jService {
         pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         pcp.setColumnType(DataUnitColumnType.Int);
         map.put("TransFlag", pcp);
+
+        update.setColumnPropertiesMap(map);
 
         update.execute(persistContext);
     }
