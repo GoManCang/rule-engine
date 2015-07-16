@@ -28,11 +28,6 @@
             </exclusions>
         </dependency>
         
-        <dependency>
-            <groupId>com.ctrip.infosec.ruleengine</groupId>
-            <artifactId>ruleengine-convert</artifactId>
-        </dependency>
-        
         <!-- RabbitMQ -->
         <dependency>
             <groupId>org.springframework.amqp</groupId>
