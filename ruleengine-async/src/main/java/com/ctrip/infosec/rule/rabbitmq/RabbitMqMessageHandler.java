@@ -135,8 +135,11 @@ public class RabbitMqMessageHandler {
                 TraceLogger.beginTrans(fact.eventId);
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
                 Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
-                boolean outerReqId = (riskReqId != null);
-                riskReqId = (riskReqId == null) ? internalRiskFact.getReqId() : riskReqId;
+                boolean outerReqId = true;
+                if (internalRiskFact != null) {
+                    riskReqId = (riskReqId == null) ? internalRiskFact.getReqId() : riskReqId;
+                    outerReqId = false;
+                }
                 if (riskReqId != null && riskReqId > 0) {
                     if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                         TraceLogger.traceLog("reqId = " + riskReqId);
