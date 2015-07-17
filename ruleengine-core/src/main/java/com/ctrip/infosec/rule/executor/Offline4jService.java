@@ -14,14 +14,17 @@ import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataRequest;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
+import com.ctrip.infosec.rule.resource.offline.PersistFactService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,9 +46,17 @@ public class Offline4jService {
     private PersistPreRuleExecutorService persistPreRuleExecutorService;
     @Autowired
     private RiskFactConvertRuleService riskFactConvertRuleService;
+    @Value("${persist.remote.url}")
+    private String saveFactUrl;
+    private PersistFactService persistFactService;
+
+    @PostConstruct
+    public void init(){
+        persistFactService = new PersistFactService(saveFactUrl);
+    }
 
     public InternalRiskFact saveForOffline(RiskFact fact) {
-        long reqId;// 执行落地前规则
+        // 执行落地前规则
         persistPreRuleExecutorService.executePostRules(fact, false);
         //riskfact 数据映射转换
         InternalRiskFact internalRiskFact = riskFactConvertRuleService.apply(fact);
@@ -56,14 +67,14 @@ public class Offline4jService {
             }
             //调用外部存储服务
             if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false)) {
-
+                Long reqId = persistFactService.saveFact(fact);
+                internalRiskFact.setReqId(reqId);
             }
         }
         return internalRiskFact;
     }
 
     private void localSave(RiskFact fact, InternalRiskFact internalRiskFact) {
-        long reqId;
         String operation = internalRiskFact.getEventPoint() + ".persist-info";
         try {
             beforeInvoke(operation);
@@ -71,7 +82,7 @@ public class Offline4jService {
             String resultRemark = "NEW: " + resultToString(fact.results);
             RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
             PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
-            reqId = persistManager.getGeneratedReqId();
+            long reqId = persistManager.getGeneratedReqId();
             internalRiskFact.setReqId(reqId);
             // 调用ebank远程服务落地
             if (MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false)) {
