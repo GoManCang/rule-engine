@@ -73,6 +73,8 @@
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
+        <async.log.root.level>DEBUG</async.log.root.level>
+        <async.log.app.level>DEBUG</async.log.app.level>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -127,6 +129,8 @@
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
+        <async.log.root.level>DEBUG</async.log.root.level>
+        <async.log.app.level>DEBUG</async.log.app.level>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(S) -->
@@ -179,5 +183,7 @@
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://ws.flowtable4j.infosec.ctripcorp.com/flowtable4j/rest/saveData4Offline</persist.remote.url>
+        <async.log.root.level>INFO</async.log.root.level>
+        <async.log.app.level>INFO</async.log.app.level>
     </prd>
 </profile>

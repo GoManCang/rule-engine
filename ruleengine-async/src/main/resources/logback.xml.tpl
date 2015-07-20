@@ -31,12 +31,12 @@
     </appender>
     
     <logger name="com.ctrip.infosec.rule" additivity="false">
-        <level value="INFO" />
+        <level value="{$async.log.app.level}" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />
     </logger>
     <logger name="com.ctrip.infosec.configs" additivity="false">
-        <level value="INFO" />
+        <level value="{$async.log.app.level}" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />
     </logger>
@@ -70,7 +70,7 @@
         <level value="INFO" />
     </logger>
 
-    <root level="WARN">
+    <root level="{$async.log.root.level}">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
         <appender-ref ref="CLoggingAppender" />
