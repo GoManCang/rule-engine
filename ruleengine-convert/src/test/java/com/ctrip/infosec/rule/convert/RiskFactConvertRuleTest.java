@@ -103,7 +103,7 @@ public class RiskFactConvertRuleTest {
 
         String factTxt = " {\n" +
                 "    \"UserProfileInfo\": {\n" +
-                "      \"CUSCHARACTER\": \"REPEAT\"\n" +
+                "      \"CUSCHARACTER\": \"NEW\"\n" +
                 "    },\n" +
                 "    \"aCity\": 0,\n" +
                 "    \"businessItem\": \"\",\n" +
@@ -114,8 +114,8 @@ public class RiskFactConvertRuleTest {
                 "    \"dCity\": 99,\n" +
                 "    \"departureDate\": \"2014-06-23 11:04:18.951\",\n" +
                 "    \"isOnline\": \"F\",\n" +
-                "    \"latitude\": 0,\n" +
-                "    \"longitude\": 0,\n" +
+                "    \"latitude\": 0.0,\n" +
+                "    \"longitude\": 0.0,\n" +
                 "    \"merchantID\": \"MerchantID \",\n" +
                 "    \"mobilePhone\": \"13701488549\",\n" +
                 "    \"optionItems\": [\n" +
@@ -130,61 +130,14 @@ public class RiskFactConvertRuleTest {
                 "        \"optionQty\": 20\n" +
                 "      }\n" +
                 "    ],\n" +
-                "    \"orderAmount\": 10,\n" +
+                "    \"orderAmount\": 10.0,\n" +
                 "    \"orderDate\": \"2014-06-23 11:04:18.951\",\n" +
-                "    \"orderID\": 9077909,\n" +
+                "    \"orderID\": 9077859,\n" +
                 "    \"orderInfoExternalURL\": \" OrderInfoExternalURL \",\n" +
-                "    \"orderPrepayType\": \"CCARD \",\n" +
-                "    \"orderToSignUpDate\": 55557,\n" +
+                "    \"orderPrepayType\": \"CCARD\",\n" +
+                "    \"orderToSignUpDate\": 8393,\n" +
                 "    \"orderType\": 22,\n" +
-                "    \"paymentInfos\": [\n" +
-                "      {\n" +
-                "        \"amount\": 20,\n" +
-                "        \"cardInfoID\": 29073076,\n" +
-                "        \"creditCardInfo\": {\n" +
-                "          \"bankOfCardIssue\": \"44 \",\n" +
-                "          \"billingAddress\": \" 444\",\n" +
-                "          \"cCardLastNoCode\": \"122358 \",\n" +
-                "          \"cCardNoCode\": \"2655585\",\n" +
-                "          \"cCardPreNoCode\": \" 111\",\n" +
-                "          \"cValidityCode\": \"55665 \",\n" +
-                "          \"cardBin\": \"5335588\",\n" +
-                "          \"cardHolder\": \"晨晨\",\n" +
-                "          \"cardInfoID\": 28996388,\n" +
-                "          \"creditCardType\": 11,\n" +
-                "          \"infoID\": 12,\n" +
-                "          \"isForigenCard\": \" 44\",\n" +
-                "          \"nationality\": \"4 \",\n" +
-                "          \"nationalityofisuue\": \" 44\",\n" +
-                "          \"stateName\": \"55555 \"\n" +
-                "        },\n" +
-                "        \"prepayType\": \" CCARD\",\n" +
-                "        \"refNo\": 1\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"amount\": 20,\n" +
-                "        \"cardInfoID\": 28900449,\n" +
-                "        \"creditCardInfo\": {\n" +
-                "          \"bankOfCardIssue\": \"44 \",\n" +
-                "          \"billingAddress\": \" 444\",\n" +
-                "          \"cCardLastNoCode\": \"122358 \",\n" +
-                "          \"cCardNoCode\": \"2655585\",\n" +
-                "          \"cCardPreNoCode\": \" 111\",\n" +
-                "          \"cValidityCode\": \"55665 \",\n" +
-                "          \"cardBin\": \"5335588\",\n" +
-                "          \"cardHolder\": \"晨晨\",\n" +
-                "          \"cardInfoID\": 28900457,\n" +
-                "          \"creditCardType\": 11,\n" +
-                "          \"infoID\": 12,\n" +
-                "          \"isForigenCard\": \" 44\",\n" +
-                "          \"nationality\": \"4 \",\n" +
-                "          \"nationalityofisuue\": \" 44\",\n" +
-                "          \"stateName\": \"55555 \"\n" +
-                "        },\n" +
-                "        \"prepayType\": \" Tmony\",\n" +
-                "        \"refNo\": 1\n" +
-                "      }\n" +
-                "    ],\n" +
+                "    \"paymentInfos\": [],\n" +
                 "    \"phoneProvinceName\": {\n" +
                 "      \"CityName\": \"常州\",\n" +
                 "      \"MobileNumber\": \"1370148\",\n" +
@@ -195,34 +148,29 @@ public class RiskFactConvertRuleTest {
                 "    \"referenceNo\": \" ReferenceNo\",\n" +
                 "    \"sendTickerAddr\": \" SendTickerAddr \",\n" +
                 "    \"serverfrom\": \"Serverfrom  \",\n" +
-                "    \"uid\": \"test111111\",\n" +
+                "    \"uid\": \"E00019292\",\n" +
                 "    \"uidCrmMemberInfo\": {\n" +
-                "      \"bindedEmail\": \"test@163.com\",\n" +
-                "      \"bindedMobilePhone\": \"13616667784\",\n" +
-                "      \"birth\": \"1997-01-01T00:00:00\",\n" +
-                "      \"city\": \"2\",\n" +
-                "      \"ctripcardno\": \"1680000044\",\n" +
-                "      \"email\": \"hj_liu@ctrip.com\",\n" +
-                "      \"experience\": \"-1649307515\",\n" +
-                "      \"gender\": \"M\",\n" +
+                "      \"bindedEmail\": \"liu_xy@ctrip.com\",\n" +
+                "      \"birth\": \"0001-01-01T00:00:00\",\n" +
+                "      \"city\": \"0\",\n" +
+                "      \"country\": \"0\",\n" +
+                "      \"email\": \"liu_xy@ctrip.com\",\n" +
+                "      \"experience\": \"9845\",\n" +
+                "      \"gender\": \"F\",\n" +
                 "      \"mD5Password\": \"E10ADC3949BA59ABBE56E057F20F883E\",\n" +
-                "      \"maxGrade\": \"10\",\n" +
+                "      \"maxGrade\": \"30\",\n" +
                 "      \"mileageIncluding\": \"HF\",\n" +
-                "      \"mobilePhone\": \"13355555555\",\n" +
-                "      \"scSaleCardEmp\": \"yanxie\",\n" +
-                "      \"signupIP\": \"172.16.144.14\",\n" +
-                "      \"signupdate\": \"2008-02-20T13:25:32\",\n" +
-                "      \"sourceid\": \"8\",\n" +
-                "      \"tel\": \"777777777*2222\",\n" +
-                "      \"uid\": \"test111111\",\n" +
-                "      \"updateTime\": \"2014-05-14T16:42:14\",\n" +
-                "      \"userName\": \"test\",\n" +
+                "      \"signupIP\": \"172.16.163.200\",\n" +
+                "      \"signupdate\": \"2013-07-08T17:24:36\",\n" +
+                "     \"sourceid\": \"1\",\n" +
+                "      \"uid\": \"E00019292\",\n" +
+                "      \"updateTime\": \"0001-01-01T00:00:00\",\n" +
                 "      \"vip\": \"F\",\n" +
-                "      \"vipGrade\": \"30\"\n" +
+                "      \"vipGrade\": \"0\"\n" +
                 "    },\n" +
                 "    \"userIP\": \"67.20.213.60\",\n" +
                 "    \"userIPCountry\": {\n" +
-                "     \"Area\": \"\",\n" +
+                "      \"Area\": \"\",\n" +
                 "      \"City\": \"Buffalo\",\n" +
                 "      \"CityId\": \"-999\",\n" +
                 "      \"Country\": \"美国\",\n" +
