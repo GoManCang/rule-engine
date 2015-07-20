@@ -11,7 +11,9 @@ import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -21,15 +23,15 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 /**
- * 根据城市名称返回对应的省的名称
- * 返回的结果是一个list集合，有时候一个城市会对应多个省的名称
- * Created by lpxie on 15-7-7.
+ * 根据卡的id和卡的rule来获取卡的信息
+ * 返回的是一个map，包含了当前卡的相关信息
+ * Created by lpxie on 15-7-16.
  */
-public class CityToProvince
+public class ForeignCardInfo
 {
-    private static final Logger logger = LoggerFactory.getLogger(CityToProvince.class);
+    private static final Logger logger = LoggerFactory.getLogger(ForeignCardInfo.class);
 
-    private static Map<String, List> cityAndPro = new HashMap<>();
+    private static Map<String, Map> foreignCardInfos = new HashMap<>();
 
     private static boolean isInit = false;
 
@@ -50,7 +52,7 @@ public class CityToProvince
                 isInit = true;
             }catch (Exception exp)
             {
-                logger.warn("从DataProxy获取城市中文名和省对应的记录异常:"+exp.getMessage());
+                logger.warn("从DataProxy获取外卡信息的记录异常:"+exp.getMessage());
             }finally
             {
                 lock.unlock();
@@ -62,7 +64,7 @@ public class CityToProvince
     {
         beforeInvoke();
         String serviceName = "ConvertService";
-        String operationName = "getCityNameByCityId_Batch";
+        String operationName = "getForeignCardInfo_Batch";
         DataProxyRequest request = new DataProxyRequest();
         request.setServiceName(serviceName);
         request.setOperationName(operationName);
@@ -77,41 +79,33 @@ public class CityToProvince
             response = JSON.parseObject(responseTxt, DataProxyResponse.class);
         } catch (Exception ex) {
             fault();
-            logger.error(Contexts.getLogPrefix() + "invoke CityToProvince.init fault.", ex);
+            logger.error(Contexts.getLogPrefix() + "invoke StationToProvince.init fault.", ex);
         } finally {
-            afterInvoke("CityToProvince.init");
+            afterInvoke("StationToProvince.init");
         }
         int i = 0;
         if(response.getRtnCode() == 0)
         {
-            logger.info("从DataProxy获取了"+response.getResult().size()+"条城市中文名和省对应的记录");
+            logger.info("从DataProxy获取了"+response.getResult().size()+"条外卡信息的记录");
             Iterator iterator = response.getResult().values().iterator();
 
             while(iterator.hasNext())
             {
                 Map temp = (Map)iterator.next();
-                if(cityAndPro.containsKey(temp.get("cityName").toString()))
-                {
-                     cityAndPro.get(temp.get("cityName").toString()).add(temp.get("provinceName").toString());
-                     //logger.info(temp.get("cityName").toString());
-                     i++;
-                }else
-                {
-                    List list = new ArrayList();
-                    list.add(temp.get("provinceName").toString());
-                    cityAndPro.put(temp.get("cityName").toString(),list);
-                }
-
+                String typeId = (String)temp.get("cardtypeid");
+                String rule = (String)temp.get("cardrule");
+                String key = typeId+"_"+rule;
+                foreignCardInfos.put(key,temp);
             }
         }else
         {
-            logger.error("从DataProxy获取城市中午名称和省对应的记录失败:" + response.getMessage());
+            logger.error("从DataProxy获取外卡信息的记录失败:" + response.getMessage());
         }
     }
 
-    public static List<String> getProvinceNames(String cityName)
+    public static Map getProvinceNames(String cardId,String cardRule)
     {
         init();
-        return cityAndPro.get(cityName);
+        return foreignCardInfos.get(cardId+"_"+cardRule);
     }
 }

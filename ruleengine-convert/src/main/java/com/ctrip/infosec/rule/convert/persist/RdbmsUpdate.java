@@ -1,7 +1,9 @@
 package com.ctrip.infosec.rule.convert.persist;
 
+import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
+import com.ctrip.infosec.rule.convert.util.PersistConvertUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -9,6 +11,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +22,7 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.text.ParseException;
 import java.util.*;
 import java.util.Date;
 
@@ -38,18 +42,18 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
         try {
             JdbcTemplate template = new JdbcTemplate(getDatasource());
 
-            DatabaseType databaseType = getChannel().getDatabaseType();
+            final DatabaseType databaseType = getChannel().getDatabaseType();
             if (databaseType.equals(DatabaseType.AllInOne_SqlServer)) {
                 String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
                 if (StringUtils.isBlank(spa)) {
-                    logger.info("columnPropertiesMap 中的value为空 未构成spa");
+                    logger.warn("columnPropertiesMap 中的value为空 未构成spa");
                     return;
                 }
-                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
+                logger.debug("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
                 template.execute(spa, new CallableStatementCallback<Object>() {
                     @Override
                     public Object doInCallableStatement(CallableStatement cs) throws SQLException, DataAccessException {
-                        setValues(cs, getColumnPropertiesMap(), ctx);
+                        setValues(databaseType, cs, getColumnPropertiesMap());
                         cs.execute();
                         return null;
                     }
@@ -86,7 +90,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
 
     }
 
-    private int setValues(CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
+    private int setValues(DatabaseType databaseType, CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap) throws SQLException {
         int outputIndex = 0;
         int index = 1;
 //        int size = columnPropertiesMap.size();
@@ -94,22 +98,10 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
             PersistColumnProperties value = entry.getValue();
             Object o = value.getValue();
             if (o != null) {
-                if (o instanceof Integer) {
-                    cs.setInt(index, (Integer) o);
-                } else if (o instanceof Long) {
-                    cs.setLong(index, (Long) o);
-                } else if (o instanceof Date) {
-                    cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
-                } else if (o instanceof String) {
-                    cs.setString(index, (String) o);
-                } else if (o instanceof Double) {
-                    Double d = (Double) o;
-                    cs.setBigDecimal(index, new BigDecimal(d));
-                } else if (o instanceof Float) {
-                    Float f = (Float) o;
-                    cs.setBigDecimal(index, new BigDecimal(f.doubleValue()));
-                } else {
-                    cs.setObject(index, o);
+                try {
+                    setValue(databaseType, cs, index, value, o);
+                } catch (ParseException e) {
+                    throw new SQLException("set callable statement error. value=" + o, e);
                 }
             } else {
                 continue;
@@ -125,7 +117,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
         String temp;
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
-            Object o = valueByPersistSourceType(entry.getValue(), ctx);
+            Object o = normalize(valueByPersistSourceType(entry.getValue(), ctx));
             if (o != null) {
                 temp = "@" + entry.getKey() + " = ?";
                 list.add(temp);
@@ -215,7 +207,7 @@ public class RdbmsUpdate extends AbstractRdbmsOperation {
         Map map = new HashMap<>();
         for (Map.Entry<String, PersistColumnProperties> entry : getColumnPropertiesMap().entrySet()) {
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
-                map.put(entry.getKey(), entry.getValue().getValue());
+                map.put(entry.getKey(), normalize(entry.getValue().getValue()));
             }
         }
 

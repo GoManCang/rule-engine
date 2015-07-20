@@ -28,7 +28,7 @@ public class RuleMonitorTest {
 		int n = 1000;
 		while(n > 0){
 			
-			RuleMonitorRepository.increaseCounter("CP0001002_2offline");
+			RuleMonitorRepository.increaseCounter("cp0001","CP0001002_2offline");
 //			repository.increaseCounter("PayAdapter001");
 			
 			n--;

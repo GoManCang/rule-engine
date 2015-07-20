@@ -17,6 +17,7 @@ import com.ctrip.infosec.rule.convert.persist.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.util.List;
@@ -29,123 +30,7 @@ public class RiskFactPersistStrategyTest {
 
     @Test
     public void testConvertAndPersist() throws Exception {
-        String data = "{\n" +
-                "  \"eventPoint\": \"CP0041001\",\n" +
-                "  \"eventId\": \"76086930-029a-11e5-967d-5f475aeafb8c\",\n" +
-                "  \"appId\": \"670203\",\n" +
-                "  \"eventBody\": {\n" +
-                "    \"aCity\": 5,\n" +
-                "    \"accountBook\": \"\",\n" +
-                "    \"bookingName\": \"\",\n" +
-                "    \"businessItem\": \"\",\n" +
-                "    \"checkType\": 1,\n" +
-                "    \"contactEMail\": \"lxyy1118@163.com\",\n" +
-                "    \"contactName\": \"ContactName\",\n" +
-                "    \"contactTel\": \"0519-8117755\",\n" +
-                "    \"dCity\": 6,\n" +
-                "    \"departureDate\": \"2014-08-15 10:26:15.302\",\n" +
-                "    \"isOnline\": \"T\",\n" +
-                "    \"latitude\": 0,\n" +
-                "    \"longitude\": 0,\n" +
-                "    \"merchantID\": \"12358\",\n" +
-                "    \"mobilePhone\": \"15161121660\",\n" +
-                "    \"optionItems\": [\n" +
-                "      {\n" +
-                "        \"optionID\": 15,\n" +
-                "        \"optionName\": \"OptionName1\",\n" +
-                "        \"optionQty\": 15\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"optionID\": 16,\n" +
-                "        \"optionName\": \"OptionName2\",\n" +
-                "        \"optionQty\": 66\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"orderAmount\": 12,\n" +
-                "    \"orderDate\": \"2014-08-15 10:26:15.302\",\n" +
-                "    \"orderID\": 4563086,\n" +
-                "    \"orderInfoExternalURL\": \"OrderInfoExternalURL\",\n" +
-                "    \"orderPrepayType\": \"CCARD\",\n" +
-                "    \"orderType\": 29,\n" +
-                "    \"paymentInfos\": [\n" +
-                "      {\n" +
-                "        \"amount\": 0,\n" +
-                "        \"cardInfoID\": 0,\n" +
-                "        \"creditCardInfo\": {\n" +
-                "          \"bankOfCardIssue\": \"\",\n" +
-                "          \"billingAddress\": \"\",\n" +
-                "          \"cCardLastNoCode\": \"\",\n" +
-                "          \"cCardNoCode\": \"\",\n" +
-                "          \"cCardPreNoCode\": \"\",\n" +
-                "          \"cValidityCode\": \"\",\n" +
-                "          \"cardBin\": \"\",\n" +
-                "          \"cardHolder\": \"\",\n" +
-                "          \"cardInfoID\": 0,\n" +
-                "          \"creditCardType\": 0,\n" +
-                "          \"infoID\": 0,\n" +
-                "          \"isForigenCard\": \"\",\n" +
-                "          \"nationality\": \"\",\n" +
-                "          \"nationalityofisuue\": \"\",\n" +
-                "          \"stateName\": \"\"\n" +
-                "        },\n" +
-                "        \"prepayType\": \"\",\n" +
-                "        \"refNo\": 0\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"amount\": 0,\n" +
-                "        \"cardInfoID\": 0,\n" +
-                "        \"creditCardInfo\": {\n" +
-                "          \"bankOfCardIssue\": \"\",\n" +
-                "          \"billingAddress\": \"\",\n" +
-                "          \"cCardLastNoCode\": \"\",\n" +
-                "          \"cCardNoCode\": \"\",\n" +
-                "          \"cCardPreNoCode\": \"\",\n" +
-                "          \"cValidityCode\": \"\",\n" +
-                "          \"cardBin\": \"\",\n" +
-                "          \"cardHolder\": \"\",\n" +
-                "          \"cardInfoID\": 0,\n" +
-                "          \"creditCardType\": 0,\n" +
-                "          \"infoID\": 0,\n" +
-                "          \"isForigenCard\": \"\",\n" +
-                "          \"nationality\": \"\",\n" +
-                "          \"nationalityofisuue\": \"\",\n" +
-                "          \"stateName\": \"\"\n" +
-                "        },\n" +
-                "        \"prepayType\": \"\",\n" +
-                "        \"refNo\": 0\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"productName\": \"ProductName\",\n" +
-                "    \"referenceNo\": \"ReferenceNo\",\n" +
-                "    \"sendTickerAddr\": \"8117755\",\n" +
-                "    \"serverfrom\": \"Serverfrom\",\n" +
-                "    \"subOrderType\": 0,\n" +
-                "    \"uid\": \"test111111\",\n" +
-                "    \"userIP\": \"192.168.1.1\",\n" +
-                "    \"userInfos\": [\n" +
-                "      {\n" +
-                "        \"visitorCardNo\": \"VisitorCardNo2\",\n" +
-                "        \"visitorContactInfo\": \"VisitorContactInfo1\",\n" +
-                "        \"visitorIDCardType\": 32,\n" +
-                "        \"visitorName\": \"VisitorName1\",\n" +
-                "        \"visitorNationality\": \"CN\"\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"visitorCardNo\": \"VisitorCardNo2\",\n" +
-                "        \"visitorContactInfo\": \"VisitorContactInfo3\",\n" +
-                "        \"visitorIDCardType\": 34,\n" +
-                "        \"visitorName\": \"VisitorName2\",\n" +
-                "        \"visitorNationality\": \"US\"\n" +
-                "      }\n" +
-                "    ]\n" +
-                "  },\n" +
-                "  \"ext\": {\n" +
-                "    \"CHANNEL\": \"REST\",\n" +
-                "    \"descTimestamp\": 2638350186685\n" +
-                "  },\n" +
-                "  \"requestTime\": \"2015-05-25 12:56:53.342\",\n" +
-                "  \"requestReceive\": \"2015-05-25 12:56:53.315\"\n" +
-                "}";
+        String data = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("CP0001002.json"), "utf-8");
         System.out.println(data);
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
@@ -165,8 +50,8 @@ public class RiskFactPersistStrategyTest {
         System.out.println(internalRiskFact.getReqId());
         System.out.println(persistManager.getOrderId());
         
-        Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
-        System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
+//        Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
+//        System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
     }
 
     @Test

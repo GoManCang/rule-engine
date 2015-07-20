@@ -5,50 +5,39 @@
  */
 package com.ctrip.infosec.rule.rabbitmq;
 
-import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
-import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
-import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import com.ctrip.infosec.common.Constants;
+import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.common.model.RiskResult;
+import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
-import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
+import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.utils.Utils;
+import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
-import com.ctrip.infosec.rule.convert.persist.*;
-import com.ctrip.infosec.rule.resource.RiskLevelData;
-import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
-import com.google.common.collect.Lists;
+import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
+import com.ctrip.infosec.rule.convert.persist.DbExecuteException;
+import com.ctrip.infosec.rule.convert.persist.PersistColumnProperties;
+import com.ctrip.infosec.rule.convert.persist.PersistContext;
+import com.ctrip.infosec.rule.convert.persist.RdbmsInsert;
+import com.ctrip.infosec.rule.executor.*;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.collect.Maps;
+import com.meidusa.fastjson.JSON;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.ctrip.infosec.common.Constants;
-import com.ctrip.infosec.common.model.RiskFact;
-import com.ctrip.infosec.common.model.RiskResult;
-import com.ctrip.infosec.configs.Configs;
-import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
-import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
-import com.ctrip.infosec.configs.utils.Utils;
-import com.ctrip.infosec.rule.Contexts;
-import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
-import com.ctrip.infosec.rule.executor.CounterPushRulesExecutorService;
-import com.ctrip.infosec.rule.executor.EventDataMergeService;
-import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
-import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
-import com.ctrip.infosec.rule.executor.RulesExecutorService;
-import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
-import com.meidusa.fastjson.JSON;
+import java.util.Date;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import static com.ctrip.infosec.common.SarsMonitorWrapper.*;
 
 /**
  * @author zhengby
@@ -75,14 +64,12 @@ public class RabbitMqMessageHandler {
     private CounterPushRulesExecutorService counterPushRuleExrcutorService;
     @Autowired
     private RiskEventConvertor riskEventConvertor;
-
     @Autowired
-    private RiskFactConvertRuleService riskFactConvertRuleService;
+    private Offline4jService offline4jService;
 
     public void handleMessage(Object message) throws Exception {
         RiskFact fact = null;
-        String factTxt = null;
-        long reqId;
+        String factTxt;
         InternalRiskFact internalRiskFact = null;
         try {
 
@@ -99,113 +86,78 @@ public class RabbitMqMessageHandler {
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 
+            boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
+            TraceLogger.enabled(traceLoggerEnabled);
+
             // 执行Redis读取
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[异步预处理]");
-                    preRulesExecutorService.executePreRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[异步规则]");
-                    rulesExecutorService.executeAsyncRules(fact);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
             }
             // 执行后处理
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[后处理]");
-                    postRulesExecutorService.executePostRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[异步后处理]");
                 postRulesExecutorService.executePostRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
             //Counter推送规则处理
-            if (!StringUtils.endsWith(fact.eventPoint, "004")) {
-                try {
-                    TraceLogger.beginTrans(fact.eventId);
-                    TraceLogger.setLogPrefix("[Counter推送]");
-                    counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
-                } finally {
-                    TraceLogger.commitTrans();
-                }
-            } else {
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[Counter推送]");
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
+            } finally {
+                TraceLogger.commitTrans();
             }
-            //riskfact 数据映射转换
-            internalRiskFact = riskFactConvertRuleService.apply(fact);
-            if (internalRiskFact != null) {
-                // 数据落地
-                String operation = internalRiskFact.getEventPoint() + ".persist-info";
-                try {
-                    beforeInvoke(operation);
-                    Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
-                    String resultRemark = "NEW: " + resultToString(fact.results);
-                    RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
-                    PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
-                    reqId = persistManager.getGeneratedReqId();
-                    internalRiskFact.setReqId(reqId);
-                    // 调用远程服务落地
-                    if (MapUtils.getBoolean(fact.ext, "offline4j-push-ebank", false)) {
-                        SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(reqId, riskLevel, persistManager.getOrderId());
-                        if(new Integer(0).equals(ebankResp.getRetCode())){
-                            // 更新InfoSecurity_RiskLevelData的TransFlag = 32
-                            RdbmsUpdate update = new RdbmsUpdate();
-                            DistributionChannel channel = new DistributionChannel();
-                            String allInOneDb = RiskFactPersistStrategy.allInOne4ReqId;
-                            channel.setChannelNo(allInOneDb);
-                            channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-                            channel.setChannelDesc(allInOneDb);
-                            channel.setDatabaseURL(allInOneDb);
-                            update.setChannel(channel);
+            // -------------------------------- 规则引擎结束 -------------------------------------- //
 
-                            Map<String , PersistColumnProperties> map =new HashMap<>();
-                            PersistColumnProperties pcp=new PersistColumnProperties();
-                            pcp.setValue(reqId);
-                            pcp.setColumnType(DataUnitColumnType.Long);
-                            pcp.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
-                            map.put("ReqID", pcp);
+            internalRiskFact = offline4jService.saveForOffline(fact);
 
-                            pcp = new PersistColumnProperties();
-                            pcp.setValue(32);
-                            pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                            pcp.setColumnType(DataUnitColumnType.Int);
-                            map.put("TransFlag", pcp);
-
-                            update.execute(persistContext);
-                        }
-                    }
-                } catch (Exception ex) {
-                    fault(operation);
-                    logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
-                } finally {
-                    afterInvoke(operation);
-                }
-            }
             // 落地规则结果
-            Long riskReqId = MapUtils.getLong(fact.ext, "reqId");
-            if (riskReqId != null) {
-                saveRuleResult(riskReqId, fact.results);
+            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+            try {
+                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.setLogPrefix("[保存CheckResultLog]");
+                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
+                boolean outerReqId = true;
+                if (internalRiskFact != null && riskReqId == null) {
+                    riskReqId = internalRiskFact.getReqId();
+                    outerReqId = false;
+                }
+                if (riskReqId != null && riskReqId > 0) {
+                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                        TraceLogger.traceLog("reqId = " + riskReqId);
+                        saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
+                    } else {
+                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
+                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
+                    }
+                }
+            } catch (Exception ex) {
+                fault("CardRiskDB.CheckResultLog.saveRuleResult");
+                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
+            } finally {
+                long usage = afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+                TraceLogger.traceLog("耗时: " + usage + "ms");
+                TraceLogger.commitTrans();
             }
+
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
         } finally {
@@ -256,16 +208,31 @@ public class RabbitMqMessageHandler {
                 try {
 
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
-                    for (Entry<String, Map<String, Object>> entry : fact.getResults().entrySet()) {
+                    boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
+                    if (!withScene) {
+                        for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
-                        String ruleNo = entry.getKey();
-                        int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
-                        if (rLevel > 0) {
-                            RuleMonitorRepository.increaseCounter(ruleNo);
+                            if (rLevel > 0) {
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            }
+
                         }
+                    } else {
+                        for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+
+                            if (rLevel > 0) {
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            }
+
+                        }
                     }
+
                 } catch (Exception ex) {
                     logger.error(Contexts.getLogPrefix() + "RuleMonitorRepository increaseCounter fault.", ex);
                 }
@@ -274,15 +241,14 @@ public class RabbitMqMessageHandler {
         }
     }
 
-    private void saveRuleResult(Long riskReqId, Map<String, Map<String, Object>> results) throws DbExecuteException {
+    private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
-        channel.setChannelNo("CardRiskDB_INSERT_1");
+        channel.setChannelNo(RiskFactPersistStrategy.allInOne4ReqId);
         channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-        channel.setChannelDesc("CardRiskDB_INSERT_1");
-        channel.setDatabaseURL("CardRiskDB_INSERT_1");
+        channel.setChannelDesc(RiskFactPersistStrategy.allInOne4ReqId);
+        channel.setDatabaseURL(RiskFactPersistStrategy.allInOne4ReqId);
         insert.setChannel(channel);
-        insert.setTable("InfoSecurity_CheckResultLog");
 
         /**
          * [LogID] = 主键 [ReqID] [RuleType] [RuleID] = 0 [RuleName] [RiskLevel]
@@ -292,98 +258,89 @@ public class RabbitMqMessageHandler {
         if (MapUtils.isNotEmpty(results)) {
             for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
                 try {
-                    Map<String, PersistColumnProperties> map = Maps.newHashMap();
-                    PersistColumnProperties props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
-                    props.setColumnType(DataUnitColumnType.Long);
-                    map.put("LogID", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.Long);
-                    props.setValue(riskReqId);
-                    map.put("ReqID", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.String);
-                    props.setValue("N");
-                    map.put("RuleType", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.Int);
-                    props.setValue(0);
-                    map.put("RuleID", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.String);
-                    props.setValue(entry.getKey());
-                    map.put("RuleName", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.Long);
-                    props.setValue(entry.getValue().get("riskLevel"));
-                    map.put("RiskLevel", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.String);
-                    props.setValue(entry.getValue().get("riskMessage"));
-                    map.put("RuleRemark", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
-                    props.setColumnType(DataUnitColumnType.Data);
-                    props.setExpression("const:now:date");
-                    map.put("CreateDate", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
-                    props.setColumnType(DataUnitColumnType.Data);
-                    props.setExpression("const:now:date");
-                    map.put("DataChange_LastTime", props);
-
-                    props = new PersistColumnProperties();
-                    props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-                    props.setColumnType(DataUnitColumnType.Int);
-                    props.setValue(1);
-                    map.put("IsHighlight", props);
-
-                    insert.setColumnPropertiesMap(map);
-
-                    PersistContext ctx = new PersistContext();
-                    insert.execute(ctx);
-                } catch (Exception e) {
-                    logger.error("save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
-                }
-            }
-        }
-    }
-
-    private String resultToString(Map<String, Map<String, Object>> results) {
-        List<String> result = Lists.newArrayList();
-        if (MapUtils.isNotEmpty(results)) {
-            for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
-                try {
-                    Map<String, Object> val = entry.getValue();
-                    if (val != null) {
-                        Object level = val.get("riskLevel");
-                        if (level != null) {
-                            int riskLevel = Integer.valueOf(level.toString());
-                            if (riskLevel > 0) {
-                                result.add(entry.getKey());
+                    Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
+                    boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
+                    if (riskLevel > 0) {
+                        boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
+                        if (withScene || isAsync || !outerReqId) {
+                            if (withScene || isAsync) {
+                                insert.setTable("InfoSecurity_CheckResultLog");
+                            } else{
+                                insert.setTable("RiskControl_CheckResultLog");
                             }
+                            Map<String, PersistColumnProperties> map = Maps.newHashMap();
+                            PersistColumnProperties props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+                            props.setColumnType(DataUnitColumnType.Long);
+                            map.put("LogID", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.Long);
+                            props.setValue(riskReqId);
+                            map.put("ReqID", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.String);
+                            String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
+                            props.setValue(ruleType);
+                            map.put("RuleType", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.Int);
+                            props.setValue(0);
+                            map.put("RuleID", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.String);
+                            props.setValue(entry.getKey());
+                            map.put("RuleName", props);
+                            TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.Long);
+                            props.setValue(riskLevel);
+                            map.put("RiskLevel", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.String);
+                            props.setValue(MapUtils.getString(entry.getValue(), Constants.riskMessage));
+                            map.put("RuleRemark", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
+                            props.setColumnType(DataUnitColumnType.Data);
+                            props.setExpression("const:now:date");
+                            map.put("CreateDate", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
+                            props.setColumnType(DataUnitColumnType.Data);
+                            props.setExpression("const:now:date");
+                            map.put("DataChange_LastTime", props);
+
+                            props = new PersistColumnProperties();
+                            props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+                            props.setColumnType(DataUnitColumnType.Int);
+                            props.setValue(0);
+                            map.put("IsHighlight", props);
+
+                            insert.setColumnPropertiesMap(map);
+
+                            PersistContext ctx = new PersistContext();
+                            insert.execute(ctx);
                         }
                     }
                 } catch (Exception e) {
-                    logger.error("get risk level from results failed.", e);
+                    logger.error(Contexts.getLogPrefix() + "save InfoSecurity_CheckResultLog failed. reqId=" + riskReqId + ", result=" + entry, e);
                 }
             }
         }
-        return StringUtils.join(result, ',');
     }
 
     /**

@@ -7,6 +7,7 @@ import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.google.common.collect.Maps;
 import com.ctrip.infosec.configs.utils.Utils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -39,19 +40,19 @@ public class RdbmsInsertTest {
         Map<String , PersistColumnProperties> map =new HashMap<String, PersistColumnProperties>();
 
         PersistColumnProperties pcp1 = new PersistColumnProperties();
-        pcp1.setValue(0);
+        pcp1.setValue(111);
         pcp1.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         pcp1.setColumnType(DataUnitColumnType.Int);
         map.put("RuleID",pcp1);
 
         PersistColumnProperties pcp2=new PersistColumnProperties();
-        pcp2.setValue(6);
+        pcp2.setValue(17);
         pcp2.setColumnType(DataUnitColumnType.Long);
         pcp2.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         map.put("ProcessType",pcp2);
 
         PersistColumnProperties pcp3=new PersistColumnProperties();
-        pcp3.setValue("from offline test");
+        pcp3.setValue(new String[]{null,"from offline test"});
         pcp3.setColumnType(DataUnitColumnType.String);
         pcp3.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         map.put("CheckValue",pcp3);
@@ -61,6 +62,7 @@ public class RdbmsInsertTest {
     }
 
     @Test
+//    @Ignore
     public void testExecute() throws Exception {
         rdbmsInsert.execute(ctx);
 

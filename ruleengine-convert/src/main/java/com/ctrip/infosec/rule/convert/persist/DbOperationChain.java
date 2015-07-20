@@ -22,7 +22,7 @@ public class DbOperationChain {
             currentOperation.execute(ctx);
             ctx.addCtxSharedValues(currentOperation.getPrefix(), currentOperation.getExposedValue());
         } catch (DbExecuteException e) {
-            logger.warn(SarsMonitorContext.getLogPrefix() + "operation failed: " + currentOperation, e);
+            logger.error(SarsMonitorContext.getLogPrefix() + "operation failed: " + currentOperation, e);
         }
         // 执行子操作
         if (childOperationChain != null) {
@@ -48,7 +48,7 @@ public class DbOperationChain {
         }
     }
 
-    private void addToTail(DbOperationChain chain) {
+    public void addToTail(DbOperationChain chain) {
         if (chain == null) {
             return;
         }

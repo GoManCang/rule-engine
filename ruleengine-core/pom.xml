@@ -21,6 +21,11 @@
             <groupId>com.ctrip.infosec.ruleengine</groupId>
             <artifactId>ruleengine-bundle</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.ctrip.infosec.ruleengine</groupId>
+            <artifactId>ruleengine-convert</artifactId>
+        </dependency>
         
         <!-- Venus 3.x -->
         <dependency>

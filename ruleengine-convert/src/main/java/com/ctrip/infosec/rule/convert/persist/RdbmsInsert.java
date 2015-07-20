@@ -1,20 +1,21 @@
 package com.ctrip.infosec.rule.convert.persist;
 
+import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
-import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
-import com.ctrip.infosec.rule.convert.util.DalDataSourceHolder;
+import com.ctrip.infosec.rule.convert.util.PersistConvertUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.text.ParseException;
 import java.util.*;
 import java.util.Date;
 
@@ -44,20 +45,19 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                 dataSource = getDatasource();
                 connection = dataSource.getConnection();
                 String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
-                if(StringUtils.isBlank(spa)){
-                    logger.info("columnPropertiesMap 中的value为空 未构成spa");
+                if (StringUtils.isBlank(spa)) {
+                    logger.warn("columnPropertiesMap 中的value为空 未构成spa");
                     return;
                 }
-                logger.info("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
+                logger.debug("{}spa: {}, parameters: {}", SarsMonitorContext.getLogPrefix(), spa, getColumnPropertiesMap());
                 CallableStatement cs = connection.prepareCall(spa);
-                int pk_Index = setValues(cs, getColumnPropertiesMap(), ctx);
+                int pk_Index = setValues(databaseType, cs, getColumnPropertiesMap());
                 cs.execute();
                 if (pk_Index != 0) {
                     primary_key = cs.getLong(pk_Index);
                 }
 
             } catch (Exception e) {
-                e.printStackTrace();
                 throw new DbExecuteException("insert操作异常", e);
             } finally {
                 try {
@@ -82,7 +82,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
         String temp;
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
-            Object o = valueByPersistSourceType(entry.getValue(), ctx);
+            Object o = normalize(valueByPersistSourceType(entry.getValue(), ctx));
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 if (o != null) {
                     temp = "@" + entry.getKey() + " = ?";
@@ -94,10 +94,9 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
             }
         }
         String join = Joiner.on(',').join(list);
-        if(StringUtils.isNotBlank(join)) {
+        if (StringUtils.isNotBlank(join)) {
             return String.format(sqa, join);
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -105,38 +104,22 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
     /**
      * outPUtIndex 主键index；
      *
+     * @param databaseType
      * @param cs
      * @param columnPropertiesMap
      * @return
      * @throws java.sql.SQLException
      */
-    private int setValues(CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap, PersistContext ctx) throws SQLException {
+    private int setValues(DatabaseType databaseType, CallableStatement cs, Map<String, PersistColumnProperties> columnPropertiesMap) throws Exception {
         int outputIndex = 0;
         int index = 1;
 //        int size = columnPropertiesMap.size();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
             PersistColumnProperties value = entry.getValue();
             if (!value.getPersistColumnSourceType().equals(PersistColumnSourceType.DB_PK)) {
-                Object o = value.getValue();
+                Object o = normalize(value.getValue());
                 if (o != null) {
-                    if (o instanceof Integer) {
-                        cs.setInt(index, (Integer) o);
-                    } else if (o instanceof Long) {
-                        cs.setLong(index, (Long) o);
-                    } else if (o instanceof Date) {
-                        cs.setTimestamp(index, new Timestamp(((Date) o).getTime()));
-                    } else if (o instanceof String) {
-                        cs.setString(index, (String) o);
-                    } else if ( o instanceof Double) {
-                        Double d = (Double) o;
-                        cs.setBigDecimal(index, new BigDecimal(d));
-                    } else if(o instanceof  Float){
-                        Float f = (Float) o;
-                        cs.setBigDecimal(index,new BigDecimal(f.doubleValue()));
-                    }
-                    else {
-                        cs.setObject(index, o);
-                    }
+                    setValue(databaseType, cs, index, value, o);
                 } else {
                     continue;
                 }
@@ -149,13 +132,12 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
         return outputIndex;
     }
 
-
     @Override
     public Map<String, Object> getExposedValue() {
         Map map = new HashMap<>();
         for (Map.Entry<String, PersistColumnProperties> entry : getColumnPropertiesMap().entrySet()) {
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
-                map.put(entry.getKey(), entry.getValue().getValue());
+                map.put(entry.getKey(), normalize(entry.getValue().getValue()));
             } else {
                 map.put(entry.getKey(), primary_key);
             }

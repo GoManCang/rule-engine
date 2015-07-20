@@ -1,0 +1,158 @@
+{
+  "eventPoint": "CP0026001",
+  "eventId":"f112d",
+  "eventBody": {
+    "UserProfileInfo": {
+      "CUSCHARACTER": "REPEAT"
+    },
+    "aCity": "0",
+    "businessItem": "",
+    "checkType": "1",
+    "contactEMail": "lxyy1118@163.com ",
+    "contactName": "ContactName  ",
+    "contactTel": " 8117755",
+    "dCity": "99",
+    "departureDate": "2014-06-23 11:04:18.951",
+    "isOnline": "F",
+    "latitude": "0",
+    "longitude": "0",
+    "merchantID": "MerchantID ",
+    "mobilePhone": "13701488549",
+    "optionItems": [
+      {
+        "optionID": 1,
+        "optionName": " OptionName1 ",
+        "optionQty": 10
+      },
+      {
+        "optionID": 2,
+        "optionName": " OptionName2",
+        "optionQty": 20
+      }
+    ],
+    "orderAmount": "10",
+    "orderDate": "2014-06-23 11:04:18.951",
+    "orderID": "9077911",
+    "orderInfoExternalURL": " OrderInfoExternalURL ",
+    "orderPrepayType": "CCARD ",
+    "orderToSignUpDate": "55557",
+    "orderType": "22",
+    "paymentInfos": [
+      {
+        "amount": 20,
+        "cardInfoID": 29073076,
+        "creditCardInfo": {
+          "bankOfCardIssue": "44 ",
+          "billingAddress": " 444",
+          "cCardLastNoCode": "122358 ",
+          "cCardNoCode": "2655585",
+          "cCardPreNoCode": " 111",
+          "cValidityCode": "55665 ",
+          "cardBin": "5335588",
+          "cardHolder": "晨晨",
+          "cardInfoID": 28996388,
+          "creditCardType": 11,
+          "infoID": 12,
+          "isForigenCard": " 44",
+          "nationality": "4 ",
+          "nationalityofisuue": " 44",
+          "stateName": "55555 "
+        },
+        "prepayType": " CCARD",
+        "refNo": 1
+      },
+      {
+        "amount": 20,
+        "cardInfoID": 28900449,
+        "creditCardInfo": {
+          "bankOfCardIssue": "44 ",
+          "billingAddress": " 444",
+          "cCardLastNoCode": "122358 ",
+          "cCardNoCode": "2655585",
+          "cCardPreNoCode": " 111",
+          "cValidityCode": "55665 ",
+          "cardBin": "5335588",
+          "cardHolder": "晨晨",
+          "cardInfoID": 28900457,
+          "creditCardType": 11,
+          "infoID": 12,
+          "isForigenCard": " 44",
+          "nationality": "4 ",
+          "nationalityofisuue": " 44",
+          "stateName": "55555 "
+        },
+        "prepayType": " Tmony",
+        "refNo": 1
+      }
+    ],
+    "phoneProvinceName": {
+      "CityName": "常州",
+      "MobileNumber": "1370148",
+      "MobileType": "江苏移动全球通卡",
+      "ProvinceName": "江苏"
+    },
+    "postActions": {},
+    "productName": " ProductName ",
+    "referenceNo": " ReferenceNo",
+    "sendTickerAddr": " SendTickerAddr ",
+    "serverfrom": "Serverfrom  ",
+    "uid": "test111111",
+    "uidCrmMemberInfo": {
+      "bindedEmail": "test@163.com",
+      "bindedMobilePhone": "13616667784",
+      "birth": "1997-01-01T00:00:00",
+      "city": "2",
+      "ctripcardno": "1680000044",
+      "email": "hj_liu@ctrip.com",
+      "experience": "-1649307515",
+      "gender": "M",
+      "mD5Password": "E10ADC3949BA59ABBE56E057F20F883E",
+      "maxGrade": "10",
+      "mileageIncluding": "HF",
+      "mobilePhone": "13355555555",
+      "scSaleCardEmp": "yanxie",
+      "signupIP": "172.16.144.14",
+      "signupdate": "2008-02-20T13:25:32",
+      "sourceid": "8",
+      "tel": "777777777*2222",
+      "uid": "test111111",
+      "updateTime": "2014-05-14T16:42:14",
+      "userName": "test",
+      "vip": "F",
+      "vipGrade": "30"
+    },
+    "userIP": "67.20.213.60",
+    "userIPCountry": {
+      "Area": "",
+      "City": "Buffalo",
+      "CityId": "-999",
+      "Country": "美国",
+      "CountryId": "66",
+      "EndAddr": "1125441535",
+      "Latitude": "42.7684",
+      "Longitude": "-78.8871",
+      "NationCode": "US",
+      "Province": "",
+      "ProvinceId": "-999",
+      "Remark": "国外数据",
+      "StartAddr": "1125433344",
+      "Type_Company": "State University of New Yor"
+    },
+    "userIPValue": "1125438780",
+    "userInfos": [
+      {
+        "visitorCardNo": "VisitorCardNo1  ",
+        "visitorContactInfo": " VisitorContactInfo1 ",
+        "visitorName": "VisitorName1  ",
+        "visitorNationality": " VisitorNationality1 "
+      },
+      {
+        "visitorCardNo": " VisitorCardNo2 ",
+        "visitorContactInfo": " VisitorContactInfo2 ",
+        "visitorName": " VisitorName2 ",
+        "visitorNationality": " VisitorNationality2 "
+      }
+    ]
+  },
+  "requestTime": "2015-07-13 14:48:13.096"
+}

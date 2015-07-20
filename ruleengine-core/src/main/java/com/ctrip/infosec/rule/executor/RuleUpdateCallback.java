@@ -6,6 +6,7 @@
 package com.ctrip.infosec.rule.executor;
 
 import com.ctrip.infosec.configs.ConfigsLoadedCallback;
+import com.ctrip.infosec.rule.engine.StatelessPersistPreRuleEngine;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
@@ -23,12 +24,15 @@ public class RuleUpdateCallback implements ConfigsLoadedCallback {
     private StatelessPreRuleEngine statelessPreRuleEngine;
     @Autowired
     private StatelessPostRuleEngine statelessPostRuleEngine;
+    @Autowired
+    private StatelessPersistPreRuleEngine statelessPersistPreRuleEngine;
 
     @Override
     public void onConfigsLoaded() {
         statelessRuleEngine.updateRules();
         statelessPreRuleEngine.updateRules();
         statelessPostRuleEngine.updateRules();
+        statelessPersistPreRuleEngine.updateRules();
     }
 
 }

@@ -4,6 +4,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -16,6 +17,7 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:spring/ruleengine.xml"})
+@Ignore
 public class RiskFactConvertRuleTest {
 
 
