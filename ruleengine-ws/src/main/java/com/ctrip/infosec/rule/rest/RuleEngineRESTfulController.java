@@ -63,7 +63,12 @@ public class RuleEngineRESTfulController {
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                // 引入节点编号优化排序
+                // S0 - 接入层同步前
+                // S1 - 同步引擎
+                // S2 - 接入层同步后
+                // S3 - 异步引擎
+                TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步预处理]");
                 preRulesExecutorService.executePreRules(fact, false);
             } finally {
@@ -73,7 +78,7 @@ public class RuleEngineRESTfulController {
             eventDataMergeService.executeRedisPut(fact);
             // 执行同步规则
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步规则]");
                 rulesExecutorService.executeSyncRules(fact);
             } finally {
@@ -81,7 +86,7 @@ public class RuleEngineRESTfulController {
             }
             // 执行后处理
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步后处理]");
                 postRulesExecutorService.executePostRules(fact, false);
             } finally {
