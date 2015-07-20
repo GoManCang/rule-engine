@@ -181,16 +181,20 @@ public class RulesExecutorService {
                     }
 
                     Map<String, Object> result = fact.results.get(packageName);
-                    result.put(Constants.async, true);
-                    result.put(Constants.timeUsage, handlingTime);
+                    if (result != null) {
+                        result.put(Constants.async, true);
+                        result.put(Constants.timeUsage, handlingTime);
 
-                    TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
-                            + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
+                        TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
+                                + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
+                    }
 
                 } else {
 
                     Map<String, Object> result = fact.results.get(packageName);
                     if (result != null) {
+                        result.put(Constants.async, false);
+                        result.put(Constants.timeUsage, handlingTime);
                         int riskLevel = MapUtils.getIntValue(result, Constants.riskLevel, 0);
                         if (riskLevel > 0) {
                             TraceLogger.traceLog("[" + packageName + "] 执行结果: [没有指定场景、忽略此次结果] riskLevel = " + result.get(Constants.riskLevel)
@@ -263,12 +267,14 @@ public class RulesExecutorService {
                             // remove current execute ruleNo when finished execution.
                             statelessRuleEngine.execute(packageName, factCopy);
 
+                            long handlingTime = System.currentTimeMillis() - start;
+
                             if (!Constants.eventPointsWithScene.contains(factCopy.eventPoint)) {
 
                                 Map<String, Object> resultWithScene = factCopy.resultsGroupByScene.get(packageName);
                                 if (resultWithScene != null) {
                                     resultWithScene.put(Constants.async, false);
-                                    resultWithScene.put(Constants.timeUsage, System.currentTimeMillis() - start);
+                                    resultWithScene.put(Constants.timeUsage, handlingTime);
 
                                     TraceLogger.traceLog("[" + packageName + "] 执行结果: [在非适配点指定了场景、忽略此次结果] riskLevel = " + resultWithScene.get(Constants.riskLevel)
                                             + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
@@ -276,16 +282,20 @@ public class RulesExecutorService {
                                 }
 
                                 Map<String, Object> result = factCopy.results.get(packageName);
-                                result.put(Constants.async, false);
-                                result.put(Constants.timeUsage, System.currentTimeMillis() - start);
+                                if (result != null) {
+                                    result.put(Constants.async, false);
+                                    result.put(Constants.timeUsage, handlingTime);
 
-                                TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
-                                        + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
+                                    TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
+                                            + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
+                                }
 
                             } else {
 
                                 Map<String, Object> result = factCopy.results.get(packageName);
                                 if (result != null) {
+                                    result.put(Constants.async, false);
+                                    result.put(Constants.timeUsage, handlingTime);
                                     int riskLevel = MapUtils.getIntValue(result, Constants.riskLevel, 0);
                                     if (riskLevel > 0) {
                                         TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: [适配接入点必须指定场景、忽略此次结果] riskLevel = " + result.get(Constants.riskLevel)
@@ -297,7 +307,7 @@ public class RulesExecutorService {
                                 Map<String, Object> resultWithScene = factCopy.resultsGroupByScene.get(packageName);
                                 if (resultWithScene != null) {
                                     resultWithScene.put(Constants.async, false);
-                                    resultWithScene.put(Constants.timeUsage, System.currentTimeMillis() - start);
+                                    resultWithScene.put(Constants.timeUsage, handlingTime);
 
                                     TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: riskLevel = " + resultWithScene.get(Constants.riskLevel)
                                             + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)

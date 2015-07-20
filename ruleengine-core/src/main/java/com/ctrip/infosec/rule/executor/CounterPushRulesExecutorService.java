@@ -63,7 +63,7 @@ public class CounterPushRulesExecutorService {
             clock.stop();
             long handlingTime = clock.getTime();
             if (handlingTime > 50) {
-                logger.info(Contexts.getLogPrefix() + "CounterPushRuleExecutorService#execute: eventPoint: " + fact.getEventPoint() + ", usage: " + handlingTime + "ms");
+//                logger.info(Contexts.getLogPrefix() + "CounterPushRuleExecutorService#execute: eventPoint: " + fact.getEventPoint() + ", usage: " + handlingTime + "ms");
             }
 
         } catch (Throwable ex) {
@@ -88,7 +88,7 @@ public class CounterPushRulesExecutorService {
     			
     			Counter.push(rule.getBizNo(), dataMap);
     			
-    			logger.info(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() + ",eventPoint-->" + rule.getEventPoint() + ",dataMap-->" + JSON.toJSONString(dataMap));
+//    			logger.info(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() + ",eventPoint-->" + rule.getEventPoint() + ",dataMap-->" + JSON.toJSONString(dataMap));
     		} else {
     			logger.warn(Contexts.getLogPrefix() + "Counter push: bizNo-->" + rule.getBizNo() + ",eventPoint-->" + rule.getEventPoint() + ",dataMap is empty");
     		}
