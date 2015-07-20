@@ -82,7 +82,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
         String temp;
         List<String> list = new ArrayList<>();
         for (Map.Entry<String, PersistColumnProperties> entry : columnPropertiesMap.entrySet()) {
-            Object o = valueByPersistSourceType(entry.getValue(), ctx);
+            Object o = normalize(valueByPersistSourceType(entry.getValue(), ctx));
             if (entry.getValue().getPersistColumnSourceType() != PersistColumnSourceType.DB_PK) {
                 if (o != null) {
                     temp = "@" + entry.getKey() + " = ?";
