@@ -188,6 +188,9 @@ public class RiskFactConvertRuleService {
                      }
                      *
                      */
+                if(results==null){
+                    continue;
+                }
                     convert2data(results, dataUnit, trgName);
                 } else {
                     logger.warn("trgName:"+trgName+"对应的DataMetadata类型不符合当前版本要求");
@@ -223,9 +226,6 @@ public class RiskFactConvertRuleService {
                 items= (List) results;
             }
             else{
-                return;
-            }
-            if(items.size()==0){
                 return;
             }
             //第一次
