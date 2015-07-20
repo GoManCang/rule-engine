@@ -72,6 +72,7 @@
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
+        <persist.remote.url>http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -125,6 +126,7 @@
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
+        <persist.remote.url>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(S) -->
@@ -176,5 +178,6 @@
         <reqId.allInOne.name>CardRiskDB_INSERT_1_SH</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
+        <persist.remote.url>http://ws.flowtable4j.infosec.ctripcorp.com/flowtable4j/rest/saveData4Offline</persist.remote.url>
     </prd>
 </profile>

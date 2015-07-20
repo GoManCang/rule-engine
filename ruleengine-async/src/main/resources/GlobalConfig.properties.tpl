@@ -60,4 +60,4 @@ RService.Ip={$RService.Ip}
 reqId.allInOne.name = {$reqId.allInOne.name}
 reqId.table.name = {$reqId.table.name}
 reqId.column.name = {$reqId.column.name}
-
+persist.remote.url = {$persist.remote.url}

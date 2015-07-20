@@ -14,14 +14,17 @@ import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.resource.RiskLevelData;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataRequest;
 import com.ctrip.infosec.rule.resource.model.SaveRiskLevelDataResponse;
+import com.ctrip.infosec.rule.resource.offline.PersistFactService;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,31 +38,43 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  */
 @Service
 public class Offline4jService {
+    public static final String PUSH_EBANK_KEY = "offline4j-push-ebank";
+    public static final String REMOTE_PERSIST_KEY = "offline4j-persist-remote";
+
     private static final Logger logger = LoggerFactory.getLogger(Offline4jService.class);
     @Autowired
     private PersistPreRuleExecutorService persistPreRuleExecutorService;
     @Autowired
     private RiskFactConvertRuleService riskFactConvertRuleService;
+    @Value("${persist.remote.url}")
+    private String saveFactUrl;
+    private PersistFactService persistFactService;
+
+    @PostConstruct
+    public void init(){
+        persistFactService = new PersistFactService(saveFactUrl);
+    }
 
     public InternalRiskFact saveForOffline(RiskFact fact) {
-        long reqId;// 执行落地前规则
+        // 执行落地前规则
         persistPreRuleExecutorService.executePostRules(fact, false);
         //riskfact 数据映射转换
         InternalRiskFact internalRiskFact = riskFactConvertRuleService.apply(fact);
         if (internalRiskFact != null) {
             // 数据落地
-            if (RiskFactPersistStrategy.supportLocally(internalRiskFact)) {
+            if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
                 localSave(fact, internalRiskFact);
-            } else {
-                //调用外部存储服务
-
+            }
+            //调用外部存储服务
+            if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false)) {
+                Long reqId = persistFactService.saveFact(fact);
+                internalRiskFact.setReqId(reqId);
             }
         }
         return internalRiskFact;
     }
 
     private void localSave(RiskFact fact, InternalRiskFact internalRiskFact) {
-        long reqId;
         String operation = internalRiskFact.getEventPoint() + ".persist-info";
         try {
             beforeInvoke(operation);
@@ -67,10 +82,10 @@ public class Offline4jService {
             String resultRemark = "NEW: " + resultToString(fact.results);
             RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
             PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
-            reqId = persistManager.getGeneratedReqId();
+            long reqId = persistManager.getGeneratedReqId();
             internalRiskFact.setReqId(reqId);
-            // 调用远程服务落地，
-            if (MapUtils.getBoolean(fact.ext, "offline4j-push-ebank", false)) {
+            // 调用ebank远程服务落地
+            if (MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false)) {
                 SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
                 request.setResID(reqId);
                 request.setReqID(reqId);
@@ -111,6 +126,7 @@ public class Offline4jService {
         channel.setChannelDesc(allInOneDb);
         channel.setDatabaseURL(allInOneDb);
         update.setChannel(channel);
+        update.setTable("InfoSecurity_RiskLevelData");
 
         Map<String, PersistColumnProperties> map = new HashMap<>();
         PersistColumnProperties pcp = new PersistColumnProperties();
@@ -124,6 +140,8 @@ public class Offline4jService {
         pcp.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         pcp.setColumnType(DataUnitColumnType.Int);
         map.put("TransFlag", pcp);
+
+        update.setColumnPropertiesMap(map);
 
         update.execute(persistContext);
     }

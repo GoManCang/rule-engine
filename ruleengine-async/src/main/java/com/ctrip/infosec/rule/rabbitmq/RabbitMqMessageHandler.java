@@ -130,29 +130,33 @@ public class RabbitMqMessageHandler {
             internalRiskFact = offline4jService.saveForOffline(fact);
 
             // 落地规则结果
-            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
-            try {
-                TraceLogger.beginTrans(fact.eventId);
-                TraceLogger.setLogPrefix("[保存CheckResultLog]");
-                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
-                riskReqId = (riskReqId == null) ? internalRiskFact.getReqId() : riskReqId;
-                if (riskReqId > 0) {
-                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                        TraceLogger.traceLog("reqId = " + riskReqId);
-                        saveRuleResult(riskReqId, fact.eventPoint, fact.results);
-                    } else {
-                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
-                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene);
-                    }
-                }
-            } catch (Exception ex) {
-                fault("CardRiskDB.CheckResultLog.saveRuleResult");
-                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
-            } finally {
-                long usage = afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
-                TraceLogger.traceLog("耗时: " + usage + "ms");
-                TraceLogger.commitTrans();
-            }
+//            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+//            try {
+//                TraceLogger.beginTrans(fact.eventId);
+//                TraceLogger.setLogPrefix("[保存CheckResultLog]");
+//                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
+//                boolean outerReqId = true;
+//                if (internalRiskFact != null && riskReqId == null) {
+//                    riskReqId = internalRiskFact.getReqId();
+//                    outerReqId = false;
+//                }
+//                if (riskReqId != null && riskReqId > 0) {
+//                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+//                        TraceLogger.traceLog("reqId = " + riskReqId);
+//                        saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
+//                    } else {
+//                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
+//                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
+//                    }
+//                }
+//            } catch (Exception ex) {
+//                fault("CardRiskDB.CheckResultLog.saveRuleResult");
+//                logger.error(Contexts.getLogPrefix() + "保存规则执行结果至[InfoSecurity_CheckResultLog]表时发生异常.", ex);
+//            } finally {
+//                long usage = afterInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
+//                TraceLogger.traceLog("耗时: " + usage + "ms");
+//                TraceLogger.commitTrans();
+//            }
 
         } catch (Throwable ex) {
             logger.error(Contexts.getLogPrefix() + "invoke handleMessage exception.", ex);
@@ -237,7 +241,7 @@ public class RabbitMqMessageHandler {
         }
     }
 
-    private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results) throws DbExecuteException {
+    private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
         channel.setChannelNo(RiskFactPersistStrategy.allInOne4ReqId);
@@ -259,7 +263,7 @@ public class RabbitMqMessageHandler {
                     boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
                         boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
-                        if (withScene || isAsync) {
+                        if (withScene || isAsync || !outerReqId) {
                             Map<String, PersistColumnProperties> map = Maps.newHashMap();
                             PersistColumnProperties props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
@@ -275,7 +279,7 @@ public class RabbitMqMessageHandler {
                             props = new PersistColumnProperties();
                             props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
                             props.setColumnType(DataUnitColumnType.String);
-                            String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "");
+                            String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
                             props.setValue(ruleType);
                             map.put("RuleType", props);
 
