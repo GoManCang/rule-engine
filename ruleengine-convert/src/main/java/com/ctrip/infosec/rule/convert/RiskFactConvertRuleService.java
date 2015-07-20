@@ -188,6 +188,9 @@ public class RiskFactConvertRuleService {
                      }
                      *
                      */
+                if(results==null){
+                    continue;
+                }
                     convert2data(results, dataUnit, trgName);
                 } else {
                     logger.warn("trgName:"+trgName+"对应的DataMetadata类型不符合当前版本要求");
@@ -399,7 +402,9 @@ public class RiskFactConvertRuleService {
                 return valueFromMap;
             }
         } else if (object instanceof List) {
-//        } else if (object.getClass().isArray() || object instanceof List) {
+            if(((List) object).size()==0){
+                return null;
+            }
             if (keys.size() == 1) {
                 logger.warn("取到的最后key：" + key + "的值是一个List 当前版本暂不支持，值被丢弃返回null");
                 return null;
@@ -408,6 +413,9 @@ public class RiskFactConvertRuleService {
             }
         }
         else if(object instanceof Object[]){
+            if(((Object[]) object).length==0){
+                return null;
+            }
             if (keys.size() == 1) {
                 logger.warn("取到的最后key：" + key + "的值是一个List 当前版本暂不支持，值被丢弃返回null");
                 return null;

@@ -93,7 +93,12 @@ public class RabbitMqMessageHandler {
             eventDataMergeService.executeRedisGet(fact);
             // 执行预处理            
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                // 引入节点编号优化排序
+                // S0 - 接入层同步前
+                // S1 - 同步引擎
+                // S2 - 接入层同步后
+                // S3 - 异步引擎
+                TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
             } finally {
@@ -103,7 +108,7 @@ public class RabbitMqMessageHandler {
             eventDataMergeService.executeRedisPut(fact);
             // 执行异步规则
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
             } finally {
@@ -111,7 +116,7 @@ public class RabbitMqMessageHandler {
             }
             // 执行后处理
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步后处理]");
                 postRulesExecutorService.executePostRules(fact, true);
             } finally {
@@ -119,7 +124,7 @@ public class RabbitMqMessageHandler {
             }
             //Counter推送规则处理
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[Counter推送]");
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
             } finally {
@@ -132,7 +137,7 @@ public class RabbitMqMessageHandler {
             // 落地规则结果
             beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
             try {
-                TraceLogger.beginTrans(fact.eventId);
+                TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
                 Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
                 boolean outerReqId = true;
@@ -265,7 +270,7 @@ public class RabbitMqMessageHandler {
                         if (withScene || isAsync || !outerReqId) {
                             if (withScene || isAsync) {
                                 insert.setTable("InfoSecurity_CheckResultLog");
-                            } else{
+                            } else {
                                 insert.setTable("RiskControl_CheckResultLog");
                             }
                             Map<String, PersistColumnProperties> map = Maps.newHashMap();

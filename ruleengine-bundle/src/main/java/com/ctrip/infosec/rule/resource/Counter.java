@@ -18,6 +18,7 @@ import com.ctrip.infosec.counter.model.DecisionDataQueryResponse;
 import com.ctrip.infosec.counter.model.DecisionDataRemoveResponse;
 import com.ctrip.infosec.counter.model.FlowPushRequest;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
+import com.ctrip.infosec.counter.model.FlowQueryRequest;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
 import com.ctrip.infosec.counter.model.PolicyBatchExecuteResponse;
@@ -315,8 +316,32 @@ public class Counter {
 //                            .build(), Charset.forName("UTF-8"))
 //                    .execute().returnContent().asString();
 //            response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
-            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            response = flowPolicyRemoteService.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
+//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//            response = flowPolicyRemoteService.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
+
+            FlowQueryRequest flowQueryRequest = new FlowQueryRequest();
+            flowQueryRequest.setFlowNo(flowNo);
+            flowQueryRequest.setFieldName(fieldName);
+            flowQueryRequest.setAccuracy(accuracy);
+            flowQueryRequest.setTimeWindow(timeWindow);
+            flowQueryRequest.setKvData(kvData);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                flowQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryFlowData fault.", ex);
