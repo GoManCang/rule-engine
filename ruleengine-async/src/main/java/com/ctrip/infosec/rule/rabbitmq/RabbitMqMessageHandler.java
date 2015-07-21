@@ -132,19 +132,20 @@ public class RabbitMqMessageHandler {
             }
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
-            internalRiskFact = offline4jService.saveForOffline(fact);
+            Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
+            boolean outerReqId = riskReqId != null;
+            if (!outerReqId) {
+                internalRiskFact = offline4jService.saveForOffline(fact);
+                if (internalRiskFact != null && internalRiskFact.getReqId() > 0) {
+                    riskReqId = internalRiskFact.getReqId();
+                }
+            }
 
             // 落地规则结果
             beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
             try {
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
-                Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
-                boolean outerReqId = true;
-                if (internalRiskFact != null && riskReqId == null) {
-                    riskReqId = internalRiskFact.getReqId();
-                    outerReqId = false;
-                }
                 if (riskReqId != null && riskReqId > 0) {
                     if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                         TraceLogger.traceLog("reqId = " + riskReqId);
