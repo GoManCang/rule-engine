@@ -7,6 +7,7 @@ import com.ctrip.infosec.configs.event.PersistPreRule;
 import com.ctrip.infosec.configs.event.PostRule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.engine.StatelessPersistPreRuleEngine;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
@@ -49,14 +50,14 @@ public class PersistPreRuleExecutorService {
         logger.debug(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条落地前规则 ...");
 
-        StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
+        StatelessPersistPreRuleEngine statelessPersistPreRuleEngine = SpringContextHolder.getBean(StatelessPersistPreRuleEngine.class);
         for (PersistPreRule rule : matchedRules) {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getEventPoint() + "]");
             try {
                 long start = System.currentTimeMillis();
 
-                statelessPostRuleEngine.execute(rule.getEventPoint(), fact);
+                statelessPersistPreRuleEngine.execute(rule.getEventPoint(), fact);
 
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {
