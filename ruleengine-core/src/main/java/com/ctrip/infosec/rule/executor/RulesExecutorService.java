@@ -185,7 +185,7 @@ public class RulesExecutorService {
                         result.put(Constants.async, true);
                         result.put(Constants.timeUsage, handlingTime);
 
-                        TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
+                        TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
                                 + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
                     }
 
@@ -208,7 +208,7 @@ public class RulesExecutorService {
                         resultWithScene.put(Constants.async, true);
                         resultWithScene.put(Constants.timeUsage, handlingTime);
 
-                        TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: riskLevel = " + resultWithScene.get(Constants.riskLevel)
+                        TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + packageName + "] 执行结果[适配]: riskLevel = " + resultWithScene.get(Constants.riskLevel)
                                 + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene) + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                     } else {
                         TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: 没有命中适配规则");
@@ -286,7 +286,7 @@ public class RulesExecutorService {
                                     result.put(Constants.async, false);
                                     result.put(Constants.timeUsage, handlingTime);
 
-                                    TraceLogger.traceLog("[" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
+                                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + packageName + "] 执行结果: riskLevel = " + result.get(Constants.riskLevel)
                                             + ", riskMessage = " + result.get(Constants.riskMessage) + ", usage = " + result.get(Constants.timeUsage) + "ms");
                                 }
 
@@ -309,7 +309,7 @@ public class RulesExecutorService {
                                     resultWithScene.put(Constants.async, false);
                                     resultWithScene.put(Constants.timeUsage, handlingTime);
 
-                                    TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: riskLevel = " + resultWithScene.get(Constants.riskLevel)
+                                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + packageName + "] 执行结果[适配]: riskLevel = " + resultWithScene.get(Constants.riskLevel)
                                             + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
                                             + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                                 } else {

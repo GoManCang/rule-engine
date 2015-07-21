@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.util;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
+import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -88,8 +89,14 @@ public class Emitter {
                         if (_isAsync != null) {
                             result.put(Constants.async, _isAsync);
                         }
-//                        fact.results.put(ruleNo + "." + ruleExecuteResult.getRuleNo(), result);
-                        fact.results.put(ruleExecuteResult.getRuleNo(), result);
+
+                        if (StringUtils.isBlank(ruleExecuteResult.getScenes())) {
+                            fact.results.put(ruleExecuteResult.getRuleNo(), result);
+                        } else {
+                            List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(ruleExecuteResult.getScenes());
+                            result.put(Constants.riskScene, riskScenes);
+                            fact.resultsGroupByScene.put(ruleExecuteResult.getRuleNo(), result);
+                        }
                     }
                 }
             }
