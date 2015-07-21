@@ -7,6 +7,7 @@ package com.ctrip.infosec.rule.util;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.Constants;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -81,21 +82,33 @@ public class Emitter {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
 
+                    String ruleNo = ruleExecuteResult.getRuleNo();
                     int riskLevel = NumberUtils.toInt(ruleExecuteResult.getResultCode(), 0);
+                    String riskMessage = ruleExecuteResult.getResultMessage();
+                    String scenes = ruleExecuteResult.getScenes();
                     if (riskLevel > 0) {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put(Constants.riskLevel, riskLevel);
-                        result.put(Constants.riskMessage, ruleExecuteResult.getResultMessage());
+                        result.put(Constants.riskMessage, riskMessage);
                         if (_isAsync != null) {
                             result.put(Constants.async, _isAsync);
                         }
 
-                        if (StringUtils.isBlank(ruleExecuteResult.getScenes())) {
-                            fact.results.put(ruleExecuteResult.getRuleNo(), result);
+                        if (StringUtils.isBlank(scenes)) {
+                            fact.results.put(ruleNo, result);
                         } else {
-                            List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(ruleExecuteResult.getScenes());
+                            List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(scenes);
                             result.put(Constants.riskScene, riskScenes);
-                            fact.resultsGroupByScene.put(ruleExecuteResult.getRuleNo(), result);
+                            fact.resultsGroupByScene.put(ruleNo, result);
+                        }
+
+                        boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
+                        if (!withScene && StringUtils.isNotBlank(scenes)) {
+                            TraceLogger.traceLog("[" + ruleNo + "] 执行结果: [在非适配点指定了场景、忽略此次结果] riskLevel = " + riskLevel
+                                    + ", riskMessage = " + riskMessage + ", riskScene = [" + scenes + "]");
+                        } else if (withScene && StringUtils.isBlank(scenes)) {
+                            TraceLogger.traceLog("[" + ruleNo + "] 执行结果: [没有指定场景、忽略此次结果] riskLevel = " + riskLevel
+                                    + ", riskMessage = " + riskMessage);
                         }
                     }
                 }
