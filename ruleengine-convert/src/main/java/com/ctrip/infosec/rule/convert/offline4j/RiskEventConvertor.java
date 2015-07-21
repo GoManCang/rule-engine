@@ -37,6 +37,7 @@ public class RiskEventConvertor {
 	 * @return
 	 * @throws Exception
 	 */
+	@Deprecated
 	public Object convert(InternalRiskFact internalRiskFact, RiskFact riskFact, 
 			HeaderMappingBizType bizType) throws Exception {
 		
@@ -155,8 +156,14 @@ public class RiskEventConvertor {
 		riskEventMap.put("riskLevel", riskLevel);
 		
 		for (HeaderMapping headerMapping : headerMappings) {
-			
-			riskEventMap.put(headerMapping.getFieldName(), getValueByPath(internalRiskFact, headerMapping.getSrcPath()));
+			logger.info("add header field : " + headerMapping.getFieldName());
+			Object value = getValueByPath(internalRiskFact, headerMapping.getSrcPath());
+			logger.info("value : " + value);
+			if (null==value && StringUtils.isNotBlank(headerMapping.getDefaultValue())) {
+				value = headerMapping.getDefaultValue();
+				logger.info("set value to default : " + value);
+			}
+			riskEventMap.put(headerMapping.getFieldName(), value);
 		}
 		
 		//设置eventBody字段的值
