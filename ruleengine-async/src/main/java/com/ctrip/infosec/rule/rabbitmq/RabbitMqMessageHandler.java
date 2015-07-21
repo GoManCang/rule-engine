@@ -269,9 +269,9 @@ public class RabbitMqMessageHandler {
                         boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
                         if (withScene || isAsync || !outerReqId) {
                             if (withScene || isAsync) {
-                                insert.setTable("InfoSecurity_CheckResultLog");
-                            } else {
                                 insert.setTable("RiskControl_CheckResultLog");
+                            } else {
+                                insert.setTable("InfoSecurity_CheckResultLog");
                             }
                             Map<String, PersistColumnProperties> map = Maps.newHashMap();
                             PersistColumnProperties props = new PersistColumnProperties();
