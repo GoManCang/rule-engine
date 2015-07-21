@@ -337,12 +337,6 @@ public class RabbitMqMessageHandler {
         props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
         props.setColumnType(DataUnitColumnType.Data);
         props.setExpression("const:now:date");
-        map.put("CreateDate", props);
-
-        props = new PersistColumnProperties();
-        props.setPersistColumnSourceType(PersistColumnSourceType.CUSTOMIZE);
-        props.setColumnType(DataUnitColumnType.Data);
-        props.setExpression("const:now:date");
         map.put("DataChange_LastTime", props);
 
         return map;
