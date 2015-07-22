@@ -211,7 +211,7 @@ public class RulesExecutorService {
                                 + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
                                 + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                     } else {
-                        TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: 没有命中适配规则");
+                        TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + packageName + "] 执行结果[适配]: 没有命中适配规则");
                     }
                 }
 
@@ -312,7 +312,7 @@ public class RulesExecutorService {
                                             + ", riskMessage = " + resultWithScene.get(Constants.riskMessage) + ", riskScene = " + resultWithScene.get(Constants.riskScene)
                                             + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                                 } else {
-                                    TraceLogger.traceLog("[" + packageName + "] 执行结果[适配]: 没有命中适配规则");
+                                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + packageName + "] 执行结果[适配]: 没有命中适配规则");
                                 }
                             }
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody, factCopy.ext);
