@@ -162,11 +162,16 @@ public class EventDataMergeService {
             Map<String, Object> redisValueMap = new HashMap<String, Object>();
             while (valuesIterator.hasNext()) {
                 Object newName = valuesIterator.next();
-                if (newName == null || newName.toString().isEmpty() || fact.eventBody.get(newName) == null || fact.eventBody.get(newName).toString().isEmpty()) {
+                Object newValue = fact.eventBody.get(newName);
+                if (newName == null || newName.toString().isEmpty() || newValue == null || newValue.toString().isEmpty()) {
                     continue;
                 }
-                TraceLogger.traceLog("PUT: " + newName + " = " + JSON.toJSONString(fact.eventBody.get(newName)));
-                redisValueMap.put((String) newName, fact.eventBody.get(newName));
+                if (newValue instanceof Map || newValue instanceof List || newValue instanceof Object[]) {
+                    TraceLogger.traceLog("PUT: " + newName + " = " + JSON.toJSONString(newValue));
+                } else {
+                    TraceLogger.traceLog("PUT: " + newName + " = " + newValue);
+                }
+                redisValueMap.put((String) newName, newValue);
             }
 
             String redisValueStr = JSON.toJSONString(redisValueMap);
