@@ -53,16 +53,22 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
         boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
         TraceLogger.enabled(traceLoggerEnabled);
 
+        // 引入节点编号优化排序
+        // S0 - 接入层同步前
+        // S1 - 同步引擎
+        // S2 - 接入层同步后
+        // S3 - 异步引擎
         try {
             // 执行Redis读取
-            eventDataMergeService.executeRedisGet(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[同步数据合并]");
+                eventDataMergeService.executeRedisGet(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行预处理            
             try {
-                // 引入节点编号优化排序
-                // S0 - 接入层同步前
-                // S1 - 同步引擎
-                // S2 - 接入层同步后
-                // S3 - 异步引擎
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步预处理]");
                 preRulesExecutorService.executePreRules(fact, false);
@@ -70,7 +76,13 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
-            eventDataMergeService.executeRedisPut(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[同步数据合并]");
+                eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行同步规则
             try {
                 TraceLogger.beginTrans(fact.eventId, "S1");
@@ -110,16 +122,22 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
         boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
         TraceLogger.enabled(traceLoggerEnabled);
 
+        // 引入节点编号优化排序
+        // S0 - 接入层同步前
+        // S1 - 同步引擎
+        // S2 - 接入层同步后
+        // S3 - 异步引擎
         try {
             // 执行Redis读取
-            eventDataMergeService.executeRedisGet(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[同步数据合并]");
+                eventDataMergeService.executeRedisGet(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行预处理            
             try {
-                // 引入节点编号优化排序
-                // S0 - 接入层同步前
-                // S1 - 同步引擎
-                // S2 - 接入层同步后
-                // S3 - 异步引擎
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步预处理]");
                 preRulesExecutorService.executePreRules(fact, false);
@@ -127,7 +145,13 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
-            eventDataMergeService.executeRedisPut(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[同步数据合并]");
+                eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行同步规则
             try {
                 TraceLogger.beginTrans(fact.eventId, "S1");

@@ -6,9 +6,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
-import com.meidusa.fastjson.JSON;
 import credis.java.client.CacheProvider;
 import credis.java.client.setting.RAppSetting;
 import credis.java.client.util.CacheFactory;
@@ -141,7 +141,7 @@ public class EventDataMergeService {
                 if (newName == null || newName.toString().isEmpty() || newValue == null || newValue.toString().isEmpty()) {
                     continue;
                 }
-                TraceLogger.traceLog("合并"+redisKey+"接入点的"+oldName+"字段到新字段"+newName);
+                TraceLogger.traceLog("GET: " + oldName + " &DoubleRightArrow; " + newName + ", value = " + newValue);
                 fact.eventBody.put(newName, newValue);
             }
         }
@@ -165,7 +165,7 @@ public class EventDataMergeService {
                 if (newName == null || newName.toString().isEmpty() || fact.eventBody.get(newName) == null || fact.eventBody.get(newName).toString().isEmpty()) {
                     continue;
                 }
-                TraceLogger.traceLog("推送"+newName+"对应的值"+fact.eventBody.get(newName)+"到"+redisKey+"接入点");
+                TraceLogger.traceLog("PUT: " + newName + " = " + JSON.toJSONString(fact.eventBody.get(newName)));
                 redisValueMap.put((String) newName, fact.eventBody.get(newName));
             }
 
