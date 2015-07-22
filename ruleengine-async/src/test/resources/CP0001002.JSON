@@ -1,182 +1,238 @@
 {
-  "eventPoint" : "CP0001002",
-  "eventId" : "test",
-  "eventBody" : {
-    "CCardInfoID" : "28996388",
-    "MainprepayType" : "CCARD",
-    "UserProfileInfo" : {
-      "CUSCHARACTER" : "NEW"
+  "eventPoint": "CP0001002",
+  "eventId": "5881b290-302b-11e5-b19b-5f475aeafb8c",
+  "appId": "670203",
+  "eventBody": {
+    "CCardInfoID": "28996388",
+    "UserProfileInfo": {
+      "CUSCHARACTER": "REPEAT"
     },
-    "aCity" : "0",
-    "bankValidationMethod" : " 2",
-    "businessItem" : "",
-    "checkType" : "2",
-    "clientIDOrIP" : "6",
-    "clientOS" : " 5",
-    "contactEMail" : "lxyy1118@163.com ",
-    "contactName" : "ContactName  ",
-    "contactTel" : " 8117755",
-    "dCity" : "99",
-    "deductType" : "1",
-    "departureDate" : "2014-06-23 11:04:18.951",
-    "isOnline" : "F",
-    "latitude" : "0.0",
-    "longitude" : "0.0",
-    "merchantID" : "MerchantID ",
-    "mobilePhone" : "13701488549",
-    "optionItems" : [ {
-      "optionID" : 1,
-      "optionName" : " OptionName1 ",
-      "optionQty" : 10
-    }, {
-      "optionID" : 2,
-      "optionName" : " OptionName2",
-      "optionQty" : 20
-    } ],
-    "orderAmount" : "10.0",
-    "orderDate" : "2014-06-23 11:04:18.951",
-    "orderID" : "9677898",
-    "orderInfoExternalURL" : " OrderInfoExternalURL ",
-    "orderToSignUpDate" : "1507",
-    "orderType" : "22",
-    "payMethod" : "1",
-    "payValidationMethod" : "1",
-    "paymentInfos" : [ {
-      "NCreditCardInfo" : {
-        "AgreementCode" : "",
-        "BankOfCardIssue" : "",
-        "BillingAddress" : "",
-        "CCardNoCode" : "EE2112DB19A97249EE086029E21DD5EE",
-        "CValidityCode" : "37FA274F2ED32C2374156D637D1E8855",
-        "CardBin" : "520082",
-        "CardHolder" : "sdf",
-        "CardInfoId" : "28996388",
-        "CardNoRefID" : "1994",
-        "CardRiskNoLastCode" : "926ABAE84A4BD33C834BC6B981B8CF30",
-        "CardRiskNoPreCode" : "D8BF5E2975744BAE96FFF4C319C2E81D",
-        "CardTypeName" : "中国农业银行 -- 金穗卡",
-        "CreateDate" : "2013-03-11T18:47:32",
-        "CreditCardNumber" : "CTRP7D4A9037D45BB0B8B3297DC607D3281D",
-        "CreditCardNumberPlaintext" : "5200820000000008",
-        "CreditCardType" : "4",
-        "CurrencyType" : "U",
-        "IdCardType" : "4",
-        "IdNumber" : "552",
-        "IsForeignCard" : "F",
-        "IsVerifyNoEmpty" : "F",
-        "LocalCardType" : "L",
-        "Nationality" : "  ",
-        "Nationalityofisuue" : "  ",
-        "PhoneNo" : "",
-        "StateName" : "",
-        "VM_Type" : "U",
-        "Validity" : "CTRPC3486DBED33FE0865193F6BEFC0B7BA6",
-        "VerifyNo" : "",
-        "ZipCode" : ""
+    "aCity": 0,
+    "bankValidationMethod": "2",
+    "businessItem": "",
+    "checkType": 2,
+    "clientIDOrIP": "6",
+    "clientOS": "5",
+    "contactEMail": "lxyy1118@163.com",
+    "contactName": "ContactName",
+    "dCity": 99,
+    "deductType": "1",
+    "departureDate": "2014-06-23 11:04:18.951",
+    "isOnline": "F",
+    "latitude": 0.0,
+    "longitude": 0.0,
+    "merchantID": "MerchantID",
+    "mobilePhone": "13701488549",
+    "optionItems": [
+      {
+        "optionID": 1,
+        "optionName": "OptionName1",
+        "optionQty": 10
       },
-      "amount" : 10,
-      "cardInfoID" : 28996388,
-      "creditCardInfo" : {
-        "bankOfCardIssue" : "123558852",
-        "billingAddress" : "5532558",
-        "cCardLastNoCode" : "56652588",
-        "cCardNoCode" : "780021",
-        "cCardPreNoCode" : "123255858",
-        "cValidityCode" : "456558858",
-        "cardBin" : "12355858",
-        "cardHolder" : "刘刘",
-        "cardInfoID" : 28996388,
-        "creditCardType" : 11,
-        "infoID" : 123,
-        "isForigenCard" : "T",
-        "nationality" : "85535588",
-        "nationalityofisuue" : "123558",
-        "stateName" : "1235588"
+      {
+        "optionID": 2,
+        "optionName": "OptionName2",
+        "optionQty": 20
+      }
+    ],
+    "orderAmount": 10.0,
+    "orderDate": "2014-06-23 11:04:18.951",
+    "orderID": 9677930,
+    "orderInfoExternalURL": "OrderInfoExternalURL",
+    "orderToSignUpDate": 55557,
+    "orderType": 22,
+    "payMethod": "1",
+    "payValidationMethod": "1",
+    "paymentInfos": [
+      {
+        "amount": 10.0,
+        "cardInfoID": 0,
+        "creditCardInfo": {
+          "bankOfCardIssue": "123558852",
+          "billingAddress": "5532558",
+          "cCardLastNoCode": "56652588",
+          "cCardNoCode": "780021",
+          "cCardPreNoCode": "123255858",
+          "cValidityCode": "456558858",
+          "cardBin": "12355858",
+          "cardHolder": "刘刘",
+          "cardInfoID": 0,
+          "creditCardType": 11,
+          "infoID": 123,
+          "isForigenCard": "T",
+          "nationality": "85535588",
+          "nationalityofisuue": "123558",
+          "stateName": "1235588"
+        },
+        "prepayType": "TMPAY",
+        "refNo": 123
       },
-      "prepayType" : "CCARD",
-      "refNo" : 123
-    }, {
-      "amount" : 1,
-      "cardInfoID" : 28900008,
-      "creditCardInfo" : {
-        "bankOfCardIssue" : "4444",
-        "billingAddress" : "9999",
-        "cCardLastNoCode" : "4444",
-        "cCardNoCode" : "41111",
-        "cCardPreNoCode" : "444444",
-        "cValidityCode" : "77777 ",
-        "cardBin" : "666666",
-        "cardHolder" : "33333",
-        "cardInfoID" : 28900008,
-        "creditCardType" : 2,
-        "infoID" : 456,
-        "isForigenCard" : "T",
-        "nationality" : "12222",
-        "nationalityofisuue" : "6666",
-        "stateName" : "77777"
+      {
+        "NCreditCardInfo": {
+          "AgreementCode": "",
+          "BankOfCardIssue": "",
+          "BillingAddress": "",
+          "CCardNoCode": "EE2112DB19A97249EE086029E21DD5EE",
+          "CValidityCode": "37FA274F2ED32C2374156D637D1E8855",
+          "CardBin": "520082",
+          "CardHolder": "sdf",
+          "CardInfoId": "28996388",
+          "CardNoRefID": "1994",
+          "CardRiskNoLastCode": "926ABAE84A4BD33C834BC6B981B8CF30",
+          "CardRiskNoPreCode": "D8BF5E2975744BAE96FFF4C319C2E81D",
+          "CardTypeName": "中国农业银行 -- 金穗卡",
+          "CreateDate": "2013-03-11T18:47:32",
+          "CreditCardNumber": "CTRP7D4A9037D45BB0B8B3297DC607D3281D",
+          "CreditCardNumberPlaintext": "5200820000000008",
+          "CreditCardType": "4",
+          "CurrencyType": "U",
+          "IdCardType": "4",
+          "IdNumber": "552",
+          "IsForeignCard": "F",
+          "IsVerifyNoEmpty": "F",
+          "LocalCardType": "L",
+          "Nationality": "  ",
+          "Nationalityofisuue": "  ",
+          "PhoneNo": "",
+          "StateName": "",
+          "VM_Type": "U",
+          "Validity": "CTRPC3486DBED33FE0865193F6BEFC0B7BA6",
+          "VerifyNo": "",
+          "ZipCode": ""
+        },
+        "amount": 1.0,
+        "cardInfoID": 28996388,
+        "creditCardInfo": {
+          "bankOfCardIssue": "4444",
+          "billingAddress": "9999",
+          "cCardLastNoCode": "4444",
+          "cCardNoCode": "41111",
+          "cCardPreNoCode": "444444",
+          "cValidityCode": "77777",
+          "cardBin": "666666",
+          "cardHolder": "33333",
+          "cardInfoID": 28996388,
+          "creditCardType": 2,
+          "infoID": 456,
+          "isForigenCard": "T",
+          "nationality": "12222",
+          "nationalityofisuue": "6666",
+          "stateName": "77777"
+        },
+        "prepayType": "CCARD",
+        "refNo": 78931
+      }
+    ],
+    "phoneProvinceName": {
+      "CityName": "常州",
+      "MobileNumber": "1370148",
+      "MobileType": "江苏移动全球通卡",
+      "ProvinceName": "江苏"
+    },
+    "prepayType": "CCARD",
+    "productName": "ProductName",
+    "referenceNo": "123",
+    "sendTickerAddr": "SendTickerAddr",
+    "serverfrom": "Serverfrom",
+    "uid": "test111111",
+    "uidCrmMemberInfo": {
+      "bindedEmail": "test@163.com",
+      "bindedMobilePhone": "13616667784",
+      "birth": "1997-01-01T00:00:00",
+      "city": "2",
+      "ctripcardno": "1680000044",
+      "email": "hj_liu@ctrip.com",
+      "experience": "-1649307515",
+      "gender": "M",
+      "mD5Password": "E10ADC3949BA59ABBE56E057F20F883E",
+      "maxGrade": "10",
+      "mileageIncluding": "HF",
+      "mobilePhone": "13355555555",
+      "scSaleCardEmp": "yanxie",
+      "signupIP": "172.16.144.14",
+      "signupdate": "2008-02-20T13:25:32",
+      "sourceid": "8",
+      "tel": "777777777*2222",
+      "uid": "test111111",
+      "updateTime": "2014-05-14T16:42:14",
+      "userName": "test",
+      "vip": "F",
+      "vipGrade": "20"
+    },
+    "userIP": "67.20.213.60",
+    "userIPCountry": {
+      "Area": "",
+      "City": "Buffalo",
+      "CityId": "-999",
+      "Country": "美国",
+      "CountryId": "66",
+      "EndAddr": "1125441535",
+      "Latitude": "42.7684",
+      "Longitude": "-78.8871",
+      "NationCode": "US",
+      "Province": "",
+      "ProvinceId": "-999",
+      "Remark": "国外数据",
+      "StartAddr": "1125433344",
+      "Type_Company": "State University of New Yor"
+    },
+    "userIPValue": 1125438780,
+    "userInfos": [
+      {
+        "visitorCardNo": "VisitorCardNo1",
+        "visitorContactInfo": "VisitorContactInfo1",
+        "visitorName": "VisitorName1",
+        "visitorNationality": "VisitorNationality1"
       },
-      "prepayType" : "Tmony",
-      "refNo" : 78931
-    } ],
-    "phoneProvinceName" : {
-      "CityName" : "常州",
-      "MobileNumber" : "1370148",
-      "MobileType" : "江苏移动全球通卡",
-      "ProvinceName" : "江苏"
-    },
-    "postActions" : { },
-    "productName" : " ProductName ",
-    "referenceNo" : "123",
-    "resultsGroupByScene" : { },
-    "sendTickerAddr" : " SendTickerAddr ",
-    "serverfrom" : "Serverfrom  ",
-    "uid" : "D00026295",
-    "uidCrmMemberInfo" : {
-      "birth" : "0001-01-01T00:00:00",
-      "city" : "0",
-      "experience" : "1000",
-      "gender" : "F",
-      "mD5Password" : "E10ADC3949BA59ABBE56E057F20F883E",
-      "maxGrade" : "30",
-      "mileageIncluding" : "HF",
-      "mobilePhone" : "           ",
-      "signupdate" : "2014-04-21T15:51:09",
-      "sourceid" : "600",
-      "uid" : "D00026295",
-      "updateTime" : "0001-01-01T00:00:00",
-      "vip" : "F",
-      "vipGrade" : "0"
-    },
-    "userIP" : "67.20.213.60",
-    "userIPCountry" : {
-      "Area" : "",
-      "City" : "Buffalo",
-      "CityId" : "-999",
-      "Country" : "美国",
-      "CountryId" : "66",
-      "EndAddr" : "1125441535",
-      "Latitude" : "42.7684",
-      "Longitude" : "-78.8871",
-      "NationCode" : "US",
-      "Province" : "",
-      "ProvinceId" : "-999",
-      "Remark" : "国外数据",
-      "StartAddr" : "1125433344",
-      "Type_Company" : "State University of New Yor"
-    },
-    "userIPValue" : "1125438780",
-    "userInfos" : [ {
-      "visitorCardNo" : "VisitorCardNo1  ",
-      "visitorContactInfo" : " VisitorContactInfo1 ",
-      "visitorName" : "VisitorName1  ",
-      "visitorNationality" : " VisitorNationality1 "
-    }, {
-      "visitorCardNo" : " VisitorCardNo2 ",
-      "visitorContactInfo" : " VisitorContactInfo2 ",
-      "visitorName" : " VisitorName2 ",
-      "visitorNationality" : " VisitorNationality2 "
-    } ],
-    "validationFailsReason" : " 3"
+      {
+        "visitorCardNo": "VisitorCardNo2",
+        "visitorContactInfo": "VisitorContactInfo2",
+        "visitorName": "VisitorName2",
+        "visitorNationality": "VisitorNationality2"
+      }
+    ],
+    "validationFailsReason": "3"
   },
-  "requestTime" : "2015-07-21 10:15:36.309"
+  "results": {
+    "CP0001002_TEST_LIST": {
+      "async": true,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 4
+    },
+    "CP0001002_UL_XD_ZF": {
+      "async": false,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 7
+    },
+    "CP0001002_YCL_cardinfoid": {
+      "async": true,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 2
+    },
+    "ULXDZF": {
+      "async": false,
+      "riskLevel": 150,
+      "riskMessage": "邮轮高风险",
+      "timeUsage": 4
+    }
+  },
+  "finalResult": {
+    "async": false,
+    "riskLevel": 150,
+    "riskMessage": "邮轮高风险"
+  },
+  "ext": {
+    "CHANNEL": "EXECUTE",
+    "SYNC_RULE_EXECUTED": true,
+    "descTimestamp": 2633340156871,
+    "ebank-data": {
+      "cardInfoID": 0
+    },
+    "offline4j-push-ebank": true
+  },
+  "requestTime": "2015-07-22 12:37:23.048",
+  "requestReceive": "2015-07-22 12:37:23.129"
 }

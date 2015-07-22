@@ -89,15 +89,21 @@ public class RabbitMqMessageHandler {
             boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
             TraceLogger.enabled(traceLoggerEnabled);
 
+            // 引入节点编号优化排序
+            // S0 - 接入层同步前
+            // S1 - 同步引擎
+            // S2 - 接入层同步后
+            // S3 - 异步引擎
             // 执行Redis读取
-            eventDataMergeService.executeRedisGet(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S3");
+                TraceLogger.setLogPrefix("[异步数据合并]");
+                eventDataMergeService.executeRedisGet(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行预处理            
             try {
-                // 引入节点编号优化排序
-                // S0 - 接入层同步前
-                // S1 - 同步引擎
-                // S2 - 接入层同步后
-                // S3 - 异步引擎
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
@@ -105,7 +111,13 @@ public class RabbitMqMessageHandler {
                 TraceLogger.commitTrans();
             }
             //执行推送数据到Redis
-            eventDataMergeService.executeRedisPut(fact);
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S3");
+                TraceLogger.setLogPrefix("[异步数据合并]");
+                eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
             // 执行异步规则
             try {
                 TraceLogger.beginTrans(fact.eventId, "S3");
@@ -290,8 +302,7 @@ public class RabbitMqMessageHandler {
         }
     }
 
-    private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String,
-            Map<String, Object>> entry, Long riskLevel) {
+    private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry, Long riskLevel) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
@@ -343,8 +354,7 @@ public class RabbitMqMessageHandler {
         return map;
     }
 
-    private Map<String, PersistColumnProperties> prepareInfoSecurityCheckResultLog(Long riskReqId, String ruleType, Entry<String,
-            Map<String, Object>> entry, Long riskLevel) {
+    private Map<String, PersistColumnProperties> prepareInfoSecurityCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry, Long riskLevel) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);

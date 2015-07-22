@@ -58,7 +58,13 @@
         <dependency>
 			<groupId>com.ctrip.infosec.offline4j</groupId>
 			<artifactId>offline4j-api</artifactId>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>encryption</artifactId>
+                    <groupId>com.ctrip.security</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- test -->
         <dependency>

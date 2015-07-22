@@ -41,7 +41,7 @@ public class RiskFactConvertRuleService {
 //    private static  List<FieldMapping> fieldMappingList;
     public InternalRiskFact apply(RiskFact riskFact) {
 
-        logger.debug("转换报文："+Utils.JSON.toJSONString(riskFact));
+        logger.debug("转换报文：" + Utils.JSON.toJSONString(riskFact));
 
 //        logger.info("======================查看localRiskFactDefinitionConfigMap====================================");
 //        logger.info(Utils.JSON.toPrettyJSONString(InternalConvertConfigHolder.localRiskConvertMappings));
@@ -88,7 +88,7 @@ public class RiskFactConvertRuleService {
         /**
          * eventBody 不能为空
          */
-        if(riskFact.eventBody==null) {
+        if (riskFact.eventBody == null) {
             logger.warn("eventBody为空");
             return internalRiskFact;
         }
@@ -153,7 +153,7 @@ public class RiskFactConvertRuleService {
             }
             if (dataUnit != null) {
                 Integer columnType = checkColumnType(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".") + 1, trgName.length()), dataUnit.getDefinition().getMetadata());
-                if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType!=DataUnitColumnType.List.getIndex()) {
+                if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType != DataUnitColumnType.List.getIndex()) {
                     Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
 //                    System.out.println("[source]:" + srcName + "[target:]"+trgName+"     [value]:" + Utils.JSON.toPrettyJSONString(results));
                     /**
@@ -188,12 +188,12 @@ public class RiskFactConvertRuleService {
                      }
                      *
                      */
-                if(results==null){
-                    continue;
-                }
+                    if (results == null) {
+                        continue;
+                    }
                     convert2data(results, dataUnit, trgName);
                 } else {
-                    logger.warn("trgName:"+trgName+"对应的DataMetadata类型不符合当前版本要求");
+                    logger.warn("trgName:" + trgName + "对应的DataMetadata类型不符合当前版本要求");
                 }
             } else {
                 logger.warn("未找到Definition");
@@ -220,26 +220,24 @@ public class RiskFactConvertRuleService {
             Object o = convert2InternalMapData(trgNameList, results, data, trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
 //            data.putAll((Map) o);
         } else if (dataUnit.getDefinition().getType() == LIST_TYPE) {
-            List  data = (List) dataUnit.getData();
+            List data = (List) dataUnit.getData();
             List items;
-            if(results!=null && results instanceof List){
-                items= (List) results;
-            }
-            else{
+            if (results != null && results instanceof List) {
+                items = (List) results;
+            } else {
                 return;
             }
             //第一次
-            if(data.size()==0){
-                 for(Object item:items){
-                     Map tmpMap=new HashMap();
-                     Object o = convert2InternalMapData(trgNameList, item, new HashMap<String, Object>(), trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
+            if (data.size() == 0) {
+                for (Object item : items) {
+                    Map tmpMap = new HashMap();
+                    Object o = convert2InternalMapData(trgNameList, item, new HashMap<String, Object>(), trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
 //                     tmpMap.put(firstTrgName,o);
-                     data.add(o);
-                 }
-            }
-            else {
-                if(data.size()==items.size()) {
-                    for(int i =0 ;i <data.size();i++){
+                    data.add(o);
+                }
+            } else {
+                if (data.size() == items.size()) {
+                    for (int i = 0; i < data.size(); i++) {
                         convert2InternalMapData(trgNameList, items.get(i), (Map<String, Object>) data.get(i), trgNames.substring(trgNames.indexOf(".") + 1, trgNames.length()), dataUnit);
                     }
                 }
@@ -254,7 +252,7 @@ public class RiskFactConvertRuleService {
          * 从完整targetname中获取 从头到当前 trgName[0]的前半段路径 。
          *
          */
-        ArrayList<String> trgNames=new ArrayList<>(toCopytrgNames);
+        ArrayList<String> trgNames = new ArrayList<>(toCopytrgNames);
 
         ArrayList<String> tempNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
         String chechTypePath = "";
@@ -282,7 +280,7 @@ public class RiskFactConvertRuleService {
                 data.putAll(map);
             }
         }
-        if (integer !=null && integer == DataUnitColumnType.List.getIndex()) {
+        if (integer != null && integer == DataUnitColumnType.List.getIndex()) {
 //            System.out.println("[key] : " + trgName + "[trgname] : " + trgNames.get(0) + "---------------list--------------------");
 //            List<Object> list=new ArrayList<Object>();
             Map<String, Object> map = new HashMap<String, Object>();
@@ -309,15 +307,14 @@ public class RiskFactConvertRuleService {
                     }
                     map.put(firstTrgName, subList);
                     data.putAll(map);
-                }
-                else{
+                } else {
                     /**
                      * map的list中已有值 不用再putAll
                      */
-                    if(subList.size()==resultList.size()){
-                        for (int i = 0; i < resultList.size(); i++){
+                    if (subList.size() == resultList.size()) {
+                        for (int i = 0; i < resultList.size(); i++) {
                             Object r = resultList.get(i);
-                            Map item  = (Map) subList.get(i);
+                            Map item = (Map) subList.get(i);
                             convert2InternalMapData(trgNames, r, item, trgName, dataUnit);
                         }
                     }
@@ -329,8 +326,6 @@ public class RiskFactConvertRuleService {
         }
         return data;
     }
-
-
 
 
     /**
@@ -367,20 +362,20 @@ public class RiskFactConvertRuleService {
          * 最后一个 ColumnName
          */
         if (trgNames.size() == 1) {
-                return dataUnitColumn.getColumnType();
+            return dataUnitColumn.getColumnType();
         }
         /**
          * 不是最后一个ColumnName (trgNames.size()>1)
          */
         else {
-                trgNames.remove(0);
-                if (StringUtils.isNotBlank(dataUnitColumn.getNestedDataUnitMataNo())) {
-                    DataUnitMetadata dataUnitMetadata = RiskFactPersistConfigHolder.localDataUnitMetadatas.get(dataUnitColumn.getNestedDataUnitMataNo());
-                    return checkColumnType(Joiner.on('.').join(trgNames), dataUnitMetadata);
-                } else {
-                    logger.warn("trgname:" + trgNames.get(0) + "作为object 和 list 对象没有找到 元数据Id");
-                    return null;
-                }
+            trgNames.remove(0);
+            if (StringUtils.isNotBlank(dataUnitColumn.getNestedDataUnitMataNo())) {
+                DataUnitMetadata dataUnitMetadata = RiskFactPersistConfigHolder.localDataUnitMetadatas.get(dataUnitColumn.getNestedDataUnitMataNo());
+                return checkColumnType(Joiner.on('.').join(trgNames), dataUnitMetadata);
+            } else {
+                logger.warn("trgname:" + trgNames.get(0) + "作为object 和 list 对象没有找到 元数据Id");
+                return null;
+            }
         }
     }
 
@@ -388,7 +383,7 @@ public class RiskFactConvertRuleService {
         ArrayList<String> keys = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().limit(2).split(sourceFieldName));
         String key = keys.get(0);
         Object object = mapping.get(key);
-        if(object == null){
+        if (object == null) {
             return null;
         }
 
@@ -402,7 +397,7 @@ public class RiskFactConvertRuleService {
                 return valueFromMap;
             }
         } else if (object instanceof List) {
-            if(((List) object).size()==0){
+            if (((List) object).size() == 0) {
                 return null;
             }
             if (keys.size() == 1) {
@@ -411,9 +406,8 @@ public class RiskFactConvertRuleService {
             } else {
                 return getValueFromList((List) object, keys.get(1), dataUnit, metadata);
             }
-        }
-        else if(object instanceof Object[]){
-            if(((Object[]) object).length==0){
+        } else if (object instanceof Object[]) {
+            if (((Object[]) object).length == 0) {
                 return null;
             }
             if (keys.size() == 1) {
@@ -421,13 +415,12 @@ public class RiskFactConvertRuleService {
                 return null;
             } else {
                 ArrayList<Object> list = Lists.newArrayList((Object[]) object);
-                return getValueFromList( list , keys.get(1), dataUnit, metadata);
+                return getValueFromList(list, keys.get(1), dataUnit, metadata);
             }
-        }
-        else {
+        } else {
             if (keys.size() > 1) {
                 logger.warn("sourceFieldName未走到底！！当前key是：" + key + " value：" + object);
-                logger.warn(" value:[" + Utils.JSON.toPrettyJSONString(object)+"]" );
+                logger.warn(" value:[" + Utils.JSON.toPrettyJSONString(object) + "]");
 //                logger.warn(object.getClass().toString());
                 return null;
             } else {
@@ -451,15 +444,15 @@ public class RiskFactConvertRuleService {
                     resultList.add(tmpValue);
                 } else {
                     List tmpList = (List) item;
-                    for(Object entry : tmpList ){
-                         Map map= (Map) entry;
+                    for (Object entry : tmpList) {
+                        Map map = (Map) entry;
                         Object o = map.get(keys.get(0));
 
                         resultList.add(o);
                     }
 //                    getValueFromList(item,)
 //                    logger.warn("取到的最后对象是一个List 当前版本暂不支持，值被丢弃"+ Utils.JSON.toPrettyJSONString(item)+Utils.JSON.toPrettyJSONString(keys));
-                    logger.warn( Utils.JSON.toPrettyJSONString(item)+Utils.JSON.toPrettyJSONString(keys));
+                    logger.warn(Utils.JSON.toPrettyJSONString(item) + Utils.JSON.toPrettyJSONString(keys));
                 }
             } else {
                 logger.warn("当前版本list下必须要map或者list,取到对的值" + tmpValue + "被丢弃");
