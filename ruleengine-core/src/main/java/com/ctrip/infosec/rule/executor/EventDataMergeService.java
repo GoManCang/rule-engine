@@ -141,7 +141,11 @@ public class EventDataMergeService {
                 if (newName == null || newName.toString().isEmpty() || newValue == null || newValue.toString().isEmpty()) {
                     continue;
                 }
-                TraceLogger.traceLog("GET: " + oldName + " &DoubleRightArrow; " + newName + ", value = " + newValue);
+                if (newValue instanceof Map || newValue instanceof List || newValue instanceof Object[]) {
+                    TraceLogger.traceLog("GET: " + oldName + " &DoubleRightArrow; " + newName + ", value = " + JSON.toJSONString(newValue));
+                } else {
+                    TraceLogger.traceLog("GET: " + oldName + " &DoubleRightArrow; " + newName + ", value = " + newValue);
+                }
                 fact.eventBody.put(newName, newValue);
             }
         }
