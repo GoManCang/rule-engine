@@ -24,12 +24,12 @@ import org.apache.commons.lang3.math.NumberUtils;
  * @author zhengby
  */
 public class Emitter {
-    
+
     public static void emit(RiskFact fact, int riskLevel, String riskMessage) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         emit(fact, ruleNo, riskLevel, riskMessage);
     }
-    
+
     public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage) {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
@@ -37,12 +37,12 @@ public class Emitter {
         int riskLevel = NumberUtils.toInt(riskLevelTxt);
         emit(fact, riskLevel, riskMessage);
     }
-    
+
     public static void emit(RiskFact fact, int riskLevel, String riskMessage, String... riskScenes) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         emit(fact, ruleNo, riskLevel, riskMessage, riskScenes);
     }
-    
+
     public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage, String... riskScenes) {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
@@ -50,7 +50,7 @@ public class Emitter {
         int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
         emit(fact, riskLevel, riskMessage, riskScenes);
     }
-    
+
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
@@ -59,7 +59,7 @@ public class Emitter {
             fact.results.put(ruleNo, result);
         }
     }
-    
+
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScenes) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
@@ -77,11 +77,11 @@ public class Emitter {
 //        String _ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
         if (ruleExecuteResults != null && !ruleExecuteResults.isEmpty()) {
-            
+
             for (CounterRuleExecuteResult ruleExecuteResult : ruleExecuteResults) {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
-                    
+
                     String ruleNo = ruleExecuteResult.getRuleNo();
                     int riskLevel = NumberUtils.toInt(ruleExecuteResult.getResultCode(), 0);
                     String riskMessage = ruleExecuteResult.getResultMessage();
@@ -93,7 +93,7 @@ public class Emitter {
                         if (_isAsync != null) {
                             result.put(Constants.async, _isAsync);
                         }
-                        
+
                         if (StringUtils.isBlank(scenes)) {
                             fact.results.put(ruleNo, result);
                         } else {
@@ -101,9 +101,9 @@ public class Emitter {
                             result.put(Constants.riskScene, riskScenes);
                             fact.resultsGroupByScene.put(ruleNo, result);
                         }
-                        
+
                         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
-                        TraceLogger.traceLog("[trace] withScene = " + withScene + ", scenes = [" + scenes + "]");
+                        TraceLogger.traceLog("[trace] withScene = " + withScene + ", scenes = [" + (scenes == null ? "" : scenes) + "]");
                         if (!withScene && StringUtils.isNotBlank(scenes)) {
                             TraceLogger.traceLog("[" + ruleNo + "] 执行结果: [在非适配点指定了场景、忽略此次结果] riskLevel = " + riskLevel
                                     + ", riskMessage = " + riskMessage + ", riskScene = [" + scenes + "]");
