@@ -114,6 +114,7 @@ public class CardInfoDecryptConverter implements Converter {
 	                map.put(resultWrapper, result);
 	            } else {
 	                TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
+	                map.put(resultWrapper, ImmutableMap.of("cardInfoId",cardInfoIdFieldValue));
 	            }
 	        }
 		}
