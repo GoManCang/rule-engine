@@ -71,14 +71,21 @@ public class Emitter {
     }
 
     /**
-     * 合并CounterServer的规则结果
+     * 别名
      */
-    public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> ruleExecuteResults) {
+    public static void emit(RiskFact fact, List<CounterRuleExecuteResult> counterExecuteResults) {
+        mergeCounterResults(fact, counterExecuteResults);
+    }
+
+    /**
+     * 合并CounterServer的规则结果（建议用emit方法）
+     */
+    public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> counterExecuteResults) {
 //        String _ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
-        if (ruleExecuteResults != null && !ruleExecuteResults.isEmpty()) {
+        if (counterExecuteResults != null && !counterExecuteResults.isEmpty()) {
 
-            for (CounterRuleExecuteResult ruleExecuteResult : ruleExecuteResults) {
+            for (CounterRuleExecuteResult ruleExecuteResult : counterExecuteResults) {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
 
