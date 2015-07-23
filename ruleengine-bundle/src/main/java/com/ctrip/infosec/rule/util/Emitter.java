@@ -112,10 +112,10 @@ public class Emitter {
                         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                         TraceLogger.traceLog("[trace] withScene = " + withScene + ", scenes = [" + (scenes == null ? "" : scenes) + "]");
                         if (!withScene && StringUtils.isNotBlank(scenes)) {
-                            TraceLogger.traceLog("[" + ruleNo + "] 执行结果: [在非适配点指定了场景、忽略此次结果] riskLevel = " + riskLevel
+                            TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + ruleNo + "] 执行结果: [在非适配点指定了场景、忽略此次结果] riskLevel = " + riskLevel
                                     + ", riskMessage = " + riskMessage + ", riskScene = [" + scenes + "]");
                         } else if (withScene && StringUtils.isBlank(scenes)) {
-                            TraceLogger.traceLog("[" + ruleNo + "] 执行结果: [没有指定场景、忽略此次结果] riskLevel = " + riskLevel
+                            TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + ruleNo + "] 执行结果: [没有指定场景、忽略此次结果] riskLevel = " + riskLevel
                                     + ", riskMessage = " + riskMessage);
                         }
                     }
