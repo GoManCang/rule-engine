@@ -50,7 +50,7 @@ public class CardInfo {
             String cacheKey = buildCacheKey(cardInfoId);
             String cachedResult = cache.get(cacheKey);
             if (cachedResult != null) {
-                return Utils.JSON.parseObject(cacheKey, Map.class);
+                return Utils.JSON.parseObject(cachedResult, Map.class);
             }
 
             String xml = ESBClient.requestESB("AccCash.CreditCard.GetCreditCardInfo", "<GetCreditCardInfoRequest><CardInfoId>" + cardInfoId + "</CardInfoId></GetCreditCardInfoRequest>");
