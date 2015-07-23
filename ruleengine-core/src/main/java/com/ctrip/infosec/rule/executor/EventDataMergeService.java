@@ -124,7 +124,7 @@ public class EventDataMergeService {
         Iterator iterator = fields.keySet().iterator();
         while (iterator.hasNext()) {
             Object redisKey = iterator.next();
-            TraceLogger.traceLog("CacheKey: " + redisKey);
+            TraceLogger.traceLog("&gt;&gt; CacheKey: " + redisKey);
             Map<String, String> newNodeNames = fields.get(redisKey);
 
             String redisValue = cacheProvider.get((String) redisKey);
@@ -160,7 +160,7 @@ public class EventDataMergeService {
         Iterator iterator = fieldsToPut.keySet().iterator();
         while (iterator.hasNext()) {
             Object redisKey = iterator.next();
-            TraceLogger.traceLog("CacheKey: " + redisKey);
+            TraceLogger.traceLog("&gt;&gt; CacheKey: " + redisKey);
             if (redisKey == null || redisKey.toString().isEmpty()) {
                 continue;
             }
