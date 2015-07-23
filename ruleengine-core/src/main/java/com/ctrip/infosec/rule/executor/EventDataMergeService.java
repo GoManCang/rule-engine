@@ -8,11 +8,8 @@ import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
-import com.ctrip.infosec.sars.util.GlobalConfig;
+import com.ctrip.infosec.rule.redis.CacheProviderFactory;
 import credis.java.client.CacheProvider;
-import credis.java.client.setting.RAppSetting;
-import credis.java.client.util.CacheFactory;
-import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,33 +21,7 @@ import java.util.*;
 public class EventDataMergeService {
 
     private static Logger logger = LoggerFactory.getLogger(EventDataMergeService.class);
-    private static CacheProvider cacheProvider;
-
-    /**
-     * redis相关的属性检查
-     */
-    static final String serviceUrl = GlobalConfig.getString("CRedis.serviceUrl");
-    static final String appId = GlobalConfig.getString("appId");
-    static final String provider = GlobalConfig.getString("CRedis.provider");
-
-    static void check() {
-        Validate.notEmpty(serviceUrl, "在GlobalConfig.properties里没有找到\"CRedis.serviceUrl\"配置项.");
-        Validate.notEmpty(appId, "在GlobalConfig.properties里没有找到\"appId\"配置项.");
-        Validate.notEmpty(provider, "在GlobalConfig.properties里没有找到\"CRedis.provider\"配置项.");
-    }
-
-    public void init() {
-        check();
-        logger.info(Contexts.getLogPrefix() + "Start to connect redis");
-        RAppSetting.setAppID(appId);
-        RAppSetting.setCRedisServiceUrl(serviceUrl);
-        RAppSetting.setLogging(false);
-        try {
-            cacheProvider = CacheFactory.GetProvider(provider);
-        } catch (RuntimeException exp) {
-            logger.error(Contexts.getLogPrefix() + "Connect to redis failed by " + exp.getMessage());
-        }
-    }
+    public static final String clusterName = "CounterServer_03";
 
     /**
      * 处理推送数据到redis和从redis获取数据
@@ -127,7 +98,8 @@ public class EventDataMergeService {
             TraceLogger.traceLog("&gt;&gt; CacheKey: " + redisKey);
             Map<String, String> newNodeNames = fields.get(redisKey);
 
-            String redisValue = cacheProvider.get((String) redisKey);
+            CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
+            String redisValue = cache.get((String) redisKey);
             if (redisValue == null || redisValue.isEmpty()) {
                 continue;
             }
@@ -182,11 +154,10 @@ public class EventDataMergeService {
 
             String redisValueStr = JSON.toJSONString(redisValueMap);
             Integer liveTime = Configs.getEventMergeCacheKeyTTL(fact.getEventPoint());
-            boolean sendSuccess = cacheProvider.set((String) redisKey, redisValueStr);
-            boolean setExpireTime = cacheProvider.expire((String) redisKey, liveTime);
-            if (!sendSuccess) {
-                logger.error(Contexts.getLogPrefix() + "Send " + redisKey + "=" + redisValueStr + " into redis failed!");
-            }
+
+            CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
+            cache.set((String) redisKey, redisValueStr);
+            cache.expire((String) redisKey, liveTime);
         }
         return fact;
     }

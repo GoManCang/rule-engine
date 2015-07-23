@@ -29,14 +29,14 @@ public enum PreActionEnums {
             "获取CRM会员信息",
             new PreActionParam("uid", PreActionParam.FIELD)),
     CardInfoDecrypt(
-            "银行卡解密（CardInfo）",
+            "银行卡信息获取并解密（CardInfo）",
             new PreActionParam("cardInfoId", PreActionParam.FIELD)),
     Airport3Code2City(
             "机场三字码转城市",
             new PreActionParam("airport3code", PreActionParam.FIELD)),
     CityId2CityAndProvince(
             "城市id转城市",
-            new PreActionParam("cityId",PreActionParam.FIELD)
+            new PreActionParam("cityId", PreActionParam.FIELD)
     );
 
     /**
