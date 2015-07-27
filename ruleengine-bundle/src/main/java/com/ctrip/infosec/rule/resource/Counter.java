@@ -17,6 +17,7 @@ import com.ctrip.infosec.counter.model.DecisionDataPushResponse;
 import com.ctrip.infosec.counter.model.DecisionDataQueryResponse;
 import com.ctrip.infosec.counter.model.DecisionDataRemoveResponse;
 import com.ctrip.infosec.counter.model.FlowPushRequest;
+import com.ctrip.infosec.counter.model.FlowPushRequest2;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryRequest;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
@@ -134,6 +135,61 @@ public class Counter {
         }
         return response;
     }
+    
+    /**
+     * 推送流量数据
+     *
+     * @param bizNo 业务编号
+     * @param kvData 交易数据
+     * @return
+     */
+    public static FlowPushResponse pushToFlow(String bizNo,List<String> flowNoList, Map<String, ?> kvData) {
+        check();
+        beforeInvoke();
+        FlowPushResponse response = null;
+        try {
+//            String responseTxt = Request.Post(urlPrefix + "/rest/push")
+//                    .bodyForm(Form.form()
+//                            .add("bizNo", bizNo)
+//                            .add("kvData", JSON.toJSONString(kvData))
+//                            .build(), Charset.forName("UTF-8"))
+//                    .execute().returnContent().asString();
+//            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//            response = flowPolicyRemoteService.push(bizNo, kvData);
+            FlowPushRequest2 flowPushRequest = new FlowPushRequest2();
+            flowPushRequest.setBizNo(bizNo);
+            flowPushRequest.setFlowNoList(flowNoList);
+            flowPushRequest.setKvData(kvData);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                flowPushRequest.setTraceLoggerHeader(header);
+            }
+
+            response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke Counter.pushToFlow fault.", ex);
+            response = new FlowPushResponse();
+            response.setErrorCode(ErrorCode.EXCEPTION.getCode());
+            response.setErrorMessage(ex.getMessage());
+        } finally {
+            afterInvoke("Counter.pushToFlow");
+        }
+        return response;
+    }
+
 
     /**
      * 推送流量数据, 并执行指定策略
