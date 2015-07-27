@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.ctrip.infosec.ruleengine</groupId>
         <artifactId>ruleengine-parent</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.0.3-SNAPSHOT</version>
     </parent>
 
     <groupId>com.ctrip.infosec.ruleengine</groupId>
     <artifactId>ruleengine-ws</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>war</packaging>    
     <name>${project.artifactId} v${project.version}</name>
     

@@ -89,7 +89,7 @@ public class Counter {
      * @param kvData 交易数据
      * @return
      */
-    public static FlowPushResponse push(String bizNo, Map<String, String> kvData) {
+    public static FlowPushResponse push(String bizNo, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         FlowPushResponse response = null;
@@ -143,7 +143,7 @@ public class Counter {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyExecuteResponse pushAndExecute(String bizNo, String policyNo, Map<String, String> kvData) {
+    public static PolicyExecuteResponse pushAndExecute(String bizNo, String policyNo, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         PolicyExecuteResponse response = null;
@@ -178,7 +178,7 @@ public class Counter {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyBatchExecuteResponse pushAndExecuteAll(String bizNo, List<String> policyNoList, Map<String, String> kvData) {
+    public static PolicyBatchExecuteResponse pushAndExecuteAll(String bizNo, List<String> policyNoList, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         PolicyBatchExecuteResponse response = null;
@@ -212,7 +212,7 @@ public class Counter {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyExecuteResponse execute(String policyNo, Map<String, String> kvData) {
+    public static PolicyExecuteResponse execute(String policyNo, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         PolicyExecuteResponse response = null;
@@ -265,7 +265,7 @@ public class Counter {
      * @param kvData 交易数据
      * @return
      */
-    public static PolicyBatchExecuteResponse executeAll(List<String> policyNoList, Map<String, String> kvData) {
+    public static PolicyBatchExecuteResponse executeAll(List<String> policyNoList, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         PolicyBatchExecuteResponse response = null;
@@ -301,7 +301,7 @@ public class Counter {
      * @param kvData 交易数据(至少需要包含维度数据)
      * @return
      */
-    public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, String> kvData) {
+    public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         FlowQueryResponse response = null;
