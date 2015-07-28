@@ -10,6 +10,7 @@ import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
+import com.google.common.collect.Lists;
 import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -26,7 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath*:spring/counter-venus-test.xml"})
 public class CounterTest {
-    
+
     @Test
     public void testFieldList() {
         System.out.println("datafieldList");
@@ -35,7 +36,7 @@ public class CounterTest {
         assertEquals("0", result.getErrorCode());
         System.out.println("datafieldList: " + JSON.toPrettyJSONString(result));
     }
-    
+
     @Test
     public void testPush() {
         System.out.println("push");
@@ -43,8 +44,11 @@ public class CounterTest {
         Map<String, String> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
         FlowPushResponse result = Counter.push(bizNo, kvData);
         assertEquals("0", result.getErrorCode());
+
+        result = Counter.pushToFlow(bizNo, Lists.newArrayList("F0003001","F0003002","F0003003"), kvData);
+        assertEquals("0", result.getErrorCode());
     }
-    
+
     @Test
     public void testQueryFlowData() {
         System.out.println("queryFlowData");
@@ -55,7 +59,7 @@ public class CounterTest {
         Map<String, String> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
         FlowQueryResponse result = Counter.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
         assertEquals("0", result.getErrorCode());
-        
+
         System.out.println("flowData: " + result.getFlowData().longValue());
     }
 }

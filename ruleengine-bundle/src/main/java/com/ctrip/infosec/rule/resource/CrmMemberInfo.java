@@ -20,9 +20,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 /**
  * Created by lpxie on 15-4-9.
  */
-public class CustomerInfo {
+public class CrmMemberInfo {
 
-    private static final Logger logger = LoggerFactory.getLogger(CustomerInfo.class);
+    private static final Logger logger = LoggerFactory.getLogger(CrmMemberInfo.class);
 
     public static Map<String, String> queryByUid(String uid) {
         Map params = new HashMap();
@@ -34,12 +34,12 @@ public class CustomerInfo {
         beforeInvoke();
         Map<String, String> result = new HashMap();
         try {
-            String xml = ESBClient.requestESB("Customer.User.GetCustomerInfo", "<GetCustomerInfoRequest><UID>" + params.get("uid") + "</UID></GetCustomerInfoRequest>");
+            String xml = ESBClient.requestESB("Customer.User.GetMemberInfo", "<MemberInfoRequest><Uid>" + params.get("uid") + "</Uid><Type></Type></MemberInfoRequest>");
             if (xml == null || xml.isEmpty()) {
                 return result;
             }
             Document document = DocumentHelper.parseText(xml);
-            String xpath = "/Response/GetCustomerInfoResponse";
+            String xpath = "/Response/MemberInfoResponse";
             List<Element> list = document.selectNodes(xpath);
             if (list == null || list.isEmpty()) {
                 return result;
@@ -54,9 +54,9 @@ public class CustomerInfo {
             }
         } catch (Exception ex) {
             fault();
-            logger.error(Contexts.getLogPrefix() + "invoke CustomerInfo.query fault.", ex);
+            logger.error(Contexts.getLogPrefix() + "invoke CrmMemberInfo.query fault.", ex);
         } finally {
-            afterInvoke("CustomerInfo.query");
+            afterInvoke("CrmMemberInfo.query");
         }
         return result;
     }
