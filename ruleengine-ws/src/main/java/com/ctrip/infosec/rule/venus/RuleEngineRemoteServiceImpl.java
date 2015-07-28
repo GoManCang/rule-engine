@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.venus;
 
+import com.ctrip.framework.clogging.agent.stats.Metric;
 import com.ctrip.infosec.common.Constants;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
@@ -17,6 +18,7 @@ import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
+import com.ctrip.infosec.rule.utils.MetricsCollector;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -29,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
 
+    public static final MetricsCollector.MetricsBuilder METRICS_BUILDER = new MetricsCollector.MetricsBuilder();
     private static Logger logger = LoggerFactory.getLogger(RuleEngineRemoteServiceImpl.class);
+
 
     @Autowired
     private RulesExecutorService rulesExecutorService;
@@ -106,7 +110,9 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             }
             logger.error(Contexts.getLogPrefix() + "invoke verify exception.", ex);
         } finally {
-            afterInvoke("RuleEngine.verify");
+            long timeUsage = afterInvoke("RuleEngine.verify");
+            // 上报Metrics
+            METRICS_BUILDER.elapsed(timeUsage).put();
         }
         return fact;
     }

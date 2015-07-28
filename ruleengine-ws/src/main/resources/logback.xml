@@ -22,11 +22,20 @@
             <pattern>${default_pattern}</pattern>
         </layout>
     </appender>
+
+    <!-- Output to central logging -->
+    <appender name="CLoggingAppender" class="com.ctrip.framework.clogging.agent.appender.CLoggingAppender">
+        <appId>100000558</appId>
+        <serverIp>collector.logging.uat.qa.nt.ctripcorp.com</serverIp>
+        <serverPort>63100</serverPort>
+    </appender>
     
     <logger name="com.ctrip.infosec.rule" additivity="false">
         <level value="INFO" />
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
+        <appender-ref ref="CLoggingAppender" />
+
     </logger>
     <logger name="com.ctrip.infosec.configs" additivity="false">
         <level value="INFO" />
@@ -64,6 +73,7 @@
     <root level="WARN">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />
+        <appender-ref ref="CLoggingAppender" />
     </root>
     
 </configuration>
