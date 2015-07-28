@@ -135,7 +135,7 @@ public class Counter {
         }
         return response;
     }
-    
+
     /**
      * 推送流量数据
      *
@@ -143,7 +143,7 @@ public class Counter {
      * @param kvData 交易数据
      * @return
      */
-    public static FlowPushResponse pushToFlow(String bizNo,List<String> flowNoList, Map<String, ?> kvData) {
+    public static FlowPushResponse pushToFlow(String bizNo, List<String> flowNoList, Map<String, ?> kvData) {
         check();
         beforeInvoke();
         FlowPushResponse response = null;
@@ -189,7 +189,6 @@ public class Counter {
         }
         return response;
     }
-
 
     /**
      * 推送流量数据, 并执行指定策略
