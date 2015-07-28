@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
 
-    public static final MetricsCollector.MetricsBuilder METRICS_BUILDER = new MetricsCollector.MetricsBuilder();
+
     private static Logger logger = LoggerFactory.getLogger(RuleEngineRemoteServiceImpl.class);
 
 
@@ -110,15 +110,14 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             }
             logger.error(Contexts.getLogPrefix() + "invoke verify exception.", ex);
         } finally {
-            long timeUsage = afterInvoke("RuleEngine.verify");
-            // 上报Metrics
-            METRICS_BUILDER.elapsed(timeUsage).put();
+            afterInvoke("RuleEngine.verify");
         }
         return fact;
     }
 
     @Override
     public String execute(String factTxt) {
+        MetricsCollector.MetricsBuilder metricsBuilder = new MetricsCollector.MetricsBuilder();
         beforeInvoke();
         logger.info("VENUS: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
@@ -181,7 +180,8 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
             }
             logger.error(Contexts.getLogPrefix() + "invoke execute exception.", ex);
         } finally {
-            afterInvoke("RuleEngine.execute");
+            long afterInvoke = afterInvoke("RuleEngine.execute");
+            metricsBuilder.elapsed(afterInvoke).put();
         }
         return JSON.toJSONString(fact);
     }
