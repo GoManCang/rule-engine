@@ -12,6 +12,8 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,20 +58,19 @@ public class RiskFactConvertRuleService {
         }
         InternalRiskFactDefinitionConfig internalRiskFactDefinitionConfig = InternalConvertConfigHolder.localRiskFactDefinitionConfigMap.get(riskFact.getEventPoint());
         List<DataUnitDefinition> dataUnitDefinitions = internalRiskFactDefinitionConfig.getDataUnitMetas();
-        if (dataUnitDefinitions == null) {
-            logger.debug("业务点" + riskFact.getEventPoint() + "所对应的DataUnitDefinition未找到！！");
-            return null;
-        }
-        for (DataUnitDefinition definition : dataUnitDefinitions) {
-            DataUnit dataUnit = new DataUnit();
-            dataUnit.setDefinition(definition);
+
+        if (CollectionUtils.isNotEmpty(dataUnitDefinitions)) {
+            for (DataUnitDefinition definition : dataUnitDefinitions) {
+                DataUnit dataUnit = new DataUnit();
+                dataUnit.setDefinition(definition);
 //
-            if (dataUnit.getDefinition().getType() == OBJECT_TYPE) {
-                dataUnit.setData(new HashMap<String, Object>());
-            } else {
-                dataUnit.setData(new ArrayList<Map<String, Object>>());
+                if (dataUnit.getDefinition().getType() == OBJECT_TYPE) {
+                    dataUnit.setData(new HashMap<String, Object>());
+                } else {
+                    dataUnit.setData(new ArrayList<Map<String, Object>>());
+                }
+                dataUnitMapping.put(definition.getMetadata().getName(), dataUnit);
             }
-            dataUnitMapping.put(definition.getMetadata().getName(), dataUnit);
         }
 
 
@@ -102,10 +103,6 @@ public class RiskFactConvertRuleService {
         }
         RiskFactConvertRuleConfig riskFactConvertRuleConfigs = InternalConvertConfigHolder.localRiskConvertMappings.get(riskFact.getEventPoint());
         List<FieldMapping> fieldMappingList = riskFactConvertRuleConfigs.getMappings();
-        if (fieldMappingList == null) {
-            logger.warn("业务点" + riskFact.getEventPoint() + "所对应的FieldMapping未找到！！");
-            return null;
-        }
 
         /**
          * 至此eventPoint对应的FieldMapping获取完成
@@ -136,67 +133,69 @@ public class RiskFactConvertRuleService {
      */
     private void recurseFieldMappingList(Map eventBody, Map<String, DataUnit> dataUnitMapping,
                                          List<FieldMapping> fieldMappingList) {
-        for (FieldMapping fieldMapping : fieldMappingList) {
-            String srcName = fieldMapping.getSourceFieldName();
-            String trgName = fieldMapping.getTargetFieldName();
-            ArrayList<String> trgNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
-            String name = trgNames.get(0);
-            /**
-             * 找到DataUnitMetadata名字和targetName对应的
-             */
-            DataUnit dataUnit = null;
-            for (Map.Entry<String, DataUnit> entry : dataUnitMapping.entrySet()) {
-                if (entry.getValue().getDefinition().getMetadata().getName().equals(name)) {
-                    dataUnit = entry.getValue();
-                    break;
-                }
-            }
-            if (dataUnit != null) {
-                Integer columnType = checkColumnType(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".") + 1, trgName.length()), dataUnit.getDefinition().getMetadata());
-                if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType != DataUnitColumnType.List.getIndex()) {
-                    Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
-//                    System.out.println("[source]:" + srcName + "[target:]"+trgName+"     [value]:" + Utils.JSON.toPrettyJSONString(results));
-                    /**
-                     * 将获取的results结果输入格式化如：
-                     *
-                     {
-                     "md2" : {
-                     "List" : [ {
-                     "basicType" : "First_o_l_o_b",
-                     "basicType1" : "First_o_l_b"
-                     }, {
-                     "basicType" : "seconde_o_l_o_b",
-                     "basicType1" : "second_o_l_b"
-                     } ],
-                     "Obj" : {
-                     "basicType" : [ "First_o_l_o_b", "seconde_o_l_o_b" ]
-                     },
-                     "basicType" : [ "First_o_l_o_b", "seconde_o_l_o_b" ],
-                     "md3" : {
-                     "list" : [ {
-                     "basicType" : "First_o_l_b",
-                     "basicType1" : "First_o_l_o_b"
-                     }, {
-                     "basicType" : "second_o_l_b",
-                     "basicType1" : "seconde_o_l_o_b"
-                     } ],
-                     "obj" : {
-                     "basicType" : [ "First_o_l_o_b", "seconde_o_l_o_b" ]
-                     }
-                     }
-                     }
-                     }
-                     *
-                     */
-                    if (results == null) {
-                        continue;
+        if (MapUtils.isNotEmpty(eventBody) && CollectionUtils.isNotEmpty(fieldMappingList)) {
+            for (FieldMapping fieldMapping : fieldMappingList) {
+                String srcName = fieldMapping.getSourceFieldName();
+                String trgName = fieldMapping.getTargetFieldName();
+                ArrayList<String> trgNames = Lists.newArrayList(Splitter.on('.').omitEmptyStrings().trimResults().split(trgName));
+                String name = trgNames.get(0);
+                /**
+                 * 找到DataUnitMetadata名字和targetName对应的
+                 */
+                DataUnit dataUnit = null;
+                for (Map.Entry<String, DataUnit> entry : dataUnitMapping.entrySet()) {
+                    if (entry.getValue().getDefinition().getMetadata().getName().equals(name)) {
+                        dataUnit = entry.getValue();
+                        break;
                     }
-                    convert2data(results, dataUnit, trgName);
-                } else {
-                    logger.warn("trgName:" + trgName + "对应的DataMetadata类型不符合当前版本要求");
                 }
-            } else {
-                logger.warn("未找到Definition");
+                if (dataUnit != null) {
+                    Integer columnType = checkColumnType(trgNames.size() == 1 ? "" : trgName.substring(trgName.indexOf(".") + 1, trgName.length()), dataUnit.getDefinition().getMetadata());
+                    if (columnType != null && columnType != DataUnitColumnType.Object.getIndex() && columnType != DataUnitColumnType.List.getIndex()) {
+                        Object results = getValueFromMap(eventBody, srcName, dataUnit, dataUnit.getDefinition().getMetadata());
+//                    System.out.println("[source]:" + srcName + "[target:]"+trgName+"     [value]:" + Utils.JSON.toPrettyJSONString(results));
+                        /**
+                         * 将获取的results结果输入格式化如：
+                         *
+                         {
+                         "md2" : {
+                         "List" : [ {
+                         "basicType" : "First_o_l_o_b",
+                         "basicType1" : "First_o_l_b"
+                         }, {
+                         "basicType" : "seconde_o_l_o_b",
+                         "basicType1" : "second_o_l_b"
+                         } ],
+                         "Obj" : {
+                         "basicType" : [ "First_o_l_o_b", "seconde_o_l_o_b" ]
+                         },
+                         "basicType" : [ "First_o_l_o_b", "seconde_o_l_o_b" ],
+                         "md3" : {
+                         "list" : [ {
+                         "basicType" : "First_o_l_b",
+                         "basicType1" : "First_o_l_o_b"
+                         }, {
+                         "basicType" : "second_o_l_b",
+                         "basicType1" : "seconde_o_l_o_b"
+                         } ],
+                         "obj" : {
+                         "basicType" : [ "First_o_l_o_b", "seconde_o_l_o_b" ]
+                         }
+                         }
+                         }
+                         }
+                         *
+                         */
+                        if (results == null) {
+                            continue;
+                        }
+                        convert2data(results, dataUnit, trgName);
+                    } else {
+                        logger.warn("trgName:" + trgName + "对应的DataMetadata类型不符合当前版本要求");
+                    }
+                } else {
+                    logger.warn("未找到Definition");
+                }
             }
         }
     }
