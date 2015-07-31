@@ -209,7 +209,7 @@ public class RabbitMqMessageHandler {
                     }
 
                     // 发送Offline4J
-                    if (internalRiskFact != null) {
+                    if (internalRiskFact != null && MapUtils.getBoolean(fact.ext, Offline4jService.PUSH_OFFLINE_WORK_ORDER_KEY, false)) {
                         try {
                             Object eventObj = riskEventConvertor.convert(internalRiskFact, riskLevel, HeaderMappingBizType.Offline4J);
                             beforeInvoke("offlineMessageSender.sendToOffline");

@@ -40,6 +40,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 public class Offline4jService {
     public static final String PUSH_EBANK_KEY = "offline4j-push-ebank";
     public static final String REMOTE_PERSIST_KEY = "offline4j-persist-remote";
+    public static final String PUSH_OFFLINE_WORK_ORDER_KEY = "offline4j-push-works-order";
 
     private static final Logger logger = LoggerFactory.getLogger(Offline4jService.class);
     @Autowired
