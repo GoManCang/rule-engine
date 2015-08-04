@@ -12,7 +12,9 @@ public class ForeignCardInfoTest
     @Test
     public void testGetPro()
     {
-        Map singleResult = ForeignCardInfo.getProvinceNames("7","405071");
+        Map singleResult = ForeignCardInfo.getProvinceNames("6","111111");
+        String Nationality = (String)singleResult.get("Nationality");
+        String BankOfCardIssue  = (String)singleResult.get("BankOfCardIssue");
         System.out.println(singleResult);
     }
 }

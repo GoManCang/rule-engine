@@ -18,7 +18,7 @@ public class CardInTest {
         //cardInfoId为30075005这个的可以查询到数据，留这备用
         RiskFact fact = ReadFactFile.getFact("searchCardInfo.json");
         Map params = new HashMap();
-        params.put("cardInfoId", fact.eventBody.get("CardInfoID") + "");
+        params.put("cardInfoId", "29018930");
         Map map = CardInfo.query("getinfo", params);
         Assert.assertNotNull(map);
         Assert.assertTrue(map.size() > 0);

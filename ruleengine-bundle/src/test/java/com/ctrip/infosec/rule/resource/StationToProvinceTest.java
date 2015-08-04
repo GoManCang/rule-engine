@@ -13,7 +13,6 @@ public class StationToProvinceTest
     public void testGetPro()
     {
         String single = "六安";
-        String multiple = "北京";
         String singleResult = StationToProvince.getProvinceNames(single);
         System.out.println(singleResult);
     }

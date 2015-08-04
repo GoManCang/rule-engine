@@ -22,7 +22,6 @@
             <pattern>${default_pattern}</pattern>
         </layout>
     </appender>
-    
     <logger name="com.ctrip.infosec.rule" additivity="false">
         <level value="INFO" />
         <appender-ref ref="STDOUT" />
