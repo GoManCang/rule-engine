@@ -1,5 +1,7 @@
 package com.ctrip.infosec.rule.convert.persist;
 
+import com.google.common.collect.Maps;
+
 import java.util.Map;
 
 /**
@@ -13,7 +15,7 @@ public class RdbmsEmptyOperation implements DbOperation {
 
     @Override
     public Map<String, Object> getExposedValue() {
-        return null;
+        return Maps.newHashMap();
     }
 
     @Override

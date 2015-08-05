@@ -10,9 +10,10 @@ import java.util.Map;
  * Created by yxjiang on 2015/6/19.
  */
 public class PersistContext {
+    public static final String table4ReqId = GlobalConfig.getString("reqId.table.name", "InfoSecurity_DealInfo");
+    public static final String column4ReqId = GlobalConfig.getString("reqId.column.name", "ReqID");
+
     private InheritableSharedMap inheritableShared = new InheritableSharedMap();
-    private String table4ReqId = GlobalConfig.getString("reqId.table.name", "InfoSecurity_DealInfo");
-    private String column4ReqId = GlobalConfig.getString("reqId.column.name", "ReqID");
 
     public void addCtxSharedValues(String prefix, Map<String, Object> sharedValues) {
         inheritableShared.addSharedValues(prefix, sharedValues);
@@ -27,11 +28,15 @@ public class PersistContext {
     }
 
     public Long getReqId() {
-        Object reqId = getVar(table4ReqId + "." + column4ReqId);
+        Object reqId = getVar(getReqIdKey());
         return reqId == null ? new Long(-1) : Long.valueOf(reqId.toString());
     }
 
     public Object getVar(String varName) {
         return inheritableShared.getValue(varName);
+    }
+
+    public static String getReqIdKey(){
+        return table4ReqId + "." + column4ReqId;
     }
 }

@@ -37,20 +37,20 @@ public class RiskFactPersistStrategy {
         return config != null;
     }
 
-    public static RiskFactPersistManager preparePersistence(InternalRiskFact fact) {
+    public static RiskFactPersistManager preparePersistence(InternalRiskFact fact, Long outerRiskReqId) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
         if (fact != null) {
             InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
-            persistManager.setOperationChain(buildDbOperationChain(fact, config));
+            persistManager.setOperationChain(buildDbOperationChain(fact, config, outerRiskReqId));
         }
         return persistManager;
     }
 
-    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, InternalRiskFactPersistConfig config) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, InternalRiskFactPersistConfig config, Long outerRiskReqId) {
         if (config == null) {
             return null;
         }
-        DbOperationChain firstOne = genReqIdOperationChain();
+        DbOperationChain firstOne = genReqIdOperationChain(outerRiskReqId);
         // 业务消息落地
         DbOperationChain last = firstOne;
         List<RdbmsTableOperationConfig> opConfigs = config.getOps();
@@ -75,24 +75,35 @@ public class RiskFactPersistStrategy {
         return firstOne;
     }
 
-//    }
-
-    private static DbOperationChain genReqIdOperationChain() {
-        RdbmsInsert insert = new RdbmsInsert();
-        DistributionChannel ch = new DistributionChannel();
-        ch.setChannelNo(allInOne4ReqId);
-        ch.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-        ch.setChannelDesc(allInOne4ReqId);
-        ch.setDatabaseURL(allInOne4ReqId);
-        insert.setChannel(ch);
-        insert.setTable(table4ReqId);
-        PersistColumnProperties props = new PersistColumnProperties();
-        props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
-        props.setColumnType(DataUnitColumnType.Long);
-        Map<String, PersistColumnProperties> map = Maps.newHashMap();
-        map.put(column4ReqId, props);
-        insert.setColumnPropertiesMap(map);
-        return new DbOperationChain(insert);
+    private static DbOperationChain genReqIdOperationChain(final Long outerRiskReqId) {
+        // 没有reqId，新增，否则使用已有的reqId
+        if (outerRiskReqId == null) {
+            RdbmsInsert insert = new RdbmsInsert();
+            DistributionChannel ch = new DistributionChannel();
+            ch.setChannelNo(allInOne4ReqId);
+            ch.setDatabaseType(DatabaseType.AllInOne_SqlServer);
+            ch.setChannelDesc(allInOne4ReqId);
+            ch.setDatabaseURL(allInOne4ReqId);
+            insert.setChannel(ch);
+            insert.setTable(table4ReqId);
+            PersistColumnProperties props = new PersistColumnProperties();
+            props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
+            props.setColumnType(DataUnitColumnType.Long);
+            Map<String, PersistColumnProperties> map = Maps.newHashMap();
+            map.put(column4ReqId, props);
+            insert.setColumnPropertiesMap(map);
+            return new DbOperationChain(insert);
+        } else {
+            return new DbOperationChain(new RdbmsEmptyOperation() {
+                @Override
+                public Map<String, Object> getExposedValue() {
+                    Map<String, Object> merged = Maps.newHashMap();
+                    merged.putAll(super.getExposedValue());
+                    merged.put(PersistContext.getReqIdKey(), outerRiskReqId);
+                    return merged;
+                }
+            });
+        }
     }
 
     private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, DataUnit dataUnit, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
@@ -136,15 +147,13 @@ public class RiskFactPersistStrategy {
         if (Configs.match(config.getConditions(), config.getConditionsLogical(), data)) {
             // 简单类型，对应一个落地操作
             Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
-            if (MapUtils.isNotEmpty(simpleFieldMap)) {
-                PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
-                if (operationType == PersistOperationType.INSERT) {
-                    RdbmsInsert insert = new RdbmsInsert();
-                    insert.setChannel(config.getChannel());
-                    insert.setTable(config.getTableName());
-                    insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
-                    chain = new DbOperationChain(insert);
-                }
+            PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
+            if (operationType == PersistOperationType.INSERT) {
+                RdbmsInsert insert = new RdbmsInsert();
+                insert.setChannel(config.getChannel());
+                insert.setTable(config.getTableName());
+                insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
+                chain = new DbOperationChain(insert);
             }
             if (chain == null) {
                 chain = new DbOperationChain(new RdbmsEmptyOperation());
@@ -221,11 +230,10 @@ public class RiskFactPersistStrategy {
      * @return
      */
     private static Map<String, Object> extractFieldData(Map<String, Object> data, DataUnitMetadata meta) {
-        Map<String, Object> rt = null;
+        Map<String, Object> rt = Maps.newHashMap();
         if (MapUtils.isNotEmpty(data)) {
             List<DataUnitColumn> columns = meta.getColumns();
             if (CollectionUtils.isNotEmpty(columns)) {
-                rt = Maps.newHashMap();
                 for (DataUnitColumn column : columns) {
                     String name = column.getName();
                     DataUnitColumnType colType = DataUnitColumnType.getByIndex(column.getColumnType());

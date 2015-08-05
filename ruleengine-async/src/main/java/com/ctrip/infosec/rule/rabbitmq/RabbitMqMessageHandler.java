@@ -146,11 +146,9 @@ public class RabbitMqMessageHandler {
 
             Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
             boolean outerReqId = riskReqId != null;
-            if (!outerReqId) {
-                internalRiskFact = offline4jService.saveForOffline(fact);
-                if (internalRiskFact != null && internalRiskFact.getReqId() > 0) {
-                    riskReqId = internalRiskFact.getReqId();
-                }
+            internalRiskFact = offline4jService.saveForOffline(fact);
+            if (internalRiskFact != null && internalRiskFact.getReqId() > 0) {
+                riskReqId = internalRiskFact.getReqId();
             }
 
             // 落地规则结果

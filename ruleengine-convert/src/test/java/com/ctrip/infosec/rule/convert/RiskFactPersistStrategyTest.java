@@ -12,7 +12,6 @@ import com.ctrip.infosec.rule.convert.config.ConvertRuleUpdateCallback;
 import com.ctrip.infosec.rule.convert.config.RiskFactPersistConfigHolder;
 import com.ctrip.infosec.rule.convert.internal.DataUnit;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
-import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,7 +43,7 @@ public class RiskFactPersistStrategyTest {
 //        Thread.sleep(10000);
         InternalRiskFact internalRiskFact = new RiskFactConvertRuleService().apply(fact);
         System.out.println(Utils.JSON.toPrettyJSONString(internalRiskFact.getDataUnits()));
-        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
+        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact, null);
 
         persistManager.persist(120, "NEW:测试");
         internalRiskFact.setReqId(persistManager.getGeneratedReqId());
@@ -93,7 +92,7 @@ public class RiskFactPersistStrategyTest {
         fact.setDataUnits(dataUnits);
 
         // 获取persistManager
-        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact);
+        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact, null);
         persistManager.persist(10, "NEW:测试");
         System.out.println(persistManager.getGeneratedReqId());
     }
