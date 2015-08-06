@@ -70,6 +70,10 @@
         <level value="INFO" />
     </logger>
 
+    <logger name="org.apache.http">
+        <level value="INFO" />
+    </logger>
+
     <root level="{$async.log.root.level}">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="fileAppender" />

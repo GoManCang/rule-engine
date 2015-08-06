@@ -46,6 +46,8 @@ public class Offline4jService {
     @Autowired
     private PersistPreRuleExecutorService persistPreRuleExecutorService;
     @Autowired
+    private PersistPostRuleExecutorService persistPostRuleExecutorService;
+    @Autowired
     private RiskFactConvertRuleService riskFactConvertRuleService;
     @Value("${persist.remote.url}")
     private String saveFactUrl;
@@ -72,6 +74,8 @@ public class Offline4jService {
                 internalRiskFact.setReqId(reqId);
             }
         }
+        // 执行落地后规则
+        persistPostRuleExecutorService.executePostRules(fact, false);
         return internalRiskFact;
     }
 
@@ -79,9 +83,10 @@ public class Offline4jService {
         String operation = internalRiskFact.getEventPoint() + ".persist-info";
         try {
             beforeInvoke(operation);
+            Long outerRiskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
             Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
             String resultRemark = "NEW: " + resultToString(fact.results);
-            RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact);
+            RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact, outerRiskReqId);
             PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
             long reqId = persistManager.getGeneratedReqId();
             internalRiskFact.setReqId(reqId);

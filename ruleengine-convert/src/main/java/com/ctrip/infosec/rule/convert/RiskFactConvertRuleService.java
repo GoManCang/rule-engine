@@ -191,7 +191,9 @@ public class RiskFactConvertRuleService {
                         }
                         convert2data(results, dataUnit, trgName);
                     } else {
-                        logger.warn("trgName:" + trgName + "对应的DataMetadata类型不符合当前版本要求");
+
+
+                        logger.warn("[columnType :"+columnType+"] trgName:" + trgName + "对应的DataMetadata类型不符合当前版本要求");
                     }
                 } else {
                     logger.warn("未找到Definition");
