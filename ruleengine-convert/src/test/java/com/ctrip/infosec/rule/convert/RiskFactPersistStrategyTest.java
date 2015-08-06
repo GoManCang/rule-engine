@@ -29,7 +29,7 @@ public class RiskFactPersistStrategyTest {
 
     @Test
     public void testConvertAndPersist() throws Exception {
-        String data = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("CP0001008.json"), "utf-8");
+        String data = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("CP0026001.json"), "utf-8");
         System.out.println(data);
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
@@ -43,7 +43,7 @@ public class RiskFactPersistStrategyTest {
 //        Thread.sleep(10000);
         InternalRiskFact internalRiskFact = new RiskFactConvertRuleService().apply(fact);
         System.out.println(Utils.JSON.toPrettyJSONString(internalRiskFact.getDataUnits()));
-        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact, null);
+        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact, internalRiskFact, null);
 
         persistManager.persist(120, "NEW:测试");
         internalRiskFact.setReqId(persistManager.getGeneratedReqId());
@@ -113,7 +113,7 @@ public class RiskFactPersistStrategyTest {
         fact.setDataUnits(dataUnits);
 
         // 获取persistManager
-        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact, null);
+        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(new RiskFact(), fact, null);
         persistManager.persist(10, "NEW:测试");
         System.out.println(persistManager.getGeneratedReqId());
     }

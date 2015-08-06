@@ -86,7 +86,7 @@ public class Offline4jService {
             Long outerRiskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
             Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
             String resultRemark = "NEW: " + resultToString(fact.results);
-            RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(internalRiskFact, outerRiskReqId);
+            RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact, internalRiskFact, outerRiskReqId);
             PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
             long reqId = persistManager.getGeneratedReqId();
             internalRiskFact.setReqId(reqId);

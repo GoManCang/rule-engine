@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.convert;
 
+import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.DataUnitType;
@@ -37,17 +38,20 @@ public class RiskFactPersistStrategy {
         return config != null;
     }
 
-    public static RiskFactPersistManager preparePersistence(InternalRiskFact fact, Long outerRiskReqId) {
+    public static RiskFactPersistManager preparePersistence(RiskFact riskFact, InternalRiskFact fact, Long outerRiskReqId) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
         if (fact != null) {
             InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
-            persistManager.setOperationChain(buildDbOperationChain(fact, config, outerRiskReqId));
+            persistManager.setOperationChain(buildDbOperationChain(riskFact, fact, config, outerRiskReqId));
         }
         return persistManager;
     }
 
-    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, InternalRiskFactPersistConfig config, Long outerRiskReqId) {
+    private static DbOperationChain buildDbOperationChain(RiskFact riskFact, InternalRiskFact fact, InternalRiskFactPersistConfig config, Long outerRiskReqId) {
         if (config == null) {
+            return null;
+        }
+        if (!Configs.match(config.getConditions(), config.getConditionsLogical(), riskFact.eventBody)){
             return null;
         }
         DbOperationChain firstOne = genReqIdOperationChain(outerRiskReqId);
