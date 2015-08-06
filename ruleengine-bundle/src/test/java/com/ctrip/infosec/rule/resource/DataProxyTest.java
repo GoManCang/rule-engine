@@ -119,10 +119,10 @@ public class DataProxyTest {
         Map params = ImmutableMap.of("branchno", "011");
         Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
 
-        /*String serviceName = "ConvertService";
+        String serviceName = "ConvertService";
         String operationName = "getCityNameByCityId";
         Map params = ImmutableMap.of("cityId", "2");
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
+        Map result = DataProxy.queryForMap(serviceName, operationName, params);
 
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
@@ -133,14 +133,14 @@ public class DataProxyTest {
          Map result = DataProxy.queryForMap(serviceName, operationName, params);
          System.out.println(result.size());*/
 
-        String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         List tagContents = new ArrayList();
         tagContents.add("QIANBAO_IDNO");
         tagContents.add("RECENT_IP");
         Map params = ImmutableMap.of("uid", "D162240074", "tagNames", tagContents);
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());
+        System.out.println(result.size());*/
 
         //查询是否为商旅用户
         /*String serviceName = "UserProfileService";

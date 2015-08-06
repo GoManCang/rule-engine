@@ -29,10 +29,10 @@ public class GetUidLevel
     private static final Logger logger = LoggerFactory.getLogger(GetUidLevel.class);
     private static final String clusterName = "CounterServer_03";
     private static final String cacheKeyPrefix = "ResourceCache__UidLevel__";
-    private static final int cacheExpireTime = 24 * 3600;
+    private static final int cacheExpireTime = 7*24 * 3600;
 
     private static final String urlPrefix = GlobalConfig.getString("GetUidLevel.REST.URL.Prefix");
-    private static final int queryTimeout = GlobalConfig.getInteger("GetUidLevel.query.timeout", 500);
+    private static final int queryTimeout = GlobalConfig.getInteger("GetUidLevel.query.timeout", 1000);
 
     static String buildCacheKey(String uid) {
         StringBuilder builder = new StringBuilder(cacheKeyPrefix);
@@ -40,7 +40,7 @@ public class GetUidLevel
         return builder.toString();
     }
 
-    public static String query(String uid)
+    public static String query(String uid,boolean isAsync)
     {
         beforeInvoke();
         String result = "";
@@ -58,6 +58,9 @@ public class GetUidLevel
             if (oldResult != null) {
                 return oldResult;
             }
+
+            if(!isAsync)
+                return result;
 
             //从公共部门获取数据
             Map request = new HashMap();
