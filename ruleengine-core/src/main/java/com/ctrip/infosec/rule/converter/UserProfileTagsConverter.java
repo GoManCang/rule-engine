@@ -63,10 +63,12 @@ public class UserProfileTagsConverter implements Converter {
         boolean hasCusCharacter = false;
         if(tags.contains("CUSCHARACTER")){
         	//遍历tags，如果存在CUSCHARACTER中，在调用新接口进行覆盖
-        	cusCharacter = GetUidLevel.query(uidFieldValue);
+        	cusCharacter = GetUidLevel.query(uidFieldValue,isAsync);
         	
-        	hasCusCharacter = true;
-        	tags.remove("CUSCHARACTER");
+        	if(StringUtils.isNotBlank(cusCharacter)){
+        		hasCusCharacter = true;
+        		tags.remove("CUSCHARACTER");
+        	}
         }
         
         if(tags.size() == 0){

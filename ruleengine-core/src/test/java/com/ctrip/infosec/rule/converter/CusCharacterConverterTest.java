@@ -33,19 +33,19 @@ public class CusCharacterConverterTest {
     	UserProfileTagsConverter converter = new UserProfileTagsConverter();
     	
     	RiskFact fact = new RiskFact();
-    	fact.eventBody.put("uid", "wwwwww");
+    	fact.eventBody.put("uid", "lxy05");
     	
-    	converter.convert(PreActionEnums.UserProfileTags, ImmutableMap.of("uid", "uid","tags","CUSCHARACTER,RECENT_IP"),fact, "userInfo");
+    	converter.convert(PreActionEnums.UserProfileTags, ImmutableMap.of("uid", "uid","tags","CUSCHARACTER,RECENT_IP"),fact, "userInfo",true);
 //    	Assert.assertTrue(StringUtils.isNotBlank(EventBodyUtils.valueAsString(fact.eventBody, "userInfo.CUSCHARACTER")));
     	
     	RiskFact fact1 = new RiskFact();
-    	fact1.eventBody.put("uid", "wwwwww");
-    	converter.convert(PreActionEnums.UserProfileTags, ImmutableMap.of("uid", "uid","tags","CUSCHARACTER"),fact1, "userInfo");
+    	fact1.eventBody.put("uid", "lxy05");
+    	converter.convert(PreActionEnums.UserProfileTags, ImmutableMap.of("uid", "uid","tags","CUSCHARACTER"),fact1, "userInfo",false);
 //    	Assert.assertTrue(StringUtils.isNotBlank(EventBodyUtils.valueAsString(fact.eventBody, "userInfo.CUSCHARACTER")));
     	
     	RiskFact fact2 = new RiskFact();
-    	fact2.eventBody.put("uid", "wwwwww");
-    	converter.convert(PreActionEnums.UserProfileTags, ImmutableMap.of("uid", "uid","tags","CUSCHARACTER,ABC"),fact2, "userInfo");
+    	fact2.eventBody.put("uid", "lxy05");
+    	converter.convert(PreActionEnums.UserProfileTags, ImmutableMap.of("uid", "uid","tags","CUSCHARACTER,ABC"),fact2, "userInfo",false);
 //    	Assert.assertTrue(StringUtils.isNotBlank(EventBodyUtils.valueAsString(fact.eventBody, "userInfo.CUSCHARACTER")));
     	System.out.println();
     }

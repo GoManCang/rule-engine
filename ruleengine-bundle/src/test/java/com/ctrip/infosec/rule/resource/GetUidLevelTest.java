@@ -18,7 +18,7 @@ public class GetUidLevelTest
     @Test
     public void testGet()
     {
-        String result = GetUidLevel.query("wwwwww");
+        String result = GetUidLevel.query("wwwwww",true);
         System.out.println("结果："+result);
     }
 

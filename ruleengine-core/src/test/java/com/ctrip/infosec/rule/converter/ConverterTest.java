@@ -34,7 +34,7 @@ public class ConverterTest {
         Converter converter = converterLocator.getConverter(PreActionEnums.Ip2ProvinceCity);
         RiskFact fact = new RiskFact();
         fact.eventBody.put("userIp", "202.96.209.133");
-        converter.convert(PreActionEnums.Ip2ProvinceCity, ImmutableMap.of("ip", "userIp"), fact, null);
+        converter.convert(PreActionEnums.Ip2ProvinceCity, ImmutableMap.of("ip", "userIp"), fact, null,false);
 
         System.out.println("convert: " + JSON.toJSONString(fact));
 
