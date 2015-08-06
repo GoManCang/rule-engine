@@ -54,8 +54,8 @@ public class GetUidLevel
             // Cache
             CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
             String cacheKey = buildCacheKey(uid);
-            String cachedResult = cache.get(cacheKey);
-            if (cachedResult != null) {
+            result = cache.get(cacheKey);
+            if (result != null) {
                 return result;
             }
 
@@ -110,18 +110,17 @@ public class GetUidLevel
             }
 
             int resultCount = allCount - threeMonthCount;
-            String userLevel = "";
             if(resultCount>=3)
             {
-                userLevel = "REPEAT";
+                result = "REPEAT";
             }else
             {
-                userLevel = "NEW";
+                result = "NEW";
             }
 
             // Cache
-            if (!userLevel.isEmpty()) {
-                cache.set(cacheKey, userLevel);
+            if (!result.isEmpty()) {
+                cache.set(cacheKey, result);
                 cache.expire(cacheKey, cacheExpireTime);
             }
         }catch (Exception ex) {
