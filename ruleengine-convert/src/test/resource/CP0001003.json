@@ -1,0 +1,24 @@
+{
+  "eventPoint": "CP0001003",
+  "eventId": "8e6f6710-3b31-11e5-a8ba-5f475aeafb8c",
+  "appId": "410404",
+  "eventBody": {
+    "CardInfoID": 0,
+    "Customeraccount": "sunyouqing.cool@163.com",
+    "test": "sunyouqing.cool@163.com",
+    "test3": "sunyouqing.cool@163.com",
+    "DeductFailsCode": "",
+    "DeductFailsReason": "银行通知支付结果成功返回金额0.010",
+    "DeductResult": "T",
+    "OrderID": 81390561,
+    "OrderType": 14,
+    "PrepayType": "ALPAY"
+  },
+  "ext": {
+    "CHANNEL": "MQ",
+    "descTimestamp": 2632128026623
+  },
+  "requestTime": "2015-08-05 01:19:33 415",
+  "requestReceive": "2015-08-05 13:19:33.377"
+}
+

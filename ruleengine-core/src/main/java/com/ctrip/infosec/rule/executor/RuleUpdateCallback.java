@@ -6,10 +6,7 @@
 package com.ctrip.infosec.rule.executor;
 
 import com.ctrip.infosec.configs.ConfigsLoadedCallback;
-import com.ctrip.infosec.rule.engine.StatelessPersistPreRuleEngine;
-import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
-import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
-import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
+import com.ctrip.infosec.rule.engine.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -26,6 +23,8 @@ public class RuleUpdateCallback implements ConfigsLoadedCallback {
     private StatelessPostRuleEngine statelessPostRuleEngine;
     @Autowired
     private StatelessPersistPreRuleEngine statelessPersistPreRuleEngine;
+    @Autowired
+    private StatelessPersistPostRuleEngine statelessPersistPostRuleEngine;
 
     @Override
     public void onConfigsLoaded() {
@@ -33,6 +32,7 @@ public class RuleUpdateCallback implements ConfigsLoadedCallback {
         statelessPreRuleEngine.updateRules();
         statelessPostRuleEngine.updateRules();
         statelessPersistPreRuleEngine.updateRules();
+        statelessPersistPostRuleEngine.updateRules();
     }
 
 }

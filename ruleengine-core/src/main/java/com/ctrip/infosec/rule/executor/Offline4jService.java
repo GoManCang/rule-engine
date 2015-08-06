@@ -46,6 +46,8 @@ public class Offline4jService {
     @Autowired
     private PersistPreRuleExecutorService persistPreRuleExecutorService;
     @Autowired
+    private PersistPostRuleExecutorService persistPostRuleExecutorService;
+    @Autowired
     private RiskFactConvertRuleService riskFactConvertRuleService;
     @Value("${persist.remote.url}")
     private String saveFactUrl;
@@ -72,6 +74,8 @@ public class Offline4jService {
                 internalRiskFact.setReqId(reqId);
             }
         }
+        // 执行落地后规则
+        persistPostRuleExecutorService.executePostRules(fact, false);
         return internalRiskFact;
     }
 

@@ -55,6 +55,27 @@ public class RiskFactPersistStrategyTest {
     }
 
     @Test
+    public void testConfig() throws Exception {
+        ConfigsDeamon daemon = new ConfigsDeamon();
+
+//        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
+        daemon.setUrl("http://localhost:8083/rest/loadconfig");
+        daemon.setPart(Part.RuleEngine);
+        daemon.setCallback(new ConvertRuleUpdateCallback());
+        daemon.start();
+
+        while (true) {
+
+            String data = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("CP0001003.json"), "utf-8");
+            RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
+
+            InternalRiskFact internalRiskFact = new RiskFactConvertRuleService().apply(fact);
+            System.out.println(Utils.JSON.toPrettyJSONString(internalRiskFact.getDataUnits()));
+            Thread.sleep(60000);
+        }
+//        System.in.read();
+    }
+    @Test
     public void testPreparePersistence() throws Exception {
         String eventPoint = "test";
         // 配置信息
