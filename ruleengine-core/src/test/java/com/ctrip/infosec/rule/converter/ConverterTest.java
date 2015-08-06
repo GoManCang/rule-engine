@@ -37,18 +37,18 @@ public class ConverterTest {
         converter.convert(PreActionEnums.Ip2ProvinceCity, ImmutableMap.of("ip", "userIp"), fact, null);
 
         System.out.println("convert: " + JSON.toJSONString(fact));
-        
+
         converter = converterLocator.getConverter(PreActionEnums.Mobile2ProvinceCity);
         fact = new RiskFact();
         fact.eventBody.put("mobile", "13917863756");
-        converter.convert(PreActionEnums.Mobile2ProvinceCity, ImmutableMap.of("mobile", "mobile"), fact, null);
+        converter.convert(PreActionEnums.Mobile2ProvinceCity, ImmutableMap.of("mobile", "mobile"), fact, null, false);
 
         System.out.println("convert: " + JSON.toJSONString(fact));
-        
+
         converter = converterLocator.getConverter(PreActionEnums.CardInfoDecrypt);
         fact = new RiskFact();
         fact.eventBody.put("cardInfoID", "28996388");
-        converter.convert(PreActionEnums.CardInfoDecrypt, ImmutableMap.of("cardInfoId", "cardInfoID"), fact, null);
+        converter.convert(PreActionEnums.CardInfoDecrypt, ImmutableMap.of("cardInfoId", "cardInfoID"), fact, null, false);
 
         System.out.println("convert: " + JSON.toJSONString(fact));
     }

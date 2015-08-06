@@ -32,7 +32,7 @@ public class CardInfoDecryptConverter implements Converter {
     private static final Logger logger = LoggerFactory.getLogger(CardInfoDecryptConverter.class);
 
     @Override
-    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
+    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper, boolean isAsync) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String cardInfoIdFieldName = (String) fieldMapping.get(fields[0].getParamName());
         

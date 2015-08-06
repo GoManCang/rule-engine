@@ -25,7 +25,7 @@ public class CityId2CityAndProvinceConverter implements Converter {
     static final String operationName = "getCityNameByCityId";
 
     @Override
-    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
+    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper, boolean isAsync) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String cityFieldName = (String) fieldMapping.get(fields[0].getParamName());
         String cityFieldValue = BeanUtils.getNestedProperty(fact.eventBody, cityFieldName);

@@ -30,7 +30,7 @@ public class Mobile2ProvinceCityConverter implements Converter {
     static final String operationName = "getMobileArea";
 
     @Override
-    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
+    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper, boolean isAsync) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String mobileFieldName = (String) fieldMapping.get(fields[0].getParamName());
         String mobileFieldValue = BeanUtils.getNestedProperty(fact.eventBody, mobileFieldName);

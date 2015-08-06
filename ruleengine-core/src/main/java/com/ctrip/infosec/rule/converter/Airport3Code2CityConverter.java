@@ -30,7 +30,7 @@ public class Airport3Code2CityConverter implements Converter {
     static final String operationName = "getAirPortCity";
 
     @Override
-    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception {
+    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper, boolean isAsync) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String airport3codeFieldName = (String) fieldMapping.get(fields[0].getParamName());
         String airport3codeFieldValue = BeanUtils.getNestedProperty(fact.eventBody, airport3codeFieldName);

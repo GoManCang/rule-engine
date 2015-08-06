@@ -22,5 +22,5 @@ public interface Converter {
      * @param resultWrapper 返回值的字段名
      * @throws java.lang.Exception
      */
-    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper) throws Exception;
+    public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper, boolean isAsync) throws Exception;
 }

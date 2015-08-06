@@ -135,7 +135,7 @@ public class PreRulesExecutorService {
                 if (preAction != null) {
                     try {
                         Converter converter = converterLocator.getConverter(preAction);
-                        converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
+                        converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper(), true);
                     } catch (Exception ex) {
                         logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
                         TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
@@ -237,7 +237,7 @@ public class PreRulesExecutorService {
                         try {
                             if (preAction != null) {
                                 Converter converter = converterLocator.getConverter(preAction);
-                                converter.convert(preAction, preActionFieldMapping, fact, preActionResultWrapper);
+                                converter.convert(preAction, preActionFieldMapping, fact, preActionResultWrapper, false);
 
                                 long handlingTime = System.currentTimeMillis() - start;
                                 if (handlingTime > 100) {
