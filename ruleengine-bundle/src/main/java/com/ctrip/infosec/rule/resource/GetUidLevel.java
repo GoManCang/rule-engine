@@ -54,9 +54,9 @@ public class GetUidLevel
             // Cache
             CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
             String cacheKey = buildCacheKey(uid);
-            result = cache.get(cacheKey);
-            if (result != null) {
-                return result;
+            String oldResult = cache.get(cacheKey);
+            if (oldResult != null) {
+                return oldResult;
             }
 
             //从公共部门获取数据
