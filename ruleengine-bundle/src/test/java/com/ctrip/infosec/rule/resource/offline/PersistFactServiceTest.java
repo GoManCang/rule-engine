@@ -81,6 +81,6 @@ public class PersistFactServiceTest {
                 "    \"ordertype\": 14\n" +
                 "  }\n" +
                 "}\n";
-        new PersistFactService("http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline").saveFact(JSON.parseObject(fact, RiskFact.class));
+//        new PersistFactService("http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline").saveFact(JSON.parseObject(fact, RiskFact.class), -1);
     }
 }
