@@ -7,6 +7,8 @@ import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 /**
@@ -14,6 +16,8 @@ import static com.ctrip.infosec.configs.utils.Utils.JSON;
  */
 public class PersistFactService {
     private static final Logger logger = LoggerFactory.getLogger(PersistFactService.class);
+    public static final String REMOTE_SAVE_MAP_KEY = "offline4j-persist-remote-map";
+    public static final String REMOTE_SAVE_REQID_KEY = "reqid";
 
     private String saveFactUrl;
 
@@ -21,17 +25,17 @@ public class PersistFactService {
         this.saveFactUrl = saveFactUrl;
     }
 
-    public Long saveFact(RiskFact fact){
+    public void saveFact(RiskFact fact, long reqId){
         try {
-            String responseTxt = Request.Post(saveFactUrl)
+            Map<String, Object> data = (Map<String, Object>) fact.ext.get(REMOTE_SAVE_MAP_KEY);
+            data.put(REMOTE_SAVE_REQID_KEY, reqId);
+            Request.Post(saveFactUrl)
                     .body(new StringEntity(JSON.toJSONString(fact), ContentType.APPLICATION_JSON))
                     .connectTimeout(1000)
                     .socketTimeout(5000)
                     .execute().returnContent().asString();
-            return Long.valueOf(responseTxt);
         }catch (Exception e){
             logger.error("fail to save fact by remote service.", e);
-            return null;
         }
     }
 }

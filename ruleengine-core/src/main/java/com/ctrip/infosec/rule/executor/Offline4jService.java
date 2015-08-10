@@ -67,11 +67,11 @@ public class Offline4jService {
             // 数据落地
             if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
                 localSave(fact, internalRiskFact);
-            }
-            //调用外部存储服务
-            if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false)) {
-                Long reqId = persistFactService.saveFact(fact);
-                internalRiskFact.setReqId(reqId);
+                //调用外部存储服务
+                long reqId = internalRiskFact.getReqId();
+                if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false) && reqId > 0) {
+                    persistFactService.saveFact(fact, reqId);
+                }
             }
         }
         // 执行落地后规则
@@ -98,7 +98,7 @@ public class Offline4jService {
                 request.setOrderID(persistManager.getLong("InfoSecurity_RiskLevelData.OrderID"));
                 request.setRiskLevel(riskLevel);
                 request.setRemark(persistManager.getString("InfoSecurity_RiskLevelData.Remark"));
-                request.setOrderType(persistManager.getInteger("InfoSecurity_RiskLevelData.OrderID"));
+                request.setOrderType(persistManager.getInteger("InfoSecurity_RiskLevelData.OrderType"));
                 request.setOriginalRiskLevel(riskLevel);
                 Map<String, Object> ebankData = MapUtils.getMap(fact.ext, "ebank-data");
                 request.setInfoID(MapUtils.getInteger(ebankData, "infoId", 0));
