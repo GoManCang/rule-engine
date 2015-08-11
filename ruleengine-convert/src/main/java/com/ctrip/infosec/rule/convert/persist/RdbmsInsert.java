@@ -6,6 +6,7 @@ import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.rule.convert.util.PersistConvertUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Joiner;
+import com.meidusa.fastjson.JSON;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
             try {
                 dataSource = getDatasource();
                 connection = dataSource.getConnection();
+
                 String spa = createSPA(getTable(), getColumnPropertiesMap(), ctx);
                 if (StringUtils.isBlank(spa)) {
                     logger.warn("columnPropertiesMap 中的value为空 未构成spa");
@@ -60,6 +62,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
             } catch (Exception e) {
                 try {
                     logger.warn("url={}, user={}", connection.getMetaData().getURL(), connection.getMetaData().getUserName());
+                    logger.warn("channel={}", JSON.toJSONString(getChannel()));
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
