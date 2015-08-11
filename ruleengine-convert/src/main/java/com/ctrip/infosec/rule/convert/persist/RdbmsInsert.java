@@ -59,7 +59,7 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
 
             } catch (Exception e) {
                 try {
-                    logger.warn("user={}", connection.getMetaData().getUserName());
+                    logger.warn("url={}, user={}", connection.getMetaData().getURL(), connection.getMetaData().getUserName());
                 } catch (SQLException e1) {
                     e1.printStackTrace();
                 }
