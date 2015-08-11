@@ -58,6 +58,11 @@ public class RdbmsInsert extends AbstractRdbmsOperation {
                 }
 
             } catch (Exception e) {
+                try {
+                    logger.warn("schema={}, user={}", connection.getSchema(), connection.getMetaData().getUserName());
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
                 throw new DbExecuteException("insert操作异常", e);
             } finally {
                 try {

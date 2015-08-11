@@ -26,36 +26,35 @@ public class RdbmsInsertTest {
         rdbmsInsert = new RdbmsInsert();
         DistributionChannel channel= new DistributionChannel();
         channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
-        channel.setDatabaseURL("CardRiskDB_INSERT_1");
-        channel.setSchema("CardRiskDB");
+        channel.setDatabaseURL("PayBaseDB_INSERT_1");
+        channel.setSchema("PayBaseDB ");
 
 
         rdbmsInsert.setChannel(channel);
         /**
          * 随便选了张column少的表。
          */
-        rdbmsInsert.setTable("CardRisk_BlackListRuleColumnValue");
+        rdbmsInsert.setTable("PaymentRiskControl");
 
 
         Map<String , PersistColumnProperties> map =new HashMap<String, PersistColumnProperties>();
 
         PersistColumnProperties pcp1 = new PersistColumnProperties();
-        pcp1.setValue(111);
-        pcp1.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        pcp1.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
         pcp1.setColumnType(DataUnitColumnType.Int);
-        map.put("RuleID",pcp1);
+        map.put("RID",pcp1);
 
         PersistColumnProperties pcp2=new PersistColumnProperties();
         pcp2.setValue(17);
         pcp2.setColumnType(DataUnitColumnType.Long);
         pcp2.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-        map.put("ProcessType",pcp2);
+        map.put("OrderID",pcp2);
 
-        PersistColumnProperties pcp3=new PersistColumnProperties();
-        pcp3.setValue(new String[]{null,"from offline test"});
-        pcp3.setColumnType(DataUnitColumnType.String);
-        pcp3.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-        map.put("CheckValue",pcp3);
+//        PersistColumnProperties pcp3=new PersistColumnProperties();
+//        pcp3.setValue(new String[]{null,"from offline test"});
+//        pcp3.setColumnType(DataUnitColumnType.String);
+//        pcp3.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+//        map.put("CheckValue",pcp3);
 
         rdbmsInsert.setColumnPropertiesMap(map);
 
