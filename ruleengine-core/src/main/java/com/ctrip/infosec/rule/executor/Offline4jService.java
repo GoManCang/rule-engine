@@ -67,8 +67,11 @@ public class Offline4jService {
             // 数据落地
             if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
                 localSave(fact, internalRiskFact);
-                //调用外部存储服务
                 long reqId = internalRiskFact.getReqId();
+                if (reqId > 0) {
+                    fact.ext.put(Constants.key_generated_reqId, reqId);
+                }
+                //调用外部存储服务
                 if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false) && reqId > 0) {
                     persistFactService.saveFact(fact, reqId);
                 }
