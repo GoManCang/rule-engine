@@ -65,6 +65,10 @@
     <logger name="org.apache.commons">
         <level value="ERROR" />
     </logger>
+
+    <logger name="com.meidusa.toolkit">
+        <level value="ERROR" />
+    </logger>
     
     <logger name="org.eclipse.jetty">
         <level value="INFO" />
