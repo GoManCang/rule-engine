@@ -65,3 +65,7 @@ persist.remote.url = {$persist.remote.url}
 #GetUidLevel
 GetUidLevel.query.timeout={$GetUidLevel.query.timeout}
 GetUidLevel.REST.URL.Prefix={$GetUidLevel.REST.URL.Prefix}
+
+#BWGList
+BWList.URL.Prefix={$BWList.URL.Prefix}
+BWList.timeout={$BWList.timeout}

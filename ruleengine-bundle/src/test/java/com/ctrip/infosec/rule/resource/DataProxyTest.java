@@ -12,9 +12,17 @@ import com.google.common.collect.ImmutableMap;
 import com.meidusa.fastjson.JSON;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 
+import com.sun.javafx.fxml.builder.URLBuilder;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.util.URIUtil;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.junit.Ignore;
