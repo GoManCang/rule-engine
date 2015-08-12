@@ -79,7 +79,7 @@
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.fws.qa.nt.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
         <!-- BWGList -->
-        <GetUidLevel.query.timeout>200</GetUidLevel.query.timeout>
+        <BWList.timeout>1000</BWList.timeout>
         <BWList.URL.Prefix>http://10.2.56.170:8080</BWList.URL.Prefix>
     </fat>
     <lpt></lpt>
@@ -141,7 +141,7 @@
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.uat.qa.nt.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
         <!-- BWGList -->
-        <GetUidLevel.query.timeout>200</GetUidLevel.query.timeout>
+        <BWList.timeout>1000</BWList.timeout>
         <BWList.URL.Prefix>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080</BWList.URL.Prefix>
     </uat_nt>
     <prd>
@@ -201,7 +201,7 @@
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
         <!-- BWGList -->
-        <GetUidLevel.query.timeout>200</GetUidLevel.query.timeout>
+        <BWList.timeout>500</BWList.timeout>
         <BWList.URL.Prefix>http://ws.flowtable4j.infosec.ctripcorp.com</BWList.URL.Prefix>
     </prd>
 </profile>
