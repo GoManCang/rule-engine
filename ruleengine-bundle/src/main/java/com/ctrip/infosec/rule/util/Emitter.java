@@ -194,4 +194,14 @@ public class Emitter {
             }
         }
     }
+
+    /**
+     * 合并黑白名单规则引擎结果
+     *
+     * @param fact
+     * @param bwlistResults
+     */
+    public static void emitBWListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
+
+    }
 }

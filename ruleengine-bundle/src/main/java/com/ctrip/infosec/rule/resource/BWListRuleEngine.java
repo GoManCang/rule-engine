@@ -11,44 +11,44 @@ import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by lpxie on 15-8-12. 这个类用作调用Flow4j的黑白名单
  */
-public class CheckBWGList {
+public class BWListRuleEngine {
 
-    private final static Logger log = LoggerFactory.getLogger(CheckBWGList.class);
+    private final static Logger log = LoggerFactory.getLogger(BWListRuleEngine.class);
     private final static String urlPrefix = GlobalConfig.getString("BWList.URL.Prefix");
-    private final static int queryTimeout = GlobalConfig.getInteger("BWList.timeout", 200);
-
-    private static void check() {
-        Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"BWList.URL.Prefix\"配置项.");
-    }
+    private final static int queryTimeout = GlobalConfig.getInteger("BWList.timeout", 500);
 
     /**
      *
-     * @param request Map params = new HashMap<>(); Map eventBody = new
-     * HashMap(); eventBody.put("uid","test12345678");
-     * params.put("eventBody",eventBody); 返回的结果是列表 [{ "ruleType": "ACCOUNT",
-     * "ruleID": 0, "ruleName": "CREDIT-EXCHANGE", "riskLevel": 295,
-     * "ruleRemark": "" }]
+     * @param request
+     * Map params = new HashMap<>();
+     * Map eventBody = new HashMap();
+     * eventBody.put("uid","test12345678");
+     * params.put("eventBody",eventBody);
+     * 返回的结果是列表 [{ "ruleType": "ACCOUNT", "ruleID": 0, "ruleName": "CREDIT-EXCHANGE", "riskLevel": 295, "ruleRemark": "" }]
      * @return
      */
-    public static ArrayList<Map<String, String>> query(Map request) {
-        check();
+    public static List<Map<String, String>> check(Map params) {
+        Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"BWList.URL.Prefix\"配置项.");
         beforeInvoke();
         ArrayList<Map<String, String>> result = new ArrayList<>();
         try {
+            Map request = ImmutableMap.of("eventBody", params);
             String responseTxt = Request.Post(urlPrefix + "/flowtable4j/rest/checkBWGList")
                     .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
-                    .connectTimeout(queryTimeout)
+                    .connectTimeout(100)
                     .socketTimeout(queryTimeout)
                     .execute().returnContent().asString();
 
@@ -62,10 +62,10 @@ public class CheckBWGList {
             }
         } catch (Exception ex) {
             fault();
-            log.error(Contexts.getLogPrefix() + "invoke CheckBWGList.query fault.", ex);
-            TraceLogger.traceLog("执行CheckBWGList异常: " + ex.toString());
+            log.error(Contexts.getLogPrefix() + "invoke BWRuleEngine.check fault.", ex);
+            TraceLogger.traceLog("执行BWRuleEngine异常: " + ex.toString());
         } finally {
-            afterInvoke("CheckBWGList.query");
+            afterInvoke("BWRuleEngine.check");
         }
 
         return result;
