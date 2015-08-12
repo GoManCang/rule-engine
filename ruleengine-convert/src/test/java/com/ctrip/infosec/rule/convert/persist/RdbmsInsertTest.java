@@ -48,7 +48,7 @@ public class RdbmsInsertTest {
         pcp2.setValue(17);
         pcp2.setColumnType(DataUnitColumnType.Long);
         pcp2.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-        map.put("OrderID",pcp2);
+        map.put("OrderID1",pcp2);
 
 //        PersistColumnProperties pcp3=new PersistColumnProperties();
 //        pcp3.setValue(new String[]{null,"from offline test"});

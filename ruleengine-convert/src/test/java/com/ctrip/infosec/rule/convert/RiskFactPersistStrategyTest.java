@@ -29,7 +29,7 @@ public class RiskFactPersistStrategyTest {
 
     @Test
     public void testConvertAndPersist() throws Exception {
-        String data = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("CP0026001.json"), "utf-8");
+        String data = IOUtils.toString(this.getClass().getClassLoader().getResourceAsStream("CP0001001.json"), "utf-8");
         System.out.println(data);
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();

@@ -1,0 +1,14 @@
+{
+  "eventPoint" : "CP0001001",
+  "eventId" : "r3",
+  "eventBody" : {
+    "DID" : "",
+    "IPAddr" : "192.168.1.1",
+    "MerchantID" : "1565858",
+    "OrderID" : "4990841",
+    "OrderType" : "1",
+    "UID" : "test111111",
+    "postActions" : { }
+  },
+  "requestTime" : "2015-08-11 18:15:33.264"
+}

@@ -7,17 +7,23 @@ import org.slf4j.LoggerFactory;
 
 import com.ctrip.datasource.locator.DataSourceLocator;
 
-public class DalDataSourceHolder {
-	
-	private static Logger logger = LoggerFactory.getLogger(DalDataSourceHolder.class);
-	
-	private static DataSource dalDataSource;
+import java.util.concurrent.ConcurrentHashMap;
 
-	public static DataSource getDataSource(String allInOneName) throws Exception {
-		
-		if (null == dalDataSource) 
-			dalDataSource = DataSourceLocator.newInstance().getDataSource(allInOneName);
-		
-		return dalDataSource;
-	}
+public class DalDataSourceHolder {
+
+    private static Logger logger = LoggerFactory.getLogger(DalDataSourceHolder.class);
+
+    private static ConcurrentHashMap<String, DataSource> dalDataSourceMap = new ConcurrentHashMap<>();
+
+    public static DataSource getDataSource(String allInOneName) throws Exception {
+
+        DataSource dataSource = dalDataSourceMap.get(allInOneName);
+        if (dataSource == null) {
+            dataSource = DataSourceLocator.newInstance().getDataSource(allInOneName);
+            DataSource exist = dalDataSourceMap.putIfAbsent(allInOneName, dataSource);
+            dataSource = (exist != null) ? exist : dataSource;
+        }
+
+        return dataSource;
+    }
 }
