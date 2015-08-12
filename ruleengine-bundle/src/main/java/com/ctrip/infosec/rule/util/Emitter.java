@@ -21,6 +21,7 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
 import com.ctrip.infosec.counter.model.PolicyExecuteResult;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -32,12 +33,12 @@ import com.meidusa.fastjson.JSON;
  * @author zhengby
  */
 public class Emitter {
-
+    
     public static void emit(RiskFact fact, int riskLevel, String riskMessage) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         emit(fact, ruleNo, riskLevel, riskMessage);
     }
-
+    
     public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage) {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
@@ -45,12 +46,12 @@ public class Emitter {
         int riskLevel = NumberUtils.toInt(riskLevelTxt);
         emit(fact, riskLevel, riskMessage);
     }
-
+    
     public static void emit(RiskFact fact, int riskLevel, String riskMessage, String... riskScenes) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         emit(fact, ruleNo, riskLevel, riskMessage, riskScenes);
     }
-
+    
     public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage, String... riskScenes) {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
@@ -58,7 +59,7 @@ public class Emitter {
         int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
         emit(fact, riskLevel, riskMessage, riskScenes);
     }
-
+    
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
@@ -67,7 +68,7 @@ public class Emitter {
             fact.results.put(ruleNo, result);
         }
     }
-
+    
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScenes) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
@@ -93,7 +94,7 @@ public class Emitter {
             for (CounterRuleExecuteResult ruleExecuteResult : counterPolicyExecuteResult.getRuleExecuteResults()) {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
-
+                    
                     String ruleNo = ruleExecuteResult.getRuleNo();
                     int riskLevel = NumberUtils.toInt(ruleExecuteResult.getResultCode(), 0);
                     String riskMessage = ruleExecuteResult.getResultMessage();
@@ -105,7 +106,7 @@ public class Emitter {
                         if (_isAsync != null) {
                             result.put(Constants.async, _isAsync);
                         }
-
+                        
                         if (StringUtils.isBlank(scenes)) {
                             fact.results.put(ruleNo, result);
                         } else {
@@ -113,7 +114,7 @@ public class Emitter {
                             result.put(Constants.riskScene, riskScenes);
                             fact.resultsGroupByScene.put(ruleNo, result);
                         }
-
+                        
                         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                         TraceLogger.traceLog("[trace] withScene = " + withScene + ", scenes = [" + (scenes == null ? "" : scenes) + "]");
                         if (!withScene) {
@@ -146,17 +147,17 @@ public class Emitter {
     public static void emit(RiskFact fact, List<CounterRuleExecuteResult> counterExecuteResults) {
         mergeCounterResults(fact, counterExecuteResults);
     }
-
+    
     @Deprecated
     public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> counterExecuteResults) {
 //        String _ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
         if (counterExecuteResults != null && !counterExecuteResults.isEmpty()) {
-
+            
             for (CounterRuleExecuteResult ruleExecuteResult : counterExecuteResults) {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
-
+                    
                     String ruleNo = ruleExecuteResult.getRuleNo();
                     int riskLevel = NumberUtils.toInt(ruleExecuteResult.getResultCode(), 0);
                     String riskMessage = ruleExecuteResult.getResultMessage();
@@ -168,7 +169,7 @@ public class Emitter {
                         if (_isAsync != null) {
                             result.put(Constants.async, _isAsync);
                         }
-
+                        
                         if (StringUtils.isBlank(scenes)) {
                             fact.results.put(ruleNo, result);
                         } else {
@@ -176,7 +177,7 @@ public class Emitter {
                             result.put(Constants.riskScene, riskScenes);
                             fact.resultsGroupByScene.put(ruleNo, result);
                         }
-
+                        
                         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                         TraceLogger.traceLog("[trace] withScene = " + withScene + ", scenes = [" + (scenes == null ? "" : scenes) + "]");
                         if (!withScene) {
@@ -208,81 +209,75 @@ public class Emitter {
      * @param fact
      * @param bwlistResults
      */
-    
     private static final String RULETYPE_ACCOUNT = "ACCOUNT";
     private static final String RULETYPE_BW = "BW";
     
     public static void emitBWListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
-    	
-    	//result: [{"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE","riskLevel":295,"ruleRemark":""},
-    	//         {"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE1","riskLevel":80,"ruleRemark":""}]
-    	
-    	Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
-    	if(_isAsync) return;
-    	
-    	String epNo = fact.getEventPoint();
-    	String orderType = EventBodyUtils.valueAsString(fact.getEventBody(), "orderType");
-    	boolean isAdapterFact = Constants.eventPointsWithScene.contains(fact.eventPoint);
-    	boolean isScoreFact = orderType.equals("12");
-    	
-    	if(isAdapterFact){
-    		//适配点
-    		for(Map<String,String> resultMap : bwlistResults){
-    			
-    			String ruleType = valueAsString(resultMap, "ruleType");
-    			String ruleNo = valueAsString(resultMap, "ruleName");
-				String riskMessage = valueAsString(resultMap, "ruleRemark");
-				Integer riskLevel = valueAsInt(resultMap, "riskLevel");
-    			
-    			if(ruleType.equals(RULETYPE_ACCOUNT)){
-    				emit(fact,ruleNo, riskLevel, riskMessage, ruleNo);
-    			}else if(ruleType.equals(RULETYPE_BW) && riskLevel > 100){
-    				emit(fact,"PAYMENT-CONF-LIPIN", 295, riskMessage, "PAYMENT-CONF-LIPIN");
-    			}
-    			
-    		}
-    		
-    	}else{
-    		
-    		String finalRuleNo = null;
-    		Integer finalRiskLevel = null;
-    		String finalRiskMessage = null;
-    		
-    		for(Map<String,String> resultMap : bwlistResults){
-    			
-    			String ruleType = valueAsString(resultMap, "ruleType");
-    			String ruleNo = valueAsString(resultMap, "ruleName");
+
+        //result: [{"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE","riskLevel":295,"ruleRemark":""},
+        //         {"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE1","riskLevel":80,"ruleRemark":""}]
+        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+        if (_isAsync) {
+            return;
+        }
+        
+        String orderType = EventBodyUtils.valueAsString(fact.getEventBody(), "orderType");
+        boolean isAdapterFact = Constants.eventPointsWithScene.contains(fact.eventPoint);
+        boolean isScoreFact = orderType.equals("12");
+        
+        if (isAdapterFact) {
+            //适配点
+            for (Map<String, String> resultMap : bwlistResults) {
+                
+                String ruleType = valueAsString(resultMap, "ruleType");
+                String ruleNo = valueAsString(resultMap, "ruleName");
+                String riskMessage = "命中黑白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                Integer riskLevel = valueAsInt(resultMap, "riskLevel");
+                
+                if (ruleType.equals(RULETYPE_ACCOUNT)) {
+                    emit(fact, ruleNo, riskLevel, riskMessage, ruleNo);
+                } else if (ruleType.equals(RULETYPE_BW) && riskLevel > 100) {
+                    emit(fact, "PAYMENT-CONF-LIPIN", 295, riskMessage, "PAYMENT-CONF-LIPIN");
+                }
+                
+            }
+            
+        } else {
+            
+            String finalRuleNo = null;
+            Integer finalRiskLevel = null;
+            String finalRiskMessage = null;
+            
+            for (Map<String, String> resultMap : bwlistResults) {
+                
+                String ruleType = valueAsString(resultMap, "ruleType");
+                String ruleNo = valueAsString(resultMap, "ruleName");
 //				String riskMessage = valueAsString(resultMap, "ruleRemark");
-				Integer riskLevel = valueAsInt(resultMap, "riskLevel");
-				
-				if(!isAdapterFact && isScoreFact){
-	    			//积分点,不区分ruleType
-					
-					if(null == finalRiskLevel || riskLevel > finalRiskLevel){
-						finalRuleNo = ruleNo;
-    					finalRiskLevel = riskLevel;
-    					finalRiskMessage = "中黑白名单规则-->" + JSON.toJSONString(resultMap);
-    				}
-					
-	    		}else{
-	    			//其他授权，下单点
-	    			//只需要ruleType = BW
-	    			
-	    			if(ruleType.equals(RULETYPE_BW)){
-	    				
-	    				if(null == finalRiskLevel || riskLevel > finalRiskLevel){
-	    					finalRuleNo = ruleNo;
-	    					finalRiskLevel = riskLevel;
-	    					finalRiskMessage = "中黑白名单规则-->" + JSON.toJSONString(resultMap);
-	    				}
-	    			}
-	    		}
-    		}
-    		
-    		emit(fact, finalRiskLevel, finalRiskMessage);
-    		
-    	}
-    	
-    	
+                Integer riskLevel = valueAsInt(resultMap, "riskLevel");
+                
+                if (!isAdapterFact && isScoreFact) {
+                    //积分点,不区分ruleType
+                    if (null == finalRiskLevel || riskLevel > finalRiskLevel) {
+                        finalRuleNo = ruleNo;
+                        finalRiskLevel = riskLevel;
+                        finalRiskMessage = "命中黑白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                    }
+                    
+                } else {
+                    //其他授权，下单点
+                    //只需要ruleType = BW
+                    if (ruleType.equals(RULETYPE_BW)) {
+                        if (null == finalRiskLevel || riskLevel > finalRiskLevel) {
+                            finalRuleNo = ruleNo;
+                            finalRiskLevel = riskLevel;
+                            finalRiskMessage = "命中黑白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                        }
+                    }
+                }
+            }
+            
+            emit(fact, finalRiskLevel, finalRiskMessage);
+        }
     }
+    
 }
