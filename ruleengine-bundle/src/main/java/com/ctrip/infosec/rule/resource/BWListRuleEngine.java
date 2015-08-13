@@ -32,11 +32,11 @@ public class BWListRuleEngine {
 
     /**
      *
-     * @param request
-     * Map params = new HashMap<>();
-     * Map eventBody = new HashMap();
-     * eventBody.put("uid","test12345678");
-     * params.put("eventBody",eventBody);
+     * @param accountParams 账户黑白名单参数
+     * @param bwlistParams 支付黑白名单参数
+     *
+     * Map accountParams = new HashMap<>();
+     * accountParams.put("uid","test12345678");
      * 返回的结果是列表 [{ "ruleType": "ACCOUNT", "ruleID": 0, "ruleName": "CREDIT-EXCHANGE", "riskLevel": 295, "ruleRemark": "" }]
      * @return
      */
