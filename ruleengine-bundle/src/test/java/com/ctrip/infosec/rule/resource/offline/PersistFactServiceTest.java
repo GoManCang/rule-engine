@@ -5,82 +5,20 @@ import com.meidusa.fastjson.JSON;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.HashMap;
+
 /**
  * Created by yxjiang on 2015/7/17.
  */
 public class PersistFactServiceTest {
     @Test
     @Ignore
-    public void testSave(){
-        String fact = "{\n" +
-                "  \"eventPoint\": \"CP0033001\",\n" +
-                "  \"requestTime\": \"2015-07-07 15:45:47.819\",\n" +
-                "  \"appId\": \"670205\",\n" +
-                "  \"eventBody\": {\n" +
-                "    \"orderid\": 9045094,\n" +
-                "    \"merchantid\": \"124\",\n" +
-                "    \"checktype\": 2,\n" +
-                "    \"referenceno\": \"123\",\n" +
-                "    \"paymentinfos\": [\n" +
-                "      {\n" +
-                "        \"prepaytype\": \"CCARD\",\n" +
-                "        \"amount\": 10.0,\n" +
-                "        \"refno\": 123,\n" +
-                "        \"cardinfoid\": 0,\n" +
-                "        \"creditcardinfo\": {\n" +
-                "          \"cardinfoid\": 28996388,\n" +
-                "          \"creditcardtype\": 11,\n" +
-                "          \"infoid\": 123,\n" +
-                "          \"cvaliditycode\": \"456558858\",\n" +
-                "          \"ccardnocode\": \"789\",\n" +
-                "          \"cardholder\": \"刘刘\",\n" +
-                "          \"cardbin\": \"12355858\",\n" +
-                "          \"ccardlastnocode\": \"56652588\",\n" +
-                "          \"ccardprenocode\": \"123255858\",\n" +
-                "          \"statename\": \"1235588\",\n" +
-                "          \"billingaddress\": \"5532558\",\n" +
-                "          \"nationality\": \"85535588\",\n" +
-                "          \"nationalityofisuue\": \"123558\",\n" +
-                "          \"bankofcardissue\": \"123558852\",\n" +
-                "          \"isforigencard\": \"T\"\n" +
-                "        }\n" +
-                "      },\n" +
-                "      {\n" +
-                "        \"prepaytype\": \"Tmony\",\n" +
-                "        \"amount\": 1.0,\n" +
-                "        \"refno\": 789,\n" +
-                "        \"cardinfoid\": 0,\n" +
-                "        \"creditcardinfo\": {\n" +
-                "          \"cardinfoid\": 28900008,\n" +
-                "          \"creditcardtype\": 2,\n" +
-                "          \"infoid\": 456,\n" +
-                "          \"cvaliditycode\": \"77777 \",\n" +
-                "          \"ccardnocode\": \"41111\",\n" +
-                "          \"cardholder\": \"33333\",\n" +
-                "          \"cardbin\": \"666666\",\n" +
-                "          \"ccardlastnocode\": \"4444\",\n" +
-                "          \"ccardprenocode\": \"444444\",\n" +
-                "          \"statename\": \"77777\",\n" +
-                "          \"billingaddress\": \"9999\",\n" +
-                "          \"nationality\": \"12222\",\n" +
-                "          \"nationalityofisuue\": \"6666\",\n" +
-                "          \"bankofcardissue\": \"4444\",\n" +
-                "          \"isforigencard\": \"T\"\n" +
-                "        }\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"latitude\": 0.0,\n" +
-                "    \"longitude\": 0.0,\n" +
-                "    \"paymethod\": \"1\",\n" +
-                "    \"payvalidationmethod\": \"1\",\n" +
-                "    \"bankvalidationmethod\": \" 2\",\n" +
-                "    \"validationfailsreason\": \" 3\",\n" +
-                "    \"clientos\": \" 5\",\n" +
-                "    \"clientidorip\": \"6\",\n" +
-                "    \"deducttype\": \"1\",\n" +
-                "    \"ordertype\": 14\n" +
-                "  }\n" +
-                "}\n";
-//        new PersistFactService("http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline").saveFact(JSON.parseObject(fact, RiskFact.class), -1);
+    public void testSave() {
+        String data = "{\"merchantid\":\"1558\",\"orderid\":0,\"ordertype\":18,\"paymentinfo\":{\"paymentinfolist\":[{\"cardinfolist\":[{\"cardinfoid\":\"12358\",\"infoid\":1235}],\"payment\":{\"amount\":124.0,\"prepaytype\":\"Tmony\"}},{\"cardinfolist\":[{\"cardinfoid\":\"1258\",\"infoid\":66}],\"payment\":{\"amount\":78.0,\"prepaytype\":\"CCARD\"}}]},\"productinfo\":{\"contactinfo\":{\"contactemail\":\"lxyy@163.com\",\"contactname\":\"ContactName\",\"contacttel\":\"8117755\",\"mobilephone\":\"13701488549\",\"mobilephonecity\":\"常州\",\"mobilephoneprovince\":\"江苏\",\"sendtickeraddr\":\"SendTickerAddr\"},\"corporation\":{\"canaccountpay\":\"bbb\",\"companytype\":\"T\",\"corp_paytype\":\"abc\",\"corpid\":\"12558\"},\"devoteinfoviewbyjifen\":{},\"ipinfo\":{\"useripvalue\":3232235777},\"maininfo\":{\"amount\":1225.0,\"checktype\":1,\"corporationid\":\"12558\",\"isonline\":\"T\",\"merchantid\":\"1558\",\"merchantorderid\":\"9885375\",\"orderdate\":\"2014-08-11 11:22:05.094\",\"orderid\":0,\"ordertype\":18,\"refno\":\"12255\",\"serverfrom\":\"Serverfrom\",\"subordertype\":0},\"railinfolist\":[{\"rail\":{\"acity\":\"60\",\"dcity\":\"40\",\"departuredate\":\"2014-08-11 11:22:05.096\",\"fromstationname\":\"FromStationName\",\"merchantorderid\":\"9885375\",\"seatclass\":\"40\",\"trainno\":\"11\"},\"user\":{\"acity\":\"60\",\"dcity\":\"40\",\"departuredate\":\"2014-08-11 11:22:05.096\",\"fromstationname\":\"FromStationName\",\"insurancetype\":\"33\",\"passengeridcode\":\"66\",\"passengeridtype\":\"22\",\"passengername\":\"PassengerName1\",\"seatclass\":\"40\",\"trainno\":\"11\"}},{\"rail\":{\"acity\":\"10\",\"dcity\":\"20\",\"departuredate\":\"2014-08-11 11:22:05.096\",\"fromstationname\":\"FromStationName2\",\"merchantorderid\":\"9885375\",\"seatclass\":\"77\",\"trainno\":\"22\"},\"user\":{\"acity\":\"10\",\"dcity\":\"20\",\"departuredate\":\"2014-08-11 11:22:05.096\",\"fromstationname\":\"FromStationName2\",\"insurancetype\":\"44\",\"passengeridcode\":\"33\",\"passengeridtype\":\"66\",\"passengername\":\"88\",\"seatclass\":\"77\",\"trainno\":\"22\"}}],\"userinfo\":{\"bindedemail\":\"test@163.com\",\"bindedmobilephone\":\"13616667784\",\"city\":\"2\",\"cuscharacter\":\"REPEAT\",\"experience\":\"-1649312265\",\"relatedemail\":\"hj_liu@ctrip.com\",\"relatedemobilephone\":\"13355555555\",\"signupdate\":\"2008-02-20T13:25:32\",\"sourceid\":\"8\",\"uid\":\"test111111\",\"useripadd\":\"192.168.1.1\",\"userpassword\":\"E10ADC3949BA59ABBE56E057F20F883E\",\"vipgrade\":\"20\"}},\"risklevel\":75,\"subordertype\":0}";
+        RiskFact fact = new RiskFact();
+        HashMap dataMap = JSON.parseObject(data, HashMap.class);
+        fact.ext = new HashMap<>();
+        fact.ext.put("offline4j-persist-remote-map", dataMap);
+        new PersistFactService("http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline").saveFact(fact,123456789);
     }
 }
