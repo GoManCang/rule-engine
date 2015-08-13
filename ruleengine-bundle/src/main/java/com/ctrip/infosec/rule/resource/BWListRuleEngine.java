@@ -52,19 +52,20 @@ public class BWListRuleEngine {
                 accountParams.put("blacklist", bwlistParams);
             }
             Map fact = ImmutableMap.of("eventBody", accountParams);
+            String requestTxt = Utils.JSON.toJSONString(fact);
+            TraceLogger.traceLog("REQUEST: " + requestTxt);
             String responseTxt = Request.Post(urlPrefix + "/flowtable4j/rest/checkBWGList")
-                    .body(new StringEntity(Utils.JSON.toJSONString(fact), ContentType.APPLICATION_JSON))
+                    .body(new StringEntity(requestTxt, ContentType.APPLICATION_JSON))
                     .connectTimeout(100)
                     .socketTimeout(queryTimeout)
                     .execute().returnContent().asString();
+            TraceLogger.traceLog("RESPONSE: " + responseTxt);
 
             Map response = Utils.JSON.parseObject(responseTxt, Map.class);
             String status = response.get("status").toString();
             if (status.equals("OK")) {
                 ArrayList<Map<String, String>> temp = (ArrayList<Map<String, String>>) response.get("results");
                 result.addAll(temp);
-            } else {
-                log.warn("检查黑白名单异常，返回的状态为：" + status);
             }
         } catch (Exception ex) {
             fault();
