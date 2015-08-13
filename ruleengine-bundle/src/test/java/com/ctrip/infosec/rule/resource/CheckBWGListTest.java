@@ -16,7 +16,7 @@ public class CheckBWGListTest
     {
         Map params = new HashMap<>();
         Map eventBody = new HashMap();
-        eventBody.put("uid","test12345678");
+        eventBody.put("uid","www");
         params.put("eventBody",eventBody);
         ArrayList result = CheckBWGList.query(params);
     }
