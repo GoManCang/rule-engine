@@ -40,14 +40,20 @@ public class BWListRuleEngine {
      * 返回的结果是列表 [{ "ruleType": "ACCOUNT", "ruleID": 0, "ruleName": "CREDIT-EXCHANGE", "riskLevel": 295, "ruleRemark": "" }]
      * @return
      */
-    public static List<Map<String, String>> check(Map params) {
+    public static List<Map<String, String>> check(Map accountParams, Map bwlistParams) {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"BWList.URL.Prefix\"配置项.");
         beforeInvoke();
         ArrayList<Map<String, String>> result = new ArrayList<>();
         try {
-            Map request = ImmutableMap.of("eventBody", params);
+            if (accountParams == null) {
+                accountParams = new HashMap();
+            }
+            if (bwlistParams != null) {
+                accountParams.put("blacklist", bwlistParams);
+            }
+            Map fact = ImmutableMap.of("eventBody", accountParams);
             String responseTxt = Request.Post(urlPrefix + "/flowtable4j/rest/checkBWGList")
-                    .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
+                    .body(new StringEntity(Utils.JSON.toJSONString(fact), ContentType.APPLICATION_JSON))
                     .connectTimeout(100)
                     .socketTimeout(queryTimeout)
                     .execute().returnContent().asString();
