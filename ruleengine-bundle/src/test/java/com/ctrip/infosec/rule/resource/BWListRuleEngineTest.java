@@ -22,9 +22,9 @@ public class BWListRuleEngineTest {
     @Test
     @Ignore
     public void testQueryBWGList() {
-        Map params = new HashMap();
-        params.put("uid", "test12345678");
-        List results = BWListRuleEngine.check(params, null);
+        Map accountParams = new HashMap();
+        accountParams.put("uid", "test12345678");
+        List results = BWListRuleEngine.check(accountParams, null);
         System.out.println("result: " + JSON.toJSONString(results));
     }
 
@@ -33,9 +33,9 @@ public class BWListRuleEngineTest {
 
         String str = IOUtils.toString(BWListRuleEngineTest.class.getClassLoader().getResourceAsStream("test.json"), "utf-8");
 
-        Map<String, String> params = (Map<String, String>) JSON.parse(str);
+        Map<String, String> accountParams = (Map<String, String>) JSON.parse(str);
 
-        List result = BWListRuleEngine.check(params, null);
+        List result = BWListRuleEngine.check(accountParams, null);
         System.out.println("result: " + JSON.toJSONString(result));
 
         //适配点

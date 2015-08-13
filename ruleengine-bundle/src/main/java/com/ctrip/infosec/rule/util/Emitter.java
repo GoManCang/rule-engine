@@ -231,7 +231,7 @@ public class Emitter {
                 
                 String ruleType = valueAsString(resultMap, "ruleType");
                 String ruleNo = valueAsString(resultMap, "ruleName");
-                String riskMessage = "命中黑白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                String riskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                 Integer riskLevel = valueAsInt(resultMap, "riskLevel");
                 
                 if (ruleType.equals(RULETYPE_ACCOUNT)) {
@@ -260,7 +260,7 @@ public class Emitter {
                     if (null == finalRiskLevel || riskLevel > finalRiskLevel) {
                         finalRuleNo = ruleNo;
                         finalRiskLevel = riskLevel;
-                        finalRiskMessage = "命中黑白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                        finalRiskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                     }
                     
                 } else {
@@ -270,7 +270,7 @@ public class Emitter {
                         if (null == finalRiskLevel || riskLevel > finalRiskLevel) {
                             finalRuleNo = ruleNo;
                             finalRiskLevel = riskLevel;
-                            finalRiskMessage = "命中黑白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                            finalRiskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                         }
                     }
                 }
