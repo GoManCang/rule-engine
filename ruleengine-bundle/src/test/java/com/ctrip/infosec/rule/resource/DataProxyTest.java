@@ -17,7 +17,6 @@ import java.util.*;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.junit.Ignore;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +45,7 @@ public class DataProxyTest {
 //        Map result = DataProxy.query(serviceName, operationName, params);
 //        System.out.println(result.size());
 
-         /*String serviceName1 = "MobilePhoneService";
+        /*String serviceName1 = "MobilePhoneService";
          String operationName1 = "getMobileArea";
          Map params1 = ImmutableMap.of("mobileNumber", "013910182539");
          Map result1 = DataProxy.queryForMap(serviceName1, operationName1, params1);
@@ -61,9 +60,7 @@ public class DataProxyTest {
          String operationName = "getAirPortCity";
          Map params = ImmutableMap.of("airport", "PEK");
          Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
-
-
-         /*String serviceName = "UserProfileService";
+        /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
          List tagContents = new ArrayList();
          tagContents.add("CUSCHARACTER");
@@ -96,7 +93,6 @@ public class DataProxyTest {
          params.put("cardInfoId", "30075005");
          Map map = CardInfo.query("getinfo", params);
          System.out.println(map.size());*/
-
         //通过Venus的查询DataProxy
         String serviceName1 = "IDCardInfoService";
         String operationName1 = "getIDCardInfo";
@@ -108,17 +104,16 @@ public class DataProxyTest {
     @Test
     //@Ignore
     public void testDataProxyVenus() {
-         /*String serviceName = "IpService";
-        String operationName = "getIpArea";
-        Map params = ImmutableMap.of("ip", "202.96.209.133");
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());*/
+        /*String serviceName = "IpService";
+         String operationName = "getIpArea";
+         Map params = ImmutableMap.of("ip", "202.96.209.133");
+         Map result = DataProxy.queryForMap(serviceName, operationName, params);
+         System.out.println(result.size());*/
 
         /*String serviceName = "ConvertService";
-        String operationName = "getBranchCityByBranchNO";
-        Map params = ImmutableMap.of("branchno", "011");
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
-
+         String operationName = "getBranchCityByBranchNO";
+         Map params = ImmutableMap.of("branchno", "011");
+         Map result = DataProxy.queryForMap(serviceName, operationName, params);*/
         String serviceName = "ConvertService";
         String operationName = "getCityNameByCityId";
         Map params = ImmutableMap.of("cityId", "2");
@@ -134,25 +129,21 @@ public class DataProxyTest {
          System.out.println(result.size());*/
 
         /*String serviceName = "UserProfileService";
-        String operationName = "DataQuery";
-        List tagContents = new ArrayList();
-        tagContents.add("QIANBAO_IDNO");
-        tagContents.add("RECENT_IP");
-        Map params = ImmutableMap.of("uid", "D162240074", "tagNames", tagContents);
-        Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        System.out.println(result.size());*/
-
+         String operationName = "DataQuery";
+         List tagContents = new ArrayList();
+         tagContents.add("QIANBAO_IDNO");
+         tagContents.add("RECENT_IP");
+         Map params = ImmutableMap.of("uid", "D162240074", "tagNames", tagContents);
+         Map result = DataProxy.queryForMap(serviceName, operationName, params);
+         System.out.println(result.size());*/
         //查询是否为商旅用户
         /*String serviceName = "UserProfileService";
-        String operationName = "DataQuery";
-        List tagContents = new ArrayList();
-        tagContents.add("ISCORP");
-        Map params = ImmutableMap.of("uid", "2102819519", "tagNames", tagContents);
-        Map result = DataProxy.query(serviceName, operationName, params);
-        System.out.println(result.size());*/
-
-
-
+         String operationName = "DataQuery";
+         List tagContents = new ArrayList();
+         tagContents.add("ISCORP");
+         Map params = ImmutableMap.of("uid", "2102819519", "tagNames", tagContents);
+         Map result = DataProxy.query(serviceName, operationName, params);
+         System.out.println(result.size());*/
         /*String serviceName = "UserProfileService";
          String operationName = "DataQuery";
          List tagContents = new ArrayList();
@@ -171,15 +162,14 @@ public class DataProxyTest {
     }
 
     @Test
-    public void testRestUerProfile()
-    {
+    public void testRestUerProfile() {
         String serviceName = "UserProfileService";
         String operationName = "DataQuery";
         Map params = new HashMap();
         List tagContents = new ArrayList();
         tagContents.add("QIANBAO_AUTH_STATUS");
-        params.put("uid","3004975915");
-        params.put("tagNames",tagContents);
+        params.put("uid", "3004975915");
+        params.put("tagNames", tagContents);
 
         String urlPrefix = "http://ws.userprofile.infosec.ctripcorp.com/userprofilews";
         int queryTimeout = 500;
@@ -188,15 +178,13 @@ public class DataProxyTest {
         request.setOperationName(operationName);
         request.setParams(params);
         String responseTxt = null;
-        try
-        {
+        try {
             responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/query")
                     .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
                     .connectTimeout(queryTimeout)
                     .socketTimeout(queryTimeout)
                     .execute().returnContent().asString();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         DataProxyResponse response = Utils.JSON.parseObject(responseTxt, DataProxyResponse.class);

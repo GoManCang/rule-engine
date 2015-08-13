@@ -66,18 +66,21 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-        <!--RSserve-->
+        <!-- RSserve -->
         <RService.Ip>10.3.6.244</RService.Ip>
-        <!--RiskFact persistence config-->
+        <!-- RiskFact persistence config -->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
         <async.log.root.level>DEBUG</async.log.root.level>
         <async.log.app.level>DEBUG</async.log.app.level>
-        <!--UidLevel-->
+        <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.fws.qa.nt.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
+        <!-- BWGList -->
+        <BWList.timeout>1000</BWList.timeout>
+        <BWList.URL.Prefix>http://10.2.56.170:8080</BWList.URL.Prefix>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -125,18 +128,21 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-        <!--RSserve-->
+        <!-- RSserve -->
         <RService.Ip>10.3.6.244</RService.Ip>
-        <!--RiskFact persistence config-->
+        <!-- RiskFact persistence config -->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
         <async.log.root.level>DEBUG</async.log.root.level>
         <async.log.app.level>DEBUG</async.log.app.level>
-        <!--UidLevel-->
+        <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.uat.qa.nt.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
+        <!-- BWGList -->
+        <BWList.timeout>1000</BWList.timeout>
+        <BWList.URL.Prefix>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080</BWList.URL.Prefix>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(S) -->
@@ -182,17 +188,20 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-        <!--RSserve-->
+        <!-- RSserve -->
         <RService.Ip>10.8.118.140,10.8.118.141,10.8.118.142</RService.Ip>
-        <!--RiskFact persistence config-->
+        <!-- RiskFact persistence config -->
         <reqId.allInOne.name>CardRiskDB_INSERT_1_SH</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://ws.flowtable4j.infosec.ctripcorp.com/flowtable4j/rest/saveData4Offline</persist.remote.url>
         <async.log.root.level>INFO</async.log.root.level>
         <async.log.app.level>INFO</async.log.app.level>
-        <!--UidLevel-->
+        <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
+        <!-- BWGList -->
+        <BWList.timeout>500</BWList.timeout>
+        <BWList.URL.Prefix>http://ws.flowtable4j.infosec.ctripcorp.com</BWList.URL.Prefix>
     </prd>
 </profile>
