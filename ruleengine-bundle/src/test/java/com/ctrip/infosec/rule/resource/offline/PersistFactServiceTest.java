@@ -2,6 +2,7 @@ package com.ctrip.infosec.rule.resource.offline;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.meidusa.fastjson.JSON;
+import org.apache.commons.lang.time.FastDateFormat;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -19,6 +20,6 @@ public class PersistFactServiceTest {
         HashMap dataMap = JSON.parseObject(data, HashMap.class);
         fact.ext = new HashMap<>();
         fact.ext.put("offline4j-persist-remote-map", dataMap);
-        new PersistFactService("http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline").saveFact(fact,123456789);
+        new PersistFactService("http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline").saveFact(fact, 123456789);
     }
 }
