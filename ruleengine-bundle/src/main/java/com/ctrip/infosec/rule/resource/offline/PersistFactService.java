@@ -30,7 +30,7 @@ public class PersistFactService {
             Map<String, Object> data = (Map<String, Object>) fact.ext.get(REMOTE_SAVE_MAP_KEY);
             data.put(REMOTE_SAVE_REQID_KEY, reqId);
             Request.Post(saveFactUrl)
-                    .body(new StringEntity(JSON.toJSONString(fact), ContentType.APPLICATION_JSON))
+                    .body(new StringEntity(JSON.toJSONString(data), ContentType.APPLICATION_JSON))
                     .connectTimeout(1000)
                     .socketTimeout(5000)
                     .execute().returnContent().asString();

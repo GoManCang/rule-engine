@@ -1,0 +1,13 @@
+{
+    "merchantid": "12",
+    "orderid": 9045091112, 
+    "isonline": "T",
+    "uid": "test12345678",
+    "userip": "127.0.0.1", 
+    "ordertype": 14,
+    "blacklist":{
+      "uid":"wwww",
+      "mobilephone":"15161121660",
+      "ccardnocode":"EE2112DB19A97249EE086029E21DD5EE"
+    }
+  }

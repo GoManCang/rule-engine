@@ -5,20 +5,27 @@
  */
 package com.ctrip.infosec.rule.util;
 
-import com.ctrip.infosec.common.model.RiskFact;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+
 import com.ctrip.infosec.common.Constants;
+import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
 import com.ctrip.infosec.counter.model.PolicyExecuteResult;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.collections.MapUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 /**
  *
@@ -194,4 +201,82 @@ public class Emitter {
             }
         }
     }
+
+    /**
+     * 合并黑白名单规则引擎结果
+     *
+     * @param fact
+     * @param bwlistResults
+     */
+    private static final String RULETYPE_ACCOUNT = "ACCOUNT";
+    private static final String RULETYPE_BW = "BW";
+
+    public static void emitBWListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
+
+        //result: [{"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE","riskLevel":295,"ruleRemark":""},
+        //         {"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE1","riskLevel":80,"ruleRemark":""}]
+        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+        if (_isAsync) {
+            return;
+        }
+
+        String orderType = EventBodyUtils.valueAsString(fact.getEventBody(), "orderType");
+        boolean isAdapterFact = Constants.eventPointsWithScene.contains(fact.eventPoint);
+        boolean isScoreFact = orderType.equals("12");
+
+        if (isAdapterFact) {
+            //适配点
+            for (Map<String, String> resultMap : bwlistResults) {
+
+                String ruleType = valueAsString(resultMap, "ruleType");
+                String ruleNo = valueAsString(resultMap, "ruleName");
+                String riskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                int riskLevel = valueAsInt(resultMap, "riskLevel");
+
+                if (ruleType.equals(RULETYPE_ACCOUNT)) {
+                    emit(fact, ruleNo, riskLevel, riskMessage, ruleNo);
+                } else if (ruleType.equals(RULETYPE_BW) && riskLevel > 100) {
+                    emit(fact, "PAYMENT-CONF-LIPIN", 295, riskMessage, "PAYMENT-CONF-LIPIN");
+                }
+
+            }
+
+        } else {
+
+            String finalRuleNo = null;
+            int finalRiskLevel = 0;
+            String finalRiskMessage = null;
+
+            for (Map<String, String> resultMap : bwlistResults) {
+
+                String ruleType = valueAsString(resultMap, "ruleType");
+                String ruleNo = valueAsString(resultMap, "ruleName");
+//				String riskMessage = valueAsString(resultMap, "ruleRemark");
+                int riskLevel = valueAsInt(resultMap, "riskLevel");
+
+                if (!isAdapterFact && isScoreFact) {
+                    //积分点,不区分ruleType
+                    if (riskLevel > finalRiskLevel) {
+                        finalRuleNo = ruleNo;
+                        finalRiskLevel = riskLevel;
+                        finalRiskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                    }
+
+                } else {
+                    //其他授权，下单点
+                    //只需要ruleType = BW
+                    if (ruleType.equals(RULETYPE_BW)) {
+                        if (riskLevel > finalRiskLevel) {
+                            finalRuleNo = ruleNo;
+                            finalRiskLevel = riskLevel;
+                            finalRiskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                        }
+                    }
+                }
+            }
+
+            emit(fact, finalRiskLevel, finalRiskMessage);
+        }
+    }
+
 }

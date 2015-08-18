@@ -38,7 +38,7 @@
         <Configs.URL>http://10.2.10.76:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
         <Configs.traceLogger.URL>http://10.2.10.76:8080/configsws/rest/traceLogger</Configs.traceLogger.URL>
-        <Configs.RuleMonitor.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor</Configs.RuleMonitor.URL>
+        <Configs.RuleMonitor.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor2</Configs.RuleMonitor.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.10.75:8080/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.2.10.75:16900</Counter.Venus.ipAddressList>
@@ -66,20 +66,20 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-        <!--RSserve-->
+        <!-- RSserve -->
         <RService.Ip>10.3.6.244</RService.Ip>
-        <!--RiskFact persistence config-->
+        <!-- RiskFact persistence config -->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://10.2.56.170:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
         <async.log.root.level>DEBUG</async.log.root.level>
         <async.log.app.level>DEBUG</async.log.app.level>
-        <!--UidLevel-->
+        <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.fws.qa.nt.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
-        !--BWGList-->
-        <GetUidLevel.query.timeout>200</GetUidLevel.query.timeout>
+        <!-- BWGList -->
+        <BWList.timeout>1000</BWList.timeout>
         <BWList.URL.Prefix>http://10.2.56.170:8080</BWList.URL.Prefix>
     </fat>
     <lpt></lpt>
@@ -100,7 +100,7 @@
         <Configs.URL>http://10.2.25.53:8080/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
         <Configs.traceLogger.URL>http://10.2.25.53:8080/configsws/rest/traceLogger</Configs.traceLogger.URL>
-        <Configs.RuleMonitor.URL>http://10.2.25.53:8080/configsws/rest/rulemonitor</Configs.RuleMonitor.URL>
+        <Configs.RuleMonitor.URL>http://10.2.25.53:8080/configsws/rest/rulemonitor2</Configs.RuleMonitor.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.25.54:8080/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.2.25.54:16900,10.2.27.62:16900</Counter.Venus.ipAddressList>
@@ -128,20 +128,20 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-        <!--RSserve-->
+        <!-- RSserve -->
         <RService.Ip>10.3.6.244</RService.Ip>
-        <!--RiskFact persistence config-->
+        <!-- RiskFact persistence config -->
         <reqId.allInOne.name>CardRiskDB_INSERT_1</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080/flowtable4j/rest/saveData4Offline</persist.remote.url>
         <async.log.root.level>DEBUG</async.log.root.level>
         <async.log.app.level>DEBUG</async.log.app.level>
-        <!--UidLevel-->
+        <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.uat.qa.nt.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
-        !--BWGList-->
-        <GetUidLevel.query.timeout>200</GetUidLevel.query.timeout>
+        <!-- BWGList -->
+        <BWList.timeout>1000</BWList.timeout>
         <BWList.URL.Prefix>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080</BWList.URL.Prefix>
     </uat_nt>
     <prd>
@@ -160,7 +160,7 @@
         <Configs.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/loadconfig</Configs.URL>
         <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
         <Configs.traceLogger.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/traceLogger</Configs.traceLogger.URL>
-        <Configs.RuleMonitor.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/rulemonitor</Configs.RuleMonitor.URL>
+        <Configs.RuleMonitor.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/rulemonitor2</Configs.RuleMonitor.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://ws.counter.infosec.ctripcorp.com/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.8.114.48:16900,10.8.114.49:16900,10.8.114.50:16900</Counter.Venus.ipAddressList>
@@ -188,20 +188,20 @@
         <rabbitmq.inner.vhost>medusa</rabbitmq.inner.vhost>
         <rabbitmq.inner.username>bsc-medusa</rabbitmq.inner.username>
         <rabbitmq.inner.password>bsc-medusa</rabbitmq.inner.password>
-        <!--RSserve-->
+        <!-- RSserve -->
         <RService.Ip>10.8.118.140,10.8.118.141,10.8.118.142</RService.Ip>
-        <!--RiskFact persistence config-->
+        <!-- RiskFact persistence config -->
         <reqId.allInOne.name>CardRiskDB_INSERT_1_SH</reqId.allInOne.name>
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://ws.flowtable4j.infosec.ctripcorp.com/flowtable4j/rest/saveData4Offline</persist.remote.url>
         <async.log.root.level>INFO</async.log.root.level>
         <async.log.app.level>INFO</async.log.app.level>
-        <!--UidLevel-->
+        <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>
         <GetUidLevel.REST.URL.Prefix>http://ws.content.members.ctripcorp.com</GetUidLevel.REST.URL.Prefix>
-        !--BWGList-->
-        <GetUidLevel.query.timeout>200</GetUidLevel.query.timeout>
+        <!-- BWGList -->
+        <BWList.timeout>500</BWList.timeout>
         <BWList.URL.Prefix>http://ws.flowtable4j.infosec.ctripcorp.com</BWList.URL.Prefix>
     </prd>
 </profile>

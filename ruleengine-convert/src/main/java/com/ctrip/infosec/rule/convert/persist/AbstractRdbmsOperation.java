@@ -40,8 +40,8 @@ public abstract class AbstractRdbmsOperation  implements DbOperation {
     protected Map<String, PersistColumnProperties> columnPropertiesMap;
     private Logger logger = LoggerFactory.getLogger(AbstractRdbmsOperation.class);
 
-    private static String CTX = "ctx";
-    private static String CONST = "const";
+    public static final String CTX = "ctx";
+    public static final String CONST = "const";
 
     protected DataSource getDatasource() throws Exception {
         return DalDataSourceHolder.getDataSource(getChannel().getDatabaseURL());
