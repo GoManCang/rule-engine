@@ -13,6 +13,7 @@ import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
@@ -24,16 +25,19 @@ import com.ctrip.infosec.rule.convert.persist.PersistContext;
 import com.ctrip.infosec.rule.convert.persist.RdbmsInsert;
 import com.ctrip.infosec.rule.executor.*;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -226,24 +230,36 @@ public class RabbitMqMessageHandler {
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
                     boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                     if (!withScene) {
+                    	
+                    	//非场景
+                    	
                         for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
                             String ruleNo = entry.getKey();
                             int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
                             if (rLevel > 0) {
-                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+//                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                                //获取去重字段值
+                                String distinct = getDistinctValue(fact,ruleNo);
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(),ruleNo,distinct);
                             }
 
                         }
                     } else {
+                    	
+                    	//场景
+                    	
                         for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
                             String ruleNo = entry.getKey();
                             int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
 
                             if (rLevel > 0) {
-                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+//                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                            	//获取去重字段值
+                                String distinct = getDistinctValue(fact,ruleNo);
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(),ruleNo,distinct);
                             }
 
                         }
@@ -257,7 +273,31 @@ public class RabbitMqMessageHandler {
         }
     }
 
-    private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
+    //去重字段集合
+    private final List<String> distinctFields = Lists.newArrayList("orderID","OrderID","orderId");
+    /**
+     * 获取命中规则的去重字段
+     * @param fact
+     * @param ruleNo
+     * @return
+     */
+    private String getDistinctValue(RiskFact fact, String ruleNo) {
+    	
+    	String distinctValue = null;
+    	
+    	for(String distinctField : distinctFields){
+    		
+    		distinctValue = EventBodyUtils.valueAsString(fact.eventBody, distinctField);
+    		if(StringUtils.isNotBlank(distinctValue)){
+    			//只要取到一个值，则立即跳出循环
+    			break;
+    		}
+    	}
+    	
+		return distinctValue;
+	}
+
+	private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
         channel.setChannelNo(RiskFactPersistStrategy.allInOne4ReqId);
