@@ -318,22 +318,15 @@ public class RabbitMqMessageHandler {
                     boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
                         boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
-                        if (withScene || isAsync || !outerReqId) {
-                            String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
-                            TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
-                            if (withScene || isAsync) {
-                                insert.setTable("RiskControl_CheckResultLog");
-                                insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
-                                execute(insert);
-                            } else {
-                                insert.setTable("InfoSecurity_CheckResultLog");
-                                insert.setColumnPropertiesMap(prepareInfoSecurityCheckResultLog(riskReqId, ruleType, entry, riskLevel));
-                                execute(insert);
-
-                                insert.setTable("RiskControl_CheckResultLog");
-                                insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
-                                execute(insert);
-                            }
+                        String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
+                        TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
+                        insert.setTable("RiskControl_CheckResultLog");
+                        insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
+                        execute(insert);
+                        if (!withScene & !isAsync && !outerReqId) {
+                            insert.setTable("InfoSecurity_CheckResultLog");
+                            insert.setColumnPropertiesMap(prepareInfoSecurityCheckResultLog(riskReqId, ruleType, entry, riskLevel));
+                            execute(insert);
                         }
                     }
                 } catch (Exception e) {
