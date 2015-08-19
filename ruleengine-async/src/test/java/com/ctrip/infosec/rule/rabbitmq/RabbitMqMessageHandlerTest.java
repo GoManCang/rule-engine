@@ -21,7 +21,7 @@ public class RabbitMqMessageHandlerTest extends AbstractJUnit4SpringContextTests
 
     @Test
     public void testHandleMessage() throws Exception {
-        String msg = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("CP0001001.json"), "utf-8");
+        String msg = IOUtils.toString(getClass().getClassLoader().getResourceAsStream("CP0001002.json"), "utf-8");
         handler.handleMessage(msg);
         
         RiskFact fact = JSON.parseObject(msg, RiskFact.class);

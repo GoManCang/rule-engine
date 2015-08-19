@@ -10,6 +10,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,8 @@ public class DbOperationChain {
     }
 
     public void execute(PersistContext ctx) throws DbExecuteException {
-        boolean matched = Configs.match(conditions, conditionsLogical, prepareData(conditions, data, ctx));
+        List<Condition> tmp = prepareData(conditions, data, ctx);
+        boolean matched = Configs.match(tmp, conditionsLogical, data);
         if(matched) {
             try {
                 currentOperation.execute(ctx);
@@ -60,10 +62,15 @@ public class DbOperationChain {
         }
     }
 
-    private Map<String, Object>  prepareData(List<Condition> conditions, Map<String, Object> data, PersistContext ctx) {
+    private List<Condition> prepareData(List<Condition> conditions, Map<String, Object> data, PersistContext ctx) {
         if(CollectionUtils.isNotEmpty(conditions)){
+            List<Condition> cloned = new ArrayList<>(conditions.size());
             for (Condition condition : conditions) {
-                String fieldName = condition.getFieldName();
+                Condition tmp = new Condition();
+                BeanUtils.copyProperties(condition, tmp);
+                cloned.add(tmp);
+                // 处理使用上下文
+                String fieldName = tmp.getFieldName();
                 if(StringUtils.isNotBlank(fieldName)){
                     ArrayList<String> strings = Lists.newArrayList(Splitter.on(':').trimResults().omitEmptyStrings().split(fieldName));
 
@@ -72,13 +79,14 @@ public class DbOperationChain {
                     }
                     if (strings.get(0).equalsIgnoreCase(AbstractRdbmsOperation.CTX)) {
                         String newFieldName = fieldName.replace(".", "$dot$");
-                        condition.setFieldName(newFieldName);
+                        tmp.setFieldName(newFieldName);
                         data.put(newFieldName, ctx.getVar(strings.get(1)));
                     }
                 }
             }
+            return cloned;
         }
-        return data;
+        return null;
     }
 
     public void setNextOperationChain(DbOperationChain nextOperationChain) {
