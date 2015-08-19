@@ -19,10 +19,7 @@ import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
 import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
-import com.ctrip.infosec.rule.convert.persist.DbExecuteException;
-import com.ctrip.infosec.rule.convert.persist.PersistColumnProperties;
-import com.ctrip.infosec.rule.convert.persist.PersistContext;
-import com.ctrip.infosec.rule.convert.persist.RdbmsInsert;
+import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.executor.*;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.collect.Lists;
@@ -148,6 +145,7 @@ public class RabbitMqMessageHandler {
             }
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
+            beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
             Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
             boolean outerReqId = riskReqId != null;
             internalRiskFact = offline4jService.saveForOffline(fact);
@@ -230,9 +228,9 @@ public class RabbitMqMessageHandler {
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
                     boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                     if (!withScene) {
-                    	
-                    	//非场景
-                    	
+
+                        //非场景
+
                         for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -241,15 +239,15 @@ public class RabbitMqMessageHandler {
                             if (rLevel > 0) {
 //                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                                 //获取去重字段值
-                                String distinct = getDistinctValue(fact,ruleNo);
-                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(),ruleNo,distinct);
+                                String distinct = getDistinctValue(fact, ruleNo);
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo, distinct);
                             }
 
                         }
                     } else {
-                    	
-                    	//场景
-                    	
+
+                        //场景
+
                         for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -257,9 +255,9 @@ public class RabbitMqMessageHandler {
 
                             if (rLevel > 0) {
 //                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
-                            	//获取去重字段值
-                                String distinct = getDistinctValue(fact,ruleNo);
-                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(),ruleNo,distinct);
+                                //获取去重字段值
+                                String distinct = getDistinctValue(fact, ruleNo);
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo, distinct);
                             }
 
                         }
@@ -274,30 +272,32 @@ public class RabbitMqMessageHandler {
     }
 
     //去重字段集合
-    private final List<String> distinctFields = Lists.newArrayList("orderID","OrderID","orderId");
+    private final List<String> distinctFields = Lists.newArrayList("orderID", "OrderID", "orderId");
+
     /**
      * 获取命中规则的去重字段
+     *
      * @param fact
      * @param ruleNo
      * @return
      */
     private String getDistinctValue(RiskFact fact, String ruleNo) {
-    	
-    	String distinctValue = null;
-    	
-    	for(String distinctField : distinctFields){
-    		
-    		distinctValue = EventBodyUtils.valueAsString(fact.eventBody, distinctField);
-    		if(StringUtils.isNotBlank(distinctValue)){
-    			//只要取到一个值，则立即跳出循环
-    			break;
-    		}
-    	}
-    	
-		return distinctValue;
-	}
 
-	private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
+        String distinctValue = null;
+
+        for (String distinctField : distinctFields) {
+
+            distinctValue = EventBodyUtils.valueAsString(fact.eventBody, distinctField);
+            if (StringUtils.isNotBlank(distinctValue)) {
+                //只要取到一个值，则立即跳出循环
+                break;
+            }
+        }
+
+        return distinctValue;
+    }
+
+    private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
         channel.setChannelNo(RiskFactPersistStrategy.allInOne4ReqId);
@@ -323,14 +323,17 @@ public class RabbitMqMessageHandler {
                             TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
                             if (withScene || isAsync) {
                                 insert.setTable("RiskControl_CheckResultLog");
-                                insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel));
+                                insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
+                                execute(insert);
                             } else {
                                 insert.setTable("InfoSecurity_CheckResultLog");
                                 insert.setColumnPropertiesMap(prepareInfoSecurityCheckResultLog(riskReqId, ruleType, entry, riskLevel));
-                            }
+                                execute(insert);
 
-                            PersistContext ctx = new PersistContext();
-                            insert.execute(ctx);
+                                insert.setTable("RiskControl_CheckResultLog");
+                                insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
+                                execute(insert);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -340,7 +343,13 @@ public class RabbitMqMessageHandler {
         }
     }
 
-    private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry, Long riskLevel) {
+    private void execute(DbOperation operation) throws DbExecuteException {
+        PersistContext ctx = new PersistContext();
+        operation.execute(ctx);
+    }
+
+    private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry,
+                                                                                  Long riskLevel, String eventPoint) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
@@ -388,6 +397,12 @@ public class RabbitMqMessageHandler {
         props.setColumnType(DataUnitColumnType.Data);
         props.setExpression("const:now:date");
         map.put("DataChange_LastTime", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.String);
+        props.setValue(eventPoint);
+        map.put("EventPoint", props);
 
         return map;
     }

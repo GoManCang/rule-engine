@@ -6,6 +6,7 @@ import com.ctrip.infosec.configs.event.DataUnitColumnType;
 import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
@@ -54,74 +55,79 @@ public class Offline4jService {
     private PersistFactService persistFactService;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         persistFactService = new PersistFactService(saveFactUrl);
     }
 
     public InternalRiskFact saveForOffline(RiskFact fact) {
-        // 执行落地前规则
-        persistPreRuleExecutorService.executePreRules(fact, false);
-        //riskfact 数据映射转换
-        InternalRiskFact internalRiskFact = riskFactConvertRuleService.apply(fact);
-        if (internalRiskFact != null) {
-            // 数据落地
-            if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
-                localSave(fact, internalRiskFact);
-                long reqId = internalRiskFact.getReqId();
-                if (reqId > 0) {
-                    fact.ext.put(Constants.key_generated_reqId, reqId);
-                }
-                //调用外部存储服务
-                if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false) && reqId > 0) {
-                    persistFactService.saveFact(fact, reqId);
-                }
-            }
-        }
-        // 执行落地后规则
-        persistPostRuleExecutorService.executePostRules(fact, false);
-        return internalRiskFact;
-    }
-
-    private void localSave(RiskFact fact, InternalRiskFact internalRiskFact) {
-        String operation = internalRiskFact.getEventPoint() + ".persist-info";
+        String operation = fact.getEventPoint() + ".persist-info";
+        beforeInvoke(operation);
+        InternalRiskFact internalRiskFact = null;
         try {
-            beforeInvoke(operation);
-            Long outerRiskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
-            Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
-            String resultRemark = "NEW: " + resultToString(fact.results);
-            RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact, internalRiskFact, outerRiskReqId);
-            PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
-            long reqId = persistManager.getGeneratedReqId();
-            internalRiskFact.setReqId(reqId);
-            // 调用ebank远程服务落地
-            if (MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false)) {
-                SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
-                request.setResID(reqId);
-                request.setReqID(reqId);
-                request.setOrderID(persistManager.getLong("InfoSecurity_RiskLevelData.OrderID"));
-                request.setRiskLevel(riskLevel);
-                request.setRemark(persistManager.getString("InfoSecurity_RiskLevelData.Remark"));
-                request.setOrderType(persistManager.getInteger("InfoSecurity_RiskLevelData.OrderType"));
-                request.setOriginalRiskLevel(riskLevel);
-                Map<String, Object> ebankData = MapUtils.getMap(fact.ext, "ebank-data");
-                request.setInfoID(MapUtils.getInteger(ebankData, "infoId", 0));
-                request.setIsForigenCard(MapUtils.getString(ebankData, "isForeignCard", ""));
-                request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
-
-                SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
-                if (ebankResp != null) {
-                    // 调用ebank成功，修改InfoSecurity_RiskLevelData.TransFlag
-                    updateTransFlag(reqId, persistContext);
+            TraceLogger.beginTrans(fact.eventId, "S3");
+            TraceLogger.setLogPrefix("[保存CheckResultLog]");
+            // 执行落地前规则
+            persistPreRuleExecutorService.executePreRules(fact, false);
+            //riskfact 数据映射转换
+            internalRiskFact = riskFactConvertRuleService.apply(fact);
+            if (internalRiskFact != null) {
+                // 数据落地
+                if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
+                    localSave(fact, internalRiskFact);
+                    long reqId = internalRiskFact.getReqId();
+                    if (reqId > 0) {
+                        fact.ext.put(Constants.key_generated_reqId, reqId);
+                    }
+                    //调用外部存储服务
+                    if (MapUtils.getBoolean(fact.ext, REMOTE_PERSIST_KEY, false) && reqId > 0) {
+                        persistFactService.saveFact(fact, reqId);
+                    }
                 }
-            } else {
-                // 无需调用ebank，直接修改InfoSecurity_RiskLevelData.TransFlag
-                updateTransFlag(reqId, persistContext);
             }
+            // 执行落地后规则
+            persistPostRuleExecutorService.executePostRules(fact, false);
         } catch (Exception ex) {
             fault(operation);
             logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
         } finally {
-            afterInvoke(operation);
+            long usage = afterInvoke(operation);
+            TraceLogger.traceLog("耗时: " + usage + "ms");
+            TraceLogger.commitTrans();
+        }
+        return internalRiskFact;
+    }
+
+    private void localSave(RiskFact fact, InternalRiskFact internalRiskFact) throws DbExecuteException {
+        Long outerRiskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
+        Integer riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
+        String resultRemark = "NEW: " + resultToString(fact.results);
+        RiskFactPersistManager persistManager = RiskFactPersistStrategy.preparePersistence(fact, internalRiskFact, outerRiskReqId);
+        PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
+        long reqId = persistManager.getGeneratedReqId();
+        internalRiskFact.setReqId(reqId);
+        // 调用ebank远程服务落地
+        if (MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false)) {
+            SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
+            request.setResID(reqId);
+            request.setReqID(reqId);
+            request.setOrderID(persistManager.getLong("InfoSecurity_RiskLevelData.OrderID"));
+            request.setRiskLevel(riskLevel);
+            request.setRemark(persistManager.getString("InfoSecurity_RiskLevelData.Remark"));
+            request.setOrderType(persistManager.getInteger("InfoSecurity_RiskLevelData.OrderType"));
+            request.setOriginalRiskLevel(riskLevel);
+            Map<String, Object> ebankData = MapUtils.getMap(fact.ext, "ebank-data");
+            request.setInfoID(MapUtils.getInteger(ebankData, "infoId", 0));
+            request.setIsForigenCard(MapUtils.getString(ebankData, "isForeignCard", ""));
+            request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
+
+            SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
+            if (ebankResp != null) {
+                // 调用ebank成功，修改InfoSecurity_RiskLevelData.TransFlag
+                updateTransFlag(reqId, persistContext);
+            }
+        } else {
+            // 无需调用ebank，直接修改InfoSecurity_RiskLevelData.TransFlag
+            updateTransFlag(reqId, persistContext);
         }
     }
 
