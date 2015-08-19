@@ -34,7 +34,7 @@ public class PersistPreRuleExecutorService {
     /**
      * 执行规则
      */
-    public RiskFact executePostRules(RiskFact fact, boolean isAsync) {
+    public RiskFact executePreRules(RiskFact fact, boolean isAsync) {
         execute(fact, isAsync);
         return fact;
     }

@@ -60,7 +60,7 @@ public class Offline4jService {
 
     public InternalRiskFact saveForOffline(RiskFact fact) {
         // 执行落地前规则
-        persistPreRuleExecutorService.executePostRules(fact, false);
+        persistPreRuleExecutorService.executePreRules(fact, false);
         //riskfact 数据映射转换
         InternalRiskFact internalRiskFact = riskFactConvertRuleService.apply(fact);
         if (internalRiskFact != null) {
