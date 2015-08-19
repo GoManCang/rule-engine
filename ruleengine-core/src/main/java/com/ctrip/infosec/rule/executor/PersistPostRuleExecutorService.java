@@ -47,7 +47,7 @@ public class PersistPostRuleExecutorService {
         List<PersistPostRule> matchedRules = matchRules(fact);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "eventPoint");
         logger.debug(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
-        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条落地前规则 ...");
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条落地后规则 ...");
 
         StatelessPersistPostRuleEngine statelessPersistPostRuleEngine = SpringContextHolder.getBean(StatelessPersistPostRuleEngine.class);
         for (PersistPostRule rule : matchedRules) {
