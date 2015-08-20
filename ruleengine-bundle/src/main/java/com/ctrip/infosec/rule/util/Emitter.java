@@ -78,12 +78,12 @@ public class Emitter {
         }
     }
 
-    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, Map<String, List<String>> subSceneTypesGroupByScene) {
+    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, Map<String, List<String>> subSceneTypes) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
-            result.put(Constants.subSceneTypesGroupByScene, subSceneTypesGroupByScene);
+            result.put(Constants.subSceneTypes, subSceneTypes);
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
