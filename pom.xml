@@ -243,11 +243,6 @@
                 <artifactId>sars-util</artifactId>
                 <version>${sars.util.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.ctrip.infosec.sars</groupId>
-                <artifactId>sars-util-test</artifactId>
-                <version>${sars.util.version}</version>
-            </dependency>
             
             <!-- logs -->
             <dependency>

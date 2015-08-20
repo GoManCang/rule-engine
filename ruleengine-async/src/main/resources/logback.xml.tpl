@@ -16,7 +16,7 @@
         <file>/opt/logs/tomcat/ruleengine-async.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/opt/logs/tomcat/ruleengine-async.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>3</maxHistory>
+            <maxHistory>1</maxHistory>
         </rollingPolicy>
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>${default_pattern}</pattern>

@@ -16,7 +16,7 @@
         <file>/opt/logs/tomcat/ruleengine-ws.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>/opt/logs/tomcat/ruleengine-ws.log.%d{yyyy-MM-dd}</fileNamePattern>
-            <maxHistory>3</maxHistory>
+            <maxHistory>2</maxHistory>
         </rollingPolicy>
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>${default_pattern}</pattern>

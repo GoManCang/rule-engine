@@ -357,6 +357,10 @@ public class Counter {
      * @return
      */
     public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, ?> kvData) {
+        return queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData, 0);
+    }
+
+    public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, ?> kvData, int queryMode) {
         check();
         beforeInvoke();
         FlowQueryResponse response = null;
@@ -381,6 +385,7 @@ public class Counter {
             flowQueryRequest.setAccuracy(accuracy);
             flowQueryRequest.setTimeWindow(timeWindow);
             flowQueryRequest.setKvData(kvData);
+            flowQueryRequest.setQueryMode(queryMode);
 
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())

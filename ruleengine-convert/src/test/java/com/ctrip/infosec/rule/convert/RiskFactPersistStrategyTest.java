@@ -21,10 +21,12 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 
 /**
  * Created by yxjiang on 2015/6/24.
  */
+@Ignore
 public class RiskFactPersistStrategyTest {
 
     @Test
@@ -49,7 +51,7 @@ public class RiskFactPersistStrategyTest {
         internalRiskFact.setReqId(persistManager.getGeneratedReqId());
         System.out.println(internalRiskFact.getReqId());
         System.out.println(persistManager.getOrderId());
-        
+
 //        Object riskEvent = new RiskEventConvertor().convert(internalRiskFact, fact, HeaderMappingBizType.Offline4J);
 //        System.out.println(Utils.JSON.toPrettyJSONString(riskEvent));
     }
@@ -75,6 +77,7 @@ public class RiskFactPersistStrategyTest {
         }
 //        System.in.read();
     }
+
     @Test
     public void testPreparePersistence() throws Exception {
         String eventPoint = "test";

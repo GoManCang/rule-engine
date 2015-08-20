@@ -56,8 +56,8 @@
         
         <!-- offline4j-api -->
         <dependency>
-			<groupId>com.ctrip.infosec.offline4j</groupId>
-			<artifactId>offline4j-api</artifactId>
+            <groupId>com.ctrip.infosec.offline4j</groupId>
+            <artifactId>offline4j-api</artifactId>
             <exclusions>
                 <exclusion>
                     <artifactId>encryption</artifactId>
@@ -68,11 +68,6 @@
 
         <!-- test -->
         <dependency>
-            <groupId>com.ctrip.infosec.sars</groupId>
-            <artifactId>sars-util-test</artifactId>
-            <scope>test</scope>
-        </dependency> 
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -82,12 +77,46 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
+        
+        <!-- TomcatRunner -->
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>8.0.23</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-logging-juli</artifactId>
+            <version>8.0.23</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-el</artifactId>
+            <version>8.0.23</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-jasper</artifactId>
+            <version>8.0.20</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>53.1</version>
+            <scope>test</scope>
+        </dependency>
+        
         <dependency>
             <groupId>com.ctrip.security</groupId>
             <artifactId>encryption</artifactId>
             <version>1.0.0.2</version>
             <scope>test</scope>
         </dependency>
+        
     </dependencies>
     
     <build>
@@ -105,17 +134,17 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.0</version>
                 <configuration>
-                  <!-- http port -->
-                  <port>8080</port>
-                  <!-- application path always starts with /-->
-                  <path>/</path>
-                  <useTestClasspath>false</useTestClasspath>
-                  <!-- optionnal if you want to add some extra directories in the class loader -->
-                  <additionalClasspathDirs>
-                    <additionalClasspathDir></additionalClasspathDir>
-                  </additionalClasspathDirs>
+                    <!-- http port -->
+                    <port>8080</port>
+                    <!-- application path always starts with /-->
+                    <path>/</path>
+                    <useTestClasspath>false</useTestClasspath>
+                    <!-- optionnal if you want to add some extra directories in the class loader -->
+                    <additionalClasspathDirs>
+                        <additionalClasspathDir></additionalClasspathDir>
+                    </additionalClasspathDirs>
                 </configuration>
-              </plugin>            
+            </plugin>            
         </plugins>
         <finalName>${project.artifactId}</finalName>
     </build>

@@ -15,20 +15,21 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
+@Ignore
 public class RdbmsInsertTest {
+
     private RdbmsInsert rdbmsInsert;
     PersistContext ctx;
 
     @Before
     public void setUp() throws Exception {
-        ctx=new PersistContext();
+        ctx = new PersistContext();
 
         rdbmsInsert = new RdbmsInsert();
-        DistributionChannel channel= new DistributionChannel();
+        DistributionChannel channel = new DistributionChannel();
         channel.setDatabaseType(DatabaseType.AllInOne_SqlServer);
         channel.setDatabaseURL("PayBaseDB_INSERT_1");
         channel.setSchema("PayBaseDB ");
-
 
         rdbmsInsert.setChannel(channel);
         /**
@@ -36,26 +37,24 @@ public class RdbmsInsertTest {
          */
         rdbmsInsert.setTable("PaymentRiskControl");
 
-
-        Map<String , PersistColumnProperties> map =new HashMap<String, PersistColumnProperties>();
+        Map<String, PersistColumnProperties> map = new HashMap<String, PersistColumnProperties>();
 
         PersistColumnProperties pcp1 = new PersistColumnProperties();
         pcp1.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
         pcp1.setColumnType(DataUnitColumnType.Int);
-        map.put("RID",pcp1);
+        map.put("RID", pcp1);
 
-        PersistColumnProperties pcp2=new PersistColumnProperties();
+        PersistColumnProperties pcp2 = new PersistColumnProperties();
         pcp2.setValue(17);
         pcp2.setColumnType(DataUnitColumnType.Long);
         pcp2.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
-        map.put("OrderID1",pcp2);
+        map.put("OrderID1", pcp2);
 
 //        PersistColumnProperties pcp3=new PersistColumnProperties();
 //        pcp3.setValue(new String[]{null,"from offline test"});
 //        pcp3.setColumnType(DataUnitColumnType.String);
 //        pcp3.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
 //        map.put("CheckValue",pcp3);
-
         rdbmsInsert.setColumnPropertiesMap(map);
 
     }
@@ -75,14 +74,12 @@ public class RdbmsInsertTest {
 //        String spa = rdbmsInsert.createSPA(rdbmsInsert.getTable(),rdbmsInsert.getColumnPropertiesMap());
 //        System.out.println(spa);
 //    }
-
 //    @Test
 //    public void testSetValues() throws Exception {
 //        rdbmsInsert.setValues()
 //
 //
 //    }
-
 //    @Test
 //    public void testValueByPersistSourceType() throws Exception {
 //        Map<String, PersistColumnProperties> columnPropertiesMap = rdbmsInsert.getColumnPropertiesMap();
@@ -93,9 +90,6 @@ public class RdbmsInsertTest {
 //            System.out.println(entry.getValue().getValue());
 //        }
 //    }
-
-
-
     @Test
     public void testGetExposedValue() throws Exception {
         RdbmsInsert insert = new RdbmsInsert();
