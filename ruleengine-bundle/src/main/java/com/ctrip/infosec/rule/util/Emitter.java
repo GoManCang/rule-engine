@@ -78,12 +78,64 @@ public class Emitter {
         }
     }
 
-    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, Map<String, List<String>> subSceneTypes) {
+//    
+//    resultsGroupByScene：
+//    {
+//        "R1": {
+//            "riskLevel": 278,
+//            "riskMessage": "交易有风险",
+//            "riskScene": [
+//                "PAYMENT-CONF-CC",
+//                "PAYMENT-CONF-DCARD"
+//            ],
+//            "subSceneType": {
+//                "PAYMENT-CONF-CC": {
+//                    "CC_ABC": {
+//                        "riskLevel": 295,
+//                        "riskMessage": "交易有风险"
+//                    },
+//                    "CC_BOC": {
+//                        "riskLevel": 295,
+//                        "riskMessage": "交易有风险"
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    
+//    finalResultGroupByScene：
+//    {
+//        "PAYMENT-CONF-CC": {
+//            "riskLevel": 278,
+//            "riskMessage": "交易有风险",
+//            "subSceneType": {
+//                "CC_ABC": {
+//                    "riskLevel": 295,
+//                    "riskMessage": "交易有风险"
+//                },
+//                "CC_BOC": {
+//                    "riskLevel": 295,
+//                    "riskMessage": "交易有风险"
+//                }
+//            }
+//        },
+//        "PAYMENT-CONF-DCARD": {
+//            "riskLevel": 278,
+//            "riskMessage": "交易有风险"
+//        }
+//    }
+    public static void emitSubSceneTypes(RiskFact fact, int riskLevel, String riskMessage, List<String> riskScenes, Map<String, Map<String, String>> subSceneTypes) {
+        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
+        emitSubSceneTypes(fact, ruleNo, riskLevel, riskMessage, riskScenes, subSceneTypes);
+    }
+
+    public static void emitSubSceneTypes(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, List<String> riskScenes, Map<String, Map<String, String>> subSceneTypes) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
-            result.put(Constants.subSceneTypes, subSceneTypes);
+            result.put(Constants.riskScene, riskScenes);
+            result.put(Constants.subSceneType, subSceneTypes);
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
@@ -91,7 +143,7 @@ public class Emitter {
     /**
      * 合并Counter策略执行结果
      */
-    public static void emit(RiskFact fact, PolicyExecuteResult counterPolicyExecuteResult) {
+    public static void emitCounterResult(RiskFact fact, PolicyExecuteResult counterPolicyExecuteResult) {
         if (counterPolicyExecuteResult.getRuleExecuteResults() == null || counterPolicyExecuteResult.getRuleExecuteResults().isEmpty()) {
             String resultCode = counterPolicyExecuteResult.getResultCode();
             String resultMessage = counterPolicyExecuteResult.getResultMessage();
@@ -149,9 +201,11 @@ public class Emitter {
         }
     }
 
-    /**
-     * 合并CounterServer的规则结果
-     */
+    @Deprecated
+    public static void emit(RiskFact fact, PolicyExecuteResult counterPolicyExecuteResult) {
+        emitCounterResult(fact, counterPolicyExecuteResult);
+    }
+
     @Deprecated
     public static void emit(RiskFact fact, List<CounterRuleExecuteResult> counterExecuteResults) {
         mergeCounterResults(fact, counterExecuteResults);
