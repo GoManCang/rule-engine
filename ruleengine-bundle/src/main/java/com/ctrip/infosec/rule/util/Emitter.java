@@ -46,17 +46,17 @@ public class Emitter {
         emit(fact, riskLevel, riskMessage);
     }
 
-    public static void emit(RiskFact fact, int riskLevel, String riskMessage, String... riskScenes) {
+    public static void emit(RiskFact fact, int riskLevel, String riskMessage, String... riskScene) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        emit(fact, ruleNo, riskLevel, riskMessage, riskScenes);
+        emit(fact, ruleNo, riskLevel, riskMessage, riskScene);
     }
 
-    public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage, String... riskScenes) {
+    public static void emit(RiskFact fact, String riskLevelTxt, String riskMessage, String... riskScene) {
         if (!StringUtils.isNumeric(riskLevelTxt)) {
             throw new IllegalArgumentException("\"riskLevel\"必须为数字");
         }
         int riskLevel = NumberUtils.toInt(riskLevelTxt, 0);
-        emit(fact, riskLevel, riskMessage, riskScenes);
+        emit(fact, riskLevel, riskMessage, riskScene);
     }
 
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
@@ -68,12 +68,12 @@ public class Emitter {
         }
     }
 
-    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScenes) {
+    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScene) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
-            result.put(Constants.riskScene, Lists.newArrayList(riskScenes));
+            result.put(Constants.riskScene, Lists.newArrayList(riskScene));
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
@@ -124,18 +124,18 @@ public class Emitter {
 //            "riskMessage": "交易有风险"
 //        }
 //    }
-    public static void emitSubSceneTypes(RiskFact fact, int riskLevel, String riskMessage, List<String> riskScenes, Map<String, Map<String, String>> subSceneTypes) {
+    public static void emit(RiskFact fact, int riskLevel, String riskMessage, String[] riskScene, Map<String, Map<String, Map<String, String>>> subSceneType) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        emitSubSceneTypes(fact, ruleNo, riskLevel, riskMessage, riskScenes, subSceneTypes);
+        emit(fact, ruleNo, riskLevel, riskMessage, riskScene, subSceneType);
     }
 
-    public static void emitSubSceneTypes(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, List<String> riskScenes, Map<String, Map<String, String>> subSceneTypes) {
+    public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String[] riskScene, Map<String, Map<String, Map<String, String>>> subSceneType) {
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
-            result.put(Constants.riskScene, riskScenes);
-            result.put(Constants.subSceneType, subSceneTypes);
+            result.put(Constants.riskScene, Lists.newArrayList(riskScene));
+            result.put(Constants.subSceneType, subSceneType);
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
@@ -143,7 +143,7 @@ public class Emitter {
     /**
      * 合并Counter策略执行结果
      */
-    public static void emitCounterResult(RiskFact fact, PolicyExecuteResult counterPolicyExecuteResult) {
+    public static void emit(RiskFact fact, PolicyExecuteResult counterPolicyExecuteResult) {
         if (counterPolicyExecuteResult.getRuleExecuteResults() == null || counterPolicyExecuteResult.getRuleExecuteResults().isEmpty()) {
             String resultCode = counterPolicyExecuteResult.getResultCode();
             String resultMessage = counterPolicyExecuteResult.getResultMessage();
@@ -199,11 +199,6 @@ public class Emitter {
                 }
             }
         }
-    }
-
-    @Deprecated
-    public static void emit(RiskFact fact, PolicyExecuteResult counterPolicyExecuteResult) {
-        emitCounterResult(fact, counterPolicyExecuteResult);
     }
 
     @Deprecated

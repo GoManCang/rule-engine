@@ -12,6 +12,7 @@ import com.ctrip.infosec.configs.utils.BeanMapper;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsList;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsMap;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.GlobalConfig;
@@ -120,6 +121,15 @@ public class RulesExecutorService {
                             sceneResult.put(Constants.riskLevel, riskLevel);
                             sceneResult.put(Constants.riskMessage, riskMessage);
                         }
+                    }
+                }
+            }
+            Map<String, Map<String, Map<String, String>>> subLevelGroupBySceneType = valueAsMap(rs, Constants.subSceneType);
+            if (subLevelGroupBySceneType != null) {
+                for (String sceneType : subLevelGroupBySceneType.keySet()) {
+                    Map<String, Map<String, String>> subLevelGroupBySubSceneType = subLevelGroupBySceneType.get(sceneType);
+                    for (String subSceneType : subLevelGroupBySubSceneType.keySet()) {
+
                     }
                 }
             }
