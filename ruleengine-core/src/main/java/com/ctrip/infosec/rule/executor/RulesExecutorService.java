@@ -150,7 +150,7 @@ public class RulesExecutorService {
                     	
                     	//只有子场景分数比父场景大，才保留
                     	int subSceneRiskLevel = EventBodyUtils.valueAsInt(entry.getValue(), Constants.riskLevel);
-                    	if(subSceneRiskLevel >= sceneRiskLevel){
+                    	if(subSceneRiskLevel > sceneRiskLevel){
                     		finalSubResults.put(entry.getKey(), entry.getValue());
                     	}
                     	
