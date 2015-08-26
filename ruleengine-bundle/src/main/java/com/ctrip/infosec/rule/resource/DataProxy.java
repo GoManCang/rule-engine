@@ -185,6 +185,7 @@ public class DataProxy {
             request.setServiceName(serviceName);
             request.setOperationName(operationName);
             request.setParams(params);
+
             List<DataProxyRequest> requests = new ArrayList<>();
             requests.add(request);
 
