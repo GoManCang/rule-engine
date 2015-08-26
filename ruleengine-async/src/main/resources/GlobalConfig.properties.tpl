@@ -69,3 +69,14 @@ GetUidLevel.REST.URL.Prefix={$GetUidLevel.REST.URL.Prefix}
 #BWGList
 BWList.URL.Prefix={$BWList.URL.Prefix}
 BWList.timeout={$BWList.timeout}
+
+#GiftCardBalance
+GetGiftBalance.REST.URL.Prefix={$GetGiftBalance.REST.URL.Prefix}
+GetGiftBalance.query.timeout={$GetGiftBalance.query.timeout}
+
+#GiftCardHistroyDetail
+GetGiftHistoryDetail.REST.URL.Prefix={$GetGiftHistoryDetail.REST.URL.Prefix}
+GetGiftHistoryDetail.query.timeout={$GetGiftHistoryDetail.query.timeout}
+
+#Wallet
+Wallet.ESB.URL={$Wallet.ESB.URL}
