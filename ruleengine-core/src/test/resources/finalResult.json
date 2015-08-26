@@ -14,7 +14,7 @@
             "riskMessage": "交易有风险"
           },
           "CC_BOC": {
-            "riskLevel": 295,
+            "riskLevel": 250,
             "riskMessage": "交易有风险"
           }
         }
