@@ -1,0 +1,75 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.ctrip.infosec.rule.executor;
+
+import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.configs.Configs;
+import com.ctrip.infosec.configs.event.WhitelistRule;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.engine.StatelessWhitelistRuleEngine;
+import com.ctrip.infosec.sars.util.Collections3;
+import com.ctrip.infosec.sars.util.SpringContextHolder;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+/**
+ * 白名单规则
+ *
+ * @author zhengby
+ */
+@Service
+public class WhiteListRulesExecutorService {
+
+    private static final Logger logger = LoggerFactory.getLogger(WhiteListRulesExecutorService.class);
+
+    /**
+     * 执行白名单规则
+     */
+    public RiskFact executeWhitelistRules(RiskFact fact) {
+        execute(fact);
+        return fact;
+    }
+
+    /**
+     * 串行执行
+     */
+    void execute(RiskFact fact) {
+
+        // matchRules      
+        List<WhitelistRule> matchedRules = Configs.matchWhitelistRules(fact);
+        List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
+        logger.debug(Contexts.getLogPrefix() + "matched whitelist rules: " + StringUtils.join(scriptRulePackageNames, ", "));
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条白名单规则 ...");
+
+        StatelessWhitelistRuleEngine statelessWhitelistRuleEngine = SpringContextHolder.getBean(StatelessWhitelistRuleEngine.class);
+        for (WhitelistRule rule : matchedRules) {
+            TraceLogger.beginNestedTrans(fact.eventId);
+            TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+            try {
+                long start = System.currentTimeMillis();
+
+                statelessWhitelistRuleEngine.execute(rule.getRuleNo(), fact);
+
+                long handlingTime = System.currentTimeMillis() - start;
+                if (handlingTime > 100) {
+                    logger.info(Contexts.getLogPrefix() + "whitelistRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
+                }
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+
+            } catch (Throwable ex) {
+                logger.warn(Contexts.getLogPrefix() + "invoke stateless whitelist rule failed. whitelistRule: " + rule.getRuleNo(), ex);
+                TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
+            } finally {
+                TraceLogger.commitNestedTrans();
+            }
+        }
+
+    }
+}

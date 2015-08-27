@@ -261,16 +261,52 @@ public class Emitter {
         }
     }
 
+    // 黑白名单库类型
+    private static final String BWList_ACCOUNT = "ACCOUNT";
+    private static final String BWlist_BW = "BW";
+
     /**
      * 合并黑白名单规则引擎结果
-     *
-     * @param fact
-     * @param bwlistResults
      */
-    private static final String RULETYPE_ACCOUNT = "ACCOUNT";
-    private static final String RULETYPE_BW = "BW";
-
     public static void emitBWListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
+        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+        if (_isAsync || bwlistResults == null || bwlistResults.isEmpty()) {
+            return;
+        }
+        // 白名单结果(只看BW的)
+        for (Map<String, String> resultMap : bwlistResults) {
+            String ruleType = valueAsString(resultMap, "ruleType");
+            String ruleNo = valueAsString(resultMap, "ruleName");
+            String riskMessage = "命中白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+            int riskLevel = valueAsInt(resultMap, "riskLevel");
+
+            if (ruleType.equals(BWlist_BW)) {
+                if (riskLevel == 0) {
+                    fact.whitelistResult.put(Constants.riskLevel, 0);
+                    fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    break;
+                }
+                if (riskLevel == 95) {
+                    fact.whitelistResult.put(Constants.riskLevel, 95);
+                    fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    break;
+                }
+                int whitelistRiskLevel = valueAsInt(fact.whitelistResult, Constants.riskLevel);
+                if (fact.whitelistResult.isEmpty()
+                        || (whitelistRiskLevel < 100 && whitelistRiskLevel >= 90 && riskLevel > valueAsInt(fact.whitelistResult, Constants.riskLevel))) {
+                    fact.whitelistResult.put(Constants.riskLevel, 97);
+                    fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                }
+            }
+        }
+        // 黑名单结果
+        emitBListResults(fact, bwlistResults);
+    }
+
+    /**
+     * 合并黑名单规则引擎结果
+     */
+    public static void emitBListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
 
         //result: [{"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE","riskLevel":295,"ruleRemark":""},
         //         {"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE1","riskLevel":80,"ruleRemark":""}]
@@ -292,9 +328,9 @@ public class Emitter {
                 String riskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                 int riskLevel = valueAsInt(resultMap, "riskLevel");
 
-                if (ruleType.equals(RULETYPE_ACCOUNT)) {
+                if (ruleType.equals(BWList_ACCOUNT)) {
                     emit(fact, ruleNo, riskLevel, riskMessage, ruleNo);
-                } else if (ruleType.equals(RULETYPE_BW) && riskLevel > 100) {
+                } else if (ruleType.equals(BWlist_BW) && riskLevel > 100) {
                     emit(fact, "PAYMENT-CONF-LIPIN", 295, riskMessage, "PAYMENT-CONF-LIPIN");
                 }
 
@@ -324,7 +360,7 @@ public class Emitter {
                 } else {
                     //其他授权，下单点
                     //只需要ruleType = BW
-                    if (ruleType.equals(RULETYPE_BW)) {
+                    if (ruleType.equals(BWlist_BW)) {
                         if (riskLevel > finalRiskLevel) {
                             finalRuleNo = ruleNo;
                             finalRiskLevel = riskLevel;
