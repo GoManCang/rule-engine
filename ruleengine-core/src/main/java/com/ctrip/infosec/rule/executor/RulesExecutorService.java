@@ -30,6 +30,7 @@ import com.ctrip.infosec.configs.event.Rule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.BeanMapper;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.GlobalConfig;
@@ -101,7 +102,19 @@ public class RulesExecutorService {
         for (Map<String, Object> rs : fact.results.values()) {
             finalResult = compareAndReturn(finalResult, rs);
         }
-        fact.setFinalResult(Maps.newHashMap(finalResult));
+        // 95：会验证其他规则，但是最终风险为95，不会变成其他风险
+        // 97：需要判读最高风险是否超过195（包含），如果超过（包含）则按最高风险处理，其他的话，按97返回低风险
+        int whitelistRiskLevel = valueAsInt(fact.whitelistResult, Constants.riskLevel);
+        if (whitelistRiskLevel == 95) {
+            fact.setFinalResult(Maps.newHashMap(fact.whitelistResult));
+        } else if (whitelistRiskLevel == 97) {
+            int riskLevel = valueAsInt(finalResult, Constants.riskLevel);
+            if (riskLevel < 195) {
+                fact.setFinalResult(Maps.newHashMap(fact.whitelistResult));
+            }
+        } else {
+            fact.setFinalResult(Maps.newHashMap(finalResult));
+        }
         fact.finalResult.remove(Constants.timeUsage);
 
         // finalResultGroupByScene
@@ -133,29 +146,29 @@ public class RulesExecutorService {
             if (subLevelGroupBySceneType != null) {
                 for (String sceneType : subLevelGroupBySceneType.keySet()) {
                     Map<String, Map<String, String>> subLevelGroupBySubSceneType = subLevelGroupBySceneType.get(sceneType);
-                    
+
                     //如果根节点不存在，则创建
                     Map<String, Object> sceneResult = finalResultGroupByScene.get(sceneType);
-                    if(null == sceneResult){
-                    	sceneResult = new HashMap<>();
+                    if (null == sceneResult) {
+                        sceneResult = new HashMap<>();
                         sceneResult.put(Constants.riskLevel, 0);
                         sceneResult.put(Constants.riskMessage, "PASS");
                         finalResultGroupByScene.put(sceneType, sceneResult);
                     }
-                    
+
                     int sceneRiskLevel = EventBodyUtils.valueAsInt(sceneResult, Constants.riskLevel);
-                    Map<String,Map<String,String>> finalSubResults = Maps.newHashMap();
-                    
-                    for(Entry<String,Map<String,String>> entry : subLevelGroupBySubSceneType.entrySet()){
-                    	
-                    	//只有子场景分数比父场景大，才保留
-                    	int subSceneRiskLevel = EventBodyUtils.valueAsInt(entry.getValue(), Constants.riskLevel);
-                    	if(subSceneRiskLevel > sceneRiskLevel){
-                    		finalSubResults.put(entry.getKey(), entry.getValue());
-                    	}
-                    	
+                    Map<String, Map<String, String>> finalSubResults = Maps.newHashMap();
+
+                    for (Entry<String, Map<String, String>> entry : subLevelGroupBySubSceneType.entrySet()) {
+
+                        //只有子场景分数比父场景大，才保留
+                        int subSceneRiskLevel = EventBodyUtils.valueAsInt(entry.getValue(), Constants.riskLevel);
+                        if (subSceneRiskLevel > sceneRiskLevel) {
+                            finalSubResults.put(entry.getKey(), entry.getValue());
+                        }
+
                     }
-                    
+
                     sceneResult.put(Constants.subSceneType, finalSubResults);
                 }
             }
