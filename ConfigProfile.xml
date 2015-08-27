@@ -223,7 +223,7 @@
         <GetGiftBalance.query.timeout>300</GetGiftBalance.query.timeout>
         <GetGiftBalance.REST.URL.Prefix>http://couponws.sh.ctriptravel.com</GetGiftBalance.REST.URL.Prefix>
         <!--GiftCardHistroyDetail-->
-        <GetGiftHistoryDetail.query.timeout>3000</GetGiftHistoryDetail.query.timeout>
+        <GetGiftHistoryDetail.query.timeout>300</GetGiftHistoryDetail.query.timeout>
         <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
         <!--Wallet-->
         <Wallet.ESB.URL>http://WS.Wallet.Payment.ctripcorp.com/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
