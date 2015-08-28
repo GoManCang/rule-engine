@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.WhitelistRule;
@@ -55,6 +56,7 @@ public class WhiteListRulesExecutorService {
             try {
                 long start = System.currentTimeMillis();
 
+                fact.ext.put(Constants.key_isAsync, false);
                 statelessWhitelistRuleEngine.execute(rule.getRuleNo(), fact);
 
                 long handlingTime = System.currentTimeMillis() - start;

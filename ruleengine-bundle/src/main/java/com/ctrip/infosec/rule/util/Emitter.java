@@ -269,7 +269,7 @@ public class Emitter {
      * 合并黑白名单规则引擎结果
      */
     public static void emitBWListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
-        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (_isAsync || bwlistResults == null || bwlistResults.isEmpty()) {
             return;
         }
