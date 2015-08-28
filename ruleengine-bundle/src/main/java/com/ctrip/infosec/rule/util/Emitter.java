@@ -284,18 +284,20 @@ public class Emitter {
                 if (riskLevel == 0) {
                     fact.whitelistResult.put(Constants.riskLevel, 0);
                     fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    emit(fact, ruleNo, riskLevel, riskMessage);
                     break;
                 }
                 if (riskLevel == 95) {
                     fact.whitelistResult.put(Constants.riskLevel, 95);
                     fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    emit(fact, ruleNo, riskLevel, riskMessage);
                     break;
                 }
-                int whitelistRiskLevel = valueAsInt(fact.whitelistResult, Constants.riskLevel);
-                if (fact.whitelistResult.isEmpty()
-                        || (whitelistRiskLevel < 100 && whitelistRiskLevel >= 90 && riskLevel > valueAsInt(fact.whitelistResult, Constants.riskLevel))) {
+                // 97
+                if (riskLevel < 100 && riskLevel >= 90) {
                     fact.whitelistResult.put(Constants.riskLevel, 97);
                     fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    emit(fact, ruleNo, riskLevel, riskMessage);
                 }
             }
         }
