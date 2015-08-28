@@ -36,8 +36,8 @@ public class RiskFactPersistStrategyTest {
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
 
-//        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
-        daemon.setUrl("http://localhost:8083/rest/loadconfig");
+        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
+//        daemon.setUrl("http://localhost:8083/rest/loadconfig");
         daemon.setPart(Part.RuleEngine);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();
@@ -60,8 +60,8 @@ public class RiskFactPersistStrategyTest {
     public void testConfig() throws Exception {
         ConfigsDeamon daemon = new ConfigsDeamon();
 
-//        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
-        daemon.setUrl("http://localhost:8083/rest/loadconfig");
+        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
+//        daemon.setUrl("http://localhost:8080/rest/loadconfig");
         daemon.setPart(Part.RuleEngine);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();

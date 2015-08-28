@@ -25,6 +25,8 @@ public class RuleUpdateCallback implements ConfigsLoadedCallback {
     private StatelessPersistPreRuleEngine statelessPersistPreRuleEngine;
     @Autowired
     private StatelessPersistPostRuleEngine statelessPersistPostRuleEngine;
+    @Autowired
+    private StatelessWhitelistRuleEngine statelessWhitelistRuleEngine;
 
     @Override
     public void onConfigsLoaded() {
@@ -33,6 +35,7 @@ public class RuleUpdateCallback implements ConfigsLoadedCallback {
         statelessPostRuleEngine.updateRules();
         statelessPersistPreRuleEngine.updateRules();
         statelessPersistPostRuleEngine.updateRules();
+        statelessWhitelistRuleEngine.updateRules();
     }
 
 }

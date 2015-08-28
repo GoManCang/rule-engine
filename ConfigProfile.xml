@@ -211,7 +211,7 @@
         <reqId.table.name>InfoSecurity_DealInfo</reqId.table.name>
         <reqId.column.name>ReqID</reqId.column.name>
         <persist.remote.url>http://ws.flowtable4j.infosec.ctripcorp.com/flowtable4j/rest/saveData4Offline</persist.remote.url>
-        <async.log.root.level>INFO</async.log.root.level>
+        <async.log.root.level>WARN</async.log.root.level>
         <async.log.app.level>INFO</async.log.app.level>
         <!-- UidLevel -->
         <GetUidLevel.query.timeout>1000</GetUidLevel.query.timeout>

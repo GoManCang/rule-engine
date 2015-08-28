@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.WhitelistRule;
@@ -46,7 +47,7 @@ public class WhiteListRulesExecutorService {
         List<WhitelistRule> matchedRules = Configs.matchWhitelistRules(fact);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
         logger.debug(Contexts.getLogPrefix() + "matched whitelist rules: " + StringUtils.join(scriptRulePackageNames, ", "));
-        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条白名单规则 ...");
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条黑白名单规则 ...");
 
         StatelessWhitelistRuleEngine statelessWhitelistRuleEngine = SpringContextHolder.getBean(StatelessWhitelistRuleEngine.class);
         for (WhitelistRule rule : matchedRules) {
@@ -55,6 +56,7 @@ public class WhiteListRulesExecutorService {
             try {
                 long start = System.currentTimeMillis();
 
+                fact.ext.put(Constants.key_isAsync, false);
                 statelessWhitelistRuleEngine.execute(rule.getRuleNo(), fact);
 
                 long handlingTime = System.currentTimeMillis() - start;
