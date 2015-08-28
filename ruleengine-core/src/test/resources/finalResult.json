@@ -1,0 +1,24 @@
+{
+  "resultsGroupByScene": {
+    "R1": {
+      "riskLevel": 278,
+      "riskMessage": "交易有风险",
+      "riskScene": [
+        "PAYMENT-CONF-CC",
+        "PAYMENT-CONF-DCARD"
+      ],
+      "subSceneType": {
+        "PAYMENT-CONF-CC": {
+          "CC_ABC": {
+            "riskLevel": 250,
+            "riskMessage": "交易有风险"
+          },
+          "CC_BOC": {
+            "riskLevel": 250,
+            "riskMessage": "交易有风险"
+          }
+        }
+      }
+    }
+  }
+}

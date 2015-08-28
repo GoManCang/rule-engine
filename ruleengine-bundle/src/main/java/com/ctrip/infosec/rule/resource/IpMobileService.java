@@ -61,7 +61,7 @@ public class IpMobileService {
             urlBuilder.setParameter("mobile",mobile);
             urlBuilder.setParameter("ip",ip);
             URI uri = urlBuilder.build();
-            responseTxt = Request.Get(uri).connectTimeout(timeout).socketTimeout(timeout).execute().
+            responseTxt = Request.Get(uri).connectTimeout(200).socketTimeout(timeout).execute().
                     returnContent().asString();
             Map newResult = Utils.JSON.parseObject(responseTxt, Map.class);
             if(newResult != null && newResult.size()>0)

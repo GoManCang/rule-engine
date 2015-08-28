@@ -87,4 +87,56 @@ public class CardInfo {
         }
         return result;
     }
+
+    public static Map queryYA(String cardInfoId)
+    {
+        beforeInvoke();
+        Map<String, String> result = new HashMap();
+        try {
+            if (StringUtils.isBlank(cardInfoId) || StringUtils.equals("0", cardInfoId)) {
+                return result;
+            }
+
+            // Cache
+            CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
+            String cacheKey = buildCacheKey(cardInfoId);
+            String cachedResult = cache.get(cacheKey);
+            if (cachedResult != null) {
+                return Utils.JSON.parseObject(cachedResult, Map.class);
+            }
+
+            String xml = ESBClient.requestESB("AccCash.WOTCreditCard.GetCreditCardInfo", "<GetCreditCardInfoRequest><CardInfoId>" + cardInfoId + "</CardInfoId></GetCreditCardInfoRequest>");
+            if (xml == null || xml.isEmpty()) {
+                return result;
+            }
+            Document document = DocumentHelper.parseText(xml);
+            String xpath = "/Response/GetCreditCardInfoResponse/CreditCardItems/CreditCardInfoResponseItem";
+            List<Element> list = document.selectNodes(xpath);
+            if (list == null || list.isEmpty()) {
+                return result;
+            }
+
+            for (Element creditCard : list) {
+                Iterator iterator = creditCard.elements().iterator();
+                while (iterator.hasNext()) {
+                    Element element = (Element) iterator.next();
+                    result.put(element.getName(), element.getStringValue());
+                }
+            }
+
+            // Cache
+            if (!result.isEmpty()) {
+                cache.set(cacheKey, Utils.JSON.toJSONString(result));
+                cache.expire(cacheKey, cacheExpireTime);
+            }
+
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke CardInfo.queryYA fault.", ex);
+            TraceLogger.traceLog("执行GetCreditCardInfo异常: " + ex.toString());
+        } finally {
+            afterInvoke("CardInfo.queryYA");
+        }
+        return result;
+    }
 }

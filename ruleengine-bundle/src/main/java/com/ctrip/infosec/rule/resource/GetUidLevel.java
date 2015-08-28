@@ -67,17 +67,13 @@ public class GetUidLevel
             request.put("UID",uid);
             int threeMonthCount = 0;
             String threeMonthCountResponseTxt = "";
-            try
-            {
-                threeMonthCountResponseTxt = Request.Post(urlPrefix + "/CMB-REPORT-REPORT/json/GetThreeMonthOrderCount")
-                        .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
-                        .connectTimeout(queryTimeout)
-                        .socketTimeout(queryTimeout)
-                        .execute().returnContent().asString();
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+
+            threeMonthCountResponseTxt = Request.Post(urlPrefix + "/CMB-REPORT-REPORT/json/GetThreeMonthOrderCount")
+                    .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
+                    .connectTimeout(queryTimeout)
+                    .socketTimeout(queryTimeout)
+                    .execute().returnContent().asString();
+
             Map threeMonthCountResponse = Utils.JSON.parseObject(threeMonthCountResponseTxt, Map.class);
             String threeMonthResultCode = threeMonthCountResponse.get("ResultCode").toString();
             if(!threeMonthResultCode.equals("Fail"))
@@ -90,17 +86,11 @@ public class GetUidLevel
 
             int allCount = 0;
             String allCountResponseTxt = "";
-            try
-            {
-                allCountResponseTxt = Request.Post(urlPrefix + "/CMB-REPORT-REPORT/json/GetDealCountByUid")
-                        .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
-                        .connectTimeout(queryTimeout)
-                        .socketTimeout(queryTimeout)
-                        .execute().returnContent().asString();
-            } catch (IOException e)
-            {
-                e.printStackTrace();
-            }
+            allCountResponseTxt = Request.Post(urlPrefix + "/CMB-REPORT-REPORT/json/GetDealCountByUid")
+                    .body(new StringEntity(Utils.JSON.toJSONString(request), ContentType.APPLICATION_JSON))
+                    .connectTimeout(queryTimeout)
+                    .socketTimeout(queryTimeout)
+                    .execute().returnContent().asString();
 
             Map allCountResponse = Utils.JSON.parseObject(allCountResponseTxt, Map.class);
             String allCountResultCode = allCountResponse.get("ResultCode").toString();

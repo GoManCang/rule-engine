@@ -81,6 +81,14 @@
         <!-- BWGList -->
         <BWList.timeout>1000</BWList.timeout>
         <BWList.URL.Prefix>http://10.2.56.170:8080</BWList.URL.Prefix>
+        <!--GiftCardBalance-->
+        <GetGiftBalance.query.timeout>3000</GetGiftBalance.query.timeout>
+        <GetGiftBalance.REST.URL.Prefix>http://couponws.fws.qa.nt.ctripcorp.com</GetGiftBalance.REST.URL.Prefix>
+        <!--GiftCardHistroyDetail-->
+        <GetGiftHistoryDetail.query.timeout>3000</GetGiftHistoryDetail.query.timeout>
+        <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.fws.qa.nt.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
+        <!--Wallet-->
+        <Wallet.ESB.URL>http://10.2.6.244/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -143,6 +151,14 @@
         <!-- BWGList -->
         <BWList.timeout>1000</BWList.timeout>
         <BWList.URL.Prefix>http://Javaweb.ws.flowtable4j.infosec.uat.qa.nt.ctripcorp.com:8080</BWList.URL.Prefix>
+        <!--GiftCardBalance-->
+        <GetGiftBalance.query.timeout>3000</GetGiftBalance.query.timeout>
+        <GetGiftBalance.REST.URL.Prefix>http://couponws.uat.qa.nt.ctripcorp.com</GetGiftBalance.REST.URL.Prefix>
+        <!--GiftCardHistroyDetail-->
+        <GetGiftHistoryDetail.query.timeout>3000</GetGiftHistoryDetail.query.timeout>
+        <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.uat.qa.nt.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
+        <!--Wallet-->
+        <Wallet.ESB.URL>http://10.2.24.228/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(S) -->
@@ -203,5 +219,13 @@
         <!-- BWGList -->
         <BWList.timeout>500</BWList.timeout>
         <BWList.URL.Prefix>http://ws.flowtable4j.infosec.ctripcorp.com</BWList.URL.Prefix>
+        <!--GiftCardBalance-->
+        <GetGiftBalance.query.timeout>300</GetGiftBalance.query.timeout>
+        <GetGiftBalance.REST.URL.Prefix>http://couponws.sh.ctriptravel.com</GetGiftBalance.REST.URL.Prefix>
+        <!--GiftCardHistroyDetail-->
+        <GetGiftHistoryDetail.query.timeout>300</GetGiftHistoryDetail.query.timeout>
+        <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
+        <!--Wallet-->
+        <Wallet.ESB.URL>http://WS.Wallet.Payment.ctripcorp.com/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
     </prd>
 </profile>

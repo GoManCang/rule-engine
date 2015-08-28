@@ -8,11 +8,13 @@ package com.ctrip.infosec.rule.rest;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.executor.PostRulesExecutorService;
 import com.ctrip.infosec.rule.executor.PreRulesExecutorService;
 import com.ctrip.infosec.rule.executor.EventDataMergeService;
 import com.ctrip.infosec.rule.executor.RulesExecutorService;
+import com.ctrip.infosec.rule.executor.WhiteListRulesExecutorService;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.meidusa.fastjson.JSON;
 import org.apache.commons.collections.MapUtils;
@@ -37,7 +39,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class RuleEngineRESTfulController {
 
     private static Logger logger = LoggerFactory.getLogger(RuleEngineRESTfulController.class);
-
+    @Autowired
+    private WhiteListRulesExecutorService whiteListRulesExecutorService;
     @Autowired
     private RulesExecutorService rulesExecutorService;
     @Autowired
@@ -85,6 +88,22 @@ public class RuleEngineRESTfulController {
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步数据合并]");
                 eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
+            // 执行白名单规则
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[白名单规则]");
+                whiteListRulesExecutorService.executeWhitelistRules(fact);
+                // 非适配接入点、中白名单"0"的直接返回
+                if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                    if (fact.whitelistResult != null && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
+                        fact.finalResult.put(Constants.riskLevel, 0);
+                        fact.finalResult.put(Constants.riskMessage, "在白名单内, PASS.");
+                        return new ResponseEntity(fact, HttpStatus.OK);
+                    }
+                }
             } finally {
                 TraceLogger.commitTrans();
             }

@@ -27,7 +27,9 @@ public enum PreActionEnums {
             new PreActionParam("tags", PreActionParam.TEXT)), // tags需要手动输入、不是从eventBody里获取
     CrmMemberInfo(
             "获取CRM会员信息",
-            new PreActionParam("uid", PreActionParam.FIELD)),
+            new PreActionParam("uid", PreActionParam.FIELD),
+            new PreActionParam("enforce", PreActionParam.FIELD),
+            new PreActionParam("expire", PreActionParam.FIELD)),
     CardInfoDecrypt(
             "银行卡信息获取并解密（CardInfo）",
             new PreActionParam("cardInfoId", PreActionParam.FIELD)),

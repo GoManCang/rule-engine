@@ -18,17 +18,19 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import com.meidusa.fastjson.JSON;
+
 import org.junit.Ignore;
 
 /**
  *
  * @author zhengby
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath*:spring/ruleengine*.xml"})
+//@RunWith(SpringJUnit4ClassRunner.class)
+//@ContextConfiguration(locations = {"classpath*:spring/ruleengine*.xml"})
 public class RulesExecutorServiceTest {
 
-    @Autowired
+//    @Autowired
     RulesExecutorService rulesExecutorService;
 
     @Test
@@ -204,6 +206,21 @@ public class RulesExecutorServiceTest {
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         fact = rulesExecutorService.executeAsyncRules(fact);
         System.out.println("results: " + JSON.toPrettyJSONString(fact.results));
+    }
+    
+    @Test
+    public void testBuildResult() throws IOException{
+    	
+    	String jsonStr = IOUtils.toString(new DefaultResourceLoader().getResource("classpath:finalResult.json").getInputStream());
+    	RiskFact fact = JSON.parseObject(jsonStr, RiskFact.class);
+    	
+    	
+    	RulesExecutorService rulesExecutorService = new RulesExecutorService();
+    	
+    	rulesExecutorService.buidFinalResult(fact);
+    	
+    	System.out.println(JSON.toJSONString(fact));
+    	
     }
 
 }

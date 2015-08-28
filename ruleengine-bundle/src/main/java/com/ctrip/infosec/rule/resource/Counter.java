@@ -47,13 +47,13 @@ import org.slf4j.LoggerFactory;
  * @author zhengby
  */
 public class Counter {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(Counter.class);
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
      */
     static final String urlPrefix = GlobalConfig.getString("Counter.REST.URL.Prefix");
-
+    
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"Counter.REST.URL.Prefix\"配置项.");
     }
@@ -112,7 +112,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-
+                
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -122,7 +122,7 @@ public class Counter {
                 }
                 flowPushRequest.setTraceLoggerHeader(header);
             }
-
+            
             response = flowPolicyRemoteService.push(flowPushRequest);
         } catch (Exception ex) {
             fault();
@@ -166,7 +166,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-
+                
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -176,7 +176,7 @@ public class Counter {
                 }
                 flowPushRequest.setTraceLoggerHeader(header);
             }
-
+            
             response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
         } catch (Exception ex) {
             fault();
@@ -289,7 +289,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-
+                
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -299,7 +299,7 @@ public class Counter {
                 }
                 policyExecuteRequest.setTraceLoggerHeader(header);
             }
-
+            
             response = flowPolicyRemoteService.execute(policyExecuteRequest);
         } catch (Exception ex) {
             fault();
@@ -357,10 +357,18 @@ public class Counter {
      * @return
      */
     public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, ?> kvData) {
-        return queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData, 0);
+        FlowQueryRequest flowQueryRequest = new FlowQueryRequest();
+        flowQueryRequest.setFlowNo(flowNo);
+        flowQueryRequest.setFieldName(fieldName);
+        flowQueryRequest.setAccuracy(accuracy);
+        flowQueryRequest.setTimeWindow(timeWindow);
+        flowQueryRequest.setKvData(kvData);
+        flowQueryRequest.setQueryMode(0);
+        flowQueryRequest.setIncludeCurrentValue(false);
+        return queryFlowData(flowQueryRequest);
     }
-
-    public static FlowQueryResponse queryFlowData(String flowNo, String fieldName, FlowAccuracy accuracy, String timeWindow, Map<String, ?> kvData, int queryMode) {
+    
+    public static FlowQueryResponse queryFlowData(FlowQueryRequest flowQueryRequest) {
         check();
         beforeInvoke();
         FlowQueryResponse response = null;
@@ -379,18 +387,10 @@ public class Counter {
             FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
 //            response = flowPolicyRemoteService.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
 
-            FlowQueryRequest flowQueryRequest = new FlowQueryRequest();
-            flowQueryRequest.setFlowNo(flowNo);
-            flowQueryRequest.setFieldName(fieldName);
-            flowQueryRequest.setAccuracy(accuracy);
-            flowQueryRequest.setTimeWindow(timeWindow);
-            flowQueryRequest.setKvData(kvData);
-            flowQueryRequest.setQueryMode(queryMode);
-
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-
+                
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -400,7 +400,7 @@ public class Counter {
                 }
                 flowQueryRequest.setTraceLoggerHeader(header);
             }
-
+            
             response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
         } catch (Exception ex) {
             fault();
@@ -518,5 +518,5 @@ public class Counter {
         }
         return response;
     }
-
+    
 }

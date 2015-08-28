@@ -20,6 +20,7 @@
     <bean class="com.ctrip.infosec.sars.util.SpringContextHolder"/>
     
     <!-- 初始化Engine -->
+    <bean id="statelessWhitelistRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessWhitelistRuleEngine" init-method="initEngine" />
     <bean id="statelessPreRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPreRuleEngine" init-method="initEngine" />
     <bean id="statelessPostRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPostRuleEngine" init-method="initEngine" depends-on="statelessPreRuleEngine"/>
     <bean id="statelessRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessRuleEngine" init-method="initEngine"  depends-on="statelessPostRuleEngine"/>
@@ -45,12 +46,13 @@
     <!-- 初始化连接R服务器 -->
     <bean class="com.ctrip.infosec.rule.resource.RService" init-method="initRServiceProxy" lazy-init="true"/>
 
-    <!--初始化从DataProxy取出城市和省对应关系的所有记录-->
+    <!-- 初始化从DataProxy取出城市和省对应关系的所有记录 -->
     <bean class="com.ctrip.infosec.rule.resource.CityToProvince" init-method="init" lazy-init="true"/>
 
-    <!--初始化从DataProxy取出火车站和省对应关系的所有记录-->
+    <!-- 初始化从DataProxy取出火车站和省对应关系的所有记录 -->
     <bean class="com.ctrip.infosec.rule.resource.StationToProvince" init-method="init" lazy-init="true" />
 
-    <!--初始化从DataProxy取出外卡的所有记录-->
+    <!-- 初始化从DataProxy取出外卡的所有记录 -->
     <bean class="com.ctrip.infosec.rule.resource.ForeignCardInfo" init-method="init" lazy-init="true" />
+    
 </beans>
