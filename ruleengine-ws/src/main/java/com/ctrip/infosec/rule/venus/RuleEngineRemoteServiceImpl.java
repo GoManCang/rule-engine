@@ -97,7 +97,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                     if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
                             && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
                         fact.finalResult.put(Constants.riskLevel, 0);
-                        fact.finalResult.put(Constants.riskMessage, "命中在白名单[0].");
+                        fact.finalResult.put(Constants.riskMessage, "命中在白名单[0]");
                         return fact;
                     }
                 }
