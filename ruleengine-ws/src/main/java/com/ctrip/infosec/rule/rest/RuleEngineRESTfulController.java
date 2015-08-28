@@ -101,7 +101,7 @@ public class RuleEngineRESTfulController {
                     if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
                             && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
                         fact.finalResult.put(Constants.riskLevel, 0);
-                        fact.finalResult.put(Constants.riskMessage, "命中在白名单[0]");
+                        fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
                         return new ResponseEntity(fact, HttpStatus.OK);
                     }
                 }

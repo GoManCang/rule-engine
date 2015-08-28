@@ -97,7 +97,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                     if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
                             && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
                         fact.finalResult.put(Constants.riskLevel, 0);
-                        fact.finalResult.put(Constants.riskMessage, "命中在白名单[0]");
+                        fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
                         return fact;
                     }
                 }
@@ -170,6 +170,23 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步数据合并]");
                 eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+            }
+            // 执行白名单规则
+            try {
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[黑白名单规则]");
+                whiteListRulesExecutorService.executeWhitelistRules(fact);
+                // 非适配接入点、中白名单"0"的直接返回
+                if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+                    if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
+                            && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
+                        fact.finalResult.put(Constants.riskLevel, 0);
+                        fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
+                        return JSON.toJSONString(fact);
+                    }
+                }
             } finally {
                 TraceLogger.commitTrans();
             }
