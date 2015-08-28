@@ -35,11 +35,8 @@ public class CrmMemberInfoConverter implements Converter {
         String uidFieldName = (String) fieldMapping.get(fields[0].getParamName());
         String uidFieldValue = BeanUtils.getNestedProperty(fact.eventBody, uidFieldName);
 
-        String enforceFieldName = (String) fieldMapping.get(fields[1].getParamName());
-        String enforceFieldValue = BeanUtils.getNestedProperty(fact.eventBody, enforceFieldName);
-
-        String expireFieldName = (String) fieldMapping.get(fields[2].getParamName());
-        String expireFieldValue = BeanUtils.getNestedProperty(fact.eventBody, expireFieldName);
+        String enforceFieldValue = (String) fieldMapping.get(fields[1].getParamName());
+        String expireFieldValue = (String) fieldMapping.get(fields[2].getParamName());
 
         // prefix default value
         if (Strings.isNullOrEmpty(resultWrapper)) {
@@ -50,18 +47,16 @@ public class CrmMemberInfoConverter implements Converter {
             return;
         }
 
-        if(StringUtils.isBlank(enforceFieldValue))
-        {
+        if (StringUtils.isBlank(enforceFieldValue)) {
             enforceFieldValue = "true";
         }
 
-        if(StringUtils.isBlank(expireFieldValue))
-        {
+        if (StringUtils.isBlank(expireFieldValue)) {
             expireFieldValue = "1440";
         }
 
         if (StringUtils.isNotBlank(uidFieldValue)) {
-            Map params = ImmutableMap.of("uid", uidFieldValue,"enforce",enforceFieldValue,"expire",expireFieldValue);
+            Map params = ImmutableMap.of("uid", uidFieldValue, "enforce", enforceFieldValue, "expire", expireFieldValue);
             Map result = DataProxy.queryForMap(serviceName, operationName, params);
             if (result != null && !result.isEmpty()) {
                 fact.eventBody.put(resultWrapper, result);

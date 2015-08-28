@@ -46,7 +46,7 @@ public class WhiteListRulesExecutorService {
         List<WhitelistRule> matchedRules = Configs.matchWhitelistRules(fact);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
         logger.debug(Contexts.getLogPrefix() + "matched whitelist rules: " + StringUtils.join(scriptRulePackageNames, ", "));
-        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条白名单规则 ...");
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条黑白名单规则 ...");
 
         StatelessWhitelistRuleEngine statelessWhitelistRuleEngine = SpringContextHolder.getBean(StatelessWhitelistRuleEngine.class);
         for (WhitelistRule rule : matchedRules) {
