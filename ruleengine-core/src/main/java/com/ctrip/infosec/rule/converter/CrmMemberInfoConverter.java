@@ -38,7 +38,7 @@ public class CrmMemberInfoConverter implements Converter {
         String enforceFieldName = (String) fieldMapping.get(fields[1].getParamName());
         String enforceFieldValue = BeanUtils.getNestedProperty(fact.eventBody, enforceFieldName);
 
-        String expireFieldName = (String) fieldMapping.get(fields[2].getParamName());
+        String expireFieldName = (String) fieldMapping.get(fields[2].getParamType());
         String expireFieldValue = BeanUtils.getNestedProperty(fact.eventBody, expireFieldName);
 
         // prefix default value
