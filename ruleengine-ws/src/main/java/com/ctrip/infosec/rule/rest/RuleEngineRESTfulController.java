@@ -98,7 +98,8 @@ public class RuleEngineRESTfulController {
                 whiteListRulesExecutorService.executeWhitelistRules(fact);
                 // 非适配接入点、中白名单"0"的直接返回
                 if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                    if (fact.whitelistResult != null && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
+                    if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
+                            && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
                         fact.finalResult.put(Constants.riskLevel, 0);
                         fact.finalResult.put(Constants.riskMessage, "命中在白名单[0]");
                         return new ResponseEntity(fact, HttpStatus.OK);
