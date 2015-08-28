@@ -63,7 +63,7 @@ public class RulesExecutorService {
             fact.setExt(new HashMap<String, Object>());
         }
         executeParallel(fact);
-        buidFinalResult(fact);
+        buidFinalResult(fact, false);
 
         if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
             TraceLogger.traceLog("同步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult));
@@ -85,7 +85,7 @@ public class RulesExecutorService {
             fact.setExt(new HashMap<String, Object>());
         }
         executeSerial(fact);
-        buidFinalResult(fact);
+        buidFinalResult(fact, true);
 
         if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
             TraceLogger.traceLog("异步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult));
@@ -95,7 +95,7 @@ public class RulesExecutorService {
         return fact;
     }
 
-    void buidFinalResult(RiskFact fact) {
+    void buidFinalResult(RiskFact fact, boolean isAsync) {
 
         // finalResult
         Map<String, Object> finalResult = Constants.defaultResult;
