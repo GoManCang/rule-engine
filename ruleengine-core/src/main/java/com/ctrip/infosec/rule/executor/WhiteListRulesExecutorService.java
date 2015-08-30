@@ -56,8 +56,15 @@ public class WhiteListRulesExecutorService {
             try {
                 long start = System.currentTimeMillis();
 
+                // add current execute ruleNo and logPrefix before execution
+                fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_isAsync, false);
+
                 statelessWhitelistRuleEngine.execute(rule.getRuleNo(), fact);
+
+                // remove current execute ruleNo when finished execution.
+                fact.ext.remove(Constants.key_ruleNo);
+                fact.ext.remove(Constants.key_isAsync);
 
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {

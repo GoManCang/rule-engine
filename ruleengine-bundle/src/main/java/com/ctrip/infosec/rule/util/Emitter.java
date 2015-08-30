@@ -69,6 +69,7 @@ public class Emitter {
             } else {
                 result.put(Constants.ruleType, "NA");
             }
+            result.put(Constants.async, _isAsync);
             fact.results.put(ruleNo, result);
         }
     }
@@ -85,6 +86,7 @@ public class Emitter {
             } else {
                 result.put(Constants.ruleType, "SA");
             }
+            result.put(Constants.async, _isAsync);
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
@@ -102,7 +104,6 @@ public class Emitter {
 //            fact.results.put(ruleNo, result);
 //        }
 //    }
-
 //    
 //    resultsGroupByScene：
 //    {
@@ -167,6 +168,7 @@ public class Emitter {
             } else {
                 result.put(Constants.ruleType, "SA");
             }
+            result.put(Constants.async, _isAsync);
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
@@ -316,7 +318,7 @@ public class Emitter {
      * 合并黑白名单规则引擎结果
      */
     public static void emitBWListResults(RiskFact fact, List<Map<String, String>> bwlistResults) {
-        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (_isAsync || bwlistResults == null || bwlistResults.isEmpty()) {
             return;
         }
@@ -331,20 +333,20 @@ public class Emitter {
                 if (riskLevel == 0) {
                     fact.whitelistResult.put(Constants.riskLevel, 0);
                     fact.whitelistResult.put(Constants.riskMessage, riskMessage);
-                    emit(fact, ruleNo, riskLevel, riskMessage);
+                    emit(fact, riskLevel, riskMessage);
                     break;
                 }
                 if (riskLevel == 95) {
                     fact.whitelistResult.put(Constants.riskLevel, 95);
                     fact.whitelistResult.put(Constants.riskMessage, riskMessage);
-                    emit(fact, ruleNo, riskLevel, riskMessage);
+                    emit(fact, riskLevel, riskMessage);
                     break;
                 }
                 // 97
                 if (riskLevel < 100 && riskLevel >= 90) {
                     fact.whitelistResult.put(Constants.riskLevel, 97);
                     fact.whitelistResult.put(Constants.riskMessage, riskMessage);
-                    emit(fact, ruleNo, riskLevel, riskMessage);
+                    emit(fact, riskLevel, riskMessage);
                 }
             }
         }
