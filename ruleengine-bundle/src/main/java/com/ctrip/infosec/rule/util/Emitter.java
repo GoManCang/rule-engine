@@ -21,7 +21,6 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
 import com.ctrip.infosec.counter.model.PolicyExecuteResult;
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -60,23 +59,49 @@ public class Emitter {
     }
 
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
+            if (!_isAsync) {
+                result.put(Constants.ruleType, "N");
+            } else {
+                result.put(Constants.ruleType, "NA");
+            }
             fact.results.put(ruleNo, result);
         }
     }
 
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScene) {
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
             result.put(Constants.riskScene, Lists.newArrayList(riskScene));
+            if (!_isAsync) {
+                result.put(Constants.ruleType, "S");
+            } else {
+                result.put(Constants.ruleType, "SA");
+            }
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
+
+    /**
+     * 暂不对外
+     */
+//    private static void emitForBW(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
+//        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
+//        if (!Strings.isNullOrEmpty(ruleNo) && !_isAsync) {
+//            Map<String, Object> result = Maps.newHashMap();
+//            result.put(Constants.riskLevel, riskLevel);
+//            result.put(Constants.riskMessage, riskMessage);
+//            result.put(Constants.ruleType, "B");
+//            fact.results.put(ruleNo, result);
+//        }
+//    }
 
 //    
 //    resultsGroupByScene：
@@ -130,12 +155,18 @@ public class Emitter {
     }
 
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String[] riskScene, Map<String, Map<String, Map<String, String>>> subSceneType) {
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (!Strings.isNullOrEmpty(ruleNo)) {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
             result.put(Constants.riskScene, Lists.newArrayList(riskScene));
             result.put(Constants.subSceneType, subSceneType);
+            if (!_isAsync) {
+                result.put(Constants.ruleType, "S");
+            } else {
+                result.put(Constants.ruleType, "SA");
+            }
             fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
@@ -151,7 +182,7 @@ public class Emitter {
                 emit(fact, resultCode, resultMessage);
             }
         } else {
-            Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+            boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
             for (CounterRuleExecuteResult ruleExecuteResult : counterPolicyExecuteResult.getRuleExecuteResults()) {
                 if (StringUtils.isNotBlank(ruleExecuteResult.getRuleNo())
                         && StringUtils.isNumeric(ruleExecuteResult.getResultCode())) {
@@ -164,15 +195,23 @@ public class Emitter {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put(Constants.riskLevel, riskLevel);
                         result.put(Constants.riskMessage, riskMessage);
-                        if (_isAsync != null) {
-                            result.put(Constants.async, _isAsync);
-                        }
+                        result.put(Constants.async, _isAsync);
 
                         if (StringUtils.isBlank(scenes)) {
+                            if (!_isAsync) {
+                                result.put(Constants.ruleType, "N");
+                            } else {
+                                result.put(Constants.ruleType, "NA");
+                            }
                             fact.results.put(ruleNo, result);
                         } else {
                             List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(scenes);
                             result.put(Constants.riskScene, riskScenes);
+                            if (!_isAsync) {
+                                result.put(Constants.ruleType, "S");
+                            } else {
+                                result.put(Constants.ruleType, "SA");
+                            }
                             fact.resultsGroupByScene.put(ruleNo, result);
                         }
 
@@ -209,7 +248,7 @@ public class Emitter {
     @Deprecated
     public static void mergeCounterResults(RiskFact fact, List<CounterRuleExecuteResult> counterExecuteResults) {
 //        String _ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
-        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (counterExecuteResults != null && !counterExecuteResults.isEmpty()) {
 
             for (CounterRuleExecuteResult ruleExecuteResult : counterExecuteResults) {
@@ -224,15 +263,23 @@ public class Emitter {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put(Constants.riskLevel, riskLevel);
                         result.put(Constants.riskMessage, riskMessage);
-                        if (_isAsync != null) {
-                            result.put(Constants.async, _isAsync);
-                        }
+                        result.put(Constants.async, _isAsync);
 
                         if (StringUtils.isBlank(scenes)) {
+                            if (!_isAsync) {
+                                result.put(Constants.ruleType, "N");
+                            } else {
+                                result.put(Constants.ruleType, "NA");
+                            }
                             fact.results.put(ruleNo, result);
                         } else {
                             List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(scenes);
                             result.put(Constants.riskScene, riskScenes);
+                            if (!_isAsync) {
+                                result.put(Constants.ruleType, "S");
+                            } else {
+                                result.put(Constants.ruleType, "SA");
+                            }
                             fact.resultsGroupByScene.put(ruleNo, result);
                         }
 
@@ -277,7 +324,7 @@ public class Emitter {
         for (Map<String, String> resultMap : bwlistResults) {
             String ruleType = valueAsString(resultMap, "ruleType");
             String ruleNo = valueAsString(resultMap, "ruleName");
-            String riskMessage = "命中白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+            String riskMessage = "白名单: " + valueAsString(resultMap, "ruleRemark"); // "命中白名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
             int riskLevel = valueAsInt(resultMap, "riskLevel");
 
             if (ruleType.equals(BWlist_BW)) {
@@ -327,7 +374,7 @@ public class Emitter {
 
                 String ruleType = valueAsString(resultMap, "ruleType");
                 String ruleNo = valueAsString(resultMap, "ruleName");
-                String riskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                String riskMessage = "黑名单: " + valueAsString(resultMap, "ruleRemark"); // "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                 int riskLevel = valueAsInt(resultMap, "riskLevel");
 
                 if (ruleType.equals(BWList_ACCOUNT)) {
@@ -348,7 +395,7 @@ public class Emitter {
 
                 String ruleType = valueAsString(resultMap, "ruleType");
                 String ruleNo = valueAsString(resultMap, "ruleName");
-//				String riskMessage = valueAsString(resultMap, "ruleRemark");
+                String riskMessage = "黑名单: " + valueAsString(resultMap, "ruleRemark");
                 int riskLevel = valueAsInt(resultMap, "riskLevel");
 
                 if (!isAdapterFact && isScoreFact) {
@@ -356,7 +403,7 @@ public class Emitter {
                     if (riskLevel > finalRiskLevel) {
                         finalRuleNo = ruleNo;
                         finalRiskLevel = riskLevel;
-                        finalRiskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                        finalRiskMessage = riskMessage; // "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                     }
 
                 } else {
@@ -366,7 +413,7 @@ public class Emitter {
                         if (riskLevel > finalRiskLevel) {
                             finalRuleNo = ruleNo;
                             finalRiskLevel = riskLevel;
-                            finalRiskMessage = "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
+                            finalRiskMessage = riskMessage; // "命中黑名单规则: [" + Joiner.on(", ").withKeyValueSeparator(":").useForNull("").join(resultMap) + "]";
                         }
                     }
                 }

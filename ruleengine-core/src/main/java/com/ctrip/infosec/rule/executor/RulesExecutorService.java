@@ -102,18 +102,23 @@ public class RulesExecutorService {
         for (Map<String, Object> rs : fact.results.values()) {
             finalResult = compareAndReturn(finalResult, rs);
         }
-        // 95：会验证其他规则，但是最终风险为95，不会变成其他风险
-        // 97：需要判读最高风险是否超过195（包含），如果超过（包含）则按最高风险处理，其他的话，按97返回低风险
-        int whitelistRiskLevel = valueAsInt(fact.whitelistResult, Constants.riskLevel);
-        if (whitelistRiskLevel == 95) {
-            fact.setFinalResult(Maps.newHashMap(fact.whitelistResult));
-        } else if (whitelistRiskLevel == 97) {
-            int riskLevel = valueAsInt(finalResult, Constants.riskLevel);
-            if (riskLevel < 195) {
+        fact.setFinalResult(Maps.newHashMap(finalResult));
+        // 黑白名单只在同步起作用
+        if (!fact.whitelistResult.isEmpty() && !isAsync) {
+            // 0 : 白名单
+            // 95：会验证其他规则，但是最终风险为95，不会变成其他风险
+            // 97：需要判读最高风险是否超过195（包含），如果超过（包含）则按最高风险处理，其他的话，按97返回低风险
+            int whitelistRiskLevel = valueAsInt(fact.whitelistResult, Constants.riskLevel);
+            if (whitelistRiskLevel == 0) {
+                fact.setFinalResult(Maps.newHashMap(Constants.defaultResult));
+            } else if (whitelistRiskLevel == 95) {
                 fact.setFinalResult(Maps.newHashMap(fact.whitelistResult));
+            } else if (whitelistRiskLevel == 97) {
+                int riskLevel = valueAsInt(finalResult, Constants.riskLevel);
+                if (riskLevel < 195) {
+                    fact.setFinalResult(Maps.newHashMap(fact.whitelistResult));
+                }
             }
-        } else {
-            fact.setFinalResult(Maps.newHashMap(finalResult));
         }
         fact.finalResult.remove(Constants.timeUsage);
 
