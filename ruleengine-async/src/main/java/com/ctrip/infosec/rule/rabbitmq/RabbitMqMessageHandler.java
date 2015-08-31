@@ -161,6 +161,7 @@ public class RabbitMqMessageHandler {
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
                 if (riskReqId != null && riskReqId > 0) {
                     TraceLogger.traceLog("reqId = " + riskReqId);
+                    saveRuleResult(riskReqId, fact.eventPoint, fact.whitelistResults, outerReqId);
                     saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
                     saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
                 }
@@ -227,7 +228,6 @@ public class RabbitMqMessageHandler {
                     if (!withScene) {
 
                         //非场景
-
                         for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -244,7 +244,6 @@ public class RabbitMqMessageHandler {
                     } else {
 
                         //场景
-
                         for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -337,7 +336,7 @@ public class RabbitMqMessageHandler {
     }
 
     private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry,
-                                                                                  Long riskLevel, String eventPoint) {
+            Long riskLevel, String eventPoint) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);

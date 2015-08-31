@@ -94,8 +94,8 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 whiteListRulesExecutorService.executeWhitelistRules(fact);
                 // 非适配接入点、中白名单"0"的直接返回
                 if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                    if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
-                            && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
+                    if (fact.finalWhitelistResult != null && fact.finalWhitelistResult.containsKey(Constants.riskLevel)
+                            && valueAsInt(fact.finalWhitelistResult, Constants.riskLevel) == 0) {
                         fact.finalResult.put(Constants.riskLevel, 0);
                         fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
                         return fact;
@@ -180,8 +180,8 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 whiteListRulesExecutorService.executeWhitelistRules(fact);
                 // 非适配接入点、中白名单"0"的直接返回
                 if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                    if (fact.whitelistResult != null && fact.whitelistResult.containsKey(Constants.riskLevel)
-                            && valueAsInt(fact.whitelistResult, Constants.riskLevel) == 0) {
+                    if (fact.finalWhitelistResult != null && fact.finalWhitelistResult.containsKey(Constants.riskLevel)
+                            && valueAsInt(fact.finalWhitelistResult, Constants.riskLevel) == 0) {
                         fact.finalResult.put(Constants.riskLevel, 0);
                         fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
                         return JSON.toJSONString(fact);

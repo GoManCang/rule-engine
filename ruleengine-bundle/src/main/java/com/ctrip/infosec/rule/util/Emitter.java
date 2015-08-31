@@ -331,27 +331,43 @@ public class Emitter {
 
             if (ruleType.equals(BWlist_BW)) {
                 if (riskLevel == 0) {
-                    fact.whitelistResult.put(Constants.riskLevel, 0);
-                    fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    fact.finalWhitelistResult.put(Constants.riskLevel, 0);
+                    fact.finalWhitelistResult.put(Constants.riskMessage, riskMessage);
                     emit(fact, riskLevel, riskMessage);
                     break;
                 }
                 if (riskLevel == 95) {
-                    fact.whitelistResult.put(Constants.riskLevel, 95);
-                    fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    fact.finalWhitelistResult.put(Constants.riskLevel, 95);
+                    fact.finalWhitelistResult.put(Constants.riskMessage, riskMessage);
                     emit(fact, riskLevel, riskMessage);
                     break;
                 }
                 // 97
                 if (riskLevel < 100 && riskLevel >= 90) {
-                    fact.whitelistResult.put(Constants.riskLevel, 97);
-                    fact.whitelistResult.put(Constants.riskMessage, riskMessage);
+                    fact.finalWhitelistResult.put(Constants.riskLevel, 97);
+                    fact.finalWhitelistResult.put(Constants.riskMessage, riskMessage);
                     emit(fact, riskLevel, riskMessage);
                 }
             }
         }
         // 黑名单结果
         emitBListResults(fact, bwlistResults);
+
+        // 最后只是为了在checkResultLog表里存B的规则，再最后遍历一次
+        for (Map<String, String> resultMap : bwlistResults) {
+            String ruleType = valueAsString(resultMap, "ruleType");
+            String ruleNo = valueAsString(resultMap, "ruleName");
+            String riskMessage = valueAsString(resultMap, "ruleRemark");
+            int riskLevel = valueAsInt(resultMap, "riskLevel");
+
+            if (ruleType.equals(BWlist_BW) && riskLevel > 0) {
+                Map<String, Object> result = Maps.newHashMap();
+                result.put(Constants.riskLevel, riskLevel);
+                result.put(Constants.riskMessage, riskMessage);
+                result.put(Constants.ruleType, "B");
+                fact.whitelistResults.put(ruleNo, result);
+            }
+        }
     }
 
     /**
