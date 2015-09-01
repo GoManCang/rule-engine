@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.*;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
 
 /**
  * @author zhengby
@@ -364,7 +364,11 @@ public class RabbitMqMessageHandler {
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.String);
-        props.setValue(entry.getKey());
+        if ("B".equals(valueAsString(entry.getValue(), Constants.ruleType))) {
+            props.setValue(valueAsString(entry.getValue(), Constants.ruleName));
+        } else {
+            props.setValue(entry.getKey());
+        }
         map.put("RuleName", props);
 
         props = new PersistColumnProperties();
@@ -422,7 +426,11 @@ public class RabbitMqMessageHandler {
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.String);
-        props.setValue(entry.getKey());
+        if ("B".equals(valueAsString(entry.getValue(), Constants.ruleType))) {
+            props.setValue(valueAsString(entry.getValue(), Constants.ruleName));
+        } else {
+            props.setValue(entry.getKey());
+        }
         map.put("RuleName", props);
 
         props = new PersistColumnProperties();
