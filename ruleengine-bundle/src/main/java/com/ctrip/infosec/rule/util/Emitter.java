@@ -358,6 +358,7 @@ public class Emitter {
             String ruleType = valueAsString(resultMap, "ruleType");
             String ruleNo = valueAsString(resultMap, "ruleName");
             String riskMessage = valueAsString(resultMap, "ruleRemark");
+            int ruleId = valueAsInt(resultMap, "ruleID");
             int riskLevel = valueAsInt(resultMap, "riskLevel");
 
             if (ruleType.equals(BWlist_BW) && riskLevel > 0) {
@@ -365,6 +366,7 @@ public class Emitter {
                 result.put(Constants.riskLevel, riskLevel);
                 result.put(Constants.riskMessage, riskMessage);
                 result.put(Constants.ruleType, "B");
+                result.put(Constants.ruleId, ruleId);
                 fact.whitelistResults.put(ruleNo, result);
             }
         }

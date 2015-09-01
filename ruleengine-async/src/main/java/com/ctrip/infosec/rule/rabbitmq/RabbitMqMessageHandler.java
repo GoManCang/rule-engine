@@ -358,7 +358,7 @@ public class RabbitMqMessageHandler {
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.Int);
-        props.setValue(0);
+        props.setValue(MapUtils.getInteger(entry.getValue(), Constants.ruleId, 0));
         map.put("RuleID", props);
 
         props = new PersistColumnProperties();
@@ -416,7 +416,7 @@ public class RabbitMqMessageHandler {
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.Int);
-        props.setValue(0);
+        props.setValue(MapUtils.getInteger(entry.getValue(), Constants.ruleId, 0));
         map.put("RuleID", props);
 
         props = new PersistColumnProperties();
