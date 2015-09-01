@@ -383,7 +383,7 @@ public class Emitter {
 
         //result: [{"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE","riskLevel":295,"ruleRemark":""},
         //         {"ruleType":"ACCOUNT","ruleID":0,"ruleName":"CREDIT-EXCHANGE1","riskLevel":80,"ruleRemark":""}]
-        Boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync);
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
         if (_isAsync) {
             return;
         }
