@@ -391,7 +391,7 @@ public class Emitter {
 
         String orderType = EventBodyUtils.valueAsString(fact.getEventBody(), "orderType");
         boolean isAdapterFact = Constants.eventPointsWithScene.contains(fact.eventPoint);
-        boolean isScoreFact = orderType.equals("12");
+        boolean isScoreFact = orderType.equals("12"); //邮轮
 
         if (isAdapterFact) {
             //适配点
@@ -423,7 +423,7 @@ public class Emitter {
                 String riskMessage = "黑名单: " + valueAsString(resultMap, "ruleRemark");
                 int riskLevel = valueAsInt(resultMap, "riskLevel");
 
-                if (!isAdapterFact && isScoreFact) {
+                if (isScoreFact) {
                     //积分点,不区分ruleType
                     if (riskLevel > finalRiskLevel) {
                         finalRuleNo = ruleNo;
@@ -444,7 +444,13 @@ public class Emitter {
                 }
             }
 
-            emit(fact, finalRiskLevel, finalRiskMessage);
+            // 97：需要判读最高风险是否超过195（包含），如果超过（包含）则按最高风险处理，其他的话，按97返回低风险
+            int whitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
+            if (whitelistRiskLevel == 97 && finalRiskLevel < 195) {
+                emit(fact, 97, finalRiskMessage);
+            } else {
+                emit(fact, finalRiskLevel, finalRiskMessage);
+            }
         }
     }
 
