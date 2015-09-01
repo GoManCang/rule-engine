@@ -360,9 +360,9 @@ public class Emitter {
         // 最后只是为了在checkResultLog表里存B的规则，再最后遍历一次
         for (Map<String, String> resultMap : bwlistResults) {
             String ruleType = valueAsString(resultMap, "ruleType");
-            String ruleNo = valueAsString(resultMap, "ruleName");
+//            String ruleNo = valueAsString(resultMap, "ruleName");
             String riskMessage = valueAsString(resultMap, "ruleRemark");
-            int ruleId = valueAsInt(resultMap, "ruleID");
+            String ruleId = valueAsString(resultMap, "ruleID");
             int riskLevel = valueAsInt(resultMap, "riskLevel");
 
             if (ruleType.equals(BWlist_BW) && riskLevel > 0) {
@@ -371,7 +371,7 @@ public class Emitter {
                 result.put(Constants.riskMessage, riskMessage);
                 result.put(Constants.ruleType, "B");
                 result.put(Constants.ruleId, ruleId);
-                fact.whitelistResults.put(ruleNo, result);
+                fact.whitelistResults.put(ruleId, result);
             }
         }
     }
