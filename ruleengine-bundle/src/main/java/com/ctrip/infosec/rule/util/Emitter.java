@@ -350,8 +350,12 @@ public class Emitter {
                 }
             }
         }
+
         // 黑名单结果
-        emitBListResults(fact, bwlistResults);
+        if (fact.finalWhitelistResult.isEmpty()
+                || (fact.finalWhitelistResult.containsKey(Constants.riskLevel) && valueAsInt(fact.finalWhitelistResult, Constants.riskLevel) == 97)) {
+            emitBListResults(fact, bwlistResults);
+        }
 
         // 最后只是为了在checkResultLog表里存B的规则，再最后遍历一次
         for (Map<String, String> resultMap : bwlistResults) {
