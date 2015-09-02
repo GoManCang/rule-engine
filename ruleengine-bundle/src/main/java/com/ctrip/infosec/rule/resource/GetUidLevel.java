@@ -81,7 +81,8 @@ public class GetUidLevel
                 threeMonthCount = Integer.parseInt(threeMonthCountResponse.get("OrderCount").toString());
             }else
             {
-                return result;
+//                return result;
+            	return "NEW";
             }
 
             int allCount = 0;
@@ -99,7 +100,8 @@ public class GetUidLevel
                 allCount = Integer.parseInt(allCountResponse.get("DealCount").toString());
             }else
             {
-                return result;
+//                return result;
+            	return "NEW";
             }
 
             int resultCount = allCount - threeMonthCount;
@@ -123,6 +125,7 @@ public class GetUidLevel
         } finally {
             afterInvoke("GetUidLevel.query");
         }
+        
         return result;
     }
 }
