@@ -18,13 +18,8 @@ import com.meidusa.venus.annotations.Service;
 @Service(name = "RuleEngineRemoteService")
 public interface RuleEngineRemoteService {
 
-    /**
-     * 执行规则验证
-     *
-     * @param fact
-     * @return
-     */
     @Endpoint
+    @Deprecated
     public RiskFact verify(@Param(name = "fact") RiskFact fact);
 
     @Endpoint

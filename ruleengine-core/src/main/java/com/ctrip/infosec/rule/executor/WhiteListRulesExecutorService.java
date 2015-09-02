@@ -56,14 +56,27 @@ public class WhiteListRulesExecutorService {
             try {
                 long start = System.currentTimeMillis();
 
+                // add current execute ruleNo and logPrefix before execution
+                fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_isAsync, false);
+
                 statelessWhitelistRuleEngine.execute(rule.getRuleNo(), fact);
+
+                // remove current execute ruleNo when finished execution.
+                fact.ext.remove(Constants.key_ruleNo);
+                fact.ext.remove(Constants.key_isAsync);
 
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {
                     logger.info(Contexts.getLogPrefix() + "whitelistRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
-                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
+
+                if (fact.finalWhitelistResult.isEmpty()) {
+                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + rule.getRuleNo() + "] 没有命中白名单. usage: " + handlingTime + "ms");
+                } else {
+                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + rule.getRuleNo() + "] 命中白名单: riskLevel = " + fact.finalWhitelistResult.get(Constants.riskLevel)
+                            + ", riskMessage = " + fact.finalWhitelistResult.get(Constants.riskMessage) + ", usage = " + fact.finalWhitelistResult.get(Constants.timeUsage) + "ms");
+                }
 
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "invoke stateless whitelist rule failed. whitelistRule: " + rule.getRuleNo(), ex);

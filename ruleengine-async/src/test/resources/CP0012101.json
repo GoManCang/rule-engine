@@ -1,0 +1,67 @@
+{
+  "eventPoint": "CP0012101",
+  "eventId": "201508310001",
+  "appId": "670203",
+  "eventBody": {
+    "businessItem": "",
+    "canAccountPay": "bbb",
+    "checkType": 1,
+    "companyType": "T",
+    "contactEMail": "lxyy1118@163.com",
+    "contactName": "ContactName",
+    "contactTel": "8117755",
+    "corp_PayType": "abc",
+    "corporationID": "12558",
+    "isOnline": "T",
+    "latitude": 0,
+    "longitude": 0,
+    "merchantID": "1558",
+    "merchantOrderID": "988452",
+    "mobilePhone": "15161121665",
+    "orderAmount": 1225,
+    "orderDate": "2014-08-11 11:22:05.094",
+    "orderID": 0,
+    "orderPrepayType": "",
+    "orderType": 18,
+    "paymentInfos": [],
+    "referenceNo": "12255",
+    "sendTickerAddr": "SendTickerAddr",
+    "serverfrom": "Serverfrom",
+    "subOrderType": 0,
+    "tieYouOrderInfos": [
+      {
+        "acity": "60",
+        "dcity": "40",
+        "departureDate": "2014-08-11 11:22:05.096",
+        "fromStationName": "FromStationName",
+        "insuranceType": "33",
+        "passengerIDCode": "66",
+        "passengerIDType": "22",
+        "passengerName": "PassengerName1",
+        "seatClass": "40",
+        "trainNo": "11"
+      },
+      {
+        "acity": "10",
+        "dcity": "20",
+        "departureDate": "2014-08-11 11:22:05.096",
+        "fromStationName": "FromStationName2",
+        "insuranceType": "44",
+        "passengerIDCode": "33",
+        "passengerIDType": "66",
+        "passengerName": "88",
+        "seatClass": "77",
+        "trainNo": "22"
+      }
+    ],
+    "uid": "test111111",
+    "userIP": "192.168.1.1"
+  },
+  "ext": {
+    "CHANNEL": "REST",
+    "descTimestamp": 2629895164208,
+    "reqId": "10845397"
+  },
+  "requestTime": "2015-08-28 18:08:42.200",
+  "requestReceive": "2015-08-31 09:33:55.792"
+}

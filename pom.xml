@@ -74,7 +74,7 @@
         <httpclient.version>4.3.2</httpclient.version>
         <sars.util.version>1.0.2-SNAPSHOT</sars.util.version>
         <infosec.monitor.version>1.0.4-SNAPSHOT</infosec.monitor.version>
-        <configs.client.version>1.0.4-SNAPSHOT</configs.client.version>
+        <configs.client.version>1.0.5-SNAPSHOT</configs.client.version>
         <counter.server.version>1.0.4-SNAPSHOT</counter.server.version>
         <offline4j.version>1.0.0-SNAPSHOT</offline4j.version>
         <clog.version>3.3.2</clog.version>

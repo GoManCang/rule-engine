@@ -207,20 +207,19 @@ public class RulesExecutorServiceTest {
         fact = rulesExecutorService.executeAsyncRules(fact);
         System.out.println("results: " + JSON.toPrettyJSONString(fact.results));
     }
-    
+
     @Test
-    public void testBuildResult() throws IOException{
-    	
-    	String jsonStr = IOUtils.toString(new DefaultResourceLoader().getResource("classpath:finalResult.json").getInputStream());
-    	RiskFact fact = JSON.parseObject(jsonStr, RiskFact.class);
-    	
-    	
-    	RulesExecutorService rulesExecutorService = new RulesExecutorService();
-    	
-    	rulesExecutorService.buidFinalResult(fact);
-    	
-    	System.out.println(JSON.toJSONString(fact));
-    	
+    public void testBuildResult() throws IOException {
+
+        String jsonStr = IOUtils.toString(new DefaultResourceLoader().getResource("classpath:finalResult.json").getInputStream());
+        RiskFact fact = JSON.parseObject(jsonStr, RiskFact.class);
+
+        RulesExecutorService rulesExecutorService = new RulesExecutorService();
+
+        rulesExecutorService.buidFinalResult(fact, false);
+
+        System.out.println(JSON.toJSONString(fact));
+
     }
 
 }

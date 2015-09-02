@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.*;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
 
 /**
  * @author zhengby
@@ -159,13 +160,10 @@ public class RabbitMqMessageHandler {
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
                 if (riskReqId != null && riskReqId > 0) {
-                    if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                        TraceLogger.traceLog("reqId = " + riskReqId);
-                        saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
-                    } else {
-                        TraceLogger.traceLog("reqId = " + riskReqId + " [适配]");
-                        saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
-                    }
+                    TraceLogger.traceLog("reqId = " + riskReqId);
+                    saveRuleResult(riskReqId, fact.eventPoint, fact.whitelistResults, outerReqId);
+                    saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
+                    saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
                 }
             } catch (Exception ex) {
                 fault("CardRiskDB.CheckResultLog.saveRuleResult");
@@ -230,7 +228,6 @@ public class RabbitMqMessageHandler {
                     if (!withScene) {
 
                         //非场景
-
                         for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -247,7 +244,6 @@ public class RabbitMqMessageHandler {
                     } else {
 
                         //场景
-
                         for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
 
                             String ruleNo = entry.getKey();
@@ -315,15 +311,13 @@ public class RabbitMqMessageHandler {
             for (Entry<String, Map<String, Object>> entry : results.entrySet()) {
                 try {
                     Long riskLevel = MapUtils.getLong(entry.getValue(), Constants.riskLevel);
-                    boolean isAsync = MapUtils.getBoolean(entry.getValue(), Constants.async, true);
                     if (riskLevel > 0) {
-                        boolean withScene = Constants.eventPointsWithScene.contains(eventPoint);
-                        String ruleType = withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
+                        String ruleType = (String) entry.getValue().get(Constants.ruleType);//withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
                         TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
                         insert.setTable("RiskControl_CheckResultLog");
                         insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
                         execute(insert);
-                        if (!withScene & !isAsync && !outerReqId) {
+                        if ("B".equals(ruleType) || "N".equals(ruleType)) {
                             insert.setTable("InfoSecurity_CheckResultLog");
                             insert.setColumnPropertiesMap(prepareInfoSecurityCheckResultLog(riskReqId, ruleType, entry, riskLevel));
                             execute(insert);
@@ -342,7 +336,7 @@ public class RabbitMqMessageHandler {
     }
 
     private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry,
-                                                                                  Long riskLevel, String eventPoint) {
+            Long riskLevel, String eventPoint) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
@@ -364,13 +358,17 @@ public class RabbitMqMessageHandler {
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.Int);
-        props.setValue(0);
+        props.setValue(MapUtils.getInteger(entry.getValue(), Constants.ruleId, 0));
         map.put("RuleID", props);
 
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.String);
-        props.setValue(entry.getKey());
+        if ("B".equals(valueAsString(entry.getValue(), Constants.ruleType))) {
+            props.setValue(valueAsString(entry.getValue(), Constants.ruleName));
+        } else {
+            props.setValue(entry.getKey());
+        }
         map.put("RuleName", props);
 
         props = new PersistColumnProperties();
@@ -422,13 +420,17 @@ public class RabbitMqMessageHandler {
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.Int);
-        props.setValue(0);
+        props.setValue(MapUtils.getInteger(entry.getValue(), Constants.ruleId, 0));
         map.put("RuleID", props);
 
         props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
         props.setColumnType(DataUnitColumnType.String);
-        props.setValue(entry.getKey());
+        if ("B".equals(valueAsString(entry.getValue(), Constants.ruleType))) {
+            props.setValue(valueAsString(entry.getValue(), Constants.ruleName));
+        } else {
+            props.setValue(entry.getKey());
+        }
         map.put("RuleName", props);
 
         props = new PersistColumnProperties();
