@@ -64,13 +64,14 @@ public class Emitter {
             Map<String, Object> result = Maps.newHashMap();
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
+            result.put(Constants.async, _isAsync);
             if (!_isAsync) {
                 result.put(Constants.ruleType, "N");
+                fact.results.put(ruleNo, result);
             } else {
                 result.put(Constants.ruleType, "NA");
+                fact.results4Async.put(ruleNo, result);
             }
-            result.put(Constants.async, _isAsync);
-            fact.results.put(ruleNo, result);
         }
     }
 
@@ -81,29 +82,19 @@ public class Emitter {
             result.put(Constants.riskLevel, riskLevel);
             result.put(Constants.riskMessage, riskMessage);
             result.put(Constants.riskScene, Lists.newArrayList(riskScene));
+            result.put(Constants.async, _isAsync);
             if (!_isAsync) {
                 result.put(Constants.ruleType, "S");
+                fact.resultsGroupByScene.put(ruleNo, result);
             } else {
                 result.put(Constants.ruleType, "SA");
+                fact.resultsGroupByScene4Async.put(ruleNo, result);
             }
-            result.put(Constants.async, _isAsync);
-            fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
 
-    /**
-     * 暂不对外
-     */
-//    private static void emitForBW(RiskFact fact, String ruleNo, int riskLevel, String riskMessage) {
-//        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
-//        if (!Strings.isNullOrEmpty(ruleNo) && !_isAsync) {
-//            Map<String, Object> result = Maps.newHashMap();
-//            result.put(Constants.riskLevel, riskLevel);
-//            result.put(Constants.riskMessage, riskMessage);
-//            result.put(Constants.ruleType, "B");
-//            fact.results.put(ruleNo, result);
-//        }
-//    }
+//
+//    适配支持subSceneType:
 //    
 //    resultsGroupByScene：
 //    {
@@ -163,13 +154,14 @@ public class Emitter {
             result.put(Constants.riskMessage, riskMessage);
             result.put(Constants.riskScene, Lists.newArrayList(riskScene));
             result.put(Constants.subSceneType, subSceneType);
+            result.put(Constants.async, _isAsync);
             if (!_isAsync) {
                 result.put(Constants.ruleType, "S");
+                fact.resultsGroupByScene.put(ruleNo, result);
             } else {
                 result.put(Constants.ruleType, "SA");
+                fact.resultsGroupByScene4Async.put(ruleNo, result);
             }
-            result.put(Constants.async, _isAsync);
-            fact.resultsGroupByScene.put(ruleNo, result);
         }
     }
 
@@ -202,19 +194,21 @@ public class Emitter {
                         if (StringUtils.isBlank(scenes)) {
                             if (!_isAsync) {
                                 result.put(Constants.ruleType, "N");
+                                fact.results.put(ruleNo, result);
                             } else {
                                 result.put(Constants.ruleType, "NA");
+                                fact.results4Async.put(ruleNo, result);
                             }
-                            fact.results.put(ruleNo, result);
                         } else {
                             List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(scenes);
                             result.put(Constants.riskScene, riskScenes);
                             if (!_isAsync) {
                                 result.put(Constants.ruleType, "S");
+                                fact.resultsGroupByScene.put(ruleNo, result);
                             } else {
                                 result.put(Constants.ruleType, "SA");
+                                fact.resultsGroupByScene4Async.put(ruleNo, result);
                             }
-                            fact.resultsGroupByScene.put(ruleNo, result);
                         }
 
                         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
@@ -270,19 +264,21 @@ public class Emitter {
                         if (StringUtils.isBlank(scenes)) {
                             if (!_isAsync) {
                                 result.put(Constants.ruleType, "N");
+                                fact.results.put(ruleNo, result);
                             } else {
                                 result.put(Constants.ruleType, "NA");
+                                fact.results4Async.put(ruleNo, result);
                             }
-                            fact.results.put(ruleNo, result);
                         } else {
                             List<String> riskScenes = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(scenes);
                             result.put(Constants.riskScene, riskScenes);
                             if (!_isAsync) {
                                 result.put(Constants.ruleType, "S");
+                                fact.resultsGroupByScene.put(ruleNo, result);
                             } else {
                                 result.put(Constants.ruleType, "SA");
+                                fact.resultsGroupByScene4Async.put(ruleNo, result);
                             }
-                            fact.resultsGroupByScene.put(ruleNo, result);
                         }
 
                         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);

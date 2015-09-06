@@ -163,7 +163,9 @@ public class RabbitMqMessageHandler {
                     TraceLogger.traceLog("reqId = " + riskReqId);
                     saveRuleResult(riskReqId, fact.eventPoint, fact.whitelistResults, outerReqId);
                     saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
+                    saveRuleResult(riskReqId, fact.eventPoint, fact.results4Async, outerReqId);
                     saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
+                    saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene4Async, outerReqId);
                 }
             } catch (Exception ex) {
                 fault("CardRiskDB.CheckResultLog.saveRuleResult");
@@ -226,36 +228,46 @@ public class RabbitMqMessageHandler {
                     //遍历fact的所有results，如果有风险值大于0的，则进行计数操作
                     boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
                     if (!withScene) {
-
                         //非场景
                         for (Entry<String, Map<String, Object>> entry : fact.results.entrySet()) {
-
                             String ruleNo = entry.getKey();
                             int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
-
                             if (rLevel > 0) {
-//                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                                 //获取去重字段值
                                 String distinct = getDistinctValue(fact, ruleNo);
                                 RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo, distinct);
                             }
-
+                        }
+                        for (Entry<String, Map<String, Object>> entry : fact.results4Async.entrySet()) {
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            if (rLevel > 0) {
+                                //获取去重字段值
+                                String distinct = getDistinctValue(fact, ruleNo);
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo, distinct);
+                            }
                         }
                     } else {
-
                         //场景
                         for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene.entrySet()) {
-
                             String ruleNo = entry.getKey();
                             int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
-
                             if (rLevel > 0) {
 //                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
                                 //获取去重字段值
                                 String distinct = getDistinctValue(fact, ruleNo);
                                 RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo, distinct);
                             }
-
+                        }
+                        for (Entry<String, Map<String, Object>> entry : fact.resultsGroupByScene4Async.entrySet()) {
+                            String ruleNo = entry.getKey();
+                            int rLevel = NumberUtils.toInt(MapUtils.getString(entry.getValue(), Constants.riskLevel));
+                            if (rLevel > 0) {
+//                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo);
+                                //获取去重字段值
+                                String distinct = getDistinctValue(fact, ruleNo);
+                                RuleMonitorRepository.increaseCounter(fact.getEventPoint(), ruleNo, distinct);
+                            }
                         }
                     }
 
