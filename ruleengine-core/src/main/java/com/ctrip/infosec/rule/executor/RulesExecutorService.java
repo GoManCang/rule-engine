@@ -87,9 +87,9 @@ public class RulesExecutorService {
         buidFinalResult(fact, true);
 
         if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-            TraceLogger.traceLog("异步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult));
+            TraceLogger.traceLog("异步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult4Async));
         } else {
-            TraceLogger.traceLog("异步规则执行完成[适配]. finalResultGroupByScene: " + JSON.toJSONString(fact.finalResultGroupByScene));
+            TraceLogger.traceLog("异步规则执行完成[适配]. finalResultGroupByScene: " + JSON.toJSONString(fact.finalResultGroupByScene4Async));
         }
         return fact;
     }
