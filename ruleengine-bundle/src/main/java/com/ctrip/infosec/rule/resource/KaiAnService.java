@@ -3,18 +3,13 @@ package com.ctrip.infosec.rule.resource;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
-import org.apache.commons.lang.Validate;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.HttpHost;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +19,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 
 /**
  * Created by lpxie on 2015/8/19.
+ * 凯安服务器是电信的
  * 根据凯安的服务判断ip，mobile的风险分数
  * http://api.bigsec.com/checkvip/
  *  0 ~ 20分 无风险
@@ -31,10 +27,11 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
     50 ~ 80 分 中风险
     80 ~ 100 分 高风险
  */
-public class IpMobileService {
-    private static int timeout = 100;//100ms
+public class KaiAnService {
+    private static int timeout = 300;//300ms
     private static URIBuilder urlBuilder = new URIBuilder();
-    private static Logger logger = LoggerFactory.getLogger(IpMobileService.class);
+    private static Logger logger = LoggerFactory.getLogger(KaiAnService.class);
+    private static HttpHost httpHost = new HttpHost("proxy2.sh2.ctripcorp.com",8080,"http");//金桥机房生产环境使用代理
 
     static{
         urlBuilder.setScheme("http");
@@ -61,7 +58,7 @@ public class IpMobileService {
             urlBuilder.setParameter("mobile",mobile);
             urlBuilder.setParameter("ip",ip);
             URI uri = urlBuilder.build();
-            responseTxt = Request.Get(uri).connectTimeout(200).socketTimeout(timeout).execute().
+            responseTxt = Request.Get(uri).viaProxy(httpHost).connectTimeout(200).socketTimeout(timeout).execute().
                     returnContent().asString();
             Map newResult = Utils.JSON.parseObject(responseTxt, Map.class);
             if(newResult != null && newResult.size()>0)
@@ -80,10 +77,10 @@ public class IpMobileService {
             }
         }catch (Exception ex) {
             fault();
-            logger.warn(Contexts.getLogPrefix() + "invoke IpMobileService.query fault.", ex);
-            TraceLogger.traceLog("执行IpMobileService异常: " + ex.toString());
+            logger.warn(Contexts.getLogPrefix() + "invoke KaiAnService.query fault.", ex);
+            TraceLogger.traceLog("执行KaiAnService异常: " + ex.toString());
         } finally {
-            afterInvoke("IpMobileService.query");
+            afterInvoke("KaiAnService.query");
         }
         return result;
     }

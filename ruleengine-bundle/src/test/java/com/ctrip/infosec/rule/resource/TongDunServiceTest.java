@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.resource;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -7,6 +8,7 @@ import org.junit.Test;
  */
 public class TongDunServiceTest {
     @Test
+    @Ignore
     public void test()
     {
         String ip = "8.8.8.8";

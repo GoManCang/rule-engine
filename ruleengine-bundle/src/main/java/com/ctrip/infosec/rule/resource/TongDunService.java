@@ -5,13 +5,11 @@ import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.redis.CacheProviderFactory;
 import credis.java.client.CacheProvider;
+import org.apache.http.HttpHost;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
@@ -20,6 +18,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 
 /**
  * Created by lpxie on 15-9-6.
+ * 同盾服务器是双线的
  */
 public class TongDunService {
     private static Logger logger = LoggerFactory.getLogger(TongDunService.class);
@@ -27,6 +26,7 @@ public class TongDunService {
     private static final String cacheKeyPrefix = "ResourceCache__TongDun__";
     private static final String clusterName = "CounterServer_03";
     private static URIBuilder urlBuilder = new URIBuilder();
+    private static HttpHost httpHost = new HttpHost("proxy2.sh2.ctripcorp.com",8080,"http");//金桥机房生产环境使用代理
 
     static{
         urlBuilder.setScheme("https");
@@ -65,7 +65,8 @@ public class TongDunService {
             //ip mobile
             urlBuilder.setParameter("ip_address",ip);
             urlBuilder.setParameter("account_mobile",mobile);
-            String response = Request.Get(urlBuilder.build()).connectTimeout(200).socketTimeout(500).execute().returnContent().asString();//连接200 执行300
+
+            String response = Request.Get(urlBuilder.build()).viaProxy(httpHost).connectTimeout(200).socketTimeout(500).execute().returnContent().asString();//连接200 执行300
             Map result = Utils.JSON.parseObject(response, Map.class);
 
             if(result != null && result.get("success").toString().toLowerCase().equals("true"))
