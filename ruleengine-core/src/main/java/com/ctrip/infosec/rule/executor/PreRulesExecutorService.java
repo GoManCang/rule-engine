@@ -129,6 +129,7 @@ public class PreRulesExecutorService {
             if (rule.getRuleType() == RuleType.Visual) {
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+                Contexts.setPolicyOrRuleNo(rule.getRuleNo());
                 long start = System.currentTimeMillis();
                 // 执行可视化预处理
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
@@ -154,6 +155,7 @@ public class PreRulesExecutorService {
             if (rule.getRuleType() == RuleType.Script) {
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+                Contexts.setPolicyOrRuleNo(rule.getRuleNo());
                 try {
                     long start = System.currentTimeMillis();
 

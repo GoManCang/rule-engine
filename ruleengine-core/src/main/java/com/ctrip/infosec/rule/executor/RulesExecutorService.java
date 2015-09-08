@@ -222,6 +222,7 @@ public class RulesExecutorService {
             String packageName = rule.getRuleNo();
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + packageName + "]");
+            Contexts.setPolicyOrRuleNo(packageName);
             try {
                 clock.reset();
                 clock.start();
@@ -341,6 +342,7 @@ public class RulesExecutorService {
                         TraceLogger.beginTrans(factCopy.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
+                        Contexts.setPolicyOrRuleNo(packageName);
                         try {
                             long start = System.currentTimeMillis();
                             // remove current execute ruleNo when finished execution.

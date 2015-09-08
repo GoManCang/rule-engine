@@ -51,6 +51,7 @@ public class PostRulesExecutorService {
         for (PostRule rule : matchedRules) {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+            Contexts.setPolicyOrRuleNo(rule.getRuleNo());
             try {
                 long start = System.currentTimeMillis();
 
