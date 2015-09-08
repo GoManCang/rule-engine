@@ -300,6 +300,7 @@ public class RulesExecutorService {
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
+                Contexts.clearLogPrefix();
             }
         }
     }
@@ -401,6 +402,7 @@ public class RulesExecutorService {
                             logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
                         } finally {
                             TraceLogger.commitTrans();
+                            Contexts.clearLogPrefix();
                         }
                         return null;
                     }

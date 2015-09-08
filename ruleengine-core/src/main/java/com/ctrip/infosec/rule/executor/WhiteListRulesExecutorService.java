@@ -84,6 +84,7 @@ public class WhiteListRulesExecutorService {
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
+                Contexts.clearLogPrefix();
             }
         }
 

@@ -148,6 +148,7 @@ public class PreRulesExecutorService {
                 }
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
                 TraceLogger.commitNestedTrans();
+                Contexts.clearLogPrefix();
             }
         }
         for (PreRule rule : matchedRules) {
@@ -171,6 +172,7 @@ public class PreRulesExecutorService {
                     TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                 } finally {
                     TraceLogger.commitNestedTrans();
+                    Contexts.clearLogPrefix();
                 }
             }
         }
@@ -216,6 +218,7 @@ public class PreRulesExecutorService {
                             logger.warn(_logPrefix + "invoke stateless pre rule failed. preRule: " + packageName, ex);
                         } finally {
                             TraceLogger.commitTrans();
+                            Contexts.clearLogPrefix();
                         }
                         return null;
                     }
@@ -254,6 +257,7 @@ public class PreRulesExecutorService {
                             TraceLogger.traceLog("EXCEPTION: " + ex.toString());
                         } finally {
                             TraceLogger.commitTrans();
+                            Contexts.clearLogPrefix();
                         }
                         return null;
                     }
