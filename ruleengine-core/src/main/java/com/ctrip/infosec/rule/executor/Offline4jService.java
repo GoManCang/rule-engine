@@ -39,6 +39,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  */
 @Service
 public class Offline4jService {
+
     public static final String PUSH_EBANK_KEY = "offline4j-push-ebank";
     public static final String REMOTE_PERSIST_KEY = "offline4j-persist-remote";
     public static final String PUSH_OFFLINE_WORK_ORDER_KEY = "offline4j-push-works-order";
@@ -64,7 +65,7 @@ public class Offline4jService {
         beforeInvoke(operation);
         InternalRiskFact internalRiskFact = null;
         try {
-            TraceLogger.beginTrans(fact.eventId, "S3");
+            TraceLogger.beginTrans(fact.eventId);
             TraceLogger.setLogPrefix("[业务数据落地]");
             // 执行落地前规则
             persistPreRuleExecutorService.executePreRules(fact, false);

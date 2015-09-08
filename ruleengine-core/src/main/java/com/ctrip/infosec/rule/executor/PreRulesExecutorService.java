@@ -201,6 +201,7 @@ public class PreRulesExecutorService {
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
+                        Contexts.setPolicyOrRuleNo(packageName);
                         long start = System.currentTimeMillis();
                         try {
                             // 执行预处理脚本
@@ -234,6 +235,7 @@ public class PreRulesExecutorService {
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
+                        Contexts.setPolicyOrRuleNo(packageName);
                         // 执行可视化预处理
                         long start = System.currentTimeMillis();
                         try {
