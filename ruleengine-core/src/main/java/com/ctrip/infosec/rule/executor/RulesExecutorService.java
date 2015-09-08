@@ -296,7 +296,7 @@ public class RulesExecutorService {
                 }
 
             } catch (Throwable ex) {
-                logger.warn(Contexts.getLogPrefix() + "invoke stateless rule failed. packageName: " + packageName, ex);
+                logger.warn(Contexts.getLogPrefix() + "执行规则异常. packageName: " + packageName, ex);
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
@@ -399,7 +399,7 @@ public class RulesExecutorService {
                             }
                             return new RuleExecuteResultWithEvent(packageName, factCopy.results, factCopy.resultsGroupByScene, factCopy.eventBody, factCopy.ext);
                         } catch (Exception e) {
-                            logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, e);
+                            logger.warn(_logPrefix + "执行规则异常. packageName: " + packageName, e);
                         } finally {
                             TraceLogger.commitTrans();
                             Contexts.clearLogPrefix();
@@ -410,7 +410,7 @@ public class RulesExecutorService {
                 });
 
             } catch (Throwable ex) {
-                logger.warn(_logPrefix + "invoke stateless rule failed. packageName: " + packageName, ex);
+                logger.warn(_logPrefix + "执行规则异常. packageName: " + packageName, ex);
             }
 
         }
