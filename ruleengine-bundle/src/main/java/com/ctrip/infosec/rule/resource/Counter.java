@@ -47,13 +47,13 @@ import org.slf4j.LoggerFactory;
  * @author zhengby
  */
 public class Counter {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(Counter.class);
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
      */
     static final String urlPrefix = GlobalConfig.getString("Counter.REST.URL.Prefix");
-    
+
     static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"Counter.REST.URL.Prefix\"配置项.");
     }
@@ -112,7 +112,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-                
+
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -122,7 +122,7 @@ public class Counter {
                 }
                 flowPushRequest.setTraceLoggerHeader(header);
             }
-            
+
             response = flowPolicyRemoteService.push(flowPushRequest);
         } catch (Exception ex) {
             fault();
@@ -166,7 +166,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-                
+
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -176,7 +176,7 @@ public class Counter {
                 }
                 flowPushRequest.setTraceLoggerHeader(header);
             }
-            
+
             response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
         } catch (Exception ex) {
             fault();
@@ -289,7 +289,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-                
+
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -299,7 +299,7 @@ public class Counter {
                 }
                 policyExecuteRequest.setTraceLoggerHeader(header);
             }
-            
+
             response = flowPolicyRemoteService.execute(policyExecuteRequest);
         } catch (Exception ex) {
             fault();
@@ -367,7 +367,7 @@ public class Counter {
         flowQueryRequest.setIncludeCurrentValue(false);
         return queryFlowData(flowQueryRequest);
     }
-    
+
     public static FlowQueryResponse queryFlowData(FlowQueryRequest flowQueryRequest) {
         check();
         beforeInvoke();
@@ -390,7 +390,7 @@ public class Counter {
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-                
+
                 TraceLoggerHeader header = new TraceLoggerHeader();
                 header.setEventId(TraceLogger.getEventId());
                 if (TraceLogger.hasNestedTrans()) {
@@ -400,7 +400,11 @@ public class Counter {
                 }
                 flowQueryRequest.setTraceLoggerHeader(header);
             }
-            
+            // PolicyOrRuleNo
+            if (StringUtils.isNotBlank(Contexts.getPolicyOrRuleNo())) {
+                flowQueryRequest.setPolicyOrRuleNo(Contexts.getPolicyOrRuleNo());
+            }
+
             response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
         } catch (Exception ex) {
             fault();
@@ -518,5 +522,5 @@ public class Counter {
         }
         return response;
     }
-    
+
 }

@@ -16,9 +16,6 @@ public class Contexts {
      */
     private static ThreadLocal<String> logPrefix = new ThreadLocal<String>();
 
-    /**
-     *
-     */
     public static String getLogPrefix() {
         String logPrefixValue = Contexts.logPrefix.get();
         if (logPrefixValue == null) {
@@ -30,6 +27,27 @@ public class Contexts {
 
     public static void setLogPrefix(String logPrefixValue) {
         Contexts.logPrefix.set(logPrefixValue);
+    }
+
+    public static void clearLogPrefix() {
+        Contexts.logPrefix.remove();
+    }
+
+    /**
+     * 规则编号
+     */
+    private static ThreadLocal<String> policyOrRuleNo = new ThreadLocal<String>();
+
+    public static String getPolicyOrRuleNo() {
+        return Contexts.policyOrRuleNo.get();
+    }
+
+    public static void setPolicyOrRuleNo(String policyOrRuleNoValue) {
+        Contexts.policyOrRuleNo.set(policyOrRuleNoValue);
+    }
+
+    public static void clearPolicyOrRuleNo() {
+        Contexts.policyOrRuleNo.remove();
     }
 
 }
