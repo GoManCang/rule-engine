@@ -65,7 +65,7 @@ public class Offline4jService {
         beforeInvoke(operation);
         InternalRiskFact internalRiskFact = null;
         try {
-            TraceLogger.beginTrans(fact.eventId);
+            TraceLogger.beginTrans(fact.eventId, "S3");
             TraceLogger.setLogPrefix("[业务数据落地]");
             // 执行落地前规则
             persistPreRuleExecutorService.executePreRules(fact, false);
