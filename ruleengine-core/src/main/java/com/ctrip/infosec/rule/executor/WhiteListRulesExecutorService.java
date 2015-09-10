@@ -53,6 +53,7 @@ public class WhiteListRulesExecutorService {
         for (WhitelistRule rule : matchedRules) {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+            Contexts.setPolicyOrRuleNo(rule.getRuleNo());
             try {
                 long start = System.currentTimeMillis();
 
@@ -79,10 +80,11 @@ public class WhiteListRulesExecutorService {
                 }
 
             } catch (Throwable ex) {
-                logger.warn(Contexts.getLogPrefix() + "invoke stateless whitelist rule failed. whitelistRule: " + rule.getRuleNo(), ex);
+                logger.warn(Contexts.getLogPrefix() + "执行黑白名单规则异常. whitelistRule: " + rule.getRuleNo(), ex);
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
+                Contexts.clearLogPrefix();
             }
         }
 

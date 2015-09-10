@@ -129,6 +129,7 @@ public class PreRulesExecutorService {
             if (rule.getRuleType() == RuleType.Visual) {
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+                Contexts.setPolicyOrRuleNo(rule.getRuleNo());
                 long start = System.currentTimeMillis();
                 // 执行可视化预处理
                 PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
@@ -137,7 +138,7 @@ public class PreRulesExecutorService {
                         Converter converter = converterLocator.getConverter(preAction);
                         converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper(), true);
                     } catch (Exception ex) {
-                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
+                        logger.warn(Contexts.getLogPrefix() + "执行预处理规则异常. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
                         TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                     }
                 }
@@ -147,6 +148,7 @@ public class PreRulesExecutorService {
                 }
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
                 TraceLogger.commitNestedTrans();
+                Contexts.clearLogPrefix();
             }
         }
         for (PreRule rule : matchedRules) {
@@ -154,6 +156,7 @@ public class PreRulesExecutorService {
             if (rule.getRuleType() == RuleType.Script) {
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+                Contexts.setPolicyOrRuleNo(rule.getRuleNo());
                 try {
                     long start = System.currentTimeMillis();
 
@@ -165,10 +168,11 @@ public class PreRulesExecutorService {
                     }
                     TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
                 } catch (Throwable ex) {
-                    logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
+                    logger.warn(Contexts.getLogPrefix() + "执行预处理规则异常. preRule: " + rule.getRuleNo(), ex);
                     TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                 } finally {
                     TraceLogger.commitNestedTrans();
+                    Contexts.clearLogPrefix();
                 }
             }
         }
@@ -199,6 +203,7 @@ public class PreRulesExecutorService {
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
+                        Contexts.setPolicyOrRuleNo(packageName);
                         long start = System.currentTimeMillis();
                         try {
                             // 执行预处理脚本
@@ -210,9 +215,10 @@ public class PreRulesExecutorService {
                             }
                             TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
                         } catch (Throwable ex) {
-                            logger.warn(_logPrefix + "invoke stateless pre rule failed. preRule: " + packageName, ex);
+                            logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName, ex);
                         } finally {
                             TraceLogger.commitTrans();
+                            Contexts.clearLogPrefix();
                         }
                         return null;
                     }
@@ -232,6 +238,7 @@ public class PreRulesExecutorService {
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
+                        Contexts.setPolicyOrRuleNo(packageName);
                         // 执行可视化预处理
                         long start = System.currentTimeMillis();
                         try {
@@ -246,10 +253,11 @@ public class PreRulesExecutorService {
                                 TraceLogger.traceLog("[" + packageName + "] usage: " + handlingTime + "ms");
                             }
                         } catch (Exception ex) {
-                            logger.warn(_logPrefix + "invoke visual pre rule failed. ruleNo: " + packageName + ", exception: " + ex.getMessage());
+                            logger.warn(_logPrefix + "执行预处理规则异常. ruleNo: " + packageName + ", exception: " + ex.getMessage());
                             TraceLogger.traceLog("EXCEPTION: " + ex.toString());
                         } finally {
                             TraceLogger.commitTrans();
+                            Contexts.clearLogPrefix();
                         }
                         return null;
                     }

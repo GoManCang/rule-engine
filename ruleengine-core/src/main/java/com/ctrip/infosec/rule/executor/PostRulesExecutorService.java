@@ -51,6 +51,7 @@ public class PostRulesExecutorService {
         for (PostRule rule : matchedRules) {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
+            Contexts.setPolicyOrRuleNo(rule.getRuleNo());
             try {
                 long start = System.currentTimeMillis();
 
@@ -63,10 +64,11 @@ public class PostRulesExecutorService {
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
 
             } catch (Throwable ex) {
-                logger.warn(Contexts.getLogPrefix() + "invoke stateless post rule failed. postRule: " + rule.getRuleNo(), ex);
+                logger.warn(Contexts.getLogPrefix() + "执行后处理规则异常. postRule: " + rule.getRuleNo(), ex);
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
+                Contexts.clearLogPrefix();
             }
         }
 
