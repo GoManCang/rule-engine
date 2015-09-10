@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by lpxie on 15-3-20.
@@ -91,35 +92,34 @@ public class EventDataMergeService {
     /**
      * 从Redis获取数据并且合并到当前的fact中 获取的是多个eventPoint对应的合并的key
      */
-    private RiskFact readAndMerge(RiskFact fact, Map<String, Map<String, String>> fields) {
-        Iterator iterator = fields.keySet().iterator();
-        while (iterator.hasNext()) {
-            Object redisKey = iterator.next();
-            TraceLogger.traceLog("&gt;&gt; CacheKey: " + redisKey);
-            Map<String, String> newNodeNames = fields.get(redisKey);
+    RiskFact readAndMerge(RiskFact fact, Map<String, Map<String, String>> fieldsToGet) {
+        for (String key : fieldsToGet.keySet()) {
+            TraceLogger.traceLog("&gt;&gt; CacheKey: " + key);
+            Map<String, String> fieldMapping = fieldsToGet.get(key);
 
             CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
-            String redisValue = cache.get((String) redisKey);
-            if (redisValue == null || redisValue.isEmpty()) {
+            String value = cache.get(key);
+            if (value == null || value.isEmpty()) {
                 continue;
             }
 
-            Map<String, Object> redisValues = JSON.parseObject(redisValue, Map.class);//check this line
-            Iterator iteratorKeys = newNodeNames.keySet().iterator();
-            //Iterator iteratorValues = redisValues.keySet().iterator();
-            while (iteratorKeys.hasNext()) {
-                String oldName = (String) iteratorKeys.next();
-                String newName = newNodeNames.get(oldName);
-                Object newValue = redisValues.get(oldName);
-                if (newName == null || newName.toString().isEmpty() || newValue == null || newValue.toString().isEmpty()) {
+            Map<String, Object> valueMap = JSON.parseObject(value, Map.class);
+            if (valueMap == null) {
+                continue;
+            }
+
+            for (String sourceFieldName : fieldMapping.keySet()) {
+                String targetFieldName = fieldMapping.get(sourceFieldName);
+                Object targetFieldValue = valueMap.get(sourceFieldName);
+                if (targetFieldName == null || targetFieldName.isEmpty() || targetFieldValue == null) {
                     continue;
                 }
-                if (newValue instanceof Map || newValue instanceof List || newValue instanceof Object[]) {
-                    TraceLogger.traceLog("GET: " + oldName + " &DoubleRightArrow; " + newName + ", value = " + JSON.toJSONString(newValue));
+                if (targetFieldValue instanceof Map || targetFieldValue instanceof List || targetFieldValue instanceof Object[]) {
+                    TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + JSON.toJSONString(targetFieldValue));
                 } else {
-                    TraceLogger.traceLog("GET: " + oldName + " &DoubleRightArrow; " + newName + ", value = " + newValue);
+                    TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + targetFieldValue);
                 }
-                fact.eventBody.put(newName, newValue);
+                fact.eventBody.put(targetFieldName, targetFieldValue);
             }
         }
         return fact;
@@ -128,36 +128,51 @@ public class EventDataMergeService {
     /**
      * 把数据写到redis中供后面读取
      */
-    private RiskFact sendToRedis(RiskFact fact, Map<String, Set<String>> fieldsToPut) {
-        Iterator iterator = fieldsToPut.keySet().iterator();
-        while (iterator.hasNext()) {
-            Object redisKey = iterator.next();
-            TraceLogger.traceLog("&gt;&gt; CacheKey: " + redisKey);
-            if (redisKey == null || redisKey.toString().isEmpty()) {
+    RiskFact sendToRedis(RiskFact fact, Map<String, Set<String>> fieldsToPut) {
+        for (String key : fieldsToPut.keySet()) {
+            TraceLogger.traceLog("&gt;&gt; CacheKey: " + key);
+            if (key == null || key.isEmpty()) {
                 continue;
             }
-            Iterator valuesIterator = fieldsToPut.get(redisKey).iterator();
-            Map<String, Object> redisValueMap = new HashMap<String, Object>();
-            while (valuesIterator.hasNext()) {
-                Object newName = valuesIterator.next();
-                Object newValue = fact.eventBody.get(newName);
-                if (newName == null || newName.toString().isEmpty() || newValue == null || newValue.toString().isEmpty()) {
-                    continue;
-                }
-                if (newValue instanceof Map || newValue instanceof List || newValue instanceof Object[]) {
-                    TraceLogger.traceLog("PUT: " + newName + " = " + JSON.toJSONString(newValue));
-                } else {
-                    TraceLogger.traceLog("PUT: " + newName + " = " + newValue);
-                }
-                redisValueMap.put((String) newName, newValue);
-            }
-
-            String redisValueStr = JSON.toJSONString(redisValueMap);
-            Integer liveTime = Configs.getEventMergeCacheKeyTTL(fact.getEventPoint());
 
             CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
-            cache.set((String) redisKey, redisValueStr);
-            cache.expire((String) redisKey, liveTime);
+            Map<String, Object> valueMap = new HashMap<String, Object>();
+            // key已存在的话 则合并非空项
+            boolean exists = cache.exists(key);
+            if (exists) {
+                String value = cache.get(key);
+                if (StringUtils.isNotBlank(value)) {
+                    Map<String, Object> tempValueMap = JSON.parseObject(value, Map.class);
+                    if (tempValueMap != null) {
+                        valueMap = tempValueMap;
+                    }
+                }
+            }
+            Set<String> fields = fieldsToPut.get(key);
+            for (String fieldName : fields) {
+                Object fieldValue = fact.eventBody.get(fieldName);
+                if (fieldName == null || fieldName.isEmpty() || fieldValue == null) {
+                    continue;
+                }
+                // valueMap里不存在才合并
+                Object fieldValueInValueMap = valueMap.get(fieldName);
+                if (fieldValueInValueMap == null
+                        || (fieldValueInValueMap instanceof String && StringUtils.isEmpty((String) fieldValueInValueMap))) {
+
+                    if (fieldValue instanceof Map || fieldValue instanceof List || fieldValue instanceof Object[]) {
+                        TraceLogger.traceLog("PUT: " + fieldName + " = " + JSON.toJSONString(fieldValue));
+                    } else {
+                        TraceLogger.traceLog("PUT: " + fieldName + " = " + fieldValue);
+                    }
+                    valueMap.put(fieldName, fieldValue);
+                }
+            }
+
+            String value = JSON.toJSONString(valueMap);
+            Integer ttl = Configs.getEventMergeCacheKeyTTL(fact.getEventPoint());
+
+            cache.set(key, value);
+            cache.expire(key, ttl);
         }
         return fact;
     }
