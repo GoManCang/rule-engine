@@ -1,6 +1,7 @@
 package com.ctrip.infosec.rule.resource.offline;
 
 import com.ctrip.infosec.common.model.RiskFact;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -29,11 +30,13 @@ public class PersistFactService {
         try {
             Map<String, Object> data = (Map<String, Object>) fact.ext.get(REMOTE_SAVE_MAP_KEY);
             data.put(REMOTE_SAVE_REQID_KEY, reqId);
+            logger.info("{}call remote save, reqid={}", SarsMonitorContext.getLogPrefix(), reqId);
             Request.Post(saveFactUrl)
                     .body(new StringEntity(JSON.toJSONString(data), ContentType.APPLICATION_JSON))
                     .connectTimeout(1000)
                     .socketTimeout(5000)
                     .execute().returnContent().asString();
+            logger.info("{}call remote save end", SarsMonitorContext.getLogPrefix());
         }catch (Exception e){
             logger.error("fail to save fact by remote service.", e);
         }
