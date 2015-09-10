@@ -151,7 +151,7 @@ public class EventDataMergeService {
             Set<String> fields = fieldsToPut.get(key);
             for (String fieldName : fields) {
                 Object fieldValue = fact.eventBody.get(fieldName);
-                if (fieldName == null || fieldName.isEmpty() || fieldValue == null) {
+                if (fieldValue == null) {
                     continue;
                 }
                 // valueMap里不存在才合并
