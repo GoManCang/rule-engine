@@ -39,7 +39,7 @@
     </bean>
 
     <!-- 初始化缓存 -->
-    <bean class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" >
+    <bean id="configsDeamon" class="com.ctrip.infosec.configs.ConfigsDeamon" init-method="start" >
         <property name="url" value="${Configs.URL}"/>
         <property name="part" value="RuleEngine"/>
         <property name="callback">

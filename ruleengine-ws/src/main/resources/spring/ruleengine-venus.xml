@@ -20,7 +20,7 @@
         <property name="location" value="classpath:GlobalConfig.properties"/>
     </bean>
     
-    <bean id="serviceManager" class="com.meidusa.venus.backend.services.xml.XmlFileServiceManager">
+    <bean id="serviceManager" class="com.meidusa.venus.backend.services.xml.XmlFileServiceManager" depends-on="configsDeamon">
         <property name="configFiles">
             <list>
                 <value>classpath:VenusService.xml</value>
