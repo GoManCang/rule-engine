@@ -18,6 +18,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.counter.model.CounterRuleExecuteResult;
 import com.ctrip.infosec.counter.model.PolicyExecuteResult;
@@ -72,7 +73,11 @@ public class Emitter {
                 result.put(Constants.ruleType, "NA");
                 fact.results4Async.put(ruleNo, result);
             }
+            
+            RuleMonitorHelper.addRiskRuleNo(ruleNo);
         }
+        
+        
     }
 
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScene) {
@@ -90,6 +95,8 @@ public class Emitter {
                 result.put(Constants.ruleType, "SA");
                 fact.resultsGroupByScene4Async.put(ruleNo, result);
             }
+            
+            RuleMonitorHelper.addRiskRuleNo(ruleNo);
         }
     }
 

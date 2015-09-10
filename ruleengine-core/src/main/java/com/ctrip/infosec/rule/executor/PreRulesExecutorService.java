@@ -10,6 +10,8 @@ import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
 import com.ctrip.infosec.configs.event.RuleType;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
@@ -127,6 +129,7 @@ public class PreRulesExecutorService {
         // 先执可视化、后执行行脚
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,rule.getRuleNo());
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
                 Contexts.setPolicyOrRuleNo(rule.getRuleNo());
@@ -148,12 +151,14 @@ public class PreRulesExecutorService {
                 }
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
                 TraceLogger.commitNestedTrans();
+                RuleMonitorHelper.commitTrans(fact);
                 Contexts.clearLogPrefix();
             }
         }
         for (PreRule rule : matchedRules) {
             // 脚本
             if (rule.getRuleType() == RuleType.Script) {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,rule.getRuleNo());
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
                 Contexts.setPolicyOrRuleNo(rule.getRuleNo());
@@ -172,6 +177,7 @@ public class PreRulesExecutorService {
                     TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
                 } finally {
                     TraceLogger.commitNestedTrans();
+                    RuleMonitorHelper.commitTrans(fact);
                     Contexts.clearLogPrefix();
                 }
             }
@@ -200,6 +206,7 @@ public class PreRulesExecutorService {
 
                     @Override
                     public RiskFact call() throws Exception {
+                    	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,packageName);
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
@@ -218,6 +225,7 @@ public class PreRulesExecutorService {
                             logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName, ex);
                         } finally {
                             TraceLogger.commitTrans();
+                            RuleMonitorHelper.commitTrans2Trunk(fact);
                             Contexts.clearLogPrefix();
                         }
                         return null;
@@ -235,6 +243,7 @@ public class PreRulesExecutorService {
 
                     @Override
                     public RiskFact call() throws Exception {
+                    	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,packageName);
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
@@ -257,6 +266,7 @@ public class PreRulesExecutorService {
                             TraceLogger.traceLog("EXCEPTION: " + ex.toString());
                         } finally {
                             TraceLogger.commitTrans();
+                            RuleMonitorHelper.commitTrans2Trunk(fact);
                             Contexts.clearLogPrefix();
                         }
                         return null;

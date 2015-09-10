@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.CounterPushRule;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.Counter;
@@ -53,7 +55,15 @@ public class CounterPushRulesExecutorService {
             clock.start();
 
             for (CounterPushRule rule : matchedRules) {
-                executeInternal(fact, rule);
+            	
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH);
+            	
+            	try{
+            		executeInternal(fact, rule);
+            	}finally{
+            		RuleMonitorHelper.commitTrans(fact);
+            	}
+                
             }
 
             clock.stop();
