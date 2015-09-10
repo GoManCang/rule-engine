@@ -9,6 +9,8 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PostRule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
 import com.ctrip.infosec.sars.util.Collections3;
@@ -49,6 +51,7 @@ public class PostRulesExecutorService {
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
         for (PostRule rule : matchedRules) {
+        	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE,rule.getRuleNo());
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             try {
@@ -67,6 +70,7 @@ public class PostRulesExecutorService {
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
         }
 

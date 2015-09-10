@@ -13,6 +13,8 @@ import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
@@ -22,6 +24,7 @@ import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.executor.*;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
+import com.dianping.cat.message.Transaction;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
@@ -90,6 +93,8 @@ public class RabbitMqMessageHandler {
 
             boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
             TraceLogger.enabled(traceLoggerEnabled);
+            
+            RuleMonitorHelper.newTrans(fact, RuleMonitorType.CP_ASYNC);
 
             // 引入节点编号优化排序
             // S0 - 接入层同步前
@@ -98,52 +103,67 @@ public class RabbitMqMessageHandler {
             // S3 - 异步引擎
             // 执行Redis读取
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.GET);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步数据合并]");
                 eventDataMergeService.executeRedisGet(fact);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行预处理            
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             //执行推送数据到Redis
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步数据合并]");
                 eventDataMergeService.executeRedisPut(fact);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行异步规则
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行后处理
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步后处理]");
                 postRulesExecutorService.executePostRules(fact, true);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             //Counter推送规则处理
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[Counter推送]");
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
+            
+            RuleMonitorHelper.commitTrans(fact);
+            
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
             beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");

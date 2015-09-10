@@ -39,6 +39,7 @@
         <Configs.Trace.URL>http://10.2.10.76:8080/configsws/rest/trace</Configs.Trace.URL>
         <Configs.traceLogger.URL>http://10.2.10.76:8080/configsws/rest/traceLogger</Configs.traceLogger.URL>
         <Configs.RuleMonitor.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor2</Configs.RuleMonitor.URL>
+        <Configs.RuleMonitor3.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor3</Configs.RuleMonitor3.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.10.75:8080/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.2.10.75:16900</Counter.Venus.ipAddressList>
@@ -109,6 +110,7 @@
         <Configs.Trace.URL>http://10.2.25.53:8080/configsws/rest/trace</Configs.Trace.URL>
         <Configs.traceLogger.URL>http://10.2.25.53:8080/configsws/rest/traceLogger</Configs.traceLogger.URL>
         <Configs.RuleMonitor.URL>http://10.2.25.53:8080/configsws/rest/rulemonitor2</Configs.RuleMonitor.URL>
+        <Configs.RuleMonitor3.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor3</Configs.RuleMonitor3.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://10.2.25.54:8080/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.2.25.54:16900,10.2.27.62:16900</Counter.Venus.ipAddressList>
@@ -177,6 +179,7 @@
         <Configs.Trace.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/trace</Configs.Trace.URL>
         <Configs.traceLogger.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/traceLogger</Configs.traceLogger.URL>
         <Configs.RuleMonitor.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/rulemonitor2</Configs.RuleMonitor.URL>
+        <Configs.RuleMonitor3.URL>http://10.2.10.76:8080/configsws/rest/rulemonitor3</Configs.RuleMonitor3.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://ws.counter.infosec.ctripcorp.com/counterws</Counter.REST.URL.Prefix>
         <Counter.Venus.ipAddressList>10.8.114.48:16900,10.8.114.49:16900,10.8.114.50:16900</Counter.Venus.ipAddressList>

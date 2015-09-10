@@ -46,5 +46,10 @@
             <bean class="com.ctrip.infosec.rule.executor.RuleUpdateCallback"/>
         </property>
     </bean>
+    
+    <bean class="com.ctrip.infosec.configs.rulemonitor.RuleMonitorDeamon" init-method="start">
+    	<property name="url" value="${Configs.RuleMonitor3.URL}" />
+    </bean>
+    
 
 </beans>

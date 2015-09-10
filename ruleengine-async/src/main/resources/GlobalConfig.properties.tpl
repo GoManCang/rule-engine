@@ -22,6 +22,7 @@ Configs.URL={$Configs.URL}
 Configs.Trace.URL={$Configs.Trace.URL}
 Configs.RuleMonitor.URL={$Configs.RuleMonitor.URL}
 Configs.traceLogger.URL={$Configs.traceLogger.URL}
+Configs.RuleMonitor3.URL={$Configs.RuleMonitor3.URL}
 
 # Counter
 Counter.REST.URL.Prefix={$Counter.REST.URL.Prefix}

@@ -10,6 +10,8 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.WhitelistRule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessWhitelistRuleEngine;
 import com.ctrip.infosec.sars.util.Collections3;
@@ -51,6 +53,7 @@ public class WhiteListRulesExecutorService {
 
         StatelessWhitelistRuleEngine statelessWhitelistRuleEngine = SpringContextHolder.getBean(StatelessWhitelistRuleEngine.class);
         for (WhitelistRule rule : matchedRules) {
+        	RuleMonitorHelper.newTrans(fact, RuleMonitorType.WB_RULE,rule.getRuleNo());
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             try {
@@ -83,6 +86,7 @@ public class WhiteListRulesExecutorService {
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
             } finally {
                 TraceLogger.commitNestedTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
         }
 

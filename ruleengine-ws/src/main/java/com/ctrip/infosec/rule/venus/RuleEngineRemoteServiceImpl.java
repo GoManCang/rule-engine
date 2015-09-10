@@ -11,6 +11,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
+import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
+
 import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
@@ -60,6 +63,8 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
 
         boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
         TraceLogger.enabled(traceLoggerEnabled);
+        
+        RuleMonitorHelper.newTrans(fact, RuleMonitorType.CP_SYNC);
 
         // 引入节点编号优化排序
         // S0 - 接入层同步前
@@ -69,30 +74,37 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
         try {
             // 执行Redis读取
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.GET);
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步数据合并]");
                 eventDataMergeService.executeRedisGet(fact);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行预处理            
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步预处理]");
                 preRulesExecutorService.executePreRules(fact, false);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             //执行推送数据到Redis
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步数据合并]");
                 eventDataMergeService.executeRedisPut(fact);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行白名单规则
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.WB_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[黑白名单规则]");
                 whiteListRulesExecutorService.executeWhitelistRules(fact);
@@ -111,22 +123,27 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 }
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行同步规则
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步规则]");
                 rulesExecutorService.executeSyncRules(fact);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
             // 执行后处理
             try {
+            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[同步后处理]");
                 postRulesExecutorService.executePostRules(fact, false);
             } finally {
                 TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
             }
         } catch (Throwable ex) {
             fault();
@@ -134,8 +151,11 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 fact.setFinalResult(Constants.defaultResult);
             }
             logger.error(Contexts.getLogPrefix() + "invoke execute exception.", ex);
+            RuleMonitorHelper.setFault(ex);
         } finally {
             long afterInvoke = afterInvoke("RuleEngine.execute");
+            
+            RuleMonitorHelper.commitTrans(fact);
         }
         return JSON.toJSONString(fact);
     }
