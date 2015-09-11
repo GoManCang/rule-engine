@@ -23,6 +23,7 @@ import com.ctrip.infosec.rule.convert.internal.InternalRiskFact;
 import com.ctrip.infosec.rule.convert.offline4j.RiskEventConvertor;
 import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.executor.*;
+import com.ctrip.infosec.rule.utils.ValueExtractUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.dianping.cat.message.Transaction;
 import com.google.common.collect.Lists;
@@ -93,7 +94,7 @@ public class RabbitMqMessageHandler {
 
             boolean traceLoggerEnabled = MapUtils.getBoolean(fact.ext, Constants.key_traceLogger, true);
             TraceLogger.enabled(traceLoggerEnabled);
-            
+
             RuleMonitorHelper.newTrans(fact, RuleMonitorType.CP_ASYNC);
 
             // 引入节点编号优化排序
@@ -103,7 +104,7 @@ public class RabbitMqMessageHandler {
             // S3 - 异步引擎
             // 执行Redis读取
             try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.GET);
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.GET);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步数据合并]");
                 eventDataMergeService.executeRedisGet(fact);
@@ -113,7 +114,7 @@ public class RabbitMqMessageHandler {
             }
             // 执行预处理            
             try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE_WRAP);
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
@@ -123,7 +124,7 @@ public class RabbitMqMessageHandler {
             }
             //执行推送数据到Redis
             try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步数据合并]");
                 eventDataMergeService.executeRedisPut(fact);
@@ -133,7 +134,7 @@ public class RabbitMqMessageHandler {
             }
             // 执行异步规则
             try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
@@ -143,7 +144,7 @@ public class RabbitMqMessageHandler {
             }
             // 执行后处理
             try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE_WRAP);
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步后处理]");
                 postRulesExecutorService.executePostRules(fact, true);
@@ -153,7 +154,7 @@ public class RabbitMqMessageHandler {
             }
             //Counter推送规则处理
             try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH_WRAP);
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH_WRAP);
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[Counter推送]");
                 counterPushRuleExrcutorService.executeCounterPushRules(fact, true);
@@ -161,9 +162,9 @@ public class RabbitMqMessageHandler {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);
             }
-            
+
             RuleMonitorHelper.commitTrans(fact);
-            
+
             // -------------------------------- 规则引擎结束 -------------------------------------- //
 
             beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
@@ -181,11 +182,11 @@ public class RabbitMqMessageHandler {
                 TraceLogger.setLogPrefix("[保存CheckResultLog]");
                 if (riskReqId != null && riskReqId > 0) {
                     TraceLogger.traceLog("reqId = " + riskReqId);
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.whitelistResults, outerReqId);
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.results, outerReqId);
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.results4Async, outerReqId);
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene, outerReqId);
-                    saveRuleResult(riskReqId, fact.eventPoint, fact.resultsGroupByScene4Async, outerReqId);
+                    saveRuleResult(riskReqId, fact, fact.whitelistResults, outerReqId);
+                    saveRuleResult(riskReqId, fact, fact.results, outerReqId);
+                    saveRuleResult(riskReqId, fact, fact.results4Async, outerReqId);
+                    saveRuleResult(riskReqId, fact, fact.resultsGroupByScene, outerReqId);
+                    saveRuleResult(riskReqId, fact, fact.resultsGroupByScene4Async, outerReqId);
                 }
             } catch (Exception ex) {
                 fault("CardRiskDB.CheckResultLog.saveRuleResult");
@@ -325,7 +326,11 @@ public class RabbitMqMessageHandler {
         return distinctValue;
     }
 
-    private void saveRuleResult(Long riskReqId, String eventPoint, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
+    private void saveRuleResult(Long riskReqId, RiskFact fact, Map<String, Map<String, Object>> results, boolean outerReqId) throws DbExecuteException {
+        String eventPoint = fact.eventPoint;
+        Long orderId = ValueExtractUtils.extractLongIgnoreCase(fact.eventBody, "orderId");
+        Integer orderType = ValueExtractUtils.extractIntegerIgnoreCase(fact.eventBody, "orderType");
+        Integer subOrderType = ValueExtractUtils.extractIntegerIgnoreCase(fact.eventBody, "subOrderType");
         RdbmsInsert insert = new RdbmsInsert();
         DistributionChannel channel = new DistributionChannel();
         channel.setChannelNo(RiskFactPersistStrategy.allInOne4ReqId);
@@ -347,7 +352,7 @@ public class RabbitMqMessageHandler {
                         String ruleType = (String) entry.getValue().get(Constants.ruleType);//withScene ? (isAsync ? "SA" : "S") : (isAsync ? "NA" : "N");
                         TraceLogger.traceLog("[" + entry.getKey() + "] riskLevel = " + riskLevel + ", ruleType = " + ruleType);
                         insert.setTable("RiskControl_CheckResultLog");
-                        insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint));
+                        insert.setColumnPropertiesMap(prepareRiskControlCheckResultLog(riskReqId, ruleType, entry, riskLevel, eventPoint, orderId, orderType, subOrderType));
                         execute(insert);
                         if ("B".equals(ruleType) || "N".equals(ruleType)) {
                             insert.setTable("InfoSecurity_CheckResultLog");
@@ -368,7 +373,7 @@ public class RabbitMqMessageHandler {
     }
 
     private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry,
-            Long riskLevel, String eventPoint) {
+                                                                                  Long riskLevel, String eventPoint, Long orderId, Integer orderType, Integer subOrderType) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
@@ -427,6 +432,23 @@ public class RabbitMqMessageHandler {
         props.setValue(eventPoint);
         map.put("EventPoint", props);
 
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Long);
+        props.setValue(orderId);
+        map.put("OrderId", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Int);
+        props.setValue(orderType);
+        map.put("OrderType", props);
+
+        props = new PersistColumnProperties();
+        props.setPersistColumnSourceType(PersistColumnSourceType.DATA_UNIT);
+        props.setColumnType(DataUnitColumnType.Int);
+        props.setValue(subOrderType);
+        map.put("SubOrderType", props);
         return map;
     }
 
