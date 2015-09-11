@@ -118,11 +118,7 @@ public class EventDataMergeService {
                 }
                 // eventBody对应的KEY有值的话 不覆盖
                 Object fv = fact.eventBody.get(targetFieldName);
-                if (fv == null
-                        || (fv instanceof String && StringUtils.isEmpty((String) fv))
-                        || (fv instanceof Map && ((Map) fv).isEmpty())
-                        || (fv instanceof List && ((List) fv).isEmpty())
-                        || (fv instanceof Object[] && ((Object[]) fv).length == 0)) {
+                if (valueIsEmpty(fv)) {
 
                     if (targetFieldValue instanceof Map || targetFieldValue instanceof List || targetFieldValue instanceof Object[]) {
                         TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + JSON.toJSONString(targetFieldValue));
@@ -162,11 +158,7 @@ public class EventDataMergeService {
             Set<String> fields = fieldsToPut.get(key);
             for (String fieldName : fields) {
                 Object fv = fact.eventBody.get(fieldName);
-                if (fv == null
-                        || (fv instanceof String && StringUtils.isEmpty((String) fv))
-                        || (fv instanceof Map && ((Map) fv).isEmpty())
-                        || (fv instanceof List && ((List) fv).isEmpty())
-                        || (fv instanceof Object[] && ((Object[]) fv).length == 0)) {
+                if (valueIsEmpty(fv)) {
                     continue;
                 }
                 if (fv instanceof Map || fv instanceof List || fv instanceof Object[]) {
@@ -184,5 +176,17 @@ public class EventDataMergeService {
             cache.expire(key, ttl);
         }
         return fact;
+    }
+
+    boolean valueIsEmpty(Object fv) {
+        if (fv == null
+                || (fv instanceof String && StringUtils.isEmpty((String) fv))
+                || (fv instanceof Number && ((Number) fv).doubleValue() == 0.0)
+                || (fv instanceof Map && ((Map) fv).isEmpty())
+                || (fv instanceof List && ((List) fv).isEmpty())
+                || (fv instanceof Object[] && ((Object[]) fv).length == 0)) {
+            return true;
+        }
+        return false;
     }
 }
