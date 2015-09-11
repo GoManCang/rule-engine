@@ -151,21 +151,15 @@ public class EventDataMergeService {
             Set<String> fields = fieldsToPut.get(key);
             for (String fieldName : fields) {
                 Object fieldValue = fact.eventBody.get(fieldName);
-                if (fieldValue == null) {
+                if (fieldValue == null || (fieldValue instanceof String && StringUtils.isEmpty((String) fieldValue))) {
                     continue;
                 }
-                // valueMap里不存在才合并
-                Object fieldValueInValueMap = valueMap.get(fieldName);
-                if (fieldValueInValueMap == null
-                        || (fieldValueInValueMap instanceof String && StringUtils.isEmpty((String) fieldValueInValueMap))) {
-
-                    if (fieldValue instanceof Map || fieldValue instanceof List || fieldValue instanceof Object[]) {
-                        TraceLogger.traceLog("PUT: " + fieldName + " = " + JSON.toJSONString(fieldValue));
-                    } else {
-                        TraceLogger.traceLog("PUT: " + fieldName + " = " + fieldValue);
-                    }
-                    valueMap.put(fieldName, fieldValue);
+                if (fieldValue instanceof Map || fieldValue instanceof List || fieldValue instanceof Object[]) {
+                    TraceLogger.traceLog("PUT: " + fieldName + " = " + JSON.toJSONString(fieldValue));
+                } else {
+                    TraceLogger.traceLog("PUT: " + fieldName + " = " + fieldValue);
                 }
+                valueMap.put(fieldName, fieldValue);
             }
 
             String value = JSON.toJSONString(valueMap);
