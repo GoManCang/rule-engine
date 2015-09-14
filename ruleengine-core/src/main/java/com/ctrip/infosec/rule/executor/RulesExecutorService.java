@@ -105,6 +105,11 @@ public class RulesExecutorService {
             finalResult = compareAndReturn(finalResult, rs);
         }
         fact.setFinalResult(Maps.newHashMap(finalResult));
+        if (!isAsync) {
+            // originalRiskLevel
+            int riskLevel = valueAsInt(finalResult, Constants.riskLevel);
+            fact.finalResult.put(Constants.originalRiskLevel, riskLevel);
+        }
         // 黑白名单只在同步起作用
         if (!fact.finalWhitelistResult.isEmpty() && !isAsync) {
             // 0 : 白名单
@@ -197,7 +202,7 @@ public class RulesExecutorService {
         StopWatch clock = new StopWatch();
         for (Rule rule : matchedRules) {
             String packageName = rule.getRuleNo();
-            RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE,packageName);
+            RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE, packageName);
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + packageName + "]");
             Contexts.setPolicyOrRuleNo(packageName);
@@ -319,7 +324,7 @@ public class RulesExecutorService {
 
                     @Override
                     public RuleExecuteResultWithEvent call() throws Exception {
-                    	RuleMonitorHelper.newTrans(factCopy, RuleMonitorType.RULE,packageName);
+                        RuleMonitorHelper.newTrans(factCopy, RuleMonitorType.RULE, packageName);
                         TraceLogger.beginTrans(factCopy.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
