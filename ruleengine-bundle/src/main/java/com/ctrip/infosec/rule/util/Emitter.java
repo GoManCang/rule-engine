@@ -456,5 +456,23 @@ public class Emitter {
             }
         }
     }
+    
+    
+    public static void emitLeveldownResult(RiskFact fact, int riskLevel, String riskMessage) {
+        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
+        if (!Strings.isNullOrEmpty(ruleNo)) {
+            Map<String, Object> result = Maps.newHashMap();
+            result.put(Constants.riskLevel, riskLevel);
+            result.put(Constants.riskMessage, riskMessage);
+            result.put(Constants.async, _isAsync);
+            if (!_isAsync) {
+                result.put(Constants.ruleType, "N");
+                fact.leveldownResults.put(ruleNo, result);
+            }
+            
+            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+        }
+    }
 
 }

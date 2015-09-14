@@ -5,6 +5,15 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
@@ -16,11 +25,7 @@ import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import com.google.common.collect.Maps;
 
 /**
  *
@@ -36,6 +41,7 @@ public class PostRulesExecutorService {
      */
     public RiskFact executePostRules(RiskFact fact, boolean isAsync) {
         execute(fact, isAsync);
+        buidFinalResult(fact, isAsync);
         return fact;
     }
 
@@ -85,5 +91,43 @@ public class PostRulesExecutorService {
             }
         }
 
+    }
+    
+    /**
+     *  合并最终规则
+     *  @param fact
+     *  @param isAsync
+     */
+    void buidFinalResult(RiskFact fact, boolean isAsync){
+    	
+    	if(!isAsync && fact.leveldownResults.size() > 0){
+    		
+    		//获取最高分
+    		Map<String, Object> finalResult = Constants.defaultResult;
+    		for (Map<String, Object> rs : fact.leveldownResults.values()) {
+                finalResult = compareAndReturn(finalResult, rs);
+            }
+    		fact.setFinalResult(Maps.newHashMap(finalResult));
+    		
+    	}
+    	
+    }
+    
+    /**
+     * 返回分值高的结果作为finalResult
+     */
+    Map<String, Object> compareAndReturn(Map<String, Object> oldResult, Map<String, Object> newResult) {
+        if (newResult == null) {
+            return oldResult;
+        }
+        if (oldResult == null) {
+            return newResult;
+        }
+        int newRriskLevel = MapUtils.getInteger(newResult, Constants.riskLevel, 0);
+        int oldRriskLevel = MapUtils.getInteger(oldResult, Constants.riskLevel, 0);
+        if (newRriskLevel > oldRriskLevel) {
+            return newResult;
+        }
+        return oldResult;
     }
 }
