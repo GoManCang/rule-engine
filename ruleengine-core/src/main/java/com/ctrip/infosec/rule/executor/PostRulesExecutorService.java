@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PostRule;
@@ -51,14 +52,22 @@ public class PostRulesExecutorService {
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
         for (PostRule rule : matchedRules) {
-        	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE,rule.getRuleNo());
+            RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE, rule.getRuleNo());
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             Contexts.setPolicyOrRuleNo(rule.getRuleNo());
             try {
                 long start = System.currentTimeMillis();
 
+                // add current execute ruleNo and logPrefix before execution
+                fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                fact.ext.put(Constants.key_isAsync, isAsync);
+
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
+
+                // remove current execute ruleNo when finished execution.
+                fact.ext.remove(Constants.key_ruleNo);
+                fact.ext.remove(Constants.key_isAsync);
 
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {
