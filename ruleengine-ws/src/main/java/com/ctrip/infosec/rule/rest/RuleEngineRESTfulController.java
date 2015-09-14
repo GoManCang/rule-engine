@@ -108,32 +108,39 @@ public class RuleEngineRESTfulController {
                 TraceLogger.beginTrans(fact.eventId, "S1");
                 TraceLogger.setLogPrefix("[黑白名单规则]");
                 whiteListRulesExecutorService.executeWhitelistRules(fact);
-                // 非适配接入点、中白名单"0"的直接返回
-                if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-                    if (fact.finalWhitelistResult != null && fact.finalWhitelistResult.containsKey(Constants.riskLevel)) {
-
-                        int whitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
-                        if (whitelistRiskLevel == 0 || whitelistRiskLevel == 95) {
-                            fact.finalResult.put(Constants.riskLevel, whitelistRiskLevel);
-                            fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
-                            return new ResponseEntity(fact, HttpStatus.OK);
-                        }
-                    }
-                }
             } finally {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);
             }
+            
+            boolean wbRiskFlag = false;//是否中白名单标志
+            // 非适配接入点、中白名单"0"的直接返回
+            if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
+            	if (fact.finalWhitelistResult != null && fact.finalWhitelistResult.containsKey(Constants.riskLevel)) {
+            		
+            		int whitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
+            		if (whitelistRiskLevel == 0 || whitelistRiskLevel == 95) {
+            			fact.finalResult.put(Constants.riskLevel, whitelistRiskLevel);
+            			fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
+            			
+            			wbRiskFlag = true;
+            		}
+            	}
+            }
+            
             // 执行同步规则
-            try {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
-                TraceLogger.beginTrans(fact.eventId, "S1");
-                TraceLogger.setLogPrefix("[同步规则]");
-                rulesExecutorService.executeSyncRules(fact);
-            } finally {
-                TraceLogger.commitTrans();
-                RuleMonitorHelper.commitTrans(fact);
+            if(!wbRiskFlag){
+            	try {
+            		RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
+            		TraceLogger.beginTrans(fact.eventId, "S1");
+            		TraceLogger.setLogPrefix("[同步规则]");
+            		rulesExecutorService.executeSyncRules(fact);
+            	} finally {
+            		TraceLogger.commitTrans();
+            		RuleMonitorHelper.commitTrans(fact);
+            	}
             }
+
             // 执行后处理
             try {
             	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE_WRAP);
@@ -144,6 +151,7 @@ public class RuleEngineRESTfulController {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);
             }
+            
         } catch (Throwable ex) {
             if (fact.finalResult == null) {
                 fact.setFinalResult(Constants.defaultResult);
