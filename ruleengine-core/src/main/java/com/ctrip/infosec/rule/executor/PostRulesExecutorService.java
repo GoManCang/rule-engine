@@ -21,6 +21,7 @@ import com.ctrip.infosec.configs.event.PostRule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
 import com.ctrip.infosec.sars.util.Collections3;
@@ -92,27 +93,31 @@ public class PostRulesExecutorService {
         }
 
     }
-    
+
     /**
-     *  合并最终规则
-     *  @param fact
-     *  @param isAsync
+     * 合并最终规则
+     *
+     * @param fact
+     * @param isAsync
      */
-    void buidFinalResult(RiskFact fact, boolean isAsync){
-    	
-    	if(!isAsync && fact.leveldownResults.size() > 0){
-    		
-    		//获取最高分
-    		Map<String, Object> finalResult = Constants.defaultResult;
-    		for (Map<String, Object> rs : fact.leveldownResults.values()) {
+    void buidFinalResult(RiskFact fact, boolean isAsync) {
+
+        if (!isAsync && fact.leveldownResults.size() > 0) {
+
+            int originalRiskLevel = valueAsInt(fact.finalResult, Constants.originalRiskLevel);
+
+            //获取最高分
+            Map<String, Object> finalResult = Constants.defaultResult;
+            for (Map<String, Object> rs : fact.leveldownResults.values()) {
                 finalResult = compareAndReturn(finalResult, rs);
             }
-    		fact.setFinalResult(Maps.newHashMap(finalResult));
-    		
-    	}
-    	
+            fact.setFinalResult(Maps.newHashMap(finalResult));
+            fact.finalResult.put(Constants.originalRiskLevel, originalRiskLevel);
+
+        }
+
     }
-    
+
     /**
      * 返回分值高的结果作为finalResult
      */
