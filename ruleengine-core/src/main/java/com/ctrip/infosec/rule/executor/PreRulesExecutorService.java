@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.executor;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
+import com.ctrip.infosec.configs.event.PreRuleTreeNode;
 import com.ctrip.infosec.configs.event.RuleType;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
@@ -57,66 +58,36 @@ public class PreRulesExecutorService {
      */
     void execute(RiskFact fact, boolean isAsync) {
         // matchRules      
-//        List<PreRule> matchedRules = Configs.matchPreRules(fact);
-        List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
-        List<String> ruleNos = Collections3.extractToList(matchedRules, "ruleNo");
-        logger.debug(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
-        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
+//        List<PreRule> matchedRules = Configs.matchPreRulesInRules(fact, isAsync);
+//        List<String> ruleNos = Collections3.extractToList(matchedRules, "ruleNo");
+//        logger.debug(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
+//        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
 
-        if (isAsync) {
-            executeSerial(fact, matchedRules);
-        } else {
-            executeParallel(fact, matchedRules);
+        List<PreRuleTreeNode> matchedPreRuleTree = Configs.matchPreRuleTree(fact, isAsync);
+
+        boolean hasChildren = true;
+        while (hasChildren) {
+            List<PreRule> matchedRules = Lists.newArrayList();
+            List<PreRuleTreeNode> children = Lists.newArrayList();
+            for (PreRuleTreeNode node : matchedPreRuleTree) {
+                matchedRules.add(node.getData());
+                if (node.getNodes() != null && !node.getNodes().isEmpty()) {
+                    children.addAll(node.getNodes());
+                }
+            }
+
+            TraceLogger.traceLog("开始执行 " + matchedRules.size() + " 条预处理规则 ...");
+            if (isAsync) {
+                executeSerial(fact, matchedRules);
+            } else {
+                executeParallel(fact, matchedRules);
+            }
+
+            if (children.isEmpty()) {
+                hasChildren = false;
+            }
         }
 
-//        StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
-//
-//        // 先执行脚、后执行可视化
-//        for (PreRule rule : matchedRules) {
-//            // 脚本
-//            if (rule.getRuleType() == RuleType.Script) {
-//                long start = System.currentTimeMillis();
-//                try {
-//                    // add current execute logPrefix before execution
-//                    fact.ext.put(Constants.key_logPrefix, SarsMonitorContext.getLogPrefix());
-//
-//                    TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
-//                    statelessPreRuleEngine.execute(rule.getRuleNo(), fact);
-//
-//                    // remove current execute ruleNo when finished execution.
-//                    fact.ext.remove(Constants.key_logPrefix);
-//                } catch (Throwable ex) {
-//                    logger.warn(Contexts.getLogPrefix() + "invoke stateless pre rule failed. preRule: " + rule.getRuleNo(), ex);
-//                }
-//                long handlingTime = System.currentTimeMillis() - start;
-//                if (handlingTime > 50) {
-//                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-//                }
-//                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
-//            }
-//        }
-//        for (PreRule rule : matchedRules) {
-//            if (rule.getRuleType() == RuleType.Visual) {
-//                long start = System.currentTimeMillis();
-//                // 执行可视化预处理
-//                PreActionEnums preAction = PreActionEnums.parse(rule.getPreAction());
-//                if (preAction != null) {
-//                    try {
-//                        TraceLogger.traceLog("[" + rule.getRuleNo() + "]");
-//                        Converter converter = converterLocator.getConverter(preAction);
-//                        converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper());
-//                    } catch (Exception ex) {
-//                        logger.warn(Contexts.getLogPrefix() + "invoke visual pre rule failed. ruleNo: " + rule.getRuleNo() + ", exception: " + ex.getMessage());
-//                        TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
-//                    }
-//                }
-//                long handlingTime = System.currentTimeMillis() - start;
-//                if (handlingTime > 50) {
-//                    logger.info(Contexts.getLogPrefix() + "preRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
-//                }
-//                TraceLogger.traceLog("[" + rule.getRuleNo() + "] usage: " + handlingTime + "ms");
-//            }
-//        }
     }
 
     /**
@@ -129,7 +100,7 @@ public class PreRulesExecutorService {
         // 先执可视化、后执行行脚
         for (PreRule rule : matchedRules) {
             if (rule.getRuleType() == RuleType.Visual) {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,rule.getRuleNo());
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE, rule.getRuleNo());
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
                 Contexts.setPolicyOrRuleNo(rule.getRuleNo());
@@ -158,7 +129,7 @@ public class PreRulesExecutorService {
         for (PreRule rule : matchedRules) {
             // 脚本
             if (rule.getRuleType() == RuleType.Script) {
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,rule.getRuleNo());
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE, rule.getRuleNo());
                 TraceLogger.beginNestedTrans(fact.eventId);
                 TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
                 Contexts.setPolicyOrRuleNo(rule.getRuleNo());
@@ -206,7 +177,7 @@ public class PreRulesExecutorService {
 
                     @Override
                     public RiskFact call() throws Exception {
-                    	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,packageName);
+                        RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE, packageName);
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
@@ -243,7 +214,7 @@ public class PreRulesExecutorService {
 
                     @Override
                     public RiskFact call() throws Exception {
-                    	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE,packageName);
+                        RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE, packageName);
                         TraceLogger.beginTrans(fact.eventId);
                         TraceLogger.setParentTransId(_traceLoggerParentTransId);
                         TraceLogger.setLogPrefix("[" + packageName + "]");
