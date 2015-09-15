@@ -40,7 +40,7 @@ public class PreRulesExecutorService {
     @Autowired
     private ConverterLocator converterLocator;
     // 秒
-    private int timeout = GlobalConfig.getInteger("PreRules.executor.timeout", 1);
+    private int timeout = GlobalConfig.getInteger("PreRules.executor.timeout", 10000);
 
     /**
      * 执行预处理规则
@@ -94,7 +94,6 @@ public class PreRulesExecutorService {
 
         StatelessPreRuleEngine statelessPreRuleEngine = SpringContextHolder.getBean(StatelessPreRuleEngine.class);
 
-        // 先执可视化、后执行行脚
         for (PreRule rule : matchedRules) {
             // 匹配前置条件
             boolean matched = Configs.match(rule.getConditions(), rule.getConditionsLogical(), fact.eventBody);
@@ -195,7 +194,7 @@ public class PreRulesExecutorService {
         // run
         try {
             if (!runs1.isEmpty()) {
-                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.SECONDS);
+                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.MILLISECONDS);
             }
         } catch (Exception ex) {
             // ignored

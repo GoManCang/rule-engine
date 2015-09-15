@@ -50,7 +50,7 @@ public class RulesExecutorService {
 
     private static final Logger logger = LoggerFactory.getLogger(RulesExecutorService.class);
     // 秒
-    private int timeout = GlobalConfig.getInteger("Rules.executor.timeout", 2);
+    private int timeout = GlobalConfig.getInteger("Rules.executor.timeout", 10000);
 
     /**
      * 执行同步规则
@@ -427,7 +427,7 @@ public class RulesExecutorService {
         }
         List<RuleExecuteResultWithEvent> rawResult = new ArrayList<RuleExecuteResultWithEvent>();
         try {
-            List<Future<RuleExecuteResultWithEvent>> result = ParallelExecutorHolder.excutor.invokeAll(runs, timeout, TimeUnit.SECONDS);
+            List<Future<RuleExecuteResultWithEvent>> result = ParallelExecutorHolder.excutor.invokeAll(runs, timeout, TimeUnit.MILLISECONDS);
             for (Future f : result) {
                 try {
                     if (f.isDone()) {
