@@ -60,28 +60,23 @@ public class PreRulesExecutorService {
 //        logger.debug(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
 //        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
 
-        List<PreRuleTreeNode> matchedPreRuleTree = Configs.matchPreRuleTree(fact, isAsync);
-
         TraceLogger.traceLog("开始执行预处理规则 ...");
-        boolean hasChildren = true;
-        while (hasChildren) {
+        List<PreRuleTreeNode> matchedPreRuleTreeNodes = Configs.matchPreRuleTree(fact, isAsync);
+        while (!matchedPreRuleTreeNodes.isEmpty()) {
             List<PreRule> matchedRules = Lists.newArrayList();
             List<PreRuleTreeNode> children = Lists.newArrayList();
-            for (PreRuleTreeNode node : matchedPreRuleTree) {
+            for (PreRuleTreeNode node : matchedPreRuleTreeNodes) {
                 matchedRules.add(node.getData());
                 if (node.getNodes() != null && !node.getNodes().isEmpty()) {
                     children.addAll(node.getNodes());
                 }
             }
+            matchedPreRuleTreeNodes = children;
 
             if (isAsync) {
                 executeSerial(fact, matchedRules);
             } else {
                 executeParallel(fact, matchedRules);
-            }
-
-            if (children.isEmpty()) {
-                hasChildren = false;
             }
         }
 
