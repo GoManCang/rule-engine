@@ -31,15 +31,14 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.configs.utils.BeanMapper;
-import com.ctrip.infosec.configs.utils.EventBodyUtils;
 import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
+import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessRuleEngine;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.meidusa.fastjson.JSON;
 
 /**
  * 使用线程池并行执行规则
@@ -90,26 +89,43 @@ public class RulesExecutorService {
         buidFinalResult(fact, true);
 
         if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
-            TraceLogger.traceLog("异步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult));
+            TraceLogger.traceLog("异步规则执行完成. finalResult: " + JSON.toJSONString(fact.finalResult4Async));
         } else {
-            TraceLogger.traceLog("异步规则执行完成[适配]. finalResultGroupByScene: " + JSON.toJSONString(fact.finalResultGroupByScene));
+            TraceLogger.traceLog("异步规则执行完成[适配]. finalResultGroupByScene: " + JSON.toJSONString(fact.finalResultGroupByScene4Async));
         }
         return fact;
     }
 
+    /**
+     * 同步结果
+     */
     void buidFinalResult(RiskFact fact, boolean isAsync) {
 
-        // finalResult
         Map<String, Object> finalResult = Constants.defaultResult;
-        for (Map<String, Object> rs : fact.results.values()) {
-            finalResult = compareAndReturn(finalResult, rs);
-        }
-        fact.setFinalResult(Maps.newHashMap(finalResult));
+        Map<String, Object> finalResult4Async = Constants.defaultResult;
         if (!isAsync) {
+            // finalResult
+            for (Map<String, Object> rs : fact.results.values()) {
+                finalResult = compareAndReturn(finalResult, rs);
+            }
+            fact.setFinalResult(Maps.newHashMap(finalResult));
+
             // originalRiskLevel
             int riskLevel = valueAsInt(finalResult, Constants.riskLevel);
             fact.finalResult.put(Constants.originalRiskLevel, riskLevel);
+
+            fact.finalResult.remove(Constants.async);
+            fact.finalResult.remove(Constants.timeUsage);
+        } else {
+            // finalResult4Async
+            for (Map<String, Object> rs : fact.results4Async.values()) {
+                finalResult4Async = compareAndReturn(finalResult4Async, rs);
+            }
+            fact.setFinalResult4Async(Maps.newHashMap(finalResult4Async));
+            fact.finalResult4Async.remove(Constants.async);
+            fact.finalResult4Async.remove(Constants.timeUsage);
         }
+
         // 黑白名单只在同步起作用
         if (!fact.finalWhitelistResult.isEmpty() && !isAsync) {
             // 0 : 白名单
@@ -127,11 +143,13 @@ public class RulesExecutorService {
                 }
             }
         }
+        fact.finalResult.remove(Constants.async);
         fact.finalResult.remove(Constants.timeUsage);
 
         // finalResultGroupByScene
-        Map<String, Map<String, Object>> finalResultGroupByScene = fact.finalResultGroupByScene;
-        for (Map<String, Object> rs : fact.resultsGroupByScene.values()) {
+        Map<String, Map<String, Object>> finalResultGroupByScene = isAsync ? fact.finalResultGroupByScene4Async : fact.finalResultGroupByScene;
+        Map<String, Map<String, Object>> resultsGroupByScene = isAsync ? fact.resultsGroupByScene4Async : fact.resultsGroupByScene;
+        for (Map<String, Object> rs : resultsGroupByScene.values()) {
             List<String> sceneTypeList = valueAsList(rs, Constants.riskScene);
             if (sceneTypeList != null) {
                 for (String sceneType : sceneTypeList) {
@@ -168,13 +186,13 @@ public class RulesExecutorService {
                         finalResultGroupByScene.put(sceneType, sceneResult);
                     }
 
-                    int sceneRiskLevel = EventBodyUtils.valueAsInt(sceneResult, Constants.riskLevel);
+                    int sceneRiskLevel = valueAsInt(sceneResult, Constants.riskLevel);
                     Map<String, Map<String, String>> finalSubResults = Maps.newHashMap();
 
                     for (Entry<String, Map<String, String>> entry : subLevelGroupBySubSceneType.entrySet()) {
 
-                        //只有子场景分数比父场景大，才保留
-                        int subSceneRiskLevel = EventBodyUtils.valueAsInt(entry.getValue(), Constants.riskLevel);
+                        // 只有子场景分数比父场景大，才保留
+                        int subSceneRiskLevel = valueAsInt(entry.getValue(), Constants.riskLevel);
                         if (subSceneRiskLevel > sceneRiskLevel) {
                             finalSubResults.put(entry.getKey(), entry.getValue());
                         }
@@ -185,8 +203,15 @@ public class RulesExecutorService {
                 }
             }
         }
-        fact.setFinalResultGroupByScene(Maps.newHashMap(finalResultGroupByScene));
-        fact.finalResultGroupByScene.remove(Constants.timeUsage);
+        if (!isAsync) {
+            fact.setFinalResultGroupByScene(Maps.newHashMap(finalResultGroupByScene));
+            fact.finalResultGroupByScene.remove(Constants.async);
+            fact.finalResultGroupByScene.remove(Constants.timeUsage);
+        } else {
+            fact.setFinalResultGroupByScene4Async(Maps.newHashMap(finalResultGroupByScene));
+            fact.finalResultGroupByScene4Async.remove(Constants.async);
+            fact.finalResultGroupByScene4Async.remove(Constants.timeUsage);
+        }
     }
 
     /**
@@ -215,7 +240,7 @@ public class RulesExecutorService {
                     Map<String, Object> defaultResult = Maps.newHashMap();
                     defaultResult.put(Constants.riskLevel, 0);
                     defaultResult.put(Constants.riskMessage, "PASS");
-                    fact.results.put(rule.getRuleNo(), defaultResult);
+                    fact.results4Async.put(rule.getRuleNo(), defaultResult);
                 }
 
                 // add current execute ruleNo and logPrefix before execution
@@ -233,7 +258,7 @@ public class RulesExecutorService {
 
                 if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
 
-                    Map<String, Object> resultWithScene = fact.resultsGroupByScene.get(packageName);
+                    Map<String, Object> resultWithScene = fact.resultsGroupByScene4Async.get(packageName);
                     if (resultWithScene != null) {
                         resultWithScene.put(Constants.async, false);
                         resultWithScene.put(Constants.timeUsage, handlingTime);
@@ -243,7 +268,7 @@ public class RulesExecutorService {
                                 + ", usage = " + resultWithScene.get(Constants.timeUsage) + "ms");
                     }
 
-                    Map<String, Object> result = fact.results.get(packageName);
+                    Map<String, Object> result = fact.results4Async.get(packageName);
                     if (result != null) {
                         result.put(Constants.async, true);
                         result.put(Constants.timeUsage, handlingTime);
@@ -254,7 +279,7 @@ public class RulesExecutorService {
 
                 } else {
 
-                    Map<String, Object> result = fact.results.get(packageName);
+                    Map<String, Object> result = fact.results4Async.get(packageName);
                     if (result != null) {
                         result.put(Constants.async, false);
                         result.put(Constants.timeUsage, handlingTime);
@@ -265,7 +290,7 @@ public class RulesExecutorService {
                         }
                     }
 
-                    Map<String, Object> resultWithScene = fact.resultsGroupByScene.get(packageName);
+                    Map<String, Object> resultWithScene = fact.resultsGroupByScene4Async.get(packageName);
                     if (resultWithScene != null) {
                         resultWithScene.put(Constants.async, true);
                         resultWithScene.put(Constants.timeUsage, handlingTime);

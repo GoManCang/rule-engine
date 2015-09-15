@@ -73,11 +73,10 @@ public class Emitter {
                 result.put(Constants.ruleType, "NA");
                 fact.results4Async.put(ruleNo, result);
             }
-            
+
             RuleMonitorHelper.addRiskRuleNo(ruleNo);
         }
-        
-        
+
     }
 
     public static void emit(RiskFact fact, String ruleNo, int riskLevel, String riskMessage, String... riskScene) {
@@ -95,7 +94,7 @@ public class Emitter {
                 result.put(Constants.ruleType, "SA");
                 fact.resultsGroupByScene4Async.put(ruleNo, result);
             }
-            
+
             RuleMonitorHelper.addRiskRuleNo(ruleNo);
         }
     }
@@ -456,8 +455,10 @@ public class Emitter {
             }
         }
     }
-    
-    
+
+    /**
+     * 提交升降分值的结果
+     */
     public static void emitLeveldownResult(RiskFact fact, int riskLevel, String riskMessage) {
         String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
         boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
@@ -470,7 +471,7 @@ public class Emitter {
                 result.put(Constants.ruleType, "N");
                 fact.leveldownResults.put(ruleNo, result);
             }
-            
+
             RuleMonitorHelper.addRiskRuleNo(ruleNo);
         }
     }
