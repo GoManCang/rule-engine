@@ -470,10 +470,44 @@ public class Emitter {
             if (!_isAsync) {
                 result.put(Constants.ruleType, "N");
                 fact.leveldownResults.put(ruleNo, result);
+                buidFinalResultAfterEmitLeveldownResult(fact, _isAsync);
             }
 
             RuleMonitorHelper.addRiskRuleNo(ruleNo);
         }
     }
 
+    /**
+     * 在emitLeveldownResult后重新计算finalResult
+     */
+    static void buidFinalResultAfterEmitLeveldownResult(RiskFact fact, boolean _isAsync) {
+        if (!_isAsync && fact.leveldownResults.size() > 0) {
+            int originalRiskLevel = valueAsInt(fact.finalResult, Constants.originalRiskLevel);
+            //获取最高分
+            Map<String, Object> finalResult = Constants.defaultResult;
+            for (Map<String, Object> rs : fact.leveldownResults.values()) {
+                finalResult = compareAndReturn(finalResult, rs);
+            }
+            fact.setFinalResult(Maps.newHashMap(finalResult));
+            fact.finalResult.put(Constants.originalRiskLevel, originalRiskLevel);
+        }
+    }
+
+    /**
+     * 返回分值高的结果作为finalResult
+     */
+    static Map<String, Object> compareAndReturn(Map<String, Object> oldResult, Map<String, Object> newResult) {
+        if (newResult == null) {
+            return oldResult;
+        }
+        if (oldResult == null) {
+            return newResult;
+        }
+        int newRriskLevel = MapUtils.getInteger(newResult, Constants.riskLevel, 0);
+        int oldRriskLevel = MapUtils.getInteger(oldResult, Constants.riskLevel, 0);
+        if (newRriskLevel > oldRriskLevel) {
+            return newResult;
+        }
+        return oldResult;
+    }
 }
