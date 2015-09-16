@@ -45,6 +45,7 @@ public class CounterPushRulesExecutorService {
 
     private void execute(RiskFact fact, boolean isAsync) {
 
+        Contexts.setAsync(isAsync);
         // matchRules      
         List<CounterPushRule> matchedRules = Configs.matchCounterPushRules(fact);
         logger.info(Contexts.getLogPrefix() + "matched CounterPushRules: " + matchedRules.size());
@@ -55,15 +56,15 @@ public class CounterPushRulesExecutorService {
             clock.start();
 
             for (CounterPushRule rule : matchedRules) {
-            	
-            	RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH);
-            	
-            	try{
-            		executeInternal(fact, rule);
-            	}finally{
-            		RuleMonitorHelper.commitTrans(fact);
-            	}
-                
+
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH);
+
+                try {
+                    executeInternal(fact, rule);
+                } finally {
+                    RuleMonitorHelper.commitTrans(fact);
+                }
+
             }
 
             clock.stop();
@@ -280,5 +281,4 @@ public class CounterPushRulesExecutorService {
 //        List<Map<String, String>> result = service.analysePushDatas(fact, rule);
 //        System.out.println(result);
 //    }
-
 }
