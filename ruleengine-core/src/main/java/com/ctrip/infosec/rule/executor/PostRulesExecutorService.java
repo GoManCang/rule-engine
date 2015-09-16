@@ -5,6 +5,13 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PostRule;
@@ -15,11 +22,6 @@ import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessPostRuleEngine;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
-import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  *
@@ -51,14 +53,22 @@ public class PostRulesExecutorService {
 
         StatelessPostRuleEngine statelessPostRuleEngine = SpringContextHolder.getBean(StatelessPostRuleEngine.class);
         for (PostRule rule : matchedRules) {
-        	RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE,rule.getRuleNo());
+            RuleMonitorHelper.newTrans(fact, RuleMonitorType.POST_RULE, rule.getRuleNo());
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             Contexts.setPolicyOrRuleNo(rule.getRuleNo());
             try {
                 long start = System.currentTimeMillis();
 
+                // add current execute ruleNo and logPrefix before execution
+                fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                fact.ext.put(Constants.key_isAsync, isAsync);
+
                 statelessPostRuleEngine.execute(rule.getRuleNo(), fact);
+
+                // remove current execute ruleNo when finished execution.
+                fact.ext.remove(Constants.key_ruleNo);
+                fact.ext.remove(Constants.key_isAsync);
 
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {

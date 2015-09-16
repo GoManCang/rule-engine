@@ -1,7 +1,7 @@
 # applicationId
 appId=100000559
 
-# executor.timeout(S)
+# executor.timeout(ms)
 Rules.executor.timeout={$Rules.executor.timeout}
 PreRules.executor.timeout={$PreRules.executor.timeout}
 

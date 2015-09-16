@@ -23,9 +23,9 @@
     <test></test>
     <fws></fws>
     <fat>
-		<!-- executor.timeout(S) -->
-        <Rules.executor.timeout>10</Rules.executor.timeout>
-        <PreRules.executor.timeout>10</PreRules.executor.timeout>
+		<!-- executor.timeout(ms) -->
+        <Rules.executor.timeout>10000</Rules.executor.timeout>
+        <PreRules.executor.timeout>10000</PreRules.executor.timeout>
 		<!-- SARS -->
         <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->
@@ -94,9 +94,9 @@
     <lpt></lpt>
     <uat></uat>
     <uat_nt>
-		<!-- executor.timeout(S) -->
-        <Rules.executor.timeout>5</Rules.executor.timeout>
-        <PreRules.executor.timeout>5</PreRules.executor.timeout>
+		<!-- executor.timeout(ms) -->
+        <Rules.executor.timeout>5000</Rules.executor.timeout>
+        <PreRules.executor.timeout>5000</PreRules.executor.timeout>
 		<!-- SARS -->
         <sars.monitor.rest.url>http://10.2.10.75:8080/monitorws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->
@@ -163,9 +163,9 @@
         <Wallet.ESB.URL>http://10.2.24.228/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
     </uat_nt>
     <prd>
-		<!-- executor.timeout(S) -->
-        <Rules.executor.timeout>2</Rules.executor.timeout>
-        <PreRules.executor.timeout>1</PreRules.executor.timeout>
+		<!-- executor.timeout(ms) -->
+        <Rules.executor.timeout>1000</Rules.executor.timeout>
+        <PreRules.executor.timeout>500</PreRules.executor.timeout>
 		<!-- SARS -->
         <sars.monitor.rest.url>http://10.8.85.45:8080/infosec-monitor-ws/rest/monitor</sars.monitor.rest.url>
         <!-- CRedis -->

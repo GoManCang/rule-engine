@@ -111,15 +111,22 @@ public class EventDataMergeService {
             for (String sourceFieldName : fieldMapping.keySet()) {
                 String targetFieldName = fieldMapping.get(sourceFieldName);
                 Object targetFieldValue = valueMap.get(sourceFieldName);
-                if (targetFieldName == null || targetFieldName.isEmpty() || targetFieldValue == null) {
+                if (StringUtils.isEmpty(targetFieldName)
+                        || targetFieldValue == null
+                        || (targetFieldValue instanceof String && StringUtils.isEmpty((String) targetFieldValue))) {
                     continue;
                 }
-                if (targetFieldValue instanceof Map || targetFieldValue instanceof List || targetFieldValue instanceof Object[]) {
-                    TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + JSON.toJSONString(targetFieldValue));
-                } else {
-                    TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + targetFieldValue);
+                // eventBody对应的KEY有值的话 不覆盖
+                Object fv = fact.eventBody.get(targetFieldName);
+                if (valueIsEmpty(fv)) {
+
+                    if (targetFieldValue instanceof Map || targetFieldValue instanceof List || targetFieldValue instanceof Object[]) {
+                        TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + JSON.toJSONString(targetFieldValue));
+                    } else {
+                        TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + targetFieldValue);
+                    }
+                    fact.eventBody.put(targetFieldName, targetFieldValue);
                 }
-                fact.eventBody.put(targetFieldName, targetFieldValue);
             }
         }
         return fact;
@@ -150,22 +157,16 @@ public class EventDataMergeService {
             }
             Set<String> fields = fieldsToPut.get(key);
             for (String fieldName : fields) {
-                Object fieldValue = fact.eventBody.get(fieldName);
-                if (fieldValue == null) {
+                Object fv = fact.eventBody.get(fieldName);
+                if (valueIsEmpty(fv)) {
                     continue;
                 }
-                // valueMap里不存在才合并
-                Object fieldValueInValueMap = valueMap.get(fieldName);
-                if (fieldValueInValueMap == null
-                        || (fieldValueInValueMap instanceof String && StringUtils.isEmpty((String) fieldValueInValueMap))) {
-
-                    if (fieldValue instanceof Map || fieldValue instanceof List || fieldValue instanceof Object[]) {
-                        TraceLogger.traceLog("PUT: " + fieldName + " = " + JSON.toJSONString(fieldValue));
-                    } else {
-                        TraceLogger.traceLog("PUT: " + fieldName + " = " + fieldValue);
-                    }
-                    valueMap.put(fieldName, fieldValue);
+                if (fv instanceof Map || fv instanceof List || fv instanceof Object[]) {
+                    TraceLogger.traceLog("PUT: " + fieldName + " = " + JSON.toJSONString(fv));
+                } else {
+                    TraceLogger.traceLog("PUT: " + fieldName + " = " + fv);
                 }
+                valueMap.put(fieldName, fv);
             }
 
             String value = JSON.toJSONString(valueMap);
@@ -175,5 +176,17 @@ public class EventDataMergeService {
             cache.expire(key, ttl);
         }
         return fact;
+    }
+
+    boolean valueIsEmpty(Object fv) {
+        if (fv == null
+                || (fv instanceof String && StringUtils.isEmpty((String) fv))
+                || (fv instanceof Number && ((Number) fv).doubleValue() == 0.0)
+                || (fv instanceof Map && ((Map) fv).isEmpty())
+                || (fv instanceof List && ((List) fv).isEmpty())
+                || (fv instanceof Object[] && ((Object[]) fv).length == 0)) {
+            return true;
+        }
+        return false;
     }
 }
