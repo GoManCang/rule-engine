@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class WhiteListRulesExecutorService {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(WhiteListRulesExecutorService.class);
 
     /**
@@ -50,38 +50,39 @@ public class WhiteListRulesExecutorService {
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "ruleNo");
         logger.debug(Contexts.getLogPrefix() + "matched whitelist rules: " + StringUtils.join(scriptRulePackageNames, ", "));
         TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条黑白名单规则 ...");
-
+        
         StatelessWhitelistRuleEngine statelessWhitelistRuleEngine = SpringContextHolder.getBean(StatelessWhitelistRuleEngine.class);
         for (WhitelistRule rule : matchedRules) {
-        	RuleMonitorHelper.newTrans(fact, RuleMonitorType.WB_RULE,rule.getRuleNo());
+            RuleMonitorHelper.newTrans(fact, RuleMonitorType.WB_RULE, rule.getRuleNo());
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             Contexts.setPolicyOrRuleNo(rule.getRuleNo());
+            Contexts.setAsync(false);
             try {
                 long start = System.currentTimeMillis();
 
                 // add current execute ruleNo and logPrefix before execution
                 fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
                 fact.ext.put(Constants.key_isAsync, false);
-
+                
                 statelessWhitelistRuleEngine.execute(rule.getRuleNo(), fact);
 
                 // remove current execute ruleNo when finished execution.
                 fact.ext.remove(Constants.key_ruleNo);
                 fact.ext.remove(Constants.key_isAsync);
-
+                
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {
                     logger.info(Contexts.getLogPrefix() + "whitelistRule: " + rule.getRuleNo() + ", usage: " + handlingTime + "ms");
                 }
-
+                
                 if (fact.finalWhitelistResult.isEmpty()) {
                     TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + rule.getRuleNo() + "] 没有命中白名单. usage: " + handlingTime + "ms");
                 } else {
                     TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + rule.getRuleNo() + "] 命中白名单: riskLevel = " + fact.finalWhitelistResult.get(Constants.riskLevel)
                             + ", riskMessage = " + fact.finalWhitelistResult.get(Constants.riskMessage) + ", usage = " + fact.finalWhitelistResult.get(Constants.timeUsage) + "ms");
                 }
-
+                
             } catch (Throwable ex) {
                 logger.warn(Contexts.getLogPrefix() + "执行黑白名单规则异常. whitelistRule: " + rule.getRuleNo(), ex);
                 TraceLogger.traceLog("[" + rule.getRuleNo() + "] EXCEPTION: " + ex.toString());
@@ -91,6 +92,6 @@ public class WhiteListRulesExecutorService {
                 Contexts.clearLogPrefix();
             }
         }
-
+        
     }
 }

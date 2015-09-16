@@ -103,7 +103,8 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 RuleMonitorHelper.commitTrans(fact);
             }
 
-            boolean wbRiskFlag = false; // 是否中白名单标志
+            // 是否中白名单标志
+            boolean wbRiskFlag = false;
             // 非适配接入点、中白名单"0"的直接返回
             if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                 if (fact.finalWhitelistResult != null && fact.finalWhitelistResult.containsKey(Constants.riskLevel)) {

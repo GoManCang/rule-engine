@@ -100,6 +100,7 @@ public class PreRulesExecutorService {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             Contexts.setPolicyOrRuleNo(rule.getRuleNo());
+            Contexts.setAsync(true);
             long start = System.currentTimeMillis();
             // 执行规则
             try {
@@ -156,6 +157,7 @@ public class PreRulesExecutorService {
                     TraceLogger.setParentTransId(_traceLoggerParentTransId);
                     TraceLogger.setLogPrefix("[" + packageName + "]");
                     Contexts.setPolicyOrRuleNo(packageName);
+                    Contexts.setAsync(false);
                     long start = System.currentTimeMillis();
                     try {
                         if (rule.getRuleType() == RuleType.Script) {

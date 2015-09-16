@@ -22,11 +22,9 @@ import com.ctrip.infosec.counter.model.FlowPushResponse;
 import com.ctrip.infosec.counter.model.FlowQueryRequest;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
-import com.ctrip.infosec.counter.model.PolicyBatchExecuteResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteRequest;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.venus.DecisionDataRemoteService;
-import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
 import com.ctrip.infosec.counter.venus.FlowPolicyRemoteServiceV2;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
@@ -39,6 +37,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,16 +94,6 @@ public class Counter {
         beforeInvoke();
         FlowPushResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/push")
-//                    .bodyForm(Form.form()
-//                            .add("bizNo", bizNo)
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//            response = flowPolicyRemoteService.push(bizNo, kvData);
             FlowPushRequest flowPushRequest = new FlowPushRequest();
             flowPushRequest.setBizNo(bizNo);
             flowPushRequest.setKvData(kvData);
@@ -123,7 +112,20 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-            response = flowPolicyRemoteService.push(flowPushRequest);
+            if (Contexts.isAsync()) {
+                String responseTxt = Request.Post(urlPrefix + "/rest/push")
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("Accept-Encoding", "utf-8")
+                        .bodyString(JSON.toJSONString(flowPushRequest), ContentType.APPLICATION_JSON)
+                        .connectTimeout(1000)
+                        .socketTimeout(1000)
+                        .execute().returnContent().asString();
+                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.push(flowPushRequest);
+            }
+
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.push fault.", ex);
@@ -148,16 +150,6 @@ public class Counter {
         beforeInvoke();
         FlowPushResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/push")
-//                    .bodyForm(Form.form()
-//                            .add("bizNo", bizNo)
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//            response = flowPolicyRemoteService.push(bizNo, kvData);
             FlowPushRequest2 flowPushRequest = new FlowPushRequest2();
             flowPushRequest.setBizNo(bizNo);
             flowPushRequest.setFlowNoList(flowNoList);
@@ -177,7 +169,20 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-            response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
+            if (Contexts.isAsync()) {
+                String responseTxt = Request.Post(urlPrefix + "/rest/pushToFlow")
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("Accept-Encoding", "utf-8")
+                        .bodyString(JSON.toJSONString(flowPushRequest), ContentType.APPLICATION_JSON)
+                        .connectTimeout(1000)
+                        .socketTimeout(1000)
+                        .execute().returnContent().asString();
+                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
+            }
+
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushToFlow fault.", ex);
@@ -186,76 +191,6 @@ public class Counter {
             response.setErrorMessage(ex.getMessage());
         } finally {
             afterInvoke("Counter.pushToFlow");
-        }
-        return response;
-    }
-
-    /**
-     * 推送流量数据, 并执行指定策略
-     *
-     * @param bizNo 业务编号
-     * @param policyNo 策略编号
-     * @param kvData 交易数据
-     * @return
-     */
-    public static PolicyExecuteResponse pushAndExecute(String bizNo, String policyNo, Map<String, ?> kvData) {
-        check();
-        beforeInvoke();
-        PolicyExecuteResponse response = null;
-        try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecute")
-//                    .bodyForm(Form.form()
-//                            .add("bizNo", bizNo)
-//                            .add("policyNo", policyNo)
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            response = flowPolicyRemoteService.pushAndExecute(bizNo, policyNo, kvData);
-        } catch (Exception ex) {
-            fault();
-            logger.error(Contexts.getLogPrefix() + "invoke Counter.pushAndExecute fault.", ex);
-            response = new PolicyExecuteResponse();
-            response.setErrorCode(ErrorCode.EXCEPTION.getCode());
-            response.setErrorMessage(ex.getMessage());
-        } finally {
-            afterInvoke("Counter.pushAndExecute");
-        }
-        return response;
-    }
-
-    /**
-     * 推送流量数据, 并执行指定策略(多个)
-     *
-     * @param bizNo 业务编号
-     * @param policyNoList 多个策略编号
-     * @param kvData 交易数据
-     * @return
-     */
-    public static PolicyBatchExecuteResponse pushAndExecuteAll(String bizNo, List<String> policyNoList, Map<String, ?> kvData) {
-        check();
-        beforeInvoke();
-        PolicyBatchExecuteResponse response = null;
-        try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/pushAndExecuteAll")
-//                    .bodyForm(Form.form()
-//                            .add("bizNo", bizNo)
-//                            .add("policyNoList", StringUtils.join(policyNoList, ","))
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
-            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            response = flowPolicyRemoteService.pushAndExecuteAll(bizNo, policyNoList, kvData);
-        } catch (Exception ex) {
-            fault();
-            logger.error(Contexts.getLogPrefix() + "invoke Counter.pushAndExecuteAll fault.", ex);
-            response = new PolicyBatchExecuteResponse();
-            response.setErrorCode(ErrorCode.EXCEPTION.getCode());
-            response.setErrorMessage(ex.getMessage());
-        } finally {
-            afterInvoke("Counter.pushAndExecuteAll");
         }
         return response;
     }
@@ -272,16 +207,6 @@ public class Counter {
         beforeInvoke();
         PolicyExecuteResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/execute")
-//                    .bodyForm(Form.form()
-//                            .add("policyNo", policyNo)
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//            response = flowPolicyRemoteService.execute(policyNo, kvData);
             PolicyExecuteRequest policyExecuteRequest = new PolicyExecuteRequest();
             policyExecuteRequest.setPolicyNo(policyNo);
             policyExecuteRequest.setKvData(kvData);
@@ -300,7 +225,20 @@ public class Counter {
                 policyExecuteRequest.setTraceLoggerHeader(header);
             }
 
-            response = flowPolicyRemoteService.execute(policyExecuteRequest);
+            if (Contexts.isAsync()) {
+                String responseTxt = Request.Post(urlPrefix + "/rest/execute")
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("Accept-Encoding", "utf-8")
+                        .bodyString(JSON.toJSONString(policyExecuteRequest), ContentType.APPLICATION_JSON)
+                        .connectTimeout(1000)
+                        .socketTimeout(5000)
+                        .execute().returnContent().asString();
+                response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.execute(policyExecuteRequest);
+            }
+
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.execute fault.", ex);
@@ -309,39 +247,6 @@ public class Counter {
             response.setErrorMessage(ex.getMessage());
         } finally {
             afterInvoke("Counter.execute");
-        }
-        return response;
-    }
-
-    /**
-     * 执行指定策略(多个)
-     *
-     * @param policyNoList 多个策略编号
-     * @param kvData 交易数据
-     * @return
-     */
-    public static PolicyBatchExecuteResponse executeAll(List<String> policyNoList, Map<String, ?> kvData) {
-        check();
-        beforeInvoke();
-        PolicyBatchExecuteResponse response = null;
-        try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/executeAll")
-//                    .bodyForm(Form.form()
-//                            .add("policyNoList", StringUtils.join(policyNoList, ","))
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, PolicyBatchExecuteResponse.class);
-            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            response = flowPolicyRemoteService.executeAll(policyNoList, kvData);
-        } catch (Exception ex) {
-            fault();
-            logger.error(Contexts.getLogPrefix() + "invoke Counter.executeAll fault.", ex);
-            response = new PolicyBatchExecuteResponse();
-            response.setErrorCode(ErrorCode.EXCEPTION.getCode());
-            response.setErrorMessage(ex.getMessage());
-        } finally {
-            afterInvoke("Counter.executeAll");
         }
         return response;
     }
@@ -373,19 +278,6 @@ public class Counter {
         beforeInvoke();
         FlowQueryResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
-//                    .bodyForm(Form.form()
-//                            .add("flowNo", flowNo)
-//                            .add("fieldName", fieldName)
-//                            .add("accuracy", accuracy.toString())
-//                            .add("timeWindow", timeWindow)
-//                            .add("kvData", JSON.toJSONString(kvData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
-//            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-            FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//            response = flowPolicyRemoteService.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
 
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
@@ -400,12 +292,26 @@ public class Counter {
                 }
                 flowQueryRequest.setTraceLoggerHeader(header);
             }
+
             // PolicyOrRuleNo
             if (StringUtils.isNotBlank(Contexts.getPolicyOrRuleNo())) {
                 flowQueryRequest.setPolicyOrRuleNo(Contexts.getPolicyOrRuleNo());
             }
 
-            response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
+            if (Contexts.isAsync()) {
+                String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("Accept-Encoding", "utf-8")
+                        .bodyString(JSON.toJSONString(flowQueryRequest), ContentType.APPLICATION_JSON)
+                        .connectTimeout(1000)
+                        .socketTimeout(5000)
+                        .execute().returnContent().asString();
+                response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
+            }
+
         } catch (Exception ex) {
             fault();
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryFlowData fault.", ex);
@@ -433,16 +339,6 @@ public class Counter {
         beforeInvoke();
         DecisionDataPushResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/pushDecisionData")
-//                    .bodyForm(Form.form()
-//                            .add("decisionTableNo", decisionTableNo)
-//                            .add("xData", JSON.toJSONString(xData))
-//                            .add("yData", JSON.toJSONString(yData))
-//                            .add("expireAt", expireAt != null ? fastDateFormat.format(expireAt) : "")
-//                            .add("memo", memo)
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, DecisionDataPushResponse.class);
             DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
             response = decisionDataRemoteService.pushDecisionData(decisionTableNo, xData, yData, expireAt, memo);
         } catch (Exception ex) {
@@ -469,13 +365,6 @@ public class Counter {
         beforeInvoke();
         DecisionDataRemoveResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/removeDecisionData")
-//                    .bodyForm(Form.form()
-//                            .add("decisionTableNo", decisionTableNo)
-//                            .add("xData", JSON.toJSONString(xData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, DecisionDataRemoveResponse.class);
             DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
             response = decisionDataRemoteService.removeDecisionData(decisionTableNo, xData);
         } catch (Exception ex) {
@@ -502,13 +391,6 @@ public class Counter {
         beforeInvoke();
         DecisionDataQueryResponse response = null;
         try {
-//            String responseTxt = Request.Post(urlPrefix + "/rest/queryDecisionData")
-//                    .bodyForm(Form.form()
-//                            .add("decisionTableNo", decisionTableNo)
-//                            .add("xData", JSON.toJSONString(xData))
-//                            .build(), Charset.forName("UTF-8"))
-//                    .execute().returnContent().asString();
-//            response = JSON.parseObject(responseTxt, DecisionDataQueryResponse.class);
             DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
             response = decisionDataRemoteService.queryDecisionData(decisionTableNo, xData);
         } catch (Exception ex) {

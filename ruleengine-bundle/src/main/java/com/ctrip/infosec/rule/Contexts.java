@@ -50,4 +50,21 @@ public class Contexts {
         Contexts.policyOrRuleNo.remove();
     }
 
+    /**
+     * 异步标记
+     */
+    private static ThreadLocal<Boolean> _isAsync = new ThreadLocal<Boolean>();
+
+    public static boolean isAsync() {
+        return Contexts._isAsync.get() == null ? false : Contexts._isAsync.get();
+    }
+
+    public static void setAsync(boolean isAsync) {
+        Contexts._isAsync.set(isAsync);
+    }
+
+    public static void clearAsync() {
+        Contexts._isAsync.remove();
+    }
+
 }

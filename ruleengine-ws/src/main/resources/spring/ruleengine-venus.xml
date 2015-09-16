@@ -14,6 +14,27 @@
 
     <!-- import server side spring context file -->
     <import resource="classpath:/spring/applicationContext-service-container.xml"/>
+    <!--    
+    <bean class="com.meidusa.toolkit.net.ConnectionAcceptor" init-method="start" destroy-method="shutdown">
+        <property name="name" value="Service socket Server"/>
+        <property name="port" value="${venus.server.binding.port:16800}"/>
+        <property name="executorSize" value="${venus.server.manager.executor.size:16}"/>
+        <property name="connectionFactory" ref="serviceConnectionFactory"/>
+    </bean>    
+    <bean id="serviceConnectionFactory" class="com.meidusa.venus.backend.network.VenusBackendFrontendConnectionFactory">
+        <property name="messageHandler">
+            <bean id="messageHandler" class="com.meidusa.venus.backend.network.handler.ServiceInvokeMessageHandler" init-method="init">
+                <property name="maxExecutionThread" value="${venus.server.handler.executor.maxThread:64}"></property>
+                <property name="executorProtected" value="${venus.server.handler.executor.protected:false}"></property>
+                <property name="executorEnabled" value="${venus.server.handler.executor.enabled:false}"></property>
+                <property name="useThreadLocalExecutor" value="${venus.server.handler.executor.useThreadLocalExecutor:false}"/>
+                <property name="serviceManager" ref="serviceManager"/>
+            </bean>
+        </property>
+        <property name="sendBufferSize" value="${venus.socket.sendBufferSize:16}" />
+        <property name="receiveBufferSize" value="${venus.socket.receiveBufferSize:8}" />
+    </bean>
+    -->
 	
     <!-- use venus placeholder config process -->
     <bean class="com.meidusa.venus.spring.VenusPropertyPlaceholderConfigurer">
