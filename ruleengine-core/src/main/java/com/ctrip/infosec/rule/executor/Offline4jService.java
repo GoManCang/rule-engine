@@ -120,6 +120,7 @@ public class Offline4jService {
             request.setInfoID(MapUtils.getInteger(ebankData, "infoId", 0));
             request.setIsForigenCard(MapUtils.getString(ebankData, "isForeignCard", ""));
             request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
+            request.setStatus(MapUtils.getString(ebankData, "status", ""));
 
             SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
             if (ebankResp != null) {

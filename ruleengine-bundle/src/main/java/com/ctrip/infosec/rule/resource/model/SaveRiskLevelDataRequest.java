@@ -20,6 +20,7 @@ public class SaveRiskLevelDataRequest {
     private Integer InfoID = null;
     private String IsForigenCard = null;
     private Integer CardInfoID = null;
+    private String Status = null;
 
     public Long getResID() {
         return ResID;
@@ -131,5 +132,13 @@ public class SaveRiskLevelDataRequest {
 
     public void setCardInfoID(Integer cardInfoID) {
         CardInfoID = cardInfoID;
+    }
+
+    public String getStatus() {
+        return Status;
+    }
+
+    public void setStatus(String status) {
+        Status = status;
     }
 }
