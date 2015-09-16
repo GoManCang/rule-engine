@@ -102,7 +102,7 @@ public class RabbitMqMessageHandler {
             // S1 - 同步引擎
             // S2 - 接入层同步后
             // S3 - 异步引擎
-            // 执行Redis读取
+            // 执行数据合并（GET）
             try {
                 RuleMonitorHelper.newTrans(fact, RuleMonitorType.GET);
                 TraceLogger.beginTrans(fact.eventId, "S3");
@@ -118,16 +118,6 @@ public class RabbitMqMessageHandler {
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步预处理]");
                 preRulesExecutorService.executePreRules(fact, true);
-            } finally {
-                TraceLogger.commitTrans();
-                RuleMonitorHelper.commitTrans(fact);
-            }
-            //执行推送数据到Redis
-            try {
-                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
-                TraceLogger.beginTrans(fact.eventId, "S3");
-                TraceLogger.setLogPrefix("[异步数据合并]");
-                eventDataMergeService.executeRedisPut(fact);
             } finally {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);
@@ -152,6 +142,16 @@ public class RabbitMqMessageHandler {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);
             }
+            // 执行数据合并（PUT）
+            try {
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
+                TraceLogger.beginTrans(fact.eventId, "S3");
+                TraceLogger.setLogPrefix("[异步数据合并]");
+                eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
+            }
             //Counter推送规则处理
             try {
                 RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUSH_WRAP);
@@ -166,7 +166,6 @@ public class RabbitMqMessageHandler {
             RuleMonitorHelper.commitTrans(fact);
 
             // -------------------------------- 规则引擎结束 -------------------------------------- //
-
             beforeInvoke("CardRiskDB.CheckResultLog.saveRuleResult");
             Long riskReqId = MapUtils.getLong(fact.ext, Constants.key_reqId);
             boolean outerReqId = riskReqId != null;
@@ -373,7 +372,7 @@ public class RabbitMqMessageHandler {
     }
 
     private Map<String, PersistColumnProperties> prepareRiskControlCheckResultLog(Long riskReqId, String ruleType, Entry<String, Map<String, Object>> entry,
-                                                                                  Long riskLevel, String eventPoint, Long orderId, Integer orderType, Integer subOrderType) {
+            Long riskLevel, String eventPoint, Long orderId, Integer orderType, Integer subOrderType) {
         Map<String, PersistColumnProperties> map = Maps.newHashMap();
         PersistColumnProperties props = new PersistColumnProperties();
         props.setPersistColumnSourceType(PersistColumnSourceType.DB_PK);
