@@ -42,14 +42,12 @@ public class DataProxy {
     /**
      * URL前缀, 包含ContextPath部分, 如: http://10.2.10.75:8080/counterws
      */
-    static final String REST = "REST";
-    static final String VENUS = "VENUS";
-    static final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
-    static final String apiMode = GlobalConfig.getString("DataProxy.API.MODE", VENUS);
+    private static final String REST = "REST";
+    private static final String VENUS = "VENUS";
+    private static final String urlPrefix = GlobalConfig.getString("DataProxy.REST.URL.Prefix");
+    private static final String apiMode = GlobalConfig.getString("DataProxy.API.MODE", VENUS);
 
-    static final JavaType javaType = JSON.constructCollectionType(List.class, DataProxyResponse.class);
-
-    static void check() {
+    private static void check() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.Venus.ipAddressList\"配置项.");
         initDataProxyVenusServiceProxy();
@@ -180,6 +178,7 @@ public class DataProxy {
         check();
         beforeInvoke();
         beforeInvoke("DataProxy." + serviceName + "." + operationName);
+        Map newResult = null;
         try {
             DataProxyRequest request = new DataProxyRequest();
             request.setServiceName(serviceName);
@@ -206,14 +205,11 @@ public class DataProxy {
                 response = query(request);
             }
 
-            Map newResult = null;
             if (request.getServiceName().equals("UserProfileService")) {
                 newResult = parseProfileResult(response.getResult());
             } else {
                 newResult = response.getResult();
             }
-            return newResult;
-
         } catch (Exception ex) {
             fault();
             fault("DataProxy." + serviceName + "." + operationName);
@@ -222,9 +218,62 @@ public class DataProxy {
             afterInvoke("DataProxy.queryForMap");
             afterInvoke("DataProxy." + serviceName + "." + operationName);
         }
-        return null;
+        if(newResult == null)
+            newResult = new HashMap();
+        return newResult;
     }
 
+    /**
+     *
+     * @param key 定义的tag关联字段的值
+     * @param values tag的名称和这个tag对应的值组成的map
+     * example:key:uid-123
+     *         values:RECENT_IP-112.23.32.36
+     *               RECENT_IPAREA-大连
+     *  -------------------------------------
+     *
+     *  调用的方式是： temp = new HashMap();temp.put("RECENT_IP","112.23.32.36");temp.put("RECENT_IPAREA","大连");  addTagData("123",temp)
+     * @return 如果写入成功则返回true，否则false
+     */
+    public static boolean addTagData(String key,Map<String,String> values)
+    {
+        boolean flag = false;
+        check();
+        beforeInvoke();
+        try {
+            List<DataProxyRequest> requests = new ArrayList<>();
+            DataProxyRequest request = new DataProxyRequest();
+            request.setServiceName("CommonService");
+            request.setOperationName("addData");
+
+            Map params = new HashMap<String,String>();
+            params.put("tableName", "UserProfileInfo");
+            params.put("pkValue", key.trim());
+            params.put("storageType", "1");
+            params.put("values", values);
+            request.setParams(params);
+            requests.add(request);
+            String requestText = JSON.toPrettyJSONString(requests);
+            String responseText = Request.Post(urlPrefix+"/rest/dataproxy/dataprocess").
+                    bodyString(requestText, ContentType.APPLICATION_JSON).execute().returnContent().asString();
+            Map result = JSON.parseObject(responseText,Map.class);
+            if(result.get("rtnCode").equals("0"))
+            {
+                flag = true;
+            }
+            else
+            {
+                flag = false;
+                logger.warn("添加数据:"+JSON.toPrettyJSONString(values)+"\t"+"到userProfile失败!");
+            }
+        } catch (Exception ex) {
+            fault();
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.addTagData fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.addTagData");
+        }
+        return flag;
+    }
     /**
      * 批量查询的接口
      *

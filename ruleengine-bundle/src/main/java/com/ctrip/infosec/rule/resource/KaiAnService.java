@@ -26,7 +26,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
     20 ~ 50分 低风险
     50 ~ 80 分 中风险
     80 ~ 100 分 高风险
+   这个服务在userProfile里面提供了
  */
+@Deprecated
 public class KaiAnService {
     private static int timeout = 300;//300ms
     private static URIBuilder urlBuilder = new URIBuilder();
@@ -49,7 +51,8 @@ public class KaiAnService {
      */
     public static  Map<String,String> query(String ip,String mobile){
         if ((ip == null || ip.length() == 0)&&(mobile == null || mobile.length() == 0)) {
-            throw new IllegalArgumentException("ip和mobile都为空");
+            logger.warn("ip和mobile都为空");
+            return new HashMap<>();
         }
         beforeInvoke();
         Map<String,String> result = new HashMap<>();
@@ -64,7 +67,7 @@ public class KaiAnService {
             if(newResult != null && newResult.size()>0)
             {
                 Map scoreResult = (Map)newResult.get("result");
-                if(scoreResult != null && scoreResult.size()>=2)
+                if(scoreResult != null)
                 {
                     Map ipScore = (Map) scoreResult.get("ip");
                     Map mobileScore = (Map) scoreResult.get("mobile");
