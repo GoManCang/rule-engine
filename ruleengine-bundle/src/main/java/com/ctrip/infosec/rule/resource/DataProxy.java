@@ -167,6 +167,192 @@ public class DataProxy {
     //venus
 
     /**
+     * 同盾的ip和手机号交易事件查询服务
+     * @param ip
+     * @param mobile
+     * @return  {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
+     */
+    public static Map queryForTongDunT(String ip,String mobile)
+    {
+        if(ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty())
+        {
+            return new HashMap();
+        }
+        check();
+        beforeInvoke();
+        beforeInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceTrade");
+        Map newResult = null;
+        try {
+            DataProxyRequest request = new DataProxyRequest();
+            request.setServiceName("ThirdServiceClient");
+            request.setOperationName("api.fraudmetrix.cn_RiskServiceTrade");
+
+            Map params = new HashMap<String,String>();
+            params.put("account_mobile",mobile);
+            params.put("ip_address",ip);
+            request.setParams(params);
+
+            List<DataProxyRequest> requests = new ArrayList<>();
+            requests.add(request);
+
+            DataProxyResponse response = null;
+            if (VENUS.equals(apiMode)) {
+                List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(queryTimeout, requests);
+                if (responses == null || responses.size() < 1) {
+                    return new HashMap();
+                }
+                response = responses.get(0);
+                if (response.getRtnCode() != 0) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForTongDunT fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
+                    return new HashMap();
+                }
+            } else {
+                response = query(request);
+            }
+
+            if (request.getServiceName().equals("UserProfileService")) {
+                newResult = parseProfileResult(response.getResult());
+            } else {
+                newResult = response.getResult();
+            }
+        } catch (Exception ex) {
+            fault();
+            fault("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceTrade");
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForTongDunT fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.queryForTongDunT");
+            afterInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceTrade");
+        }
+        if(newResult == null)
+            newResult = new HashMap();
+        return newResult;
+    }
+
+    /**
+     * 同盾的ip和手机号注册事件查询服务
+     * @param ip
+     * @param mobile
+     * @return  {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
+     */
+    public static Map queryForTongDunR(String ip,String mobile)
+    {
+        if(ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty())
+        {
+            return new HashMap();
+        }
+        check();
+        beforeInvoke();
+        beforeInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceRegister");
+        Map newResult = null;
+        try {
+            DataProxyRequest request = new DataProxyRequest();
+            request.setServiceName("ThirdServiceClient");
+            request.setOperationName("api.fraudmetrix.cn_RiskServiceRegister");
+
+            Map params = new HashMap<String,String>();
+            params.put("account_mobile",mobile);
+            params.put("ip_address",ip);
+            request.setParams(params);
+
+            List<DataProxyRequest> requests = new ArrayList<>();
+            requests.add(request);
+
+            DataProxyResponse response = null;
+            if (VENUS.equals(apiMode)) {
+                List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(queryTimeout, requests);
+                if (responses == null || responses.size() < 1) {
+                    return new HashMap();
+                }
+                response = responses.get(0);
+                if (response.getRtnCode() != 0) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForTongDunR fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
+                    return new HashMap();
+                }
+            } else {
+                response = query(request);
+            }
+
+            if (request.getServiceName().equals("UserProfileService")) {
+                newResult = parseProfileResult(response.getResult());
+            } else {
+                newResult = response.getResult();
+            }
+        } catch (Exception ex) {
+            fault();
+            fault("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceRegister");
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForTongDunR fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.queryForTongDunR");
+            afterInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceRegister");
+        }
+        if(newResult == null)
+            newResult = new HashMap();
+        return newResult;
+    }
+
+
+    /**
+     * 凯安的ip和手机号注册事件查询服务
+     * @param ip
+     * @param mobile
+     * @return  {"msg":null,"success":1,"mobile":{"score":null,"is_notreal":null},"ip":{"is_proxy":0,"score":50.0,"ip":"218.17.231.209"}}
+     */
+    public static Map queryForKaiAn(String ip,String mobile)
+    {
+        if(ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty())
+        {
+            return new HashMap();
+        }
+        check();
+        beforeInvoke();
+        beforeInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.bigsec.com_checkvip");
+        Map newResult = null;
+        try {
+            DataProxyRequest request = new DataProxyRequest();
+            request.setServiceName("ThirdServiceClient");
+            request.setOperationName("api.bigsec.com_checkvip");
+
+            Map params = new HashMap<String,String>();
+            params.put("mobile",mobile);
+            params.put("ip",ip);
+            request.setParams(params);
+
+            List<DataProxyRequest> requests = new ArrayList<>();
+            requests.add(request);
+
+            DataProxyResponse response = null;
+            if (VENUS.equals(apiMode)) {
+                List<DataProxyResponse> responses = dataProxyVenusServiceProxy.syncInvoke(queryTimeout, requests);
+                if (responses == null || responses.size() < 1) {
+                    return new HashMap();
+                }
+                response = responses.get(0);
+                if (response.getRtnCode() != 0) {
+                    logger.warn(Contexts.getLogPrefix() + "invoke DataProxy.queryForKaiAn fault. RtnCode=" + response.getRtnCode() + ", RtnMessage=" + response.getMessage());
+                    return new HashMap();
+                }
+            } else {
+                response = query(request);
+            }
+
+            if (request.getServiceName().equals("UserProfileService")) {
+                newResult = parseProfileResult(response.getResult());
+            } else {
+                newResult = response.getResult();
+            }
+        } catch (Exception ex) {
+            fault();
+            fault("DataProxy." + "ThirdServiceClient" + "." + "api.bigsec.com_checkvip");
+            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForKaiAn fault.", ex);
+        } finally {
+            afterInvoke("DataProxy.queryForKaiAn");
+            afterInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.bigsec.com_checkvip");
+        }
+        if(newResult == null)
+            newResult = new HashMap();
+        return newResult;
+    }
+    /**
      * 查询一个服务的接口
      *
      * @param serviceName
