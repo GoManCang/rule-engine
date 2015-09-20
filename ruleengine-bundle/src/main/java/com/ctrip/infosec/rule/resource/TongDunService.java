@@ -10,6 +10,8 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
@@ -19,7 +21,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 /**
  * Created by lpxie on 15-9-6.
  * 同盾服务器是双线的
+ * 这个服务现在在userProfile里面提供了
  */
+@Deprecated
 public class TongDunService {
     private static Logger logger = LoggerFactory.getLogger(TongDunService.class);
     private static int cacheExpireTime = 7*24*3600;//在redis存放7天
@@ -50,6 +54,10 @@ public class TongDunService {
      */
     public static String queryT(String ip,String mobile)
     {
+        if ((ip == null || ip.length() == 0)&&(mobile == null || mobile.length() == 0)) {
+            logger.warn("ip和mobile都为空");
+            return "";
+        }
         String score = "";
         beforeInvoke();
         try {
