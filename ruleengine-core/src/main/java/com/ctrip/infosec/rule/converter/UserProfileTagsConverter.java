@@ -7,6 +7,7 @@ package com.ctrip.infosec.rule.converter;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
 import com.ctrip.infosec.rule.resource.DataProxy;
 import com.ctrip.infosec.rule.resource.GetUidLevel;
 import com.google.common.base.Splitter;
@@ -17,7 +18,6 @@ import com.google.common.collect.Maps;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ public class UserProfileTagsConverter implements Converter {
     public void convert(PreActionEnums preAction, Map fieldMapping, RiskFact fact, String resultWrapper, boolean isAsync) throws Exception {
         PreActionParam[] fields = preAction.getFields();
         String uidFieldName = (String) fieldMapping.get(fields[0].getParamName());
-        String uidFieldValue = BeanUtils.getNestedProperty(fact.eventBody, uidFieldName);
+        String uidFieldValue = valueAsString(fact.eventBody, uidFieldName);
         String tagsFieldValue = (String) fieldMapping.get(fields[1].getParamName());
 
         if (StringUtils.isBlank(uidFieldValue) || StringUtils.isBlank(tagsFieldValue)) {
@@ -48,60 +48,61 @@ public class UserProfileTagsConverter implements Converter {
 
         List<String> _tags = Splitter.on(",").omitEmptyStrings().trimResults().splitToList(tagsFieldValue);
         List<String> tags = Lists.newArrayList(_tags);
-        
+
         // prefix default value
-    	if (Strings.isNullOrEmpty(resultWrapper)) {
-    		resultWrapper = uidFieldName + "_ProfileInfo";
-    	}
-    	// 执行过了就跳过
-    	if (fact.eventBody.containsKey(resultWrapper)) {
-    		return;
-    	}
-        
+        if (Strings.isNullOrEmpty(resultWrapper)) {
+            resultWrapper = uidFieldName + "_ProfileInfo";
+        }
+        // 执行过了就跳过
+        if (fact.eventBody.containsKey(resultWrapper)) {
+            return;
+        }
+
         //如果有cuscharacter则用新的接口
         String cusCharacter = "";
         boolean hasCusCharacter = false;
-        if(tags.contains("CUSCHARACTER")){
-        	//遍历tags，如果存在CUSCHARACTER中，在调用新接口进行覆盖
-        	cusCharacter = GetUidLevel.query(uidFieldValue,isAsync);
-        	
-        	if(StringUtils.isNotBlank(cusCharacter)){
-        		hasCusCharacter = true;
-        		tags.remove("CUSCHARACTER");
-        	}
+        if (tags.contains("CUSCHARACTER")) {
+            //遍历tags，如果存在CUSCHARACTER中，在调用新接口进行覆盖
+            cusCharacter = GetUidLevel.query(uidFieldValue, isAsync);
+
+            if (StringUtils.isNotBlank(cusCharacter)) {
+                hasCusCharacter = true;
+                tags.remove("CUSCHARACTER");
+            }
         }
-        
-        if(tags.size() == 0){
-        	//无tags,无需再进行查询
-        	Map<String, String> result = Maps.newHashMap();
-        	result.put("CUSCHARACTER", cusCharacter );
-        	fact.eventBody.put(resultWrapper, result);
-        }else{
-        	
-        	Map params = ImmutableMap.of("uid", uidFieldValue, "tagNames", tags);
-        	Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        	if (result != null && !result.isEmpty()) {
-        		if(hasCusCharacter){
-        			result.put("CUSCHARACTER", cusCharacter);
-        		}
-        		fact.eventBody.put(resultWrapper, result);
-        	} else {
-        		
-        		if(!hasCusCharacter){
-        			TraceLogger.traceLog("预处理结果为空. " + uidFieldName + "=" + uidFieldValue);
-        		}else{
-        			
-        			if(null == result) result = Maps.newHashMap();
-        			result.put("CUSCHARACTER", cusCharacter);
-        			fact.eventBody.put(resultWrapper, result);
-        			
-        		}
-        		
-        	}
-        	
+
+        if (tags.size() == 0) {
+            //无tags,无需再进行查询
+            Map<String, String> result = Maps.newHashMap();
+            result.put("CUSCHARACTER", cusCharacter);
+            fact.eventBody.put(resultWrapper, result);
+        } else {
+
+            Map params = ImmutableMap.of("uid", uidFieldValue, "tagNames", tags);
+            Map result = DataProxy.queryForMap(serviceName, operationName, params);
+            if (result != null && !result.isEmpty()) {
+                if (hasCusCharacter) {
+                    result.put("CUSCHARACTER", cusCharacter);
+                }
+                fact.eventBody.put(resultWrapper, result);
+            } else {
+
+                if (!hasCusCharacter) {
+                    TraceLogger.traceLog("预处理结果为空. " + uidFieldName + "=" + uidFieldValue);
+                } else {
+
+                    if (null == result) {
+                        result = Maps.newHashMap();
+                    }
+                    result.put("CUSCHARACTER", cusCharacter);
+                    fact.eventBody.put(resultWrapper, result);
+
+                }
+
+            }
+
         }
-        
-        
+
     }
 
 }
