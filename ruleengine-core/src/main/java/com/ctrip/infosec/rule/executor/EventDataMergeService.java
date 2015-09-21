@@ -177,7 +177,7 @@ public class EventDataMergeService {
     boolean valueIsEmpty(Object fv) {
         if (fv == null
                 || (fv instanceof String && StringUtils.isEmpty((String) fv))
-                || (fv instanceof Number && ((Number) fv).doubleValue() == 0.0)
+//                || (fv instanceof Number && ((Number) fv).doubleValue() == 0.0)
                 || (fv instanceof Map && ((Map) fv).isEmpty())
                 || (fv instanceof List && ((List) fv).isEmpty())
                 || (fv instanceof Object[] && ((Object[]) fv).length == 0)) {
