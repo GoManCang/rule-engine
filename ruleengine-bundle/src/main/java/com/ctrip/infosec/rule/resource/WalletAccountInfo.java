@@ -28,6 +28,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  * Created by lpxie on 2015/8/26.
  */
 public class WalletAccountInfo {
+
     private static final Logger logger = LoggerFactory.getLogger(WalletAccountInfo.class);
     private static String url = GlobalConfig.getString("Wallet.ESB.URL");
 
@@ -35,9 +36,9 @@ public class WalletAccountInfo {
         Validate.notEmpty(url, "在GlobalConfig.properties里没有找到\"Wallet.ESB.URL\"配置项.");
     }
 
-    public static Map query(String uid){
+    public static Map query(String uid) {
         check();
-        beforeInvoke();
+        beforeInvoke("WalletAccountInfo.query");
         Map result = new HashMap();
         try {
             String response = "";
@@ -48,7 +49,7 @@ public class WalletAccountInfo {
             soapRequestSOAPData.append("<soapenv:Body>");
             soapRequestSOAPData.append("<acc:GetAccountByMerchant>");
             soapRequestSOAPData.append("<GetAccountByMerchantReq>");
-            soapRequestSOAPData.append("<MerchantUid>"+uid+"</MerchantUid>");
+            soapRequestSOAPData.append("<MerchantUid>" + uid + "</MerchantUid>");
             soapRequestSOAPData.append("<MerchantId>CTRP</MerchantId>");
             soapRequestSOAPData.append("</GetAccountByMerchantReq>");
             soapRequestSOAPData.append("</acc:GetAccountByMerchant>");
@@ -60,7 +61,7 @@ public class WalletAccountInfo {
                     execute().returnContent().asString();
             result = response(response);
         } catch (Exception ex) {
-            fault();
+            fault("WalletAccountInfo.query");
             logger.error(Contexts.getLogPrefix() + "invoke WalletAccountInfo.query fault.", ex);
             TraceLogger.traceLog("执行WalletAccountInfo异常: " + ex.toString());
         } finally {
@@ -72,7 +73,7 @@ public class WalletAccountInfo {
 
     private static Map response(String data) throws DocumentException {
         //这里把前面和后面的部分删除掉  这里因为没办法全部解析 所以用这种方式截取其中的内容
-        data = data.substring(data.indexOf("GetAccountByMerchantRsp")-1,data.lastIndexOf("GetAccountByMerchantRsp")+24);
+        data = data.substring(data.indexOf("GetAccountByMerchantRsp") - 1, data.lastIndexOf("GetAccountByMerchantRsp") + 24);
         SAXReader reader = new SAXReader();
         StringReader read = new StringReader(data);
         InputSource source = new InputSource(read);

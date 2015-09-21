@@ -48,13 +48,13 @@ public class ListRepo {
      */
     public static ListRepoResponse put(String repo, String value, int ttl, String memo) {
         check();
-        beforeInvoke();
+        beforeInvoke("ListRepo.put");
         ListRepoResponse response = null;
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.put(repo, value, ttl, memo);
         } catch (Exception ex) {
-            fault();
+            fault("ListRepo.put");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.put fault.", ex);
             response = new ListRepoResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -67,13 +67,13 @@ public class ListRepo {
 
     public static ListRepoResponse putIfNotExists(String repo, String value, int ttl, String memo) {
         check();
-        beforeInvoke();
+        beforeInvoke("ListRepo.putIfNotExists");
         ListRepoResponse response = null;
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.putIfNotExists(repo, value, ttl, memo);
         } catch (Exception ex) {
-            fault();
+            fault("ListRepo.putIfNotExists");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.putIfNotExists fault.", ex);
             response = new ListRepoResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -86,13 +86,13 @@ public class ListRepo {
 
     public static ListRepoResponse remove(String repo, String value) {
         check();
-        beforeInvoke();
+        beforeInvoke("ListRepo.remove");
         ListRepoResponse response = null;
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.remove(repo, value);
         } catch (Exception ex) {
-            fault();
+            fault("ListRepo.remove");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.remove fault.", ex);
             response = new ListRepoResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -105,13 +105,13 @@ public class ListRepo {
 
     public static ListRepoBooleanResponse isIn(String repo, String value) {
         check();
-        beforeInvoke();
+        beforeInvoke("ListRepo.isIn");
         ListRepoBooleanResponse response = null;
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.isIn(repo, value);
         } catch (Exception ex) {
-            fault();
+            fault("ListRepo.isIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isIn fault.", ex);
             response = new ListRepoBooleanResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -124,13 +124,13 @@ public class ListRepo {
 
     public static ListRepoBooleanResponse isAnyIn(String repo, List<String> values) {
         check();
-        beforeInvoke();
+        beforeInvoke("ListRepo.isAnyIn");
         ListRepoBooleanResponse response = null;
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.isAnyIn(repo, values);
         } catch (Exception ex) {
-            fault();
+            fault("ListRepo.isAnyIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isAnyIn fault.", ex);
             response = new ListRepoBooleanResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -143,13 +143,13 @@ public class ListRepo {
 
     public static ListRepoBooleanResponse isAllIn(String repo, List<String> values) {
         check();
-        beforeInvoke();
+        beforeInvoke("ListRepo.isAllIn");
         ListRepoBooleanResponse response = null;
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.isAllIn(repo, values);
         } catch (Exception ex) {
-            fault();
+            fault("ListRepo.isAllIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isAllIn fault.", ex);
             response = new ListRepoBooleanResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());

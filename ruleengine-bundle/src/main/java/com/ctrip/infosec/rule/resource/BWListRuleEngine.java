@@ -36,13 +36,14 @@ public class BWListRuleEngine {
      * @param bwlistParams 支付黑白名单参数
      *
      * Map accountParams = new HashMap<>();
-     * accountParams.put("uid","test12345678");
-     * 返回的结果是列表 [{ "ruleType": "ACCOUNT", "ruleID": 0, "ruleName": "CREDIT-EXCHANGE", "riskLevel": 295, "ruleRemark": "" }]
+     * accountParams.put("uid","test12345678"); 返回的结果是列表 [{ "ruleType":
+     * "ACCOUNT", "ruleID": 0, "ruleName": "CREDIT-EXCHANGE", "riskLevel": 295,
+     * "ruleRemark": "" }]
      * @return
      */
     public static List<Map<String, String>> check(Map accountParams, Map bwlistParams) {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"BWList.URL.Prefix\"配置项.");
-        beforeInvoke();
+        beforeInvoke("BWRuleEngine.check");
         ArrayList<Map<String, String>> result = new ArrayList<>();
         try {
             if (accountParams == null) {
@@ -68,7 +69,7 @@ public class BWListRuleEngine {
                 result.addAll(temp);
             }
         } catch (Exception ex) {
-            fault();
+            fault("BWRuleEngine.check");
             log.error(Contexts.getLogPrefix() + "invoke BWRuleEngine.check fault.", ex);
             TraceLogger.traceLog("执行BWRuleEngine异常: " + ex.toString());
         } finally {

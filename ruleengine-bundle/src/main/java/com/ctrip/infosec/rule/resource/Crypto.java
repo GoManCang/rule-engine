@@ -72,7 +72,7 @@ public class Crypto {
 
     public static String encrypt(String plain) {
         init();
-        beforeInvoke();
+        beforeInvoke("Crypto.encrypt");
         String cypher = null;
         try {
             if (PROD.equals(env)) {
@@ -81,7 +81,7 @@ public class Crypto {
                 cypher = cryptoGraphyDev.encrypt(plain);
             }
         } catch (Exception ex) {
-            fault();
+            fault("Crypto.encrypt");
             logger.warn(Contexts.getLogPrefix() + "encrypt fault. plain=" + plain, ex);
         } finally {
             afterInvoke("Crypto.encrypt");
@@ -91,7 +91,7 @@ public class Crypto {
 
     public static String decrypt(String complexText) {
         init();
-        beforeInvoke();
+        beforeInvoke("Crypto.decrypt");
         String txt = null;
         try {
             if (PROD.equals(env)) {
@@ -100,7 +100,7 @@ public class Crypto {
                 txt = cryptoGraphyDev.decrypt(complexText);
             }
         } catch (Exception ex) {
-            fault();
+            fault("Crypto.decrypt");
             logger.warn(Contexts.getLogPrefix() + "decrypt fault. complexText=" + complexText, ex);
             TraceLogger.traceLog("解密异常: complexText=" + complexText + ", EXCEPTION: " + ex.toString());
         } finally {

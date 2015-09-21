@@ -21,12 +21,9 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 /**
- * 根据火车站名称得到省的名称
- * 返回的是当前火车站都有的省名称，是唯一的
- * Created by lpxie on 15-7-14.
+ * 根据火车站名称得到省的名称 返回的是当前火车站都有的省名称，是唯一的 Created by lpxie on 15-7-14.
  */
-public class StationToProvince
-{
+public class StationToProvince {
 
     private static final Logger logger = LoggerFactory.getLogger(StationToProvince.class);
 
@@ -40,28 +37,23 @@ public class StationToProvince
 
     static Lock lock = new ReentrantLock();
 
-    private static void init()
-    {
+    private static void init() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
-        if(!isInit)
-        {
+        if (!isInit) {
             lock.lock();
-            try{
+            try {
                 getData();
                 isInit = true;
-            }catch (Exception exp)
-            {
-                logger.warn("从DataProxy获取城市中文名和省对应的记录异常:"+exp.getMessage());
-            }finally
-            {
+            } catch (Exception exp) {
+                logger.warn("从DataProxy获取城市中文名和省对应的记录异常:" + exp.getMessage());
+            } finally {
                 lock.unlock();
             }
         }
     }
 
-    private static void getData()
-    {
-        beforeInvoke();
+    private static void getData() {
+        beforeInvoke("StationToProvince.init");
         String serviceName = "ConvertService";
         String operationName = "getProvinceNameByStationName_Batch";
         DataProxyRequest request = new DataProxyRequest();
@@ -77,30 +69,26 @@ public class StationToProvince
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DataProxyResponse.class);
         } catch (Exception ex) {
-            fault();
+            fault("StationToProvince.init");
             logger.error(Contexts.getLogPrefix() + "invoke StationToProvince.init fault.", ex);
         } finally {
             afterInvoke("StationToProvince.init");
         }
         int i = 0;
-        if(response.getRtnCode() == 0)
-        {
-            logger.info("从DataProxy获取了"+response.getResult().size()+"条火车站名称和省对应的记录");
+        if (response.getRtnCode() == 0) {
+            logger.info("从DataProxy获取了" + response.getResult().size() + "条火车站名称和省对应的记录");
             Iterator iterator = response.getResult().values().iterator();
 
-            while(iterator.hasNext())
-            {
-                Map temp = (Map)iterator.next();
-                stationAndPro.put(temp.get("stationname").toString(),temp.get("provincename").toString());
+            while (iterator.hasNext()) {
+                Map temp = (Map) iterator.next();
+                stationAndPro.put(temp.get("stationname").toString(), temp.get("provincename").toString());
             }
-        }else
-        {
+        } else {
             logger.error("从DataProxy获取城市火车站名称和省对应的记录失败:" + response.getMessage());
         }
     }
 
-    public static String getProvinceNames(String stationName)
-    {
+    public static String getProvinceNames(String stationName) {
         init();
         return stationAndPro.get(stationName);
     }

@@ -54,7 +54,7 @@ public class FrozenAccount {
      * @return
      */
     private static Map frozenOrNot(Map params) {
-        beforeInvoke();
+        beforeInvoke("FrozenAccount.frozenOrNot");
         Map<String, String> result = new HashMap();
         try {
             StringBuilder content = new StringBuilder();
@@ -91,7 +91,7 @@ public class FrozenAccount {
                 }
             }
         } catch (Exception ex) {
-            fault();
+            fault("FrozenAccount.frozenOrNot");
             logger.error(Contexts.getLogPrefix() + "invoke FrozenAccount.frozenOrNot fault.", ex);
         } finally {
             afterInvoke("FrozenAccount.frozenOrNot");

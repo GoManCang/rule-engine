@@ -31,7 +31,7 @@ public class CustomerInfo {
     }
 
     public static Map<String, String> query(Map<String, Object> params) {
-        beforeInvoke();
+        beforeInvoke("CustomerInfo.query");
         Map<String, String> result = new HashMap();
         try {
             String xml = ESBClient.requestESB("Customer.User.GetCustomerInfo", "<GetCustomerInfoRequest><UID>" + params.get("uid") + "</UID></GetCustomerInfoRequest>");
@@ -53,7 +53,7 @@ public class CustomerInfo {
                 }
             }
         } catch (Exception ex) {
-            fault();
+            fault("CustomerInfo.query");
             logger.error(Contexts.getLogPrefix() + "invoke CustomerInfo.query fault.", ex);
         } finally {
             afterInvoke("CustomerInfo.query");

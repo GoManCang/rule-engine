@@ -31,7 +31,7 @@ public class CrmMemberInfo {
     }
 
     public static Map<String, String> query(Map<String, Object> params) {
-        beforeInvoke();
+        beforeInvoke("CrmMemberInfo.query");
         Map<String, String> result = new HashMap();
         try {
             String xml = ESBClient.requestESB("Customer.User.GetMemberInfo", "<MemberInfoRequest><Uid>" + params.get("uid") + "</Uid><Type></Type></MemberInfoRequest>");
@@ -53,7 +53,7 @@ public class CrmMemberInfo {
                 }
             }
         } catch (Exception ex) {
-            fault();
+            fault("CrmMemberInfo.query");
             logger.error(Contexts.getLogPrefix() + "invoke CrmMemberInfo.query fault.", ex);
         } finally {
             afterInvoke("CrmMemberInfo.query");

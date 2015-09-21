@@ -28,7 +28,7 @@ public class EventDataMergeService {
      * 处理推送数据到redis和从redis获取数据
      */
     public RiskFact executeRedisOption(RiskFact fact) {
-        beforeInvoke();
+        beforeInvoke("EventMerge.Get");
         try {
             Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
             //read and merge data to current fact
@@ -41,10 +41,10 @@ public class EventDataMergeService {
                 sendToRedis(fact, fieldsToPut);
             }
         } catch (Exception ex) {
-            fault();
+            fault("EventMerge.Get");
             logger.error(Contexts.getLogPrefix() + "exec execute merge fault.", ex);
         } finally {
-            afterInvoke("EventDataMergeService.executeRedisMerge");
+            afterInvoke("EventMerge.Get");
         }
         return fact;
     }
@@ -53,7 +53,6 @@ public class EventDataMergeService {
      * 处理从redis获取数据
      */
     public RiskFact executeRedisGet(RiskFact fact) {
-        beforeInvoke();
         try {
             Map<String, Map<String, String>> fieldsToGet = Configs.getEventMergeFieldsToGet(fact);
             //read and merge data to current fact
@@ -61,10 +60,7 @@ public class EventDataMergeService {
                 readAndMerge(fact, fieldsToGet);
             }
         } catch (Exception ex) {
-            fault();
             logger.error(Contexts.getLogPrefix() + "exec executeRedisGet fault.", ex);
-        } finally {
-            afterInvoke("EventDataMergeService.executeRedisGet");
         }
         return fact;
     }
@@ -73,7 +69,7 @@ public class EventDataMergeService {
      * 处理推送数据到redis
      */
     public RiskFact executeRedisPut(RiskFact fact) {
-        beforeInvoke();
+        beforeInvoke("EventMerge.Put");
         try {
             //send data to redis for next get
             Map<String, Set<String>> fieldsToPut = Configs.getEventMergeFieldsToPut(fact);
@@ -81,10 +77,10 @@ public class EventDataMergeService {
                 sendToRedis(fact, fieldsToPut);
             }
         } catch (Exception ex) {
-            fault();
+            fault("EventMerge.Put");
             logger.error(Contexts.getLogPrefix() + "exec executeRedisPut fault.", ex);
         } finally {
-            afterInvoke("EventDataMergeService.executeRedisPut");
+            afterInvoke("EventMerge.Put");
         }
         return fact;
     }

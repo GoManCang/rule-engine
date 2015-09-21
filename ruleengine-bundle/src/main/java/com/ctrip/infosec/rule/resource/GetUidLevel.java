@@ -24,12 +24,12 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 /**
  * Created by lpxie on 15-8-6.
  */
-public class GetUidLevel
-{
+public class GetUidLevel {
+
     private static final Logger logger = LoggerFactory.getLogger(GetUidLevel.class);
     private static final String clusterName = "CounterServer_03";
     private static final String cacheKeyPrefix = "ResourceCache__UidLevel__";
-    private static final int cacheExpireTime = 7*24 * 3600;
+    private static final int cacheExpireTime = 7 * 24 * 3600;
 
     private static final String urlPrefix = GlobalConfig.getString("GetUidLevel.REST.URL.Prefix");
     private static final int queryTimeout = GlobalConfig.getInteger("GetUidLevel.query.timeout", 1000);
@@ -40,14 +40,11 @@ public class GetUidLevel
         return builder.toString();
     }
 
-    public static String query(String uid,boolean isAsync)
-    {
-        beforeInvoke();
+    public static String query(String uid, boolean isAsync) {
+        beforeInvoke("GetUidLevel.query");
         String result = "";
-        try
-        {
-            if (StringUtils.isBlank(uid))
-            {
+        try {
+            if (StringUtils.isBlank(uid)) {
                 return result;
             }
 
@@ -59,12 +56,13 @@ public class GetUidLevel
                 return oldResult;
             }
 
-            if(!isAsync)
+            if (!isAsync) {
                 return result;
+            }
 
             //从公共部门获取数据
             Map request = new HashMap();
-            request.put("UID",uid);
+            request.put("UID", uid);
             int threeMonthCount = 0;
             String threeMonthCountResponseTxt = "";
 
@@ -76,13 +74,11 @@ public class GetUidLevel
 
             Map threeMonthCountResponse = Utils.JSON.parseObject(threeMonthCountResponseTxt, Map.class);
             String threeMonthResultCode = threeMonthCountResponse.get("ResultCode").toString();
-            if(!threeMonthResultCode.equals("Fail"))
-            {
+            if (!threeMonthResultCode.equals("Fail")) {
                 threeMonthCount = Integer.parseInt(threeMonthCountResponse.get("OrderCount").toString());
-            }else
-            {
+            } else {
 //                return result;
-            	return "NEW";
+                return "NEW";
             }
 
             int allCount = 0;
@@ -95,21 +91,17 @@ public class GetUidLevel
 
             Map allCountResponse = Utils.JSON.parseObject(allCountResponseTxt, Map.class);
             String allCountResultCode = allCountResponse.get("ResultCode").toString();
-            if(!allCountResultCode.equals("Fail"))
-            {
+            if (!allCountResultCode.equals("Fail")) {
                 allCount = Integer.parseInt(allCountResponse.get("DealCount").toString());
-            }else
-            {
+            } else {
 //                return result;
-            	return "NEW";
+                return "NEW";
             }
 
             int resultCount = allCount - threeMonthCount;
-            if(resultCount>=3)
-            {
+            if (resultCount >= 3) {
                 result = "REPEAT";
-            }else
-            {
+            } else {
                 result = "NEW";
             }
 
@@ -118,14 +110,14 @@ public class GetUidLevel
                 cache.set(cacheKey, result);
                 cache.expire(cacheKey, cacheExpireTime);
             }
-        }catch (Exception ex) {
-            fault();
+        } catch (Exception ex) {
+            fault("GetUidLevel.query");
             logger.error(Contexts.getLogPrefix() + "invoke GetUidLevel.query fault.", ex);
             TraceLogger.traceLog("执行GetUidLevel异常: " + ex.toString());
         } finally {
             afterInvoke("GetUidLevel.query");
         }
-        
+
         return result;
     }
 }

@@ -54,7 +54,7 @@ public class RService {
     private static void connect() {
         check();
         try {
-            rclient = new Rclient(rServiceIp,1,1);//一个连接，每个规则引擎连接一台机器
+            rclient = new Rclient(rServiceIp, 1, 1);//一个连接，每个规则引擎连接一台机器
             rclient.init();
         } catch (Exception e) {
             logger.warn("连接Rserve异常:" + e.getMessage());
@@ -92,12 +92,12 @@ public class RService {
     public static double getScore(String expression) {
         initRServiceProxy();
         check();
-        beforeInvoke();
+        beforeInvoke("RService.getScore");
         double score = 0.0;
         try {
             score = RServiceProxy.syncInvoke(500, expression);
         } catch (Exception ex) {
-            fault();
+            fault("RService.getScore");
             logger.error(Contexts.getLogPrefix() + "invoke RService.getScore fault.", ex);
         } finally {
             afterInvoke("RService.getScore");
@@ -108,7 +108,7 @@ public class RService {
     public double getRScore(String expression) {
         double score = 0.0;
         try {
-            REXP rexp = (REXP)rclient.run(expression);
+            REXP rexp = (REXP) rclient.run(expression);
             score = rexp.asDouble();
         } catch (REXPMismatchException e) {
             logger.warn("获取RServer分数异常:" + e.getMessage());

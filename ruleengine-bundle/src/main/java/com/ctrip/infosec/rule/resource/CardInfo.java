@@ -37,7 +37,7 @@ public class CardInfo {
      * 这里的serviceName必须是“getinfo”
      */
     public static Map query(String serviceName, Map<String, Object> params) {
-        beforeInvoke();
+        beforeInvoke("CardInfo.query");
         Map<String, String> result = new HashMap();
         try {
             String cardInfoId = (String) params.get("cardInfoId");
@@ -79,7 +79,7 @@ public class CardInfo {
             }
 
         } catch (Exception ex) {
-            fault();
+            fault("CardInfo.query");
             logger.error(Contexts.getLogPrefix() + "invoke CardInfo.query fault.", ex);
             TraceLogger.traceLog("执行GetCreditCardInfo异常: " + ex.toString());
         } finally {
@@ -90,7 +90,7 @@ public class CardInfo {
 
     public static Map queryYA(String cardInfoId)
     {
-        beforeInvoke();
+        beforeInvoke("CardInfo.queryYA");
         Map<String, String> result = new HashMap();
         try {
             if (StringUtils.isBlank(cardInfoId) || StringUtils.equals("0", cardInfoId)) {
@@ -131,7 +131,7 @@ public class CardInfo {
             }
 
         } catch (Exception ex) {
-            fault();
+            fault("CardInfo.queryYA");
             logger.error(Contexts.getLogPrefix() + "invoke CardInfo.queryYA fault.", ex);
             TraceLogger.traceLog("执行GetCreditCardInfo异常: " + ex.toString());
         } finally {

@@ -26,7 +26,7 @@ public class UpdateOrderStatus {
     private static StringBuffer content = new StringBuffer();
 
     public static Map updateOrderStatus(Map params) {
-        beforeInvoke();
+        beforeInvoke("OrderStatus.update");
         Map<String, String> result = new HashMap();
         try {
             content.append("<OrderID>" + params.get("OrderID") + "</OrderID>");
@@ -53,11 +53,11 @@ public class UpdateOrderStatus {
                 }
             }
         } catch (Exception ex) {
-            fault();
+            fault("OrderStatus.update");
             logger.error(Contexts.getLogPrefix() + "invoke UpdateOrderStatus.updateOrderStatus fault.", ex);
         } finally {
             content.setLength(0);
-            afterInvoke("UpdateOrderStatus.updateOrderStatus");
+            afterInvoke("OrderStatus.update");
         }
         return result;
     }

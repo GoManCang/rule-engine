@@ -50,13 +50,13 @@ public class ComplexListRepo {
      */
     public static ListRepoResponse put(String repo, Map<String, String> value, int ttl, String memo) {
         check();
-        beforeInvoke();
+        beforeInvoke("ComplexListRepo.put");
         ListRepoResponse response = null;
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.put(repo, value, ttl, memo);
         } catch (Exception ex) {
-            fault();
+            fault("ComplexListRepo.put");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.put fault.", ex);
             response = new ListRepoResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -69,13 +69,13 @@ public class ComplexListRepo {
 
     public static ListRepoResponse putIfNotExists(String repo, Map<String, String> value, int ttl, String memo) {
         check();
-        beforeInvoke();
+        beforeInvoke("ComplexListRepo.putIfNotExists");
         ListRepoResponse response = null;
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.putIfNotExists(repo, value, ttl, memo);
         } catch (Exception ex) {
-            fault();
+            fault("ComplexListRepo.putIfNotExists");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.putIfNotExists fault.", ex);
             response = new ListRepoResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -88,13 +88,13 @@ public class ComplexListRepo {
 
     public static ListRepoResponse remove(String repo, Map<String, String> value) {
         check();
-        beforeInvoke();
+        beforeInvoke("ComplexListRepo.remove");
         ListRepoResponse response = null;
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.remove(repo, value);
         } catch (Exception ex) {
-            fault();
+            fault("ComplexListRepo.remove");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.remove fault.", ex);
             response = new ListRepoResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -107,13 +107,13 @@ public class ComplexListRepo {
 
     public static ListRepoBooleanResponse isIn(String repo, Map<String, String> value) {
         check();
-        beforeInvoke();
+        beforeInvoke("ComplexListRepo.isIn");
         ListRepoBooleanResponse response = null;
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.isIn(repo, value);
         } catch (Exception ex) {
-            fault();
+            fault("ComplexListRepo.isIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isIn fault.", ex);
             response = new ListRepoBooleanResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -126,13 +126,13 @@ public class ComplexListRepo {
 
     public static ListRepoBooleanResponse isAnyIn(String repo, List<Map<String, String>> values) {
         check();
-        beforeInvoke();
+        beforeInvoke("ComplexListRepo.isAnyIn");
         ListRepoBooleanResponse response = null;
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.isAnyIn(repo, values);
         } catch (Exception ex) {
-            fault();
+            fault("ComplexListRepo.isAnyIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isAnyIn fault.", ex);
             response = new ListRepoBooleanResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -145,13 +145,13 @@ public class ComplexListRepo {
 
     public static ListRepoBooleanResponse isAllIn(String repo, List<Map<String, String>> values) {
         check();
-        beforeInvoke();
+        beforeInvoke("ComplexListRepo.isAllIn");
         ListRepoBooleanResponse response = null;
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.isAllIn(repo, values);
         } catch (Exception ex) {
-            fault();
+            fault("ComplexListRepo.isAllIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isAllIn fault.", ex);
             response = new ListRepoBooleanResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());

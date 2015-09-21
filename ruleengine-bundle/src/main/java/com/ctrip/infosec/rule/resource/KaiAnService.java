@@ -18,68 +18,61 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 
 /**
- * Created by lpxie on 2015/8/19.
- * 凯安服务器是电信的
- * 根据凯安的服务判断ip，mobile的风险分数
- * http://api.bigsec.com/checkvip/
- *  0 ~ 20分 无风险
-    20 ~ 50分 低风险
-    50 ~ 80 分 中风险
-    80 ~ 100 分 高风险
-   这个服务在userProfile里面提供了
+ * Created by lpxie on 2015/8/19. 凯安服务器是电信的 根据凯安的服务判断ip，mobile的风险分数
+ * http://api.bigsec.com/checkvip/ 0 ~ 20分 无风险 20 ~ 50分 低风险 50 ~ 80 分 中风险 80 ~
+ * 100 分 高风险 这个服务在userProfile里面提供了
  */
 @Deprecated
 public class KaiAnService {
+
     private static int timeout = 300;//300ms
     private static URIBuilder urlBuilder = new URIBuilder();
     private static Logger logger = LoggerFactory.getLogger(KaiAnService.class);
-    private static HttpHost httpHost = new HttpHost("proxy2.sh2.ctripcorp.com",8080,"http");//金桥机房生产环境使用代理
+    private static HttpHost httpHost = new HttpHost("proxy2.sh2.ctripcorp.com", 8080, "http");//金桥机房生产环境使用代理
 
-    static{
+    static {
         urlBuilder.setScheme("http");
         urlBuilder.setHost("api.bigsec.com");
         urlBuilder.setPath("/checkvip");
-        urlBuilder.addParameter("qtype","mix");
-        urlBuilder.addParameter("auth","ace0680f497ad180");
+        urlBuilder.addParameter("qtype", "mix");
+        urlBuilder.addParameter("auth", "ace0680f497ad180");
     }
 
     /**
      * 返回从凯安获取的分数
+     *
      * @param ip
      * @param mobile
-     * @return  {"ipScore":"81.3","mobileScore":"54.0"}
+     * @return {"ipScore":"81.3","mobileScore":"54.0"}
      */
-    public static  Map<String,String> query(String ip,String mobile){
-        if ((ip == null || ip.length() == 0)&&(mobile == null || mobile.length() == 0)) {
+    public static Map<String, String> query(String ip, String mobile) {
+        if ((ip == null || ip.length() == 0) && (mobile == null || mobile.length() == 0)) {
             logger.warn("ip和mobile都为空");
             return new HashMap<>();
         }
-        beforeInvoke();
-        Map<String,String> result = new HashMap<>();
+        beforeInvoke("KaiAnService.query");
+        Map<String, String> result = new HashMap<>();
         try {
             String responseTxt = "";
-            urlBuilder.setParameter("mobile",mobile);
-            urlBuilder.setParameter("ip",ip);
+            urlBuilder.setParameter("mobile", mobile);
+            urlBuilder.setParameter("ip", ip);
             URI uri = urlBuilder.build();
             responseTxt = Request.Get(uri).viaProxy(httpHost).connectTimeout(200).socketTimeout(timeout).execute().
                     returnContent().asString();
             Map newResult = Utils.JSON.parseObject(responseTxt, Map.class);
-            if(newResult != null && newResult.size()>0)
-            {
-                Map scoreResult = (Map)newResult.get("result");
-                if(scoreResult != null)
-                {
+            if (newResult != null && newResult.size() > 0) {
+                Map scoreResult = (Map) newResult.get("result");
+                if (scoreResult != null) {
                     Map ipScore = (Map) scoreResult.get("ip");
                     Map mobileScore = (Map) scoreResult.get("mobile");
-                    if(ipScore != null && mobileScore != null)
-                    {
-                        result.put("ipScore",ipScore.get("score") == null ?"":ipScore.get("score").toString());
-                        result.put("mobileScore",ipScore.get("score") == null ?"":mobileScore.get("score").toString());
+                    if (ipScore != null && mobileScore != null) {
+                        result.put("ipScore", ipScore.get("score") == null ? "" : ipScore.get("score").toString());
+                        result.put("mobileScore", ipScore.get("score") == null ? "" : mobileScore.get("score").toString());
                     }
                 }
             }
-        }catch (Exception ex) {
-            fault();
+        } catch (Exception ex) {
+            fault("KaiAnService.query");
             logger.warn(Contexts.getLogPrefix() + "invoke KaiAnService.query fault.", ex);
             TraceLogger.traceLog("执行KaiAnService异常: " + ex.toString());
         } finally {

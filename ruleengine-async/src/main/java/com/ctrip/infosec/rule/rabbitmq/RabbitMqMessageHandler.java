@@ -202,43 +202,28 @@ public class RabbitMqMessageHandler {
             if (fact != null) {
                 // 发送给DataDispatcher
                 try {
-                    beforeInvoke();
+                    beforeInvoke("DataDispatcher.sendMessage");
                     dispatcherMessageSender.sendToDataDispatcher(fact);
                 } catch (Exception ex) {
-                    fault();
+                    fault("DataDispatcher.sendMessage");
                     logger.error(Contexts.getLogPrefix() + "send dispatcher message fault.", ex);
                 } finally {
-                    afterInvoke("DispatcherMessageSender.sendToDataDispatcher");
+                    afterInvoke("DataDispatcher.sendMessage");
                 }
 
                 int riskLevel = MapUtils.getInteger(fact.finalResult, Constants.riskLevel, 0);
                 if (riskLevel > 0) {
-
-                    // 发送Callback给PD
-                    try {
-                        beforeInvoke();
-                        CallbackRule callbackRule = Configs.getCallbackRule(fact.eventPoint);
-                        if (callbackRule != null && callbackRule.isEnabled()) {
-                            callbackMessageSender.sendToPD(buildRiskResult(fact, callbackRule));
-                        }
-                    } catch (Exception ex) {
-                        fault();
-                        logger.error(Contexts.getLogPrefix() + "send callback message fault.", ex);
-                    } finally {
-                        afterInvoke("CallbackMessageSender.sendToPD");
-                    }
-
                     // 发送Offline4J
                     if (internalRiskFact != null && MapUtils.getBoolean(fact.ext, Offline4jService.PUSH_OFFLINE_WORK_ORDER_KEY, false)) {
+                        beforeInvoke("Offline.sendMessage");
                         try {
                             Object eventObj = riskEventConvertor.convert(internalRiskFact, riskLevel, HeaderMappingBizType.Offline4J);
-                            beforeInvoke("offlineMessageSender.sendToOffline");
                             offlineMessageSender.sendToOffline(eventObj);
                         } catch (Exception ex) {
-                            fault("offlineMessageSender.sendToOffline");
+                            fault("Offline.sendMessage");
                             logger.error(Contexts.getLogPrefix() + "send Offline4J message fault.", ex);
                         } finally {
-                            afterInvoke("offlineMessageSender.sendToOffline");
+                            afterInvoke("Offline.sendMessage");
                         }
                     }
                 }

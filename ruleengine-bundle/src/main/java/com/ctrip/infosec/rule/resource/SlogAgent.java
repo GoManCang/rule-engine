@@ -37,14 +37,14 @@ public class SlogAgent {
      添加功能把数据发送到大安
      */
     public static void sendToSLog(int logType, String sourceFrom, String subSourceFrom, String sceneType, String uid, String userIp, String clientIp, RiskFact fact) {
-        beforeInvoke();
+        beforeInvoke("SlogAgent.sendToSLog");
         try {
             List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
             msg.add(changeDataForm(fact));
             SLog slog = SLog.createSLog(appId, logType, sourceFrom, subSourceFrom, sceneType, uid, userIp, clientIp, msg);
             agent.sendMessage(slog);
         } catch (Exception exp) {
-            fault();
+            fault("SlogAgent.sendToSLog");
             logger.warn(Contexts.getLogPrefix() + "invoke SlogAgent.sendToSLog fault.", exp);
         } finally {
             afterInvoke("SlogAgent.sendToSLog");
@@ -52,14 +52,14 @@ public class SlogAgent {
     }
 
     public static void sendToSLog(int logType, String sourceFrom, String subSourceFrom, String sceneType, String uid, String userIp, String clientIp, Map map) {
-        beforeInvoke();
+        beforeInvoke("SlogAgent.sendToSLog");
         try {
             List<Map<String, String>> msg = new ArrayList<Map<String, String>>();
             msg.add(map);
             SLog slog = SLog.createSLog(appId, logType, sourceFrom, subSourceFrom, sceneType, uid, userIp, clientIp, msg);
             agent.sendMessage(slog);
         } catch (Exception exp) {
-            fault();
+            fault("SlogAgent.sendToSLog");
             logger.warn(Contexts.getLogPrefix() + "invoke SlogAgent.sendToSLog fault.", exp);
         } finally {
             afterInvoke("SlogAgent.sendToSLog");

@@ -55,7 +55,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
 
     @Override
     public String execute(String factTxt) {
-        beforeInvoke();
+        beforeInvoke("RuleEngine.execute");
         logger.info("VENUS: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
@@ -153,15 +153,14 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
                 RuleMonitorHelper.commitTrans(fact);
             }
         } catch (Throwable ex) {
-            fault();
+            fault("RuleEngine.execute");
             if (fact.finalResult == null) {
                 fact.setFinalResult(Constants.defaultResult);
             }
             logger.error(Contexts.getLogPrefix() + "invoke execute exception.", ex);
             RuleMonitorHelper.setFault(ex);
         } finally {
-            long afterInvoke = afterInvoke("RuleEngine.execute");
-
+            afterInvoke("RuleEngine.execute");
             RuleMonitorHelper.commitTrans(fact);
         }
         return JSON.toJSONString(fact);

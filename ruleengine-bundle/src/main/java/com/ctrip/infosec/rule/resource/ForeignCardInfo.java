@@ -17,18 +17,13 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
-import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
-import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 
 /**
- * 根据卡的id和卡的rule来获取卡的信息
- * 返回的是一个map，包含了当前卡的相关信息
- * Created by lpxie on 15-7-16.
+ * 根据卡的id和卡的rule来获取卡的信息 返回的是一个map，包含了当前卡的相关信息 Created by lpxie on 15-7-16.
  */
-public class ForeignCardInfo
-{
+public class ForeignCardInfo {
+
     private static final Logger logger = LoggerFactory.getLogger(ForeignCardInfo.class);
 
     private static Map<String, Map> foreignCardInfos = new HashMap<>();
@@ -41,28 +36,22 @@ public class ForeignCardInfo
 
     static Lock lock = new ReentrantLock();
 
-    private static void init()
-    {
+    private static void init() {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.REST.URL.Prefix\"配置项.");
-        if(!isInit)
-        {
+        if (!isInit) {
             lock.lock();
-            try{
+            try {
                 getData();
                 isInit = true;
-            }catch (Exception exp)
-            {
-                logger.warn("从DataProxy获取外卡信息的记录异常:"+exp.getMessage());
-            }finally
-            {
+            } catch (Exception exp) {
+                logger.warn("从DataProxy获取外卡信息的记录异常:" + exp.getMessage());
+            } finally {
                 lock.unlock();
             }
         }
     }
 
-    private static void getData()
-    {
-        beforeInvoke();
+    private static void getData() {
         String serviceName = "ConvertService";
         String operationName = "getForeignCardInfo_Batch";
         DataProxyRequest request = new DataProxyRequest();
@@ -78,34 +67,27 @@ public class ForeignCardInfo
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DataProxyResponse.class);
         } catch (Exception ex) {
-            fault();
             logger.error(Contexts.getLogPrefix() + "invoke StationToProvince.init fault.", ex);
-        } finally {
-            afterInvoke("StationToProvince.init");
         }
         int i = 0;
-        if(response.getRtnCode() == 0)
-        {
-            logger.info("从DataProxy获取了"+response.getResult().size()+"条外卡信息的记录");
+        if (response.getRtnCode() == 0) {
+            logger.info("从DataProxy获取了" + response.getResult().size() + "条外卡信息的记录");
             Iterator iterator = response.getResult().values().iterator();
 
-            while(iterator.hasNext())
-            {
-                Map temp = (Map)iterator.next();
-                String typeId = (String)temp.get("cardtypeid");
-                String rule = (String)temp.get("cardrule");
-                String key = typeId+"_"+rule;
-                foreignCardInfos.put(key,temp);
+            while (iterator.hasNext()) {
+                Map temp = (Map) iterator.next();
+                String typeId = (String) temp.get("cardtypeid");
+                String rule = (String) temp.get("cardrule");
+                String key = typeId + "_" + rule;
+                foreignCardInfos.put(key, temp);
             }
-        }else
-        {
+        } else {
             logger.error("从DataProxy获取外卡信息的记录失败:" + response.getMessage());
         }
     }
 
-    public static Map getProvinceNames(String cardId,String cardRule)
-    {
+    public static Map getProvinceNames(String cardId, String cardRule) {
         init();
-        return foreignCardInfos.get(cardId+"_"+cardRule);
+        return foreignCardInfos.get(cardId + "_" + cardRule);
     }
 }

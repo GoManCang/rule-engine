@@ -122,7 +122,7 @@ public class DataProxy {
      */
     private static DataProxyResponse query(DataProxyRequest request) {
         check();
-        beforeInvoke();
+        beforeInvoke("DataProxy.query");
         DataProxyResponse response = null;
         try {
             String responseTxt = Request.Post(urlPrefix + "/rest/dataproxy/query")
@@ -132,7 +132,7 @@ public class DataProxy {
                     .execute().returnContent().asString();
             response = JSON.parseObject(responseTxt, DataProxyResponse.class);
         } catch (Exception ex) {
-            fault();
+            fault("DataProxy.query");
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.query fault.", ex);
         } finally {
             afterInvoke("DataProxy.query");
@@ -168,28 +168,28 @@ public class DataProxy {
 
     /**
      * 同盾的ip和手机号交易事件查询服务
+     *
      * @param ip
      * @param mobile
-     * @return  {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
+     * @return
+     * {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
      */
-    public static Map queryForTongDunT(String ip,String mobile)
-    {
-        if(ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty())
-        {
+    public static Map queryForTongDunT(String ip, String mobile) {
+        if (ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty()) {
             return new HashMap();
         }
         check();
-        beforeInvoke();
-        beforeInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceTrade");
+        beforeInvoke("DataProxy.queryForTongDunT");
+        beforeInvoke("DataProxy.ThirdServiceClient.api.fraudmetrix.cn_RiskServiceTrade");
         Map newResult = null;
         try {
             DataProxyRequest request = new DataProxyRequest();
             request.setServiceName("ThirdServiceClient");
             request.setOperationName("api.fraudmetrix.cn_RiskServiceTrade");
 
-            Map params = new HashMap<String,String>();
-            params.put("account_mobile",mobile);
-            params.put("ip_address",ip);
+            Map params = new HashMap<String, String>();
+            params.put("account_mobile", mobile);
+            params.put("ip_address", ip);
             request.setParams(params);
 
             List<DataProxyRequest> requests = new ArrayList<>();
@@ -216,32 +216,33 @@ public class DataProxy {
                 newResult = response.getResult();
             }
         } catch (Exception ex) {
-            fault();
+            fault("DataProxy.queryForTongDunT");
             fault("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceTrade");
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForTongDunT fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForTongDunT");
             afterInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceTrade");
         }
-        if(newResult == null)
+        if (newResult == null) {
             newResult = new HashMap();
+        }
         return newResult;
     }
 
     /**
      * 同盾的ip和手机号注册事件查询服务
+     *
      * @param ip
      * @param mobile
-     * @return  {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
+     * @return
+     * {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
      */
-    public static Map queryForTongDunR(String ip,String mobile)
-    {
-        if(ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty())
-        {
+    public static Map queryForTongDunR(String ip, String mobile) {
+        if (ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty()) {
             return new HashMap();
         }
         check();
-        beforeInvoke();
+        beforeInvoke("DataProxy.queryForTongDunR");
         beforeInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceRegister");
         Map newResult = null;
         try {
@@ -249,9 +250,9 @@ public class DataProxy {
             request.setServiceName("ThirdServiceClient");
             request.setOperationName("api.fraudmetrix.cn_RiskServiceRegister");
 
-            Map params = new HashMap<String,String>();
-            params.put("account_mobile",mobile);
-            params.put("ip_address",ip);
+            Map params = new HashMap<String, String>();
+            params.put("account_mobile", mobile);
+            params.put("ip_address", ip);
             request.setParams(params);
 
             List<DataProxyRequest> requests = new ArrayList<>();
@@ -278,43 +279,43 @@ public class DataProxy {
                 newResult = response.getResult();
             }
         } catch (Exception ex) {
-            fault();
-            fault("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceRegister");
+            fault("DataProxy.queryForTongDunR");
+            fault("DataProxy.ThirdServiceClient.api.fraudmetrix.cn_RiskServiceRegister");
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForTongDunR fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForTongDunR");
-            afterInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.fraudmetrix.cn_RiskServiceRegister");
+            afterInvoke("DataProxy.ThirdServiceClient.api.fraudmetrix.cn_RiskServiceRegister");
         }
-        if(newResult == null)
+        if (newResult == null) {
             newResult = new HashMap();
+        }
         return newResult;
     }
 
-
     /**
      * 凯安的ip和手机号注册事件查询服务
+     *
      * @param ip
      * @param mobile
-     * @return  {"msg":null,"success":1,"mobile":{"score":null,"is_notreal":null},"ip":{"is_proxy":0,"score":50.0,"ip":"218.17.231.209"}}
+     * @return
+     * {"msg":null,"success":1,"mobile":{"score":null,"is_notreal":null},"ip":{"is_proxy":0,"score":50.0,"ip":"218.17.231.209"}}
      */
-    public static Map queryForKaiAn(String ip,String mobile)
-    {
-        if(ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty())
-        {
+    public static Map queryForKaiAn(String ip, String mobile) {
+        if (ip == null && ip.isEmpty() && mobile == null && mobile.isEmpty()) {
             return new HashMap();
         }
         check();
-        beforeInvoke();
-        beforeInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.bigsec.com_checkvip");
+        beforeInvoke("DataProxy.queryForKaiAn");
+        beforeInvoke("DataProxy.ThirdServiceClient.api.bigsec.com_checkvip");
         Map newResult = null;
         try {
             DataProxyRequest request = new DataProxyRequest();
             request.setServiceName("ThirdServiceClient");
             request.setOperationName("api.bigsec.com_checkvip");
 
-            Map params = new HashMap<String,String>();
-            params.put("mobile",mobile);
-            params.put("ip",ip);
+            Map params = new HashMap<String, String>();
+            params.put("mobile", mobile);
+            params.put("ip", ip);
             request.setParams(params);
 
             List<DataProxyRequest> requests = new ArrayList<>();
@@ -341,17 +342,19 @@ public class DataProxy {
                 newResult = response.getResult();
             }
         } catch (Exception ex) {
-            fault();
-            fault("DataProxy." + "ThirdServiceClient" + "." + "api.bigsec.com_checkvip");
+            fault("DataProxy.queryForKaiAn");
+            fault("DataProxy.ThirdServiceClient.api.bigsec.com_checkvip");
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForKaiAn fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForKaiAn");
-            afterInvoke("DataProxy." + "ThirdServiceClient" + "." + "api.bigsec.com_checkvip");
+            afterInvoke("DataProxy.ThirdServiceClient.api.bigsec.com_checkvip");
         }
-        if(newResult == null)
+        if (newResult == null) {
             newResult = new HashMap();
+        }
         return newResult;
     }
+
     /**
      * 查询一个服务的接口
      *
@@ -362,7 +365,7 @@ public class DataProxy {
      */
     public static Map queryForMap(String serviceName, String operationName, Map<String, Object> params) {
         check();
-        beforeInvoke();
+        beforeInvoke("DataProxy.queryForMap");
         beforeInvoke("DataProxy." + serviceName + "." + operationName);
         Map newResult = null;
         try {
@@ -397,42 +400,42 @@ public class DataProxy {
                 newResult = response.getResult();
             }
         } catch (Exception ex) {
-            fault();
+            fault("DataProxy.queryForMap");
             fault("DataProxy." + serviceName + "." + operationName);
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForMap");
             afterInvoke("DataProxy." + serviceName + "." + operationName);
         }
-        if(newResult == null)
+        if (newResult == null) {
             newResult = new HashMap();
+        }
         return newResult;
     }
 
     /**
      *
      * @param key 定义的tag关联字段的值
-     * @param values tag的名称和这个tag对应的值组成的map
-     * example:key:uid-123
-     *         values:RECENT_IP-112.23.32.36
-     *               RECENT_IPAREA-大连
-     *  -------------------------------------
+     * @param values tag的名称和这个tag对应的值组成的map example:key:uid-123
+     * values:RECENT_IP-112.23.32.36 RECENT_IPAREA-大连
+     * -------------------------------------
      *
-     *  调用的方式是： temp = new HashMap();temp.put("RECENT_IP","112.23.32.36");temp.put("RECENT_IPAREA","大连");  addTagData("123",temp)
+     * 调用的方式是： temp = new
+     * HashMap();temp.put("RECENT_IP","112.23.32.36");temp.put("RECENT_IPAREA","大连");
+     * addTagData("123",temp)
      * @return 如果写入成功则返回true，否则false
      */
-    public static boolean addTagData(String key,Map<String,String> values)
-    {
+    public static boolean addTagData(String key, Map<String, String> values) {
         boolean flag = false;
         check();
-        beforeInvoke();
+        beforeInvoke("DataProxy.addTagData");
         try {
             List<DataProxyRequest> requests = new ArrayList<>();
             DataProxyRequest request = new DataProxyRequest();
             request.setServiceName("CommonService");
             request.setOperationName("addData");
 
-            Map params = new HashMap<String,String>();
+            Map params = new HashMap<String, String>();
             params.put("tableName", "UserProfileInfo");
             params.put("pkValue", key.trim());
             params.put("storageType", "1");
@@ -440,26 +443,24 @@ public class DataProxy {
             request.setParams(params);
             requests.add(request);
             String requestText = JSON.toPrettyJSONString(requests);
-            String responseText = Request.Post(urlPrefix+"/rest/dataproxy/dataprocess").
+            String responseText = Request.Post(urlPrefix + "/rest/dataproxy/dataprocess").
                     bodyString(requestText, ContentType.APPLICATION_JSON).execute().returnContent().asString();
-            Map result = JSON.parseObject(responseText,Map.class);
-            if(result.get("rtnCode").equals("0"))
-            {
+            Map result = JSON.parseObject(responseText, Map.class);
+            if (result.get("rtnCode").equals("0")) {
                 flag = true;
-            }
-            else
-            {
+            } else {
                 flag = false;
-                logger.warn("添加数据:"+JSON.toPrettyJSONString(values)+"\t"+"到userProfile失败!");
+                logger.warn("添加数据:" + JSON.toPrettyJSONString(values) + "\t" + "到userProfile失败!");
             }
         } catch (Exception ex) {
-            fault();
+            fault("DataProxy.addTagData");
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.addTagData fault.", ex);
         } finally {
             afterInvoke("DataProxy.addTagData");
         }
         return flag;
     }
+
     /**
      * 批量查询的接口
      *
@@ -468,7 +469,7 @@ public class DataProxy {
      */
     public static List<Map> queryForList(List<DataProxyRequest> requests) {
         check();
-        beforeInvoke();
+        beforeInvoke("DataProxy.queryForList");
         List<Map> results = new ArrayList<Map>();
         try {
             DataProxyVenusService dataProxyVenusService = SpringContextHolder.getBean(DataProxyVenusService.class);
@@ -498,7 +499,7 @@ public class DataProxy {
                 }
             }
         } catch (Exception ex) {
-            fault();
+            fault("DataProxy.queryForList");
             logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForList fault.", ex);
         } finally {
             afterInvoke("DataProxy.queryForList");
