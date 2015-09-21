@@ -91,7 +91,7 @@ public class Counter {
      */
     public static FlowPushResponse push(String bizNo, Map<String, ?> kvData) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.push");
         FlowPushResponse response = null;
         try {
             FlowPushRequest flowPushRequest = new FlowPushRequest();
@@ -112,7 +112,7 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-            if (Contexts.isAsync()) {
+//            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/push")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -121,13 +121,13 @@ public class Counter {
                         .socketTimeout(1000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            } else {
-                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-                response = flowPolicyRemoteService.push(flowPushRequest);
-            }
+//            } else {
+//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//                response = flowPolicyRemoteService.push(flowPushRequest);
+//            }
 
         } catch (Exception ex) {
-            fault();
+            fault("Counter.push");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.push fault.", ex);
             response = new FlowPushResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -147,7 +147,7 @@ public class Counter {
      */
     public static FlowPushResponse pushToFlow(String bizNo, List<String> flowNoList, Map<String, ?> kvData) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.pushToFlow");
         FlowPushResponse response = null;
         try {
             FlowPushRequest2 flowPushRequest = new FlowPushRequest2();
@@ -169,7 +169,7 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-            if (Contexts.isAsync()) {
+//            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/pushToFlow")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -178,13 +178,13 @@ public class Counter {
                         .socketTimeout(1000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            } else {
-                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-                response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
-            }
+//            } else {
+//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//                response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
+//            }
 
         } catch (Exception ex) {
-            fault();
+            fault("Counter.pushToFlow");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushToFlow fault.", ex);
             response = new FlowPushResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -204,7 +204,7 @@ public class Counter {
      */
     public static PolicyExecuteResponse execute(String policyNo, Map<String, ?> kvData) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.execute");
         PolicyExecuteResponse response = null;
         try {
             PolicyExecuteRequest policyExecuteRequest = new PolicyExecuteRequest();
@@ -225,7 +225,7 @@ public class Counter {
                 policyExecuteRequest.setTraceLoggerHeader(header);
             }
 
-            if (Contexts.isAsync()) {
+//            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/execute")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -234,13 +234,13 @@ public class Counter {
                         .socketTimeout(5000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-            } else {
-                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-                response = flowPolicyRemoteService.execute(policyExecuteRequest);
-            }
+//            } else {
+//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//                response = flowPolicyRemoteService.execute(policyExecuteRequest);
+//            }
 
         } catch (Exception ex) {
-            fault();
+            fault("Counter.execute");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.execute fault.", ex);
             response = new PolicyExecuteResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -275,7 +275,7 @@ public class Counter {
 
     public static FlowQueryResponse queryFlowData(FlowQueryRequest flowQueryRequest) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.queryFlowData");
         FlowQueryResponse response = null;
         try {
 
@@ -298,7 +298,7 @@ public class Counter {
                 flowQueryRequest.setPolicyOrRuleNo(Contexts.getPolicyOrRuleNo());
             }
 
-            if (Contexts.isAsync()) {
+//            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -307,13 +307,13 @@ public class Counter {
                         .socketTimeout(5000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
-            } else {
-                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-                response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
-            }
+//            } else {
+//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+//                response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
+//            }
 
         } catch (Exception ex) {
-            fault();
+            fault("Counter.queryFlowData");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryFlowData fault.", ex);
             response = new FlowQueryResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -336,13 +336,13 @@ public class Counter {
      */
     public static DecisionDataPushResponse pushDecisionData(String decisionTableNo, Map<String, String> xData, Map<String, String> yData, Date expireAt, String memo) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.pushDecisionData");
         DecisionDataPushResponse response = null;
         try {
             DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
             response = decisionDataRemoteService.pushDecisionData(decisionTableNo, xData, yData, expireAt, memo);
         } catch (Exception ex) {
-            fault();
+            fault("Counter.pushDecisionData");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.pushDecisionData fault.", ex);
             response = new DecisionDataPushResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -362,13 +362,13 @@ public class Counter {
      */
     public static DecisionDataRemoveResponse removeDecisionData(String decisionTableNo, Map<String, String> xData) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.pushDecisionData");
         DecisionDataRemoveResponse response = null;
         try {
             DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
             response = decisionDataRemoteService.removeDecisionData(decisionTableNo, xData);
         } catch (Exception ex) {
-            fault();
+            fault("Counter.pushDecisionData");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.removeDecisionData fault.", ex);
             response = new DecisionDataRemoveResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
@@ -388,13 +388,13 @@ public class Counter {
      */
     public static DecisionDataQueryResponse queryDecisionData(String decisionTableNo, Map<String, String> xData) {
         check();
-        beforeInvoke();
+        beforeInvoke("Counter.pushDecisionData");
         DecisionDataQueryResponse response = null;
         try {
             DecisionDataRemoteService decisionDataRemoteService = SpringContextHolder.getBean(DecisionDataRemoteService.class);
             response = decisionDataRemoteService.queryDecisionData(decisionTableNo, xData);
         } catch (Exception ex) {
-            fault();
+            fault("Counter.pushDecisionData");
             logger.error(Contexts.getLogPrefix() + "invoke Counter.queryDecisionData fault.", ex);
             response = new DecisionDataQueryResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
