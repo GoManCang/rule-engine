@@ -54,7 +54,7 @@ rabbitmq.event.vhost={$rabbitmq.event.vhost}
 rabbitmq.event.username={$rabbitmq.event.username}
 rabbitmq.event.password={$rabbitmq.event.password}
 
-#RService
+# RService
 RService.Ip={$RService.Ip}
 
 # RiskFact persistence config
@@ -63,21 +63,25 @@ reqId.table.name = {$reqId.table.name}
 reqId.column.name = {$reqId.column.name}
 persist.remote.url = {$persist.remote.url}
 
-#GetUidLevel
+# GetUidLevel
 GetUidLevel.query.timeout={$GetUidLevel.query.timeout}
 GetUidLevel.REST.URL.Prefix={$GetUidLevel.REST.URL.Prefix}
 
-#BWGList
+# BWGList
 BWList.URL.Prefix={$BWList.URL.Prefix}
 BWList.timeout={$BWList.timeout}
 
-#GiftCardBalance
+# GiftCardBalance
 GetGiftBalance.REST.URL.Prefix={$GetGiftBalance.REST.URL.Prefix}
 GetGiftBalance.query.timeout={$GetGiftBalance.query.timeout}
 
-#GiftCardHistroyDetail
+# GiftCardHistroyDetail
 GetGiftHistoryDetail.REST.URL.Prefix={$GetGiftHistoryDetail.REST.URL.Prefix}
 GetGiftHistoryDetail.query.timeout={$GetGiftHistoryDetail.query.timeout}
 
-#Wallet
+# Wallet
 Wallet.ESB.URL={$Wallet.ESB.URL}
+
+# hystrix
+hystrix.dataproxy.query.coreSize={$hystrix.dataproxy.query.coreSize}
+hystrix.dataproxy.query.timeout={$hystrix.dataproxy.query.timeout}
