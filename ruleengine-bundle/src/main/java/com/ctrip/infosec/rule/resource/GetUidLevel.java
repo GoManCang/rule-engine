@@ -24,6 +24,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 /**
  * Created by lpxie on 15-8-6.
  */
+@Deprecated
 public class GetUidLevel {
 
     private static final Logger logger = LoggerFactory.getLogger(GetUidLevel.class);
@@ -40,6 +41,7 @@ public class GetUidLevel {
         return builder.toString();
     }
 
+    @Deprecated
     public static String query(String uid, boolean isAsync) {
         beforeInvoke("GetUidLevel.query");
         String result = "";
