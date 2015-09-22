@@ -5,6 +5,7 @@
  */
 package com.ctrip.infosec.rule.executor;
 
+import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.PreRule;
@@ -160,6 +161,9 @@ public class PreRulesExecutorService {
                     Contexts.setAsync(false);
                     long start = System.currentTimeMillis();
                     try {
+                        // add current execute ruleNo and logPrefix before execution
+                        fact.ext.put(Constants.key_ruleNo, rule.getRuleNo());
+                        fact.ext.put(Constants.key_isAsync, true);
                         if (rule.getRuleType() == RuleType.Script) {
                             statelessPreRuleEngine.execute(packageName, fact);
                         } else if (rule.getRuleType() == RuleType.Visual) {
@@ -169,6 +173,9 @@ public class PreRulesExecutorService {
                                 converter.convert(preAction, rule.getPreActionFieldMapping(), fact, rule.getPreActionResultWrapper(), false);
                             }
                         }
+                        // remove current execute ruleNo when finished execution.
+                        fact.ext.remove(Constants.key_ruleNo);
+                        fact.ext.remove(Constants.key_isAsync);
                     } catch (Throwable ex) {
                         logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName, ex);
                         TraceLogger.traceLog("EXCEPTION: " + ex.toString());
