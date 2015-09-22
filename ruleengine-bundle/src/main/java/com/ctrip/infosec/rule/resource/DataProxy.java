@@ -62,7 +62,7 @@ public class DataProxy {
         } catch (Exception ex) {
             fault("DataProxy.queryForMap");
             fault("DataProxy." + serviceName + "." + operationName);
-            logger.error(Contexts.getLogPrefix() + "invoke DataProxy.queryForMap fault.", ex);
+            logger.error(Contexts.getLogPrefix() + "查询DataProxy超时或异常.", ex);
         } finally {
             afterInvoke("DataProxy.queryForMap");
             afterInvoke("DataProxy." + serviceName + "." + operationName);
@@ -203,7 +203,7 @@ public class DataProxy {
     }
 
     /**
-     * 凯安的ip和手机号注册事件查询服务
+     * 岂安的ip和手机号注册事件查询服务
      *
      * @param ip
      * @param mobile

@@ -103,10 +103,4 @@ public class DataProxyQueryCommand extends HystrixCommand<Map<String, Object>> {
         }
         return Collections.EMPTY_MAP;
     }
-
-    @Override
-    protected Map<String, Object> getFallback() {
-        logger.warn("查询DataProxy超时或异常.");
-        return Collections.EMPTY_MAP;
-    }
 }
