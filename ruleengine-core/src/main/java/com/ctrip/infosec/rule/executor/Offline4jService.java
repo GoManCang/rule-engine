@@ -7,6 +7,7 @@ import com.ctrip.infosec.configs.event.DatabaseType;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.utils.Utils;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.convert.RiskFactConvertRuleService;
 import com.ctrip.infosec.rule.convert.RiskFactPersistStrategy;
@@ -74,6 +75,7 @@ public class Offline4jService {
             if (internalRiskFact != null) {
                 // 数据落地
                 if (RiskFactPersistStrategy.supportLocally(fact.getEventPoint())) {
+                    TraceLogger.traceLog("执行落地");
                     localSave(fact, internalRiskFact);
                     long reqId = internalRiskFact.getReqId();
                     if (reqId > 0) {
@@ -89,6 +91,7 @@ public class Offline4jService {
             persistPostRuleExecutorService.executePostRules(fact, false);
         } catch (Exception ex) {
             fault(operation);
+            TraceLogger.traceLog("执行落地异常：" + ex.toString());
             logger.error(Contexts.getLogPrefix() + "fail to persist risk fact.", ex);
         } finally {
             long usage = afterInvoke(operation);
@@ -106,7 +109,9 @@ public class Offline4jService {
         PersistContext persistContext = persistManager.persist(riskLevel, resultRemark);
         long reqId = persistManager.getGeneratedReqId();
         internalRiskFact.setReqId(reqId);
+        TraceLogger.traceLog("落地reqId：" + reqId);
         // 调用ebank远程服务落地
+        TraceLogger.traceLog("ebank：" + MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false));
         if (MapUtils.getBoolean(fact.ext, PUSH_EBANK_KEY, false)) {
             SaveRiskLevelDataRequest request = new SaveRiskLevelDataRequest();
             request.setResID(reqId);
@@ -122,7 +127,9 @@ public class Offline4jService {
             request.setCardInfoID(MapUtils.getInteger(ebankData, "cardInfoID", 0));
             request.setStatus(MapUtils.getString(ebankData, "status", null));
 
+            TraceLogger.traceLog("ebank请求：" + Utils.JSON.toJSONString(request));
             SaveRiskLevelDataResponse ebankResp = RiskLevelData.save(request);
+            TraceLogger.traceLog("ebank返回：" + Utils.JSON.toJSONString(ebankResp));
             if (ebankResp != null) {
                 // 调用ebank成功，修改InfoSecurity_RiskLevelData.TransFlag
                 updateTransFlag(reqId, persistContext);

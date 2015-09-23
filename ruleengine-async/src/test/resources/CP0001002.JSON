@@ -1,85 +1,176 @@
 {
   "eventPoint": "CP0001002",
-  "eventId": "12a82cc0-4644-11e5-891a-5f475aeafb8c",
+  "eventId": "043da9e0-61f5-11e5-aa4a-99e0ed921e33",
   "appId": "670203",
   "eventBody": {
-    "CCardInfoID": "28996388",
     "UserProfileInfo": {
-      "CUSCHARACTER": "NEW"
+      "BESCAN_TIME": "",
+      "CUSCHARACTER": "",
+      "TRAIN_NUM_L6M": ""
     },
-    "aCity": 0,
+    "activityID": 0,
+    "amount": 16.0,
+    "applyAmount": 0.0,
     "bankValidationMethod": "2",
+    "billNo": 0,
     "businessItem": "",
+    "cardEndTime": "",
+    "cardInfoID": 0,
+    "cardStartTime": "",
     "checkType": 2,
-    "clientID": "1234567890",
     "clientIDOrIP": "6",
+    "clientId": "6",
     "clientOS": "5",
-    "contactEMail": "lxyy1118@163.com",
-    "contactName": "ContactName",
-    "contactTel": "8117755",
-    "dCity": 99,
+    "contactName": "董小姐",
+    "contactTel": "15821026848",
+    "creditCardType": 0,
     "deductType": "1",
-    "departureDate": "2014-06-23 11:04:18.951",
-    "isOnline": "F",
-    "latitude": 0.0,
-    "longitude": 0.0,
-    "merchantID": "MerchantID",
-    "mobilePhone": "13701488549",
-    "optionItems": [
+    "departureDate": "",
+    "departureDateToOrder": 0,
+    "distributionAdress": "福泉路999号",
+    "distributionCity": "上海",
+    "distributionDistrict": "长宁区",
+    "distributionProvince": "上海",
+    "distributionRecipient": "董小姐",
+    "distributionZipCode": "200022",
+    "experience": 0,
+    "fNCMallOrderInfo": {
+      "orderAmount": 16.0,
+      "originalTotalAmount": 16.0,
+      "payType": 3,
+      "rechargeAccount": null,
+      "rechargeOrderType": 0,
+      "serviceArea": null,
+      "shipmentFee": 6.0
+    },
+    "fNCMallOrderInfos": [
       {
-        "optionID": 1,
-        "optionName": "OptionName1",
-        "optionQty": 10
-      },
-      {
-        "optionID": 2,
-        "optionName": "OptionName2",
-        "optionQty": 20
+        "fNCMallOrderID": 2148700025,
+        "goodsTitleForSearch": "非活动商品校验",
+        "ifDelete": 0,
+        "orderAmount": 16.0,
+        "originalTotalAmount": 16.0,
+        "payType": 3,
+        "rechargeAccount": null,
+        "rechargeOrderType": 0,
+        "saleChannelID": 1,
+        "serviceArea": null,
+        "shipmentFee": 6.0,
+        "superiorBuyID": 1469,
+        "vendorBID": "80001064"
       }
     ],
-    "orderAmount": 10.0,
-    "orderDate": "2014-06-23 11:04:18.951",
-    "orderID": 1273626,
-    "orderInfoExternalURL": "OrderInfoExternalURL",
-    "orderType": 22,
+    "fNCMallSubOrderItems": [
+      {
+        "productID": 11532,
+        "productName": "非活动商品校验",
+        "quantity": 1,
+        "unitPrice": 10.0
+      }
+    ],
+    "factReceiveTime": 1443014067070,
+    "fltRiskLevel": 0,
+    "goosListInfo": [
+      {
+        "brandID": 7,
+        "descriptionItem": null,
+        "enterpriseBID": "80001064",
+        "goodsInfoID": 11035,
+        "maxMarketPrice": 900.0,
+        "maxSalePrice": 20.0,
+        "minMarketPrice": 900.0,
+        "minSalePrice": 10.0,
+        "saleStatus": 5,
+        "subTitle": "营销校验",
+        "title": "非活动商品校验"
+      }
+    ],
+    "infoID": 0,
+    "invoiceAmount": 0.0,
+    "invoiceId": 0,
+    "invoiceInfoList": [
+      {
+        "amount": 0.0,
+        "deliveryCity": "",
+        "deliveryDistrict": "",
+        "deliveryProvince": "",
+        "fullName": "",
+        "invoiceContent": "",
+        "invoiceHead": "发票抬头：上海携程",
+        "zipCode": ""
+      }
+    ],
+    "isInternal": 0,
+    "isNetworkIp": "F",
+    "isNormalMobilePhone": "T",
+    "isOnline": "F",
+    "isPrepay": "F",
+    "isRechangeMyself": 0,
+    "isTempNotReg": "F",
+    "latitude": 0.0,
+    "loginInfo": {},
+    "longitude": 0.0,
+    "materialFee": 0.0,
+    "maxAmount": 0.0,
+    "maxTime": 0,
+    "mergerOrderDate": "20150922",
+    "minAmount": 0.0,
+    "minTime": 0,
+    "mobilePhone": "15821026848",
+    "mobilePhoneDomain": "1582102",
+    "mobilePhoneInfo": {
+      "AreaCode": "021",
+      "CityName": "上海",
+      "MobileNumber": "1582102",
+      "MobileType": "移动",
+      "PostCode": "200000",
+      "ProvinceName": "上海"
+    },
+    "onPayType": 0,
+    "orderAmount": 16,
+    "orderDate": "2015-09-22 13:57:26",
+    "orderDeliveryID": 0,
+    "orderID": 1005,
+    "orderInfoExternalURL": "http://fl.fat.qa.nt.ctripcorp.com/MallMgt/Order/Detail/2148700025?vid=80001064",
+    "orderToSignUpDate": -1.0,
+    "orderType": 39,
     "payMethod": "1",
     "payValidationMethod": "1",
     "paymentInfos": [
       {
         "NCreditCardInfo": {
           "AgreementCode": "",
-          "BankOfCardIssue": "",
-          "BillingAddress": "",
-          "CCardNoCode": "EE2112DB19A97249EE086029E21DD5EE",
-          "CValidityCode": "37FA274F2ED32C2374156D637D1E8855",
-          "CardBin": "520082",
-          "CardHolder": "sdf",
-          "CardInfoId": "28996388",
-          "CardNoRefID": "1994",
-          "CardRiskNoLastCode": "926ABAE84A4BD33C834BC6B981B8CF30",
-          "CardRiskNoPreCode": "D8BF5E2975744BAE96FFF4C319C2E81D",
-          "CardTypeName": "中国农业银行 -- 金穗卡",
-          "CreateDate": "2013-03-11T18:47:32",
-          "CreditCardNumber": "CTRP7D4A9037D45BB0B8B3297DC607D3281D",
-          "CreditCardNumberPlaintext": "5200820000000008",
-          "CreditCardType": "4",
+          "BankOfCardIssue": "The predecessor of Chinatrust Commercial Bank ",
+          "BillingAddress": "台北市长安东路二段110号8楼A室",
+          "CCardNoCode": "9B192C2D3D8D25E5E97125A2E4A8FF0C",
+          "CValidityCode": "0D8D3C1D0AA6EB3725457D0F4885E0F2",
+          "CardBin": "431195",
+          "CardHolder": "CHING/YA/SHEN",
+          "CardInfoId": "28972719",
+          "CardNoRefID": "3392883",
+          "CardRiskNoLastCode": "618FAA1728EB2EF6E3733645273AB145",
+          "CardRiskNoPreCode": "F64DE40E775AC015A36DD766CAAD479D",
+          "CardTypeName": "境外发行信用卡 -- 威士(VISA)",
+          "CreateDate": "2009-03-02T13:41:11",
+          "CreditCardNumber": "CTRP0001262FA777901BA56F0CBAD4098AE8EAF4FEEDBF30E84721697ECEE900",
+          "CreditCardType": "7",
           "CurrencyType": "U",
-          "IdCardType": "4",
-          "IdNumber": "552",
-          "IsForeignCard": "F",
-          "IsVerifyNoEmpty": "F",
-          "LocalCardType": "L",
-          "Nationality": "  ",
-          "Nationalityofisuue": "  ",
+          "IdCardType": "8",
+          "IdNumber": "0201762703D",
+          "IsForeignCard": "T",
+          "IsVerifyNoEmpty": "T",
+          "LocalCardType": "U",
+          "Nationality": "TW",
+          "Nationalityofisuue": "TW",
           "PhoneNo": "",
-          "StateName": "",
-          "VM_Type": "U",
-          "Validity": "CTRPC3486DBED33FE0865193F6BEFC0B7BA6",
-          "VerifyNo": "",
-          "ZipCode": ""
+          "StateName": "台湾省",
+          "VM_Type": "V",
+          "Validity": "CTRP0001262FA777901BA56F0CBAD409905F68A0202D4A0773E561B26A06D3B6",
+          "VerifyNo": "CTRP0001262FA777901BA56F0CBAD409E9972B5BEA10FB158FF33607E34455DA",
+          "ZipCode": "104"
         },
         "amount": 10.0,
-        "cardInfoID": 28996388,
+        "cardInfoID": 28972719,
         "creditCardInfo": {
           "bankOfCardIssue": "123558852",
           "billingAddress": "5532558",
@@ -89,7 +180,7 @@
           "cValidityCode": "456558858",
           "cardBin": "12355858",
           "cardHolder": "刘刘",
-          "cardInfoID": 28996388,
+          "cardInfoID": 28972719,
           "creditCardType": 11,
           "infoID": 123,
           "isForigenCard": "T",
@@ -101,9 +192,6 @@
         "refNo": 123
       },
       {
-        "NCreditCardInfo": {
-          "cardInfoId": "28900008"
-        },
         "amount": 1.0,
         "cardInfoID": 28900008,
         "creditCardInfo": {
@@ -127,102 +215,132 @@
         "refNo": 789
       }
     ],
+    "paymentInfos.creditCardInfo.infoID": "0",
+    "periodType": 0,
     "phoneProvinceName": {
-      "CityName": "常州",
-      "MobileNumber": "1370148",
-      "MobileType": "江苏移动全球通卡",
-      "ProvinceName": "江苏"
+      "AreaCode": "021",
+      "CityName": "上海",
+      "MobileNumber": "1582102",
+      "MobileType": "移动",
+      "PostCode": "200000",
+      "ProvinceName": "上海"
     },
-    "productName": "ProductName",
-    "referenceNo": "123",
-    "sendTickerAddr": "SendTickerAddr",
-    "serverfrom": "Serverfrom",
-    "uid": "E00019292",
-    "uidCrmMemberInfo": {
-      "bindedEmail": "liu_xy@ctrip.com",
-      "birth": "0001-01-01T00:00:00",
-      "city": "0",
-      "country": "0",
-      "email": "liu_xy@ctrip.com",
-      "experience": "10175",
-      "gender": "F",
-      "mD5Password": "E10ADC3949BA59ABBE56E057F20F883E",
-      "maxGrade": "30",
-      "mileageIncluding": "HF",
-      "signupIP": "172.16.163.200",
-      "signupdate": "2013-07-08T17:24:36",
-      "sourceid": "1",
-      "uid": "E00019292",
-      "updateTime": "0001-01-01T00:00:00",
-      "vip": "F",
-      "vipGrade": "0"
+    "prepayType": "CCARD",
+    "productID": 0,
+    "rates": 0.0,
+    "referenceNo": "0",
+    "registSource": "unkown",
+    "retailerType": 0,
+    "serverfrom": "H5",
+    "serviceDays": 0,
+    "shippingFee": 6.0,
+    "signUpDate": "",
+    "startTime": "",
+    "subOrderType": 0,
+    "sumoptionQty": 0,
+    "supportAmount": 0.0,
+    "takeOffTime": "",
+    "takeofftimeToOrder": -1.0,
+    "totalPenalty": 0.0,
+    "uid": "testtest",
+    "uidCrmsourceName": null,
+    "userIP": "10.2.211.112",
+    "userIPValue": 167957360,
+    "userTags": {
+      "BESCAN_TIME": ""
     },
-    "userIP": "61.175.232.0",
-    "userIPCountry": {
-      "Area": "",
-      "City": "常州",
-      "CityId": "-999",
-      "Country": "中国",
-      "CountryId": "1",
-      "EndAddr": "1034938879",
-      "Latitude": "35",
-      "Longitude": "105",
-      "NationCode": "CN",
-      "Province": "湖南",
-      "ProvinceId": "-999",
-      "Remark": "城市名为空",
-      "StartAddr": "1034937600",
-      "Type_Company": "电信"
-    },
-    "userIPValue": 1034938368,
-    "userInfos": [
-      {
-        "visitorCardNo": "VisitorCardNo1",
-        "visitorContactInfo": "VisitorContactInfo1",
-        "visitorName": "VisitorName1",
-        "visitorNationality": "VisitorNationality1"
-      },
-      {
-        "visitorCardNo": "VisitorCardNo2",
-        "visitorContactInfo": "VisitorContactInfo2",
-        "visitorName": "VisitorName2",
-        "visitorNationality": "VisitorNationality2"
-      }
-    ],
-    "validationFailsReason": "3"
+    "validationFailsReason": "3",
+    "vipGrade": 0
   },
   "results": {
-    "CP0001002_UL_XD_ZF": {
+    "CP0001002BASE": {
+      "async": false,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 5
+    },
+    "CP0001002_TEST": {
+      "async": false,
+      "riskLevel": 101,
+      "riskMessage": "testtest邮轮有风险",
+      "ruleType": "N",
+      "timeUsage": 4
+    },
+    "FCP0001002BT9917200001": {
+      "async": false,
+      "riskLevel": 80,
+      "riskMessage": "每个用户每天下单数量不超过5笔",
+      "ruleType": "N",
+      "timeUsage": 11
+    },
+    "FCP0001002BT9917200002": {
+      "async": false,
+      "riskLevel": 80,
+      "riskMessage": "每用户每天累计订单金额不超过600元",
+      "ruleType": "N",
+      "timeUsage": 12
+    },
+    "PayAuth001": {
       "async": false,
       "riskLevel": 0,
       "riskMessage": "PASS",
       "timeUsage": 3
     },
-    "CP001002_blacktest": {
-      "async": false,
-      "riskLevel": 202,
-      "riskMessage": "命中黑名单规则: [ruleType:BW, ruleID:45463, ruleName:, riskLevel:202, ruleRemark:FAT和UAT同样存在，测试持续使用，请勿修改！！！]",
-      "timeUsage": 11
-    },
-    "ULXDZF": {
+    "UGSAN000008": {
       "async": false,
       "riskLevel": 0,
       "riskMessage": "PASS",
-      "timeUsage": 1
+      "timeUsage": 5
+    },
+    "UGSAN050008": {
+      "async": false,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 3
     }
   },
   "finalResult": {
-    "async": false,
-    "riskLevel": 202,
-    "riskMessage": "命中黑名单规则: [ruleType:BW, ruleID:45463, ruleName:, riskLevel:202, ruleRemark:FAT和UAT同样存在，测试持续使用，请勿修改！！！]"
+    "originalRiskLevel": 101,
+    "riskLevel": 101,
+    "riskMessage": "testtest邮轮有风险",
+    "ruleType": "N"
+  },
+  "results4Async": {
+    "CP0001002BASE": {
+      "async": true,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 2
+    },
+    "UALMH000001_N": {
+      "async": true,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 3
+    },
+    "UID_Risk_C_001": {
+      "async": true,
+      "riskLevel": 0,
+      "riskMessage": "PASS",
+      "timeUsage": 25
+    }
+  },
+  "finalResult4Async": {
+    "riskLevel": 0,
+    "riskMessage": "PASS"
   },
   "ext": {
     "CHANNEL": "EXECUTE",
     "SYNC_RULE_EXECUTED": true,
-    "_isAsync": false,
-    "_ruleNo": "CP0001002_UL_XD_ZF",
-    "descTimestamp": 2630910611060
+    "descTimestamp": 2627865932930,
+    "ebank-data": {
+      "cardInfoID": 28972719,
+      "isForeignCard": "T",
+      "status": ""
+    },
+    "offline4j-push-ebank": true,
+    "offline4j-push-works-order": true
   },
-  "requestTime": "2015-08-19 15:29:48.964",
-  "requestReceive": "2015-08-19 15:29:48.940"
+  "requestTime": "2015-09-23 21:14:27.101",
+  "requestReceive": "2015-09-23 21:14:27.070"
 }
