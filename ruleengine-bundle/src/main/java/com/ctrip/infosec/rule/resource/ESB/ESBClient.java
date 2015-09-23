@@ -66,7 +66,11 @@ public class ESBClient {
         StringBuilder requestContent = new StringBuilder();
         requestContent.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         requestContent.append("<Request>");
-        requestContent.append(String.format("<Header UserID=\"%s\" RequestType=\"%s\" />", esbConfig.getAppId().toString(), requestType));
+        if("AccCash.EasyPay.SaveRiskLevelData".equals(requestType)){
+            requestContent.append(String.format("<Header UserID=\"670203\" RequestType=\"%s\" />", esbConfig.getAppId().toString(), requestType));
+        }else {
+            requestContent.append(String.format("<Header UserID=\"%s\" RequestType=\"%s\" />", esbConfig.getAppId().toString(), requestType));
+        }
         requestContent.append(requestBody);
         requestContent.append("</Request>");
 
