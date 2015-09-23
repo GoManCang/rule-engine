@@ -214,6 +214,15 @@ public class PreRulesExecutorService {
         try {
             if (!runs1.isEmpty()) {
                 List<Future<Boolean>> results = ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.MILLISECONDS);
+                for (Future f : results) {
+                    try {
+                        if (!f.isDone()) {
+                            f.cancel(true);
+                        }
+                    } catch (Exception e) {
+                        // ignored
+                    }
+                }
             }
         } catch (Exception ex) {
             // ignored
