@@ -1,5 +1,6 @@
 package com.ctrip.infosec.rule.resource.ESB;
 
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import org.apache.commons.lang3.Validate;
@@ -71,7 +72,9 @@ public class ESBClient {
 
         String request = requestContent.toString();
         logger.info(Contexts.getLogPrefix() + "request: " + request);
+        TraceLogger.traceLog("request: " + request);
         String soapResponseData = requestWithSoap(request);
+        TraceLogger.traceLog("response: " + soapResponseData);
         logger.info(Contexts.getLogPrefix() + "response: " + soapResponseData);
 
         if (soapResponseData != null && !soapResponseData.isEmpty()) {
