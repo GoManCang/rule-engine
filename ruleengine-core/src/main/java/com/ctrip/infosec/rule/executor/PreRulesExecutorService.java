@@ -16,6 +16,7 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.ThreadLocalCache;
 import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
@@ -25,6 +26,7 @@ import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,9 @@ public class PreRulesExecutorService {
      * 执行预处理规则
      */
     public RiskFact executePreRules(RiskFact fact, boolean isAsync) {
+        // 预处理之前先清空线程缓存
+        ThreadLocalCache.clear();
+        // 执行预处理
         execute(fact, isAsync);
         return fact;
     }
@@ -208,7 +213,7 @@ public class PreRulesExecutorService {
         // run
         try {
             if (!runs1.isEmpty()) {
-                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.MILLISECONDS);
+                List<Future<Boolean>> results = ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.MILLISECONDS);
             }
         } catch (Exception ex) {
             // ignored

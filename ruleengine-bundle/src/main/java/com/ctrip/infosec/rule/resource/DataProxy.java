@@ -11,6 +11,7 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.ThreadLocalCache;
 import com.ctrip.infosec.rule.resource.hystrix.DataProxyQueryCommand;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.sec.userprofile.vo.content.request.DataProxyRequest;
@@ -41,6 +42,12 @@ public class DataProxy {
         Validate.notEmpty(urlPrefix, "在GlobalConfig.properties里没有找到\"DataProxy.Venus.ipAddressList\"配置项.");
     }
 
+    static String buildCacheKey(String serviceName, String operationName, Map<String, Object> params) {
+        StringBuilder builder = new StringBuilder("DataProxy.queryForMap__");
+        builder.append(serviceName).append("__").append(operationName).append("__").append(JSON.toJSONString(params));
+        return builder.toString();
+    }
+
     /**
      * 查询一个服务的接口
      *
@@ -54,11 +61,18 @@ public class DataProxy {
         beforeInvoke("DataProxy.queryForMap");
         beforeInvoke("DataProxy." + serviceName + "." + operationName);
         try {
-            boolean _isAsync = Contexts.isAsync();
-            DataProxyQueryCommand command = new DataProxyQueryCommand(serviceName, operationName, params, _isAsync);
-            Map newResult = command.execute();
-            if (serviceName.equals("UserProfileService")) {
-                newResult = parseProfileResult(newResult);
+            String cacheKey = buildCacheKey(serviceName, operationName, params);
+            Map newResult = (Map) ThreadLocalCache.get(cacheKey);
+            if (newResult == null) {
+                boolean _isAsync = Contexts.isAsync();
+                DataProxyQueryCommand command = new DataProxyQueryCommand(serviceName, operationName, params, _isAsync);
+                newResult = command.execute();
+                if (serviceName.equals("UserProfileService")) {
+                    newResult = parseProfileResult(newResult);
+                }
+                ThreadLocalCache.set(cacheKey, newResult);
+            } else {
+                logger.info("hit cache, key=" + cacheKey);
             }
             return newResult;
         } catch (Exception ex) {
