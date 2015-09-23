@@ -82,6 +82,16 @@ public class RuleEngineRESTfulController {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);
             }
+            // 执行数据合并（PUT）
+            try {
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.PUT);
+                TraceLogger.beginTrans(fact.eventId, "S1");
+                TraceLogger.setLogPrefix("[同步数据合并]");
+                eventDataMergeService.executeRedisPut(fact);
+            } finally {
+                TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
+            }
             // 执行预处理            
             try {
                 RuleMonitorHelper.newTrans(fact, RuleMonitorType.PRE_RULE_WRAP);
