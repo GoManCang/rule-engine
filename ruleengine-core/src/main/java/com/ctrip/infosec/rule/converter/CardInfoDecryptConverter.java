@@ -7,8 +7,8 @@ package com.ctrip.infosec.rule.converter;
 
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
-import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
 import com.ctrip.infosec.rule.resource.CardInfo;
+import com.ctrip.infosec.rule.resource.Crypto;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,12 @@ public class CardInfoDecryptConverter implements Converter {
         String cardInfoIdFieldName = (String) fieldMapping.get(fields[0].getParamName());
 
         Object value = fact.eventBody.get((cardInfoIdFieldName.split("\\.")[0]));
-        if (value instanceof Object[] || value instanceof List) {
-            convertPaymentInfos(cardInfoIdFieldName, fact, resultWrapper);
+        if (value.getClass().isArray() || value instanceof List) {
+            convertPaymentInfos(preAction, cardInfoIdFieldName, fact, resultWrapper);
             return;
         }
 
-        String cardInfoIdFieldValue = valueAsString(fact.eventBody, cardInfoIdFieldName);
+        String cardInfoIdFieldValue = BeanUtils.getNestedProperty(fact.eventBody, cardInfoIdFieldName);
 
         // prefix default value
         if (Strings.isNullOrEmpty(resultWrapper)) {
@@ -56,7 +57,7 @@ public class CardInfoDecryptConverter implements Converter {
             Map params = ImmutableMap.of("cardInfoId", cardInfoIdFieldValue);
             Map<String, Object> result = CardInfo.query("getinfo", params);
             if (result != null && !result.isEmpty()) {
-                try {
+//                try {
 //                    String CreditCardNumber = (String) result.get("CreditCardNumber");
 //                    if (StringUtils.isNotBlank(CreditCardNumber)) {
 //                        String CreditCardNumberPlaintext = Crypto.decrypt(CreditCardNumber);
@@ -64,9 +65,9 @@ public class CardInfoDecryptConverter implements Converter {
 //                            result.put("CreditCardNumberPlaintext", CreditCardNumberPlaintext);
 //                        }
 //                    }
-                } catch (Exception ex) {
-                    TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
-                }
+//                } catch (Exception ex) {
+//                    TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
+//                }
                 fact.eventBody.put(resultWrapper, result);
             } else {
                 TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);
@@ -74,7 +75,8 @@ public class CardInfoDecryptConverter implements Converter {
         }
     }
 
-    private void convertPaymentInfos(String cardInfoIdFieldName, RiskFact fact, String resultWrapper) throws Exception {
+    private void convertPaymentInfos(PreActionEnums preAction,
+            String cardInfoIdFieldName, RiskFact fact, String resultWrapper) throws Exception {
 
         List<Object> dataSources = null;
         Object object = fact.eventBody.get((cardInfoIdFieldName.split("\\.")[0]));
@@ -88,13 +90,13 @@ public class CardInfoDecryptConverter implements Converter {
         for (Object obj : dataSources) {
 
             Map map = (Map) obj;
-            String cardInfoIdFieldValue = valueAsString(map, cardInfoIdFieldName.substring(cardInfoIdFieldName.lastIndexOf(".") + 1));
+            String cardInfoIdFieldValue = BeanUtils.getNestedProperty(map, cardInfoIdFieldName.substring(cardInfoIdFieldName.lastIndexOf(".") + 1));
 
             if (StringUtils.isNotBlank(cardInfoIdFieldValue)) {
                 Map params = ImmutableMap.of("cardInfoId", cardInfoIdFieldValue);
                 Map<String, Object> result = CardInfo.query("getinfo", params);
                 if (result != null && !result.isEmpty()) {
-                    try {
+//                    try {
 //                        String CreditCardNumber = (String) result.get("CreditCardNumber");
 //                        if (StringUtils.isNotBlank(CreditCardNumber)) {
 //                            String CreditCardNumberPlaintext = Crypto.decrypt(CreditCardNumber);
@@ -102,9 +104,9 @@ public class CardInfoDecryptConverter implements Converter {
 //                                result.put("CreditCardNumberPlaintext", CreditCardNumberPlaintext);
 //                            }
 //                        }
-                    } catch (Exception ex) {
-                        TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
-                    }
+//                    } catch (Exception ex) {
+//                        TraceLogger.traceLog("解密CreditCardNumber异常: " + ex.toString());
+//                    }
                     map.put(resultWrapper, result);
                 } else {
                     TraceLogger.traceLog("预处理结果为空. cardInfoId=" + cardInfoIdFieldValue);

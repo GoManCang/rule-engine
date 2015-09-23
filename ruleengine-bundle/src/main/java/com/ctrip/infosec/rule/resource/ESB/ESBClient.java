@@ -76,9 +76,7 @@ public class ESBClient {
 
         String request = requestContent.toString();
         logger.info(Contexts.getLogPrefix() + "request: " + request);
-        TraceLogger.traceLog("request: " + request);
         String soapResponseData = requestWithSoap(request);
-        TraceLogger.traceLog("response: " + soapResponseData);
         logger.info(Contexts.getLogPrefix() + "response: " + soapResponseData);
 
         if (soapResponseData != null && !soapResponseData.isEmpty()) {

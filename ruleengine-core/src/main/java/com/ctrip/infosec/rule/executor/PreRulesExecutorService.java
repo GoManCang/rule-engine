@@ -21,6 +21,7 @@ import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
 import com.ctrip.infosec.rule.engine.StatelessPreRuleEngine;
+import com.ctrip.infosec.sars.util.Collections3;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
@@ -67,7 +68,6 @@ public class PreRulesExecutorService {
 //        logger.debug(Contexts.getLogPrefix() + "matched pre rules: " + StringUtils.join(ruleNos, ", "));
 //        TraceLogger.traceLog("匹配到 " + ruleNos.size() + " 条预处理规则 ...");
 
-        TraceLogger.traceLog("开始执行预处理规则 ...");
         List<PreRuleTreeNode> matchedPreRuleTreeNodes = Configs.matchPreRuleTree(fact, isAsync);
         while (!matchedPreRuleTreeNodes.isEmpty()) {
             List<PreRule> matchedRules = Lists.newArrayList();
@@ -88,6 +88,7 @@ public class PreRulesExecutorService {
                 }
             }
             matchedPreRuleTreeNodes = children;
+            TraceLogger.traceLog("执行预处理规则: " + Collections3.extractToList(matchedRules, "ruleNo"));
 
             if (isAsync) {
                 executeSerial(fact, matchedRules);

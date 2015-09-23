@@ -70,9 +70,11 @@ public class DataProxy {
                 if (serviceName.equals("UserProfileService")) {
                     newResult = parseProfileResult(newResult);
                 }
-                ThreadLocalCache.set(cacheKey, newResult);
+                if (newResult != null && !newResult.isEmpty()) {
+                    ThreadLocalCache.set(cacheKey, newResult);
+                }
             } else {
-                logger.info("hit cache, key=" + cacheKey);
+                logger.info("hit cache, key = " + cacheKey);
             }
             return newResult;
         } catch (Exception ex) {
