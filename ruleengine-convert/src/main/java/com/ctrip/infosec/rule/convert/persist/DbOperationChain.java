@@ -3,6 +3,7 @@ package com.ctrip.infosec.rule.convert.persist;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.Condition;
 import com.ctrip.infosec.configs.event.Logical;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
@@ -44,9 +45,12 @@ public class DbOperationChain {
         boolean matched = Configs.match(tmp, conditionsLogical, data);
         if(matched) {
             try {
+                TraceLogger.traceLog("执行落地操作：" + currentOperation);
                 currentOperation.execute(ctx);
                 ctx.addCtxSharedValues(currentOperation.getPrefix(), currentOperation.getExposedValue());
+                TraceLogger.traceLog("执行落地操作完成：" + currentOperation);
             } catch (DbExecuteException e) {
+                TraceLogger.traceLog("执行落地操作[" + currentOperation + "]执行异常：" + e.toString());
                 logger.error(SarsMonitorContext.getLogPrefix() + "operation failed: " + currentOperation, e);
             }
             // 执行子操作
