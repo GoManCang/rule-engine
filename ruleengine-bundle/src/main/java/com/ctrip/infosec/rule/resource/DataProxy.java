@@ -74,7 +74,7 @@ public class DataProxy {
                     ThreadLocalCache.set(cacheKey, newResult);
                 }
             } else {
-                logger.info("hit cache, key=" + cacheKey);
+                logger.info("hit cache, key = " + cacheKey);
             }
             return newResult;
         } catch (Exception ex) {
