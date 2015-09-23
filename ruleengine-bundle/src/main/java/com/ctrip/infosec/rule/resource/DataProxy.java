@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.hystrix.DataProxyQueryCommand;
@@ -53,7 +54,8 @@ public class DataProxy {
         beforeInvoke("DataProxy.queryForMap");
         beforeInvoke("DataProxy." + serviceName + "." + operationName);
         try {
-            DataProxyQueryCommand command = new DataProxyQueryCommand(serviceName, operationName, params);
+            boolean _isAsync = Contexts.isAsync();
+            DataProxyQueryCommand command = new DataProxyQueryCommand(serviceName, operationName, params, _isAsync);
             Map newResult = command.execute();
             if (serviceName.equals("UserProfileService")) {
                 newResult = parseProfileResult(newResult);
@@ -63,6 +65,7 @@ public class DataProxy {
             fault("DataProxy.queryForMap");
             fault("DataProxy." + serviceName + "." + operationName);
             logger.error(Contexts.getLogPrefix() + "查询DataProxy超时或异常.", ex);
+            TraceLogger.traceLog("查询DataProxy超时或异常, EXCEPTION: " + (ex.getCause() == null ? ex.toString() : ex.getCause().toString()));
         } finally {
             afterInvoke("DataProxy.queryForMap");
             afterInvoke("DataProxy." + serviceName + "." + operationName);

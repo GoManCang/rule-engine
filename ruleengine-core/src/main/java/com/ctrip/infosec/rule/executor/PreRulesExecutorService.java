@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.executor;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
+import static com.ctrip.infosec.configs.Configs.match;
 import com.ctrip.infosec.configs.event.PreRule;
 import com.ctrip.infosec.configs.event.PreRuleTreeNode;
 import com.ctrip.infosec.configs.event.RuleType;
@@ -66,10 +67,19 @@ public class PreRulesExecutorService {
         while (!matchedPreRuleTreeNodes.isEmpty()) {
             List<PreRule> matchedRules = Lists.newArrayList();
             List<PreRuleTreeNode> children = Lists.newArrayList();
-            for (PreRuleTreeNode node : matchedPreRuleTreeNodes) {
-                matchedRules.add(node.getData());
-                if (node.getNodes() != null && !node.getNodes().isEmpty()) {
-                    children.addAll(node.getNodes());
+            for (PreRuleTreeNode treeNode : matchedPreRuleTreeNodes) {
+
+                // Nodes为空就表示是顶层的预处理，需要判断前置依赖条件的
+                boolean matched = true;
+                if (treeNode.getNodes().isEmpty()) {
+                    PreRule preRule = treeNode.getData();
+                    matched = match(preRule.getConditions(), preRule.getConditionsLogical(), fact.eventBody);
+                }
+                if (matched) {
+                    matchedRules.add(treeNode.getData());
+                    if (treeNode.getNodes() != null && !treeNode.getNodes().isEmpty()) {
+                        children.addAll(treeNode.getNodes());
+                    }
                 }
             }
             matchedPreRuleTreeNodes = children;

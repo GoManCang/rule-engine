@@ -45,13 +45,13 @@ public class DataProxyQueryCommand extends HystrixCommand<Map<String, Object>> {
     private String operationName;
     private Map<String, Object> params;
 
-    public DataProxyQueryCommand(String serviceName, String operationName, Map<String, Object> params) {
+    public DataProxyQueryCommand(String serviceName, String operationName, Map<String, Object> params, boolean isAsync) {
         super(HystrixCommand.Setter
                 .withGroupKey(HystrixCommandGroupKey.Factory.asKey("DataProxyQueryGroup"))
                 .andCommandKey(HystrixCommandKey.Factory.asKey("DataProxyQueryCommand"))
                 .andCommandPropertiesDefaults(
                         HystrixCommandProperties.Setter()
-                        .withExecutionIsolationThreadTimeoutInMilliseconds(timeout)
+                        .withExecutionIsolationThreadTimeoutInMilliseconds(isAsync ? (timeout * 2) : timeout)
                 )
                 .andThreadPoolPropertiesDefaults(
                         HystrixThreadPoolProperties.Setter()
