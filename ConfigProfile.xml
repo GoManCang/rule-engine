@@ -238,6 +238,6 @@
         <Wallet.ESB.URL>http://WS.Wallet.Payment.ctripcorp.com/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>64</hystrix.dataproxy.query.coreSize>
-		<hystrix.dataproxy.query.timeout>300</hystrix.dataproxy.query.timeout>
+		<hystrix.dataproxy.query.timeout>200</hystrix.dataproxy.query.timeout>
     </prd>
 </profile>

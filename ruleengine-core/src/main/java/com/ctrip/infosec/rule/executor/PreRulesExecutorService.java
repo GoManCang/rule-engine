@@ -69,7 +69,7 @@ public class PreRulesExecutorService {
             List<PreRuleTreeNode> children = Lists.newArrayList();
             for (PreRuleTreeNode treeNode : matchedPreRuleTreeNodes) {
 
-                // Nodes为空就表示是顶层的预处理，需要判断前置依赖条件的
+                // Nodes为空就表示没有需要先执行的依赖，需要判断前置依赖条件的
                 boolean matched = true;
                 if (treeNode.getNodes().isEmpty()) {
                     PreRule preRule = treeNode.getData();
@@ -187,7 +187,7 @@ public class PreRulesExecutorService {
                         fact.ext.remove(Constants.key_ruleNo);
                         fact.ext.remove(Constants.key_isAsync);
                     } catch (Throwable ex) {
-                        logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName, ex);
+                        logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName + ", exception: " + ex.getMessage());
                         TraceLogger.traceLog("EXCEPTION: " + ex.toString());
                     } finally {
                         long handlingTime = System.currentTimeMillis() - start;
