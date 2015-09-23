@@ -51,10 +51,10 @@ public class DispatcherMessageSender {
                 factCopy.finalResult.remove(Constants.timeUsage);
 
             }
-            template.convertAndSend(routingKey, JSON.toJSONString(factCopy));
+//            template.convertAndSend(routingKey, JSON.toJSONString(factCopy));
             template.convertAndSend(defaultRoutingKey, JSON.toJSONString(factCopy));
         } else {
-            template.convertAndSend(routingKey, JSON.toJSONString(fact));
+//            template.convertAndSend(routingKey, JSON.toJSONString(fact));
             template.convertAndSend(defaultRoutingKey, JSON.toJSONString(fact));
         }
     }

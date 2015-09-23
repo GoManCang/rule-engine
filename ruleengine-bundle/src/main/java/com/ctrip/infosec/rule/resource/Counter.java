@@ -112,7 +112,7 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-//            if (Contexts.isAsync()) {
+            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/push")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -121,10 +121,10 @@ public class Counter {
                         .socketTimeout(1000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-//            } else {
-//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//                response = flowPolicyRemoteService.push(flowPushRequest);
-//            }
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.push(flowPushRequest);
+            }
 
         } catch (Exception ex) {
             fault("Counter.push");
@@ -169,7 +169,7 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-//            if (Contexts.isAsync()) {
+            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/pushToFlow")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -178,10 +178,10 @@ public class Counter {
                         .socketTimeout(1000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-//            } else {
-//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//                response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
-//            }
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
+            }
 
         } catch (Exception ex) {
             fault("Counter.pushToFlow");
@@ -225,7 +225,7 @@ public class Counter {
                 policyExecuteRequest.setTraceLoggerHeader(header);
             }
 
-//            if (Contexts.isAsync()) {
+            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/execute")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -234,10 +234,10 @@ public class Counter {
                         .socketTimeout(5000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
-//            } else {
-//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//                response = flowPolicyRemoteService.execute(policyExecuteRequest);
-//            }
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.execute(policyExecuteRequest);
+            }
 
         } catch (Exception ex) {
             fault("Counter.execute");
@@ -298,7 +298,7 @@ public class Counter {
                 flowQueryRequest.setPolicyOrRuleNo(Contexts.getPolicyOrRuleNo());
             }
 
-//            if (Contexts.isAsync()) {
+            if (Contexts.isAsync()) {
                 String responseTxt = Request.Post(urlPrefix + "/rest/queryFlowData")
                         .addHeader("Content-Type", "application/json")
                         .addHeader("Accept-Encoding", "utf-8")
@@ -307,10 +307,10 @@ public class Counter {
                         .socketTimeout(5000)
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowQueryResponse.class);
-//            } else {
-//                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-//                response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
-//            }
+            } else {
+                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
+                response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
+            }
 
         } catch (Exception ex) {
             fault("Counter.queryFlowData");

@@ -90,6 +90,9 @@
         <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.fws.qa.nt.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
         <!--Wallet-->
         <Wallet.ESB.URL>http://10.2.6.244/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
+		<!-- Hystrix -->
+		<hystrix.dataproxy.query.coreSize>8</hystrix.dataproxy.query.coreSize>
+		<hystrix.dataproxy.query.timeout>30000</hystrix.dataproxy.query.timeout>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -161,6 +164,9 @@
         <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.uat.qa.nt.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
         <!--Wallet-->
         <Wallet.ESB.URL>http://10.2.24.228/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
+		<!-- Hystrix -->
+		<hystrix.dataproxy.query.coreSize>8</hystrix.dataproxy.query.coreSize>
+		<hystrix.dataproxy.query.timeout>30000</hystrix.dataproxy.query.timeout>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(ms) -->
@@ -230,5 +236,8 @@
         <GetGiftHistoryDetail.REST.URL.Prefix>http://ws.account.giftcard.ctripcorp.com</GetGiftHistoryDetail.REST.URL.Prefix>
         <!--Wallet-->
         <Wallet.ESB.URL>http://WS.Wallet.Payment.ctripcorp.com/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
+		<!-- Hystrix -->
+		<hystrix.dataproxy.query.coreSize>64</hystrix.dataproxy.query.coreSize>
+		<hystrix.dataproxy.query.timeout>300</hystrix.dataproxy.query.timeout>
     </prd>
 </profile>

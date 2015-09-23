@@ -8,6 +8,7 @@ package com.ctrip.infosec.rule.executor;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
+import static com.ctrip.infosec.configs.Configs.match;
 import com.ctrip.infosec.configs.event.PreRule;
 import com.ctrip.infosec.configs.event.PreRuleTreeNode;
 import com.ctrip.infosec.configs.event.RuleType;
@@ -15,6 +16,7 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.ThreadLocalCache;
 import com.ctrip.infosec.rule.converter.Converter;
 import com.ctrip.infosec.rule.converter.ConverterLocator;
 import com.ctrip.infosec.rule.converter.PreActionEnums;
@@ -24,6 +26,7 @@ import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,9 @@ public class PreRulesExecutorService {
      * 执行预处理规则
      */
     public RiskFact executePreRules(RiskFact fact, boolean isAsync) {
+        // 预处理之前先清空线程缓存
+        ThreadLocalCache.clear();
+        // 执行预处理
         execute(fact, isAsync);
         return fact;
     }
@@ -66,10 +72,19 @@ public class PreRulesExecutorService {
         while (!matchedPreRuleTreeNodes.isEmpty()) {
             List<PreRule> matchedRules = Lists.newArrayList();
             List<PreRuleTreeNode> children = Lists.newArrayList();
-            for (PreRuleTreeNode node : matchedPreRuleTreeNodes) {
-                matchedRules.add(node.getData());
-                if (node.getNodes() != null && !node.getNodes().isEmpty()) {
-                    children.addAll(node.getNodes());
+            for (PreRuleTreeNode treeNode : matchedPreRuleTreeNodes) {
+
+                // Nodes为空就表示没有需要先执行的依赖，需要判断前置依赖条件的
+                boolean matched = true;
+                if (treeNode.getNodes().isEmpty()) {
+                    PreRule preRule = treeNode.getData();
+                    matched = match(preRule.getConditions(), preRule.getConditionsLogical(), fact.eventBody);
+                }
+                if (matched) {
+                    matchedRules.add(treeNode.getData());
+                    if (treeNode.getNodes() != null && !treeNode.getNodes().isEmpty()) {
+                        children.addAll(treeNode.getNodes());
+                    }
                 }
             }
             matchedPreRuleTreeNodes = children;
@@ -177,7 +192,7 @@ public class PreRulesExecutorService {
                         fact.ext.remove(Constants.key_ruleNo);
                         fact.ext.remove(Constants.key_isAsync);
                     } catch (Throwable ex) {
-                        logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName, ex);
+                        logger.warn(_logPrefix + "执行预处理规则异常. preRule: " + packageName + ", exception: " + ex.getMessage());
                         TraceLogger.traceLog("EXCEPTION: " + ex.toString());
                     } finally {
                         long handlingTime = System.currentTimeMillis() - start;
@@ -198,7 +213,16 @@ public class PreRulesExecutorService {
         // run
         try {
             if (!runs1.isEmpty()) {
-                ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.MILLISECONDS);
+                List<Future<Boolean>> results = ParallelExecutorHolder.excutor.invokeAll(runs1, timeout, TimeUnit.MILLISECONDS);
+                for (Future f : results) {
+                    try {
+                        if (!f.isDone()) {
+                            f.cancel(true);
+                        }
+                    } catch (Exception e) {
+                        // ignored
+                    }
+                }
             }
         } catch (Exception ex) {
             // ignored

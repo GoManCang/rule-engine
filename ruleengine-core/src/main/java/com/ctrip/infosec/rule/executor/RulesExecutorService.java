@@ -429,8 +429,8 @@ public class RulesExecutorService {
         }
         List<RuleExecuteResultWithEvent> rawResult = new ArrayList<RuleExecuteResultWithEvent>();
         try {
-            List<Future<RuleExecuteResultWithEvent>> result = ParallelExecutorHolder.excutor.invokeAll(runs, timeout, TimeUnit.MILLISECONDS);
-            for (Future f : result) {
+            List<Future<RuleExecuteResultWithEvent>> results = ParallelExecutorHolder.excutor.invokeAll(runs, timeout, TimeUnit.MILLISECONDS);
+            for (Future f : results) {
                 try {
                     if (f.isDone()) {
                         RuleExecuteResultWithEvent r = (RuleExecuteResultWithEvent) f.get();

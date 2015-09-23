@@ -25,7 +25,7 @@ public class CardInfo {
     private static final Logger logger = LoggerFactory.getLogger(CardInfo.class);
     private static final String clusterName = "CounterServer_03";
     private static final String cacheKeyPrefix = "ResourceCache__CardInfo__";
-    private static final int cacheExpireTime = 30 * 24 * 3600;
+    private static final int cacheExpireTime = 7 * 24 * 3600;
 
     static String buildCacheKey(String cardInfoId) {
         StringBuilder builder = new StringBuilder(cacheKeyPrefix);
