@@ -48,9 +48,9 @@ public class DbOperationChain {
                 TraceLogger.traceLog("执行落地操作：" + currentOperation);
                 currentOperation.execute(ctx);
                 ctx.addCtxSharedValues(currentOperation.getPrefix(), currentOperation.getExposedValue());
-                TraceLogger.traceLog("执行落地操作完成：" + currentOperation);
+                TraceLogger.traceLog("执行落地操作完成");
             } catch (DbExecuteException e) {
-                TraceLogger.traceLog("执行落地操作[" + currentOperation + "]执行异常：" + e.toString() + ", cause: " + e.getCause());
+                TraceLogger.traceLog("执行落地操作异常：" + e.toString() + ", cause: " + e.getCause());
                 logger.error(SarsMonitorContext.getLogPrefix() + "operation failed: " + currentOperation, e);
             }
             // 执行子操作
