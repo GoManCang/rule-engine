@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 public class CounterQueryFlowDataCommand extends HystrixCommand<FlowQueryResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(CounterQueryFlowDataCommand.class);
-    private static final int coreSize = GlobalConfig.getInteger("hystrix.counter.queryFlowData.coreSize", 64);
-    private static final int timeout = GlobalConfig.getInteger("hystrix.counter.queryFlowData.timeout", 200);
+    private static final int coreSize = GlobalConfig.getInteger("hystrix.counter.queryFlowData.coreSize", 128);
+    private static final int timeout = GlobalConfig.getInteger("hystrix.counter.queryFlowData.timeout", 400);
 
     private FlowQueryRequest flowQueryRequest;
 

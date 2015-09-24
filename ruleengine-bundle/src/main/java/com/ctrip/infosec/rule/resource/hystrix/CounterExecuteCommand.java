@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class CounterExecuteCommand extends HystrixCommand<PolicyExecuteResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(CounterExecuteCommand.class);
-    private static final int coreSize = GlobalConfig.getInteger("hystrix.counter.execute.coreSize", 64);
+    private static final int coreSize = GlobalConfig.getInteger("hystrix.counter.execute.coreSize", 128);
     private static final int timeout = GlobalConfig.getInteger("hystrix.counter.execute.timeout", 400);
 
     private PolicyExecuteRequest policyExecuteRequest;
