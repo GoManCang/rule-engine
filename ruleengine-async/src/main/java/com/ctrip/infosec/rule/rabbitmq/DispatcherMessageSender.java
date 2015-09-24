@@ -14,6 +14,7 @@ import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.springframework.amqp.core.AmqpTemplate;
@@ -31,15 +32,17 @@ import org.slf4j.LoggerFactory;
  */
 @Service
 public class DispatcherMessageSender {
-    
+
     private static Logger logger = LoggerFactory.getLogger(DispatcherMessageSender.class);
     @Resource(name = "template_datadispatcher")
     private AmqpTemplate template;
     private final String defaultRoutingKey = "datadispatcher";
-    
+
     public void sendToDataDispatcher(RiskFact fact) {
         Set<DistributionChannel> channels = Configs.getDistributionChannelsByEventPoint(fact.eventPoint);
-        String routingKey = StringUtils.join(Collections3.extractToList(channels, "channelNo"), ",");
+        List<String> channelNos = Collections3.extractToList(channels, "channelNo");
+        channelNos.add(defaultRoutingKey);
+        String routingKey = StringUtils.join(channelNos, ",");
         logger.info(Contexts.getLogPrefix() + "routingKey: " + routingKey);
         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
         if (withScene) {
@@ -54,13 +57,13 @@ public class DispatcherMessageSender {
                 factCopy.setFinalResult(Maps.newHashMap(finalResult));
                 factCopy.finalResult.remove(Constants.async);
                 factCopy.finalResult.remove(Constants.timeUsage);
-                
+
             }
             template.convertAndSend(routingKey, JSON.toJSONString(factCopy));
-            template.convertAndSend(defaultRoutingKey, JSON.toJSONString(factCopy));
+//            template.convertAndSend(defaultRoutingKey, JSON.toJSONString(factCopy));
         } else {
             template.convertAndSend(routingKey, JSON.toJSONString(fact));
-            template.convertAndSend(defaultRoutingKey, JSON.toJSONString(fact));
+//            template.convertAndSend(defaultRoutingKey, JSON.toJSONString(fact));
         }
     }
 
