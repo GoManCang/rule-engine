@@ -10,7 +10,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.utils.BeanMapper;
-import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
@@ -42,8 +42,8 @@ public class DispatcherMessageSender {
         Set<DistributionChannel> channels = Configs.getDistributionChannelsByEventPoint(fact.eventPoint);
         List<String> channelNos = Collections3.extractToList(channels, "channelNo");
         channelNos.add(defaultRoutingKey);
-        String routingKey = StringUtils.join(channelNos, ",");
-        logger.info(Contexts.getLogPrefix() + "routingKey: " + routingKey);
+        String routingKey = "." + StringUtils.join(channelNos, ".") + ".";
+        logger.info(SarsMonitorContext.getLogPrefix() + "routingKey: " + routingKey);
         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
         if (withScene) {
             RiskFact factCopy = BeanMapper.copy(fact, RiskFact.class);
