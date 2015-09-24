@@ -10,6 +10,7 @@ import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.DistributionChannel;
 import com.ctrip.infosec.configs.utils.BeanMapper;
+import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.Collections3;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -28,14 +31,16 @@ import org.apache.commons.lang.StringUtils;
  */
 @Service
 public class DispatcherMessageSender {
-
+    
+    private static Logger logger = LoggerFactory.getLogger(DispatcherMessageSender.class);
     @Resource(name = "template_datadispatcher")
     private AmqpTemplate template;
     private final String defaultRoutingKey = "datadispatcher";
-
+    
     public void sendToDataDispatcher(RiskFact fact) {
         Set<DistributionChannel> channels = Configs.getDistributionChannelsByEventPoint(fact.eventPoint);
         String routingKey = StringUtils.join(Collections3.extractToList(channels, "channelNo"), ",");
+        logger.info(Contexts.getLogPrefix() + "routingKey: " + routingKey);
         boolean withScene = Constants.eventPointsWithScene.contains(fact.eventPoint);
         if (withScene) {
             RiskFact factCopy = BeanMapper.copy(fact, RiskFact.class);
@@ -49,7 +54,7 @@ public class DispatcherMessageSender {
                 factCopy.setFinalResult(Maps.newHashMap(finalResult));
                 factCopy.finalResult.remove(Constants.async);
                 factCopy.finalResult.remove(Constants.timeUsage);
-
+                
             }
             template.convertAndSend(routingKey, JSON.toJSONString(factCopy));
             template.convertAndSend(defaultRoutingKey, JSON.toJSONString(factCopy));
