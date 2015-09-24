@@ -247,9 +247,9 @@
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>64</hystrix.dataproxy.query.coreSize>
 		<hystrix.dataproxy.query.timeout>300</hystrix.dataproxy.query.timeout>
-		<hystrix.counter.execute.coreSize>64</hystrix.counter.execute.coreSize>
+		<hystrix.counter.execute.coreSize>128</hystrix.counter.execute.coreSize>
 		<hystrix.counter.execute.timeout>400</hystrix.counter.execute.timeout>
-		<hystrix.counter.queryFlowData.coreSize>64</hystrix.counter.queryFlowData.coreSize>
-		<hystrix.counter.queryFlowData.timeout>200</hystrix.counter.queryFlowData.timeout>
+		<hystrix.counter.queryFlowData.coreSize>128</hystrix.counter.queryFlowData.coreSize>
+		<hystrix.counter.queryFlowData.timeout>400</hystrix.counter.queryFlowData.timeout>
     </prd>
 </profile>
