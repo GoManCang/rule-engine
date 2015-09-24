@@ -77,9 +77,9 @@ public class WhiteListRulesExecutorService {
                 }
                 
                 if (fact.finalWhitelistResult.isEmpty()) {
-                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + rule.getRuleNo() + "] 没有命中白名单. usage: " + handlingTime + "ms");
+                    TraceLogger.traceLog(">>>> [" + rule.getRuleNo() + "] 没有命中白名单. usage: " + handlingTime + "ms");
                 } else {
-                    TraceLogger.traceLog("&gt;&gt;&gt;&gt; [" + rule.getRuleNo() + "] 命中白名单: riskLevel = " + fact.finalWhitelistResult.get(Constants.riskLevel)
+                    TraceLogger.traceLog(">>>> [" + rule.getRuleNo() + "] 命中白名单: riskLevel = " + fact.finalWhitelistResult.get(Constants.riskLevel)
                             + ", riskMessage = " + fact.finalWhitelistResult.get(Constants.riskMessage) + ", usage = " + fact.finalWhitelistResult.get(Constants.timeUsage) + "ms");
                 }
                 

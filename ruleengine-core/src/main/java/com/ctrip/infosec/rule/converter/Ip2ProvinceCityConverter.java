@@ -44,6 +44,12 @@ public class Ip2ProvinceCityConverter implements Converter {
             return;
         }
 
+        // "8.8.8.8:80"
+        ipFieldValue = StringUtils.trimToEmpty(ipFieldValue);
+        ipFieldValue = StringUtils.removeStart(ipFieldValue, "\"");
+        ipFieldValue = StringUtils.removeEnd(ipFieldValue, "\"");
+        ipFieldValue = StringUtils.substringBefore(ipFieldValue, ":");
+
         if (StringUtils.isNotBlank(ipFieldValue) && !"127.0.0.1".equals(ipFieldValue)) {
             Map params = ImmutableMap.of("ip", ipFieldValue);
             Map result = DataProxy.queryForMap(serviceName, operationName, params);
