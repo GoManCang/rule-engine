@@ -40,7 +40,7 @@ public class CounterExecuteCommand extends HystrixCommand<PolicyExecuteResponse>
                 )
                 .andThreadPoolPropertiesDefaults(
                         HystrixThreadPoolProperties.Setter()
-                        .withCoreSize(coreSize)
+                        .withCoreSize(isAsync ? (coreSize * 2) : coreSize)
                 )
         );
 

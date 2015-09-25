@@ -208,11 +208,10 @@ public class Counter {
         check();
         beforeInvoke("Counter.execute");
         PolicyExecuteResponse response = null;
+        PolicyExecuteRequest policyExecuteRequest = new PolicyExecuteRequest();
+        policyExecuteRequest.setPolicyNo(policyNo);
+        policyExecuteRequest.setKvData(kvData);
         try {
-            PolicyExecuteRequest policyExecuteRequest = new PolicyExecuteRequest();
-            policyExecuteRequest.setPolicyNo(policyNo);
-            policyExecuteRequest.setKvData(kvData);
-
             // TraceLogger
             if (StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
@@ -246,6 +245,7 @@ public class Counter {
         } catch (Exception ex) {
             fault("Counter.execute");
             logger.error(Contexts.getLogPrefix() + "执行Counter.execute超时或异常.", ex);
+            TraceLogger.traceLog(">> [" + policyExecuteRequest.getPolicyNo() + "] 执行Counter.execute超时或异常. " + (ex.getCause() != null ? ex.getCause().toString() : ex.toString()));
             response = new PolicyExecuteResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());
@@ -315,12 +315,13 @@ public class Counter {
 //                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
 //                response = flowPolicyRemoteService.queryFlowData(flowQueryRequest);
 //            }
-            CounterQueryFlowDataCommand command = new CounterQueryFlowDataCommand(flowQueryRequest, true);
+            CounterQueryFlowDataCommand command = new CounterQueryFlowDataCommand(flowQueryRequest, Contexts.isAsync());
             response = command.execute();
 
         } catch (Exception ex) {
             fault("Counter.queryFlowData");
             logger.error(Contexts.getLogPrefix() + "执行Counter.queryFlowData超时或异常.", ex);
+            TraceLogger.traceLog(">> [" + flowQueryRequest.getFlowNo() + "] 执行Counter.queryFlowData超时或异常. " + (ex.getCause() != null ? ex.getCause().toString() : ex.toString()));
             response = new FlowQueryResponse();
             response.setErrorCode(ErrorCode.EXCEPTION.getCode());
             response.setErrorMessage(ex.getMessage());

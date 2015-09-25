@@ -40,7 +40,7 @@ public class CounterQueryFlowDataCommand extends HystrixCommand<FlowQueryRespons
                 )
                 .andThreadPoolPropertiesDefaults(
                         HystrixThreadPoolProperties.Setter()
-                        .withCoreSize(coreSize)
+                        .withCoreSize(isAsync ? (coreSize * 2) : coreSize)
                 )
         );
 
