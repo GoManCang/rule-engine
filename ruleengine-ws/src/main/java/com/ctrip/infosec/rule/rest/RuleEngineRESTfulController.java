@@ -58,6 +58,7 @@ public class RuleEngineRESTfulController {
     public ResponseEntity<?> verify(@RequestBody String factTxt) {
         logger.info("REST: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
+        Contexts.setAsync(false);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 

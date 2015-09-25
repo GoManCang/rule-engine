@@ -78,7 +78,11 @@ public class PreRulesExecutorService {
                 boolean matched = true;
                 if (treeNode.getNodes().isEmpty()) {
                     PreRule preRule = treeNode.getData();
-                    matched = match(preRule.getConditions(), preRule.getConditionsLogical(), fact.eventBody);
+                    if (preRule.isEnabled()) {
+                        matched = match(preRule.getConditions(), preRule.getConditionsLogical(), fact.eventBody);
+                    } else {
+                        matched = false;
+                    }
                 }
                 if (matched) {
                     matchedRules.add(treeNode.getData());
@@ -117,7 +121,6 @@ public class PreRulesExecutorService {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             Contexts.setPolicyOrRuleNo(rule.getRuleNo());
-            Contexts.setAsync(true);
             long start = System.currentTimeMillis();
             // 执行规则
             try {
@@ -174,7 +177,6 @@ public class PreRulesExecutorService {
                     TraceLogger.setParentTransId(_traceLoggerParentTransId);
                     TraceLogger.setLogPrefix("[" + packageName + "]");
                     Contexts.setPolicyOrRuleNo(packageName);
-                    Contexts.setAsync(false);
                     long start = System.currentTimeMillis();
                     try {
                         // add current execute ruleNo and logPrefix before execution

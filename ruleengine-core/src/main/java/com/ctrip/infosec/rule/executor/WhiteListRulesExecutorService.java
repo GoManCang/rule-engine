@@ -57,7 +57,6 @@ public class WhiteListRulesExecutorService {
             TraceLogger.beginNestedTrans(fact.eventId);
             TraceLogger.setNestedLogPrefix("[" + rule.getRuleNo() + "]");
             Contexts.setPolicyOrRuleNo(rule.getRuleNo());
-            Contexts.setAsync(false);
             try {
                 long start = System.currentTimeMillis();
 

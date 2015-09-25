@@ -45,7 +45,6 @@ public class CounterPushRulesExecutorService {
 
     private void execute(RiskFact fact, boolean isAsync) {
 
-        Contexts.setAsync(isAsync);
         // matchRules      
         List<CounterPushRule> matchedRules = Configs.matchCounterPushRules(fact);
         logger.info(Contexts.getLogPrefix() + "matched CounterPushRules: " + matchedRules.size());

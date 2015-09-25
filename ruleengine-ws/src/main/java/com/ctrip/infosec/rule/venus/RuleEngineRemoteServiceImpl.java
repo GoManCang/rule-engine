@@ -58,6 +58,7 @@ public class RuleEngineRemoteServiceImpl implements RuleEngineRemoteService {
         beforeInvoke("RuleEngine.execute");
         logger.info("VENUS: fact=" + factTxt);
         RiskFact fact = JSON.parseObject(factTxt, RiskFact.class);
+        Contexts.setAsync(false);
         Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
         SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 
