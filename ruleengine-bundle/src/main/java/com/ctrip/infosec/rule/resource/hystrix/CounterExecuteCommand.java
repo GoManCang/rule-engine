@@ -25,18 +25,18 @@ import org.slf4j.LoggerFactory;
 public class CounterExecuteCommand extends HystrixCommand<PolicyExecuteResponse> {
 
     private static final Logger logger = LoggerFactory.getLogger(CounterExecuteCommand.class);
-    private static final int coreSize = GlobalConfig.getInteger("hystrix.counter.execute.coreSize", 128);
-    private static final int timeout = GlobalConfig.getInteger("hystrix.counter.execute.timeout", 400);
+    private static final int coreSize = GlobalConfig.getInteger("hystrix.counter.invoke.coreSize", 128);
+    private static final int timeout = GlobalConfig.getInteger("hystrix.counter.invoke.timeout", 400);
 
     private PolicyExecuteRequest policyExecuteRequest;
 
     public CounterExecuteCommand(PolicyExecuteRequest policyExecuteRequest, boolean isAsync) {
         super(HystrixCommand.Setter
-                .withGroupKey(HystrixCommandGroupKey.Factory.asKey("CounterGroup"))
-                .andCommandKey(HystrixCommandKey.Factory.asKey("CounterCommand"))
+                .withGroupKey(HystrixCommandGroupKey.Factory.asKey("CounterInvokeGroup"))
+                .andCommandKey(HystrixCommandKey.Factory.asKey("CounterInvokeCommand"))
                 .andCommandPropertiesDefaults(
                         HystrixCommandProperties.Setter()
-                        .withExecutionIsolationThreadTimeoutInMilliseconds(isAsync ? (timeout * 2) : timeout)
+                        .withExecutionIsolationThreadTimeoutInMilliseconds(isAsync ? (timeout * 4) : timeout)
                 )
                 .andThreadPoolPropertiesDefaults(
                         HystrixThreadPoolProperties.Setter()

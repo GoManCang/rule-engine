@@ -86,7 +86,5 @@ Wallet.ESB.URL={$Wallet.ESB.URL}
 # hystrix
 hystrix.dataproxy.query.coreSize={$hystrix.dataproxy.query.coreSize}
 hystrix.dataproxy.query.timeout={$hystrix.dataproxy.query.timeout}
-hystrix.counter.execute.coreSize={$hystrix.counter.execute.coreSize}
-hystrix.counter.execute.timeout={$hystrix.counter.execute.timeout}
-hystrix.counter.queryFlowData.coreSize={$hystrix.counter.queryFlowData.coreSize}
-hystrix.counter.queryFlowData.timeout={$hystrix.counter.queryFlowData.timeout}
+hystrix.counter.invoke.coreSize={$hystrix.counter.invoke.coreSize}
+hystrix.counter.invoke.timeout={$hystrix.counter.invoke.timeout}

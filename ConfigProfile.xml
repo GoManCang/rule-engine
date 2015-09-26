@@ -93,10 +93,8 @@
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>8</hystrix.dataproxy.query.coreSize>
 		<hystrix.dataproxy.query.timeout>10000</hystrix.dataproxy.query.timeout>
-		<hystrix.counter.execute.coreSize>8</hystrix.counter.execute.coreSize>
-		<hystrix.counter.execute.timeout>10000</hystrix.counter.execute.timeout>
-		<hystrix.counter.queryFlowData.coreSize>8</hystrix.counter.queryFlowData.coreSize>
-		<hystrix.counter.queryFlowData.timeout>10000</hystrix.counter.queryFlowData.timeout>
+		<hystrix.counter.invoke.coreSize>8</hystrix.counter.invoke.coreSize>
+		<hystrix.counter.invoke.timeout>10000</hystrix.counter.invoke.timeout>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -171,10 +169,8 @@
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>8</hystrix.dataproxy.query.coreSize>
 		<hystrix.dataproxy.query.timeout>10000</hystrix.dataproxy.query.timeout>
-		<hystrix.counter.execute.coreSize>8</hystrix.counter.execute.coreSize>
-		<hystrix.counter.execute.timeout>10000</hystrix.counter.execute.timeout>
-		<hystrix.counter.queryFlowData.coreSize>8</hystrix.counter.queryFlowData.coreSize>
-		<hystrix.counter.queryFlowData.timeout>10000</hystrix.counter.queryFlowData.timeout>
+		<hystrix.counter.invoke.coreSize>8</hystrix.counter.invoke.coreSize>
+		<hystrix.counter.invoke.timeout>10000</hystrix.counter.invoke.timeout>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(ms) -->
@@ -247,9 +243,7 @@
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>64</hystrix.dataproxy.query.coreSize>
 		<hystrix.dataproxy.query.timeout>300</hystrix.dataproxy.query.timeout>
-		<hystrix.counter.execute.coreSize>128</hystrix.counter.execute.coreSize>
-		<hystrix.counter.execute.timeout>400</hystrix.counter.execute.timeout>
-		<hystrix.counter.queryFlowData.coreSize>128</hystrix.counter.queryFlowData.coreSize>
-		<hystrix.counter.queryFlowData.timeout>400</hystrix.counter.queryFlowData.timeout>
+		<hystrix.counter.invoke.coreSize>128</hystrix.counter.invoke.coreSize>
+		<hystrix.counter.invoke.timeout>400</hystrix.counter.invoke.timeout>
     </prd>
 </profile>
