@@ -105,23 +105,26 @@ public class RuleEngineRESTfulController {
             }
 
             // 是否中白名单标志
-            boolean wbRiskFlag = false;
+            boolean matchedWhitelist = false;
             // 非适配接入点、中白名单"0"的直接返回
             if (!Constants.eventPointsWithScene.contains(fact.eventPoint)) {
                 if (fact.finalWhitelistResult != null && fact.finalWhitelistResult.containsKey(Constants.riskLevel)) {
 
-                    int whitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
-                    if (whitelistRiskLevel == 0 || whitelistRiskLevel == 95) {
-                        fact.finalResult.put(Constants.riskLevel, whitelistRiskLevel);
+                    int finalWhitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
+                    if (finalWhitelistRiskLevel == 0 || finalWhitelistRiskLevel == 95) {
+                        fact.finalResult.put(Constants.riskLevel, finalWhitelistRiskLevel);
                         fact.finalResult.put(Constants.riskMessage, "命中白名单规则[0]");
-
-                        wbRiskFlag = true;
+                        matchedWhitelist = true;
+                    } else if (finalWhitelistRiskLevel >= 200) {
+                        fact.finalResult.put(Constants.riskLevel, finalWhitelistRiskLevel);
+                        fact.finalResult.put(Constants.riskMessage, "命中黑名单规则[" + finalWhitelistRiskLevel + "]");
+                        matchedWhitelist = true;
                     }
                 }
             }
 
             // 执行同步规则
-            if (!wbRiskFlag) {
+            if (!matchedWhitelist) {
                 try {
                     RuleMonitorHelper.newTrans(fact, RuleMonitorType.RULE_WRAP);
                     TraceLogger.beginTrans(fact.eventId, "S1");
