@@ -74,7 +74,8 @@ public class Emitter {
                 fact.results4Async.put(ruleNo, result);
             }
 
-            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+//            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+            RuleMonitorHelper.addRiskRuleNo(ruleNo, riskLevel);
         }
 
     }
@@ -95,7 +96,8 @@ public class Emitter {
                 fact.resultsGroupByScene4Async.put(ruleNo, result);
             }
 
-            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+//            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+            RuleMonitorHelper.addRiskRuleNo(ruleNo, riskLevel);
         }
     }
 
@@ -489,7 +491,8 @@ public class Emitter {
             result.put(Constants.ruleType, "N");
             fact.leveldownResults.put(ruleNo, result);
             buidFinalResultAfterEmitLeveldownResult(fact, _isAsync);
-            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+//            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+            RuleMonitorHelper.addRiskRuleNo(ruleNo,riskLevel);
         }
     }
 
