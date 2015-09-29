@@ -194,43 +194,4 @@ public class DataProxy {
         }
         return newResult;
     }
-
-    /**
-     * 同盾的ip和手机号交易事件查询服务
-     *
-     * @param ip
-     * @param mobile
-     * @return
-     * {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
-     */
-    @Deprecated
-    public static Map queryForTongDunT(String ip, String mobile) {
-        return TongDun.queryTradeEvent(ip, mobile);
-    }
-
-    /**
-     * 同盾的ip和手机号注册事件查询服务
-     *
-     * @param ip
-     * @param mobile
-     * @return
-     * {"reason_code":null,"final_decision":"Accept","seq_id":"1442309654522-72705995","final_score":0,"success":true}
-     */
-    @Deprecated
-    public static Map queryForTongDunR(String ip, String mobile) {
-        return TongDun.queryRegEvent(ip, mobile);
-    }
-
-    /**
-     * 岂安的ip和手机号注册事件查询服务
-     *
-     * @param ip
-     * @param mobile
-     * @return
-     * {"msg":null,"success":1,"mobile":{"score":null,"is_notreal":null},"ip":{"is_proxy":0,"score":50.0,"ip":"218.17.231.209"}}
-     */
-    @Deprecated
-    public static Map queryForKaiAn(String ip, String mobile) {
-        return QiAn.queryRegEvent(ip, mobile);
-    }
 }

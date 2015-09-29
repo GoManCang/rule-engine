@@ -90,7 +90,7 @@ public class EventDataMergeService {
      */
     RiskFact readAndMerge(RiskFact fact, Map<String, Map<String, String>> fieldsToGet) {
         for (String key : fieldsToGet.keySet()) {
-            TraceLogger.traceLog("&gt;&gt; CacheKey: " + key);
+            TraceLogger.traceLog(">> CacheKey: " + key);
             Map<String, String> fieldMapping = fieldsToGet.get(key);
 
             CacheProvider cache = CacheProviderFactory.getCacheProvider(clusterName);
@@ -133,7 +133,7 @@ public class EventDataMergeService {
      */
     RiskFact sendToRedis(RiskFact fact, Map<String, Set<String>> fieldsToPut) {
         for (String key : fieldsToPut.keySet()) {
-            TraceLogger.traceLog("&gt;&gt; CacheKey: " + key);
+            TraceLogger.traceLog(">> CacheKey: " + key);
             if (key == null || key.isEmpty()) {
                 continue;
             }

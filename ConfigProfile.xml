@@ -92,7 +92,9 @@
         <Wallet.ESB.URL>http://10.2.6.244/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>8</hystrix.dataproxy.query.coreSize>
-		<hystrix.dataproxy.query.timeout>30000</hystrix.dataproxy.query.timeout>
+		<hystrix.dataproxy.query.timeout>10000</hystrix.dataproxy.query.timeout>
+		<hystrix.counter.invoke.coreSize>8</hystrix.counter.invoke.coreSize>
+		<hystrix.counter.invoke.timeout>10000</hystrix.counter.invoke.timeout>
     </fat>
     <lpt></lpt>
     <uat></uat>
@@ -166,7 +168,9 @@
         <Wallet.ESB.URL>http://10.2.24.228/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
 		<!-- Hystrix -->
 		<hystrix.dataproxy.query.coreSize>8</hystrix.dataproxy.query.coreSize>
-		<hystrix.dataproxy.query.timeout>30000</hystrix.dataproxy.query.timeout>
+		<hystrix.dataproxy.query.timeout>10000</hystrix.dataproxy.query.timeout>
+		<hystrix.counter.invoke.coreSize>8</hystrix.counter.invoke.coreSize>
+		<hystrix.counter.invoke.timeout>10000</hystrix.counter.invoke.timeout>
     </uat_nt>
     <prd>
 		<!-- executor.timeout(ms) -->
@@ -188,7 +192,7 @@
         <Configs.RuleMonitor3.URL>http://ws.configs.infosec.ctripcorp.com/configsws/rest/rulemonitor3</Configs.RuleMonitor3.URL>
         <!-- Counter -->
         <Counter.REST.URL.Prefix>http://ws.counter.infosec.ctripcorp.com/counterws</Counter.REST.URL.Prefix>
-        <Counter.Venus.ipAddressList>10.8.114.48:16900,10.8.114.49:16900,10.8.114.50:16900</Counter.Venus.ipAddressList>
+        <Counter.Venus.ipAddressList>10.8.114.48:16900,10.8.114.49:16900,10.8.114.50:16900,10.8.24.91:16900,10.8.24.92:16900,10.8.24.93:16900</Counter.Venus.ipAddressList>
         <!-- DataProxy -->
         <DataProxy.REST.URL.Prefix>http://ws.userprofile.infosec.ctripcorp.com/userprofilews</DataProxy.REST.URL.Prefix>
         <DataProxy.Venus.ipAddressList>10.8.68.222:16800,10.8.68.223:16800,10.8.68.224:16800,10.8.68.225:16800</DataProxy.Venus.ipAddressList>
@@ -237,7 +241,9 @@
         <!--Wallet-->
         <Wallet.ESB.URL>http://WS.Wallet.Payment.ctripcorp.com/account_ws/services/AccountService?wsdl</Wallet.ESB.URL>
 		<!-- Hystrix -->
-		<hystrix.dataproxy.query.coreSize>64</hystrix.dataproxy.query.coreSize>
-		<hystrix.dataproxy.query.timeout>300</hystrix.dataproxy.query.timeout>
+		<hystrix.dataproxy.query.coreSize>96</hystrix.dataproxy.query.coreSize>
+		<hystrix.dataproxy.query.timeout>400</hystrix.dataproxy.query.timeout>
+		<hystrix.counter.invoke.coreSize>128</hystrix.counter.invoke.coreSize>
+		<hystrix.counter.invoke.timeout>400</hystrix.counter.invoke.timeout>
     </prd>
 </profile>

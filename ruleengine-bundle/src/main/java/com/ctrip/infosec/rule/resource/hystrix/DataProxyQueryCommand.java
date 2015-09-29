@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public class DataProxyQueryCommand extends HystrixCommand<Map<String, Object>> {
 
     private static final Logger logger = LoggerFactory.getLogger(DataProxyQueryCommand.class);
-    private static final int coreSize = GlobalConfig.getInteger("hystrix.dataproxy.query.coreSize", 64);
+    private static final int coreSize = GlobalConfig.getInteger("hystrix.dataproxy.query.coreSize", 96);
     private static final int timeout = GlobalConfig.getInteger("hystrix.dataproxy.query.timeout", 500);
 
     private static final String VENUS = "VENUS";
@@ -51,11 +51,11 @@ public class DataProxyQueryCommand extends HystrixCommand<Map<String, Object>> {
                 .andCommandKey(HystrixCommandKey.Factory.asKey("DataProxyQueryCommand"))
                 .andCommandPropertiesDefaults(
                         HystrixCommandProperties.Setter()
-                        .withExecutionIsolationThreadTimeoutInMilliseconds(isAsync ? (timeout * 2) : timeout)
+                        .withExecutionIsolationThreadTimeoutInMilliseconds(isAsync ? (timeout * 3) : timeout)
                 )
                 .andThreadPoolPropertiesDefaults(
                         HystrixThreadPoolProperties.Setter()
-                        .withCoreSize(coreSize)
+                        .withCoreSize(isAsync ? (coreSize * 2) : coreSize)
                 )
         );
 

@@ -89,6 +89,7 @@ public class RabbitMqMessageHandler {
 
             logger.info("MQ: fact=" + factTxt);
             fact = JSON.parseObject((String) factTxt, RiskFact.class);
+            Contexts.setAsync(true);
             Contexts.setLogPrefix("[" + fact.eventPoint + "][" + fact.eventId + "] ");
             SarsMonitorContext.setLogPrefix(Contexts.getLogPrefix());
 
