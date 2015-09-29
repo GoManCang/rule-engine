@@ -25,6 +25,7 @@ import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
 import com.ctrip.infosec.counter.model.PolicyExecuteRequest;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.venus.DecisionDataRemoteService;
+import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
 import com.ctrip.infosec.counter.venus.FlowPolicyRemoteServiceV2;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.hystrix.CounterExecuteCommand;
@@ -124,8 +125,9 @@ public class Counter {
                         .execute().returnContent().asString();
                 response = JSON.parseObject(responseTxt, FlowPushResponse.class);
             } else {
-                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-                response = flowPolicyRemoteService.push(flowPushRequest);
+                FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+                String responseTxt = flowPolicyRemoteService.push(flowPushRequest.toJSONString());
+                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
             }
 
         } catch (Exception ex) {
