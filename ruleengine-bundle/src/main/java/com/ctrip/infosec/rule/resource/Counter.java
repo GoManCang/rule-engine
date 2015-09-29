@@ -26,7 +26,6 @@ import com.ctrip.infosec.counter.model.PolicyExecuteRequest;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
 import com.ctrip.infosec.counter.venus.DecisionDataRemoteService;
 import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
-import com.ctrip.infosec.counter.venus.FlowPolicyRemoteServiceV2;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.resource.hystrix.CounterExecuteCommand;
 import com.ctrip.infosec.rule.resource.hystrix.CounterQueryFlowDataCommand;
@@ -40,7 +39,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.client.fluent.Form;
 import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,20 +113,20 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-            if (Contexts.isAsync()) {
-                String responseTxt = Request.Post(urlPrefix + "/rest/push")
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Accept-Encoding", "utf-8")
-                        .bodyString(JSON.toJSONString(flowPushRequest), ContentType.APPLICATION_JSON)
-                        .connectTimeout(1000)
-                        .socketTimeout(1000)
-                        .execute().returnContent().asString();
-                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            } else {
-                FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
-                String responseTxt = flowPolicyRemoteService.push(flowPushRequest.toJSONString());
-                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            }
+//            if (Contexts.isAsync()) {
+//                String responseTxt = Request.Post(urlPrefix + "/rest/push")
+//                        .addHeader("Content-Type", "application/json")
+//                        .addHeader("Accept-Encoding", "utf-8")
+//                        .bodyString(JSON.toJSONString(flowPushRequest), ContentType.APPLICATION_JSON)
+//                        .connectTimeout(1000)
+//                        .socketTimeout(1000)
+//                        .execute().returnContent().asString();
+//                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+//            } else {
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            String responseTxt = flowPolicyRemoteService.push(flowPushRequest.toJSONString());
+            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+//            }
 
         } catch (Exception ex) {
             fault("Counter.push");
@@ -173,19 +171,20 @@ public class Counter {
                 flowPushRequest.setTraceLoggerHeader(header);
             }
 
-            if (Contexts.isAsync()) {
-                String responseTxt = Request.Post(urlPrefix + "/rest/pushToFlow")
-                        .addHeader("Content-Type", "application/json")
-                        .addHeader("Accept-Encoding", "utf-8")
-                        .bodyString(JSON.toJSONString(flowPushRequest), ContentType.APPLICATION_JSON)
-                        .connectTimeout(1000)
-                        .socketTimeout(1000)
-                        .execute().returnContent().asString();
-                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
-            } else {
-                FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-                response = flowPolicyRemoteService.pushToFlow(flowPushRequest);
-            }
+//            if (Contexts.isAsync()) {
+//                String responseTxt = Request.Post(urlPrefix + "/rest/pushToFlow")
+//                        .addHeader("Content-Type", "application/json")
+//                        .addHeader("Accept-Encoding", "utf-8")
+//                        .bodyString(JSON.toJSONString(flowPushRequest), ContentType.APPLICATION_JSON)
+//                        .connectTimeout(1000)
+//                        .socketTimeout(1000)
+//                        .execute().returnContent().asString();
+//                response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+//            } else {
+            FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+            String responseTxt = flowPolicyRemoteService.pushToFlow(flowPushRequest.toJSONString());
+            response = JSON.parseObject(responseTxt, FlowPushResponse.class);
+//            }
 
         } catch (Exception ex) {
             fault("Counter.pushToFlow");
