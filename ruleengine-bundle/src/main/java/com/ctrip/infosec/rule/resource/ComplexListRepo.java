@@ -12,7 +12,6 @@ import com.ctrip.infosec.counter.enums.ErrorCode;
 import com.ctrip.infosec.counter.model.ListRepoBooleanResponse;
 import com.ctrip.infosec.counter.model.ListRepoResponse;
 import com.ctrip.infosec.counter.venus.ComplexListRepoRemoteService;
-import com.ctrip.infosec.counter.venus.ListRepoRemoteService;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
@@ -112,6 +111,27 @@ public class ComplexListRepo {
         try {
             ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
             response = complexListRepoRemoteService.isIn(repo, value);
+            
+//            ComplexListRepoQueryRequest complexListRepoQueryRequest = new ComplexListRepoQueryRequest();
+//            complexListRepoQueryRequest.setRepo(repo);
+//            complexListRepoQueryRequest.setValue(value);
+//
+//            // TraceLogger
+//            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+//                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+//
+//                TraceLoggerHeader header = new TraceLoggerHeader();
+//                header.setEventId(TraceLogger.getEventId());
+//                if (TraceLogger.hasNestedTrans()) {
+//                    header.setParentTransId(TraceLogger.getNestedTransId());
+//                } else {
+//                    header.setParentTransId(TraceLogger.getTransId());
+//                }
+//                complexListRepoQueryRequest.setTraceLoggerHeader(header);
+//            }
+//
+//            ComplexListRepoRemoteServiceV2 complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteServiceV2.class);
+//            response = complexListRepoRemoteService.isIn(complexListRepoQueryRequest);
         } catch (Exception ex) {
             fault("ComplexListRepo.isIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isIn fault.", ex);

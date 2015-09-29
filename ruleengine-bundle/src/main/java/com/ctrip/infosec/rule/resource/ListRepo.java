@@ -110,6 +110,27 @@ public class ListRepo {
         try {
             ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
             response = listRepoRemoteService.isIn(repo, value);
+
+//            ListRepoQueryRequest listRepoQueryRequest = new ListRepoQueryRequest();
+//            listRepoQueryRequest.setRepo(repo);
+//            listRepoQueryRequest.setValue(value);
+//
+//            // TraceLogger
+//            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+//                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+//
+//                TraceLoggerHeader header = new TraceLoggerHeader();
+//                header.setEventId(TraceLogger.getEventId());
+//                if (TraceLogger.hasNestedTrans()) {
+//                    header.setParentTransId(TraceLogger.getNestedTransId());
+//                } else {
+//                    header.setParentTransId(TraceLogger.getTransId());
+//                }
+//                listRepoQueryRequest.setTraceLoggerHeader(header);
+//            }
+//
+//            ListRepoRemoteServiceV2 listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteServiceV2.class);
+//            response = listRepoRemoteService.isIn(listRepoQueryRequest);
         } catch (Exception ex) {
             fault("ListRepo.isIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isIn fault.", ex);

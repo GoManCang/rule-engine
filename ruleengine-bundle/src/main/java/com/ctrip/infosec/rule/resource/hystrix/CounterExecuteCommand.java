@@ -7,7 +7,8 @@ package com.ctrip.infosec.rule.resource.hystrix;
 
 import com.ctrip.infosec.counter.model.PolicyExecuteRequest;
 import com.ctrip.infosec.counter.model.PolicyExecuteResponse;
-import com.ctrip.infosec.counter.venus.FlowPolicyRemoteServiceV2;
+import static com.ctrip.infosec.counter.util.Utils.JSON;
+import com.ctrip.infosec.counter.venus.FlowPolicyRemoteService;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import com.netflix.hystrix.HystrixCommand;
@@ -49,7 +50,8 @@ public class CounterExecuteCommand extends HystrixCommand<PolicyExecuteResponse>
 
     @Override
     protected PolicyExecuteResponse run() throws Exception {
-        FlowPolicyRemoteServiceV2 flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteServiceV2.class);
-        return flowPolicyRemoteService.execute(policyExecuteRequest);
+        FlowPolicyRemoteService flowPolicyRemoteService = SpringContextHolder.getBean(FlowPolicyRemoteService.class);
+        String responseTxt = flowPolicyRemoteService.execute(policyExecuteRequest.toJSONString());
+        return JSON.parseObject(responseTxt, PolicyExecuteResponse.class);
     }
 }
