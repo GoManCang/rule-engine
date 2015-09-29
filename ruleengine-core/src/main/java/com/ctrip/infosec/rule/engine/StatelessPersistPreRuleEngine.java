@@ -108,7 +108,7 @@ public class StatelessPersistPreRuleEngine extends RuleEngine {
         // 删除&更新Route规则
         if (Caches.persistPreRuleConfigs != null) {
             for (PersistPreRule rule : Caches.persistPreRuleConfigs) {
-                String packageName = rule.getEventPoint();
+                String packageName = rule.getId();
                 PersistPreRule ruleInKBase = this.persistPreRulesInKBase.get(packageName);
                 if (!rule.isEnabled()) {
                     if (ruleInKBase != null) {
