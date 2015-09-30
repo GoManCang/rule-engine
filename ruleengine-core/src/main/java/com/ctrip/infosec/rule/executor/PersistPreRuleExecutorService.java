@@ -57,7 +57,7 @@ public class PersistPreRuleExecutorService {
             try {
                 long start = System.currentTimeMillis();
 
-                statelessPersistPreRuleEngine.execute(rule.getEventPoint(), fact);
+                statelessPersistPreRuleEngine.execute(rule.getId(), fact);
 
                 long handlingTime = System.currentTimeMillis() - start;
                 if (handlingTime > 100) {
