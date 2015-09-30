@@ -57,29 +57,29 @@ public class UserProfileTagsConverter implements Converter {
         }
 
         //如果有cuscharacter则用新的接口
-        boolean cuscharacter = false;
-        if (tags.contains("CUSCHARACTER")) {
-            tags.add("CUSCHARACTER_V2");
-            tags.remove("CUSCHARACTER");
-            cuscharacter = true;
-        }
+//        boolean cuscharacter = false;
+//        if (tags.contains("CUSCHARACTER")) {
+//            tags.add("CUSCHARACTER_V2");
+//            tags.remove("CUSCHARACTER");
+//            cuscharacter = true;
+//        }
 
         Map params = ImmutableMap.of("uid", uidFieldValue, "tagNames", tags);
         Map result = DataProxy.queryForMap(serviceName, operationName, params);
-        if (cuscharacter && (result == null || result.isEmpty())) {
-            if (result == null) {
-                result = new HashMap();
-            }
-            if (result.isEmpty()) {
-                result.put("CUSCHARACTER", "NEW");
-            }
-        }
+//        if (cuscharacter && (result == null || result.isEmpty())) {
+//            if (result == null) {
+//                result = new HashMap();
+//            }
+//            if (result.isEmpty()) {
+//                result.put("CUSCHARACTER", "NEW");
+//            }
+//        }
         if (result != null && !result.isEmpty()) {
-            if (result.containsKey("CUSCHARACTER_V2")) {
-                Object v = result.get("CUSCHARACTER_V2");
-                result.put("CUSCHARACTER", v);
-                result.remove("CUSCHARACTER_V2");
-            }
+//            if (result.containsKey("CUSCHARACTER_V2")) {
+//                Object v = result.get("CUSCHARACTER_V2");
+//                result.put("CUSCHARACTER", v);
+//                result.remove("CUSCHARACTER_V2");
+//            }
             fact.eventBody.put(resultWrapper, result);
         }
 
