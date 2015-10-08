@@ -29,16 +29,13 @@ import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
  * Created by lpxie on 15-6-18.
  */
 public class RService {
-
     private static final Logger logger = LoggerFactory.getLogger(RService.class);
-
-    private static RServiceCommand rServiceCommand = null;
 
     public static double getScore(String expression) {
         beforeInvoke("RService.getScore");
         double score = 0.0;
         try {
-            rServiceCommand = SpringContextHolder.getBean(RServiceCommand.class);
+            RServiceCommand rServiceCommand = new RServiceCommand();
             rServiceCommand.setParams(expression);
             score = rServiceCommand.execute();
         } catch (Exception ex) {
