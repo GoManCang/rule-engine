@@ -8,7 +8,6 @@ package com.ctrip.infosec.rule.rabbitmq;
 import com.ctrip.infosec.common.Constants;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.common.model.RiskResult;
-import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.*;
 import com.ctrip.infosec.configs.event.enums.PersistColumnSourceType;
 import com.ctrip.infosec.configs.rule.monitor.RuleMonitorRepository;
@@ -25,7 +24,6 @@ import com.ctrip.infosec.rule.convert.persist.*;
 import com.ctrip.infosec.rule.executor.*;
 import com.ctrip.infosec.rule.utils.ValueExtractUtils;
 import com.ctrip.infosec.sars.monitor.SarsMonitorContext;
-import com.dianping.cat.message.Transaction;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.meidusa.fastjson.JSON;
@@ -58,6 +56,8 @@ public class RabbitMqMessageHandler {
     private PreRulesExecutorService preRulesExecutorService;
     @Autowired
     private PostRulesExecutorService postRulesExecutorService;
+    @Autowired
+    private ModelRulesExecutorService modelRulesExecutorService;
     @Autowired
     private DispatcherMessageSender dispatcherMessageSender;
     @Autowired
@@ -129,6 +129,16 @@ public class RabbitMqMessageHandler {
                 TraceLogger.beginTrans(fact.eventId, "S3");
                 TraceLogger.setLogPrefix("[异步规则]");
                 rulesExecutorService.executeAsyncRules(fact);
+            } finally {
+                TraceLogger.commitTrans();
+                RuleMonitorHelper.commitTrans(fact);
+            }
+            // 执行模型规则（异步）
+            try {
+                RuleMonitorHelper.newTrans(fact, RuleMonitorType.MODEL_RULE_WRAP);
+                TraceLogger.beginTrans(fact.eventId, "S3");
+                TraceLogger.setLogPrefix("[模型规则]");
+                modelRulesExecutorService.executeModelRules(fact);
             } finally {
                 TraceLogger.commitTrans();
                 RuleMonitorHelper.commitTrans(fact);

@@ -8,8 +8,10 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.configs.utils.Utils.JSON;
 import com.ctrip.infosec.counter.enums.FlowAccuracy;
 import com.ctrip.infosec.counter.model.FlowPushResponse;
+import com.ctrip.infosec.counter.model.FlowQueryRequest;
 import com.ctrip.infosec.counter.model.FlowQueryResponse;
 import com.ctrip.infosec.counter.model.GetDataFieldListResponse;
+import static com.ctrip.infosec.rule.resource.Counter.queryFlowData;
 import com.google.common.collect.Lists;
 import java.util.Map;
 import org.junit.Test;
@@ -45,7 +47,7 @@ public class CounterTest {
         FlowPushResponse result = Counter.push(bizNo, kvData);
         assertEquals("0", result.getErrorCode());
 
-        result = Counter.pushToFlow(bizNo, Lists.newArrayList("F0003001","F0003002","F0003003"), kvData);
+        result = Counter.pushToFlow(bizNo, Lists.newArrayList("F0003001", "F0003002", "F0003003"), kvData);
         assertEquals("0", result.getErrorCode());
     }
 
@@ -57,9 +59,18 @@ public class CounterTest {
         FlowAccuracy accuracy = FlowAccuracy.EveryMin;
         String timeWindow = "0,-1439";
         Map<String, String> kvData = JSON.parseObject("{\"uid\":\"123456\",\"userIp\":\"8.8.8.8\",\"orderId\":\"A124\",\"mobilePhone\":\"13888888888\",\"orderDate\":\"2015-03-15 16:20:03\"}", Map.class);
-        FlowQueryResponse result = Counter.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
-        assertEquals("0", result.getErrorCode());
+        FlowQueryResponse result1 = Counter.queryFlowData(flowNo, fieldName, accuracy, timeWindow, kvData);
+        assertEquals("0", result1.getErrorCode());
 
-        System.out.println("flowData: " + result.getFlowData().longValue());
+        System.out.println("flowData: " + result1.getFlowData().longValue());
+
+        FlowQueryRequest flowQueryRequest = new FlowQueryRequest();
+        flowQueryRequest.setFlowNo(flowNo);
+        flowQueryRequest.setFieldName(fieldName);
+        flowQueryRequest.setAccuracy(accuracy);
+        flowQueryRequest.setTimeWindow(timeWindow);
+        flowQueryRequest.setKvData(kvData);
+        flowQueryRequest.setIncludeCurrentValue(true);
+        FlowQueryResponse result2 = Counter.queryFlowData(flowQueryRequest);
     }
 }

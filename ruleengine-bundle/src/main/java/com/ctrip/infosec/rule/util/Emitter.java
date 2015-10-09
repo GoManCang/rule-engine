@@ -527,6 +527,23 @@ public class Emitter {
     }
 
     /**
+     * 模型规则的结果
+     */
+    public static void emitModelResult(RiskFact fact, int riskLevel, String riskMessage) {
+        String ruleNo = (String) fact.ext.get(Constants.key_ruleNo);
+        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, true);
+        if (_isAsync && !Strings.isNullOrEmpty(ruleNo)) {
+            Map<String, Object> result = Maps.newHashMap();
+            result.put(Constants.riskLevel, riskLevel);
+            result.put(Constants.riskMessage, riskMessage);
+            result.put(Constants.ruleType, "M");
+            fact.modelResults.put(ruleNo, result);
+//            RuleMonitorHelper.addRiskRuleNo(ruleNo);
+            RuleMonitorHelper.addRiskRuleNo(ruleNo, riskLevel);
+        }
+    }
+
+    /**
      * 返回分值高的结果作为finalResult
      */
     static Map<String, Object> compareAndReturn(Map<String, Object> oldResult, Map<String, Object> newResult) {
