@@ -24,6 +24,7 @@
     <bean id="statelessPreRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPreRuleEngine" init-method="initEngine" />
     <bean id="statelessPostRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPostRuleEngine" init-method="initEngine" depends-on="statelessPreRuleEngine"/>
     <bean id="statelessRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessRuleEngine" init-method="initEngine"  depends-on="statelessPostRuleEngine"/>
+    <bean id="statelessModelRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessModelRuleEngine" init-method="initEngine" />
     <bean id="statelessPersistPreRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPersistPreRuleEngine" init-method="initEngine"/>
     <bean id="statelessPersistPostRuleEngine" class="com.ctrip.infosec.rule.engine.StatelessPersistPostRuleEngine" init-method="initEngine"/>
     
