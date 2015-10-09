@@ -56,7 +56,7 @@ public class ModelRulesExecutorService {
     }
 
     @PostConstruct
-    void dequeue() {
+    public void dequeue() {
         int threads = 1;
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         for (int i = 0; i < threads; i++) {
@@ -97,7 +97,7 @@ public class ModelRulesExecutorService {
     /**
      * 串行执行
      */
-    void execute(RiskFact fact) {
+    public void execute(RiskFact fact) {
 
         // matchRules      
         List<ModelRule> matchedRules = Configs.matchModelRules(fact);
