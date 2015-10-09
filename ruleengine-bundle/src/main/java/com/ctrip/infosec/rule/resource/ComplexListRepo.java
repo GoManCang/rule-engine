@@ -8,15 +8,20 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLoggerHeader;
 import com.ctrip.infosec.counter.enums.ErrorCode;
+import com.ctrip.infosec.counter.model.ComplexListRepoQueryRequest;
 import com.ctrip.infosec.counter.model.ListRepoBooleanResponse;
 import com.ctrip.infosec.counter.model.ListRepoResponse;
 import com.ctrip.infosec.counter.venus.ComplexListRepoRemoteService;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.resource.hystrix.ComplexListRepoQueryCommand;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,29 +114,28 @@ public class ComplexListRepo {
         beforeInvoke("ComplexListRepo.isIn");
         ListRepoBooleanResponse response = null;
         try {
-            ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
-            response = complexListRepoRemoteService.isIn(repo, value);
-            
-//            ComplexListRepoQueryRequest complexListRepoQueryRequest = new ComplexListRepoQueryRequest();
-//            complexListRepoQueryRequest.setRepo(repo);
-//            complexListRepoQueryRequest.setValue(value);
-//
-//            // TraceLogger
-//            if (StringUtils.isNotBlank(TraceLogger.getEventId())
-//                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-//
-//                TraceLoggerHeader header = new TraceLoggerHeader();
-//                header.setEventId(TraceLogger.getEventId());
-//                if (TraceLogger.hasNestedTrans()) {
-//                    header.setParentTransId(TraceLogger.getNestedTransId());
-//                } else {
-//                    header.setParentTransId(TraceLogger.getTransId());
-//                }
-//                complexListRepoQueryRequest.setTraceLoggerHeader(header);
-//            }
-//
-//            ComplexListRepoRemoteServiceV2 complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteServiceV2.class);
-//            response = complexListRepoRemoteService.isIn(complexListRepoQueryRequest);
+
+            ComplexListRepoQueryRequest complexListRepoQueryRequest = new ComplexListRepoQueryRequest();
+            complexListRepoQueryRequest.setRepo(repo);
+            complexListRepoQueryRequest.setValue(value);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                complexListRepoQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            ComplexListRepoQueryCommand command = new ComplexListRepoQueryCommand("isIn", complexListRepoQueryRequest);
+            response = command.execute();
+
         } catch (Exception ex) {
             fault("ComplexListRepo.isIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isIn fault.", ex);
@@ -149,8 +153,28 @@ public class ComplexListRepo {
         beforeInvoke("ComplexListRepo.isAnyIn");
         ListRepoBooleanResponse response = null;
         try {
-            ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
-            response = complexListRepoRemoteService.isAnyIn(repo, values);
+
+            ComplexListRepoQueryRequest complexListRepoQueryRequest = new ComplexListRepoQueryRequest();
+            complexListRepoQueryRequest.setRepo(repo);
+            complexListRepoQueryRequest.setValues(values);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                complexListRepoQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            ComplexListRepoQueryCommand command = new ComplexListRepoQueryCommand("isAnyIn", complexListRepoQueryRequest);
+            response = command.execute();
+
         } catch (Exception ex) {
             fault("ComplexListRepo.isAnyIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isAnyIn fault.", ex);
@@ -168,8 +192,28 @@ public class ComplexListRepo {
         beforeInvoke("ComplexListRepo.isAllIn");
         ListRepoBooleanResponse response = null;
         try {
-            ComplexListRepoRemoteService complexListRepoRemoteService = SpringContextHolder.getBean(ComplexListRepoRemoteService.class);
-            response = complexListRepoRemoteService.isAllIn(repo, values);
+
+            ComplexListRepoQueryRequest complexListRepoQueryRequest = new ComplexListRepoQueryRequest();
+            complexListRepoQueryRequest.setRepo(repo);
+            complexListRepoQueryRequest.setValues(values);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                complexListRepoQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            ComplexListRepoQueryCommand command = new ComplexListRepoQueryCommand("isAllIn", complexListRepoQueryRequest);
+            response = command.execute();
+
         } catch (Exception ex) {
             fault("ComplexListRepo.isAllIn");
             logger.error(Contexts.getLogPrefix() + "invoke ComplexListRepo.isAllIn fault.", ex);

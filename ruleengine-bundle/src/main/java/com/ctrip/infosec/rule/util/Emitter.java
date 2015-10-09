@@ -513,13 +513,15 @@ public class Emitter {
      */
     static void buidFinalResultAfterEmitLeveldownResult(RiskFact fact, boolean _isAsync) {
         if (!_isAsync && fact.leveldownResults.size() > 0) {
+            // 原始分值
             int originalRiskLevel = valueAsInt(fact.finalResult, Constants.originalRiskLevel);
             //获取最高分
-            Map<String, Object> finalResult = Constants.defaultResult;
+            Map<String, Object> finalResultAfterLeveldown = Constants.defaultResult;
             for (Map<String, Object> rs : fact.leveldownResults.values()) {
-                finalResult = compareAndReturn(finalResult, rs);
+                finalResultAfterLeveldown = compareAndReturn(finalResultAfterLeveldown, rs);
             }
-            fact.setFinalResult(Maps.newHashMap(finalResult));
+            int riskLevelAfterLeveldown = valueAsInt(finalResultAfterLeveldown, Constants.riskLevel);
+            fact.finalResult.put(Constants.riskLevel, riskLevelAfterLeveldown);
             fact.finalResult.put(Constants.originalRiskLevel, originalRiskLevel);
         }
     }

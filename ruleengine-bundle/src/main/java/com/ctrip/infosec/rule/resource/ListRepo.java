@@ -8,14 +8,19 @@ package com.ctrip.infosec.rule.resource;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
 import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
+import com.ctrip.infosec.configs.rule.trace.logger.TraceLoggerHeader;
 import com.ctrip.infosec.counter.enums.ErrorCode;
 import com.ctrip.infosec.counter.model.ListRepoBooleanResponse;
+import com.ctrip.infosec.counter.model.ListRepoQueryRequest;
 import com.ctrip.infosec.counter.model.ListRepoResponse;
 import com.ctrip.infosec.counter.venus.ListRepoRemoteService;
 import com.ctrip.infosec.rule.Contexts;
+import com.ctrip.infosec.rule.resource.hystrix.ListRepoQueryCommand;
 import com.ctrip.infosec.sars.util.GlobalConfig;
 import com.ctrip.infosec.sars.util.SpringContextHolder;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,29 +113,28 @@ public class ListRepo {
         beforeInvoke("ListRepo.isIn");
         ListRepoBooleanResponse response = null;
         try {
-            ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
-            response = listRepoRemoteService.isIn(repo, value);
 
-//            ListRepoQueryRequest listRepoQueryRequest = new ListRepoQueryRequest();
-//            listRepoQueryRequest.setRepo(repo);
-//            listRepoQueryRequest.setValue(value);
-//
-//            // TraceLogger
-//            if (StringUtils.isNotBlank(TraceLogger.getEventId())
-//                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
-//
-//                TraceLoggerHeader header = new TraceLoggerHeader();
-//                header.setEventId(TraceLogger.getEventId());
-//                if (TraceLogger.hasNestedTrans()) {
-//                    header.setParentTransId(TraceLogger.getNestedTransId());
-//                } else {
-//                    header.setParentTransId(TraceLogger.getTransId());
-//                }
-//                listRepoQueryRequest.setTraceLoggerHeader(header);
-//            }
-//
-//            ListRepoRemoteServiceV2 listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteServiceV2.class);
-//            response = listRepoRemoteService.isIn(listRepoQueryRequest);
+            ListRepoQueryRequest listRepoQueryRequest = new ListRepoQueryRequest();
+            listRepoQueryRequest.setRepo(repo);
+            listRepoQueryRequest.setValue(value);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                listRepoQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            ListRepoQueryCommand command = new ListRepoQueryCommand("isIn", listRepoQueryRequest);
+            response = command.execute();
+
         } catch (Exception ex) {
             fault("ListRepo.isIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isIn fault.", ex);
@@ -148,8 +152,28 @@ public class ListRepo {
         beforeInvoke("ListRepo.isAnyIn");
         ListRepoBooleanResponse response = null;
         try {
-            ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
-            response = listRepoRemoteService.isAnyIn(repo, values);
+
+            ListRepoQueryRequest listRepoQueryRequest = new ListRepoQueryRequest();
+            listRepoQueryRequest.setRepo(repo);
+            listRepoQueryRequest.setValues(values);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                listRepoQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            ListRepoQueryCommand command = new ListRepoQueryCommand("isAnyIn", listRepoQueryRequest);
+            response = command.execute();
+
         } catch (Exception ex) {
             fault("ListRepo.isAnyIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isAnyIn fault.", ex);
@@ -167,8 +191,28 @@ public class ListRepo {
         beforeInvoke("ListRepo.isAllIn");
         ListRepoBooleanResponse response = null;
         try {
-            ListRepoRemoteService listRepoRemoteService = SpringContextHolder.getBean(ListRepoRemoteService.class);
-            response = listRepoRemoteService.isAllIn(repo, values);
+
+            ListRepoQueryRequest listRepoQueryRequest = new ListRepoQueryRequest();
+            listRepoQueryRequest.setRepo(repo);
+            listRepoQueryRequest.setValues(values);
+
+            // TraceLogger
+            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+                    && StringUtils.isNotBlank(TraceLogger.getTransId())) {
+
+                TraceLoggerHeader header = new TraceLoggerHeader();
+                header.setEventId(TraceLogger.getEventId());
+                if (TraceLogger.hasNestedTrans()) {
+                    header.setParentTransId(TraceLogger.getNestedTransId());
+                } else {
+                    header.setParentTransId(TraceLogger.getTransId());
+                }
+                listRepoQueryRequest.setTraceLoggerHeader(header);
+            }
+
+            ListRepoQueryCommand command = new ListRepoQueryCommand("isAllIn", listRepoQueryRequest);
+            response = command.execute();
+
         } catch (Exception ex) {
             fault("ListRepo.isAllIn");
             logger.error(Contexts.getLogPrefix() + "invoke ListRepo.isAllIn fault.", ex);
