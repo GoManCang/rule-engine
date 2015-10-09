@@ -33,7 +33,7 @@ public class TongDun {
         if (StringUtils.isBlank(ip) && StringUtils.isBlank(mobile)) {
             return Collections.EMPTY_MAP;
         }
-        Map params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("account_mobile", mobile);
         params.put("ip_address", ip);
         return DataProxy.queryForMap(serviceName, operationName_reg, params);
@@ -51,7 +51,7 @@ public class TongDun {
         if (StringUtils.isBlank(ip) && StringUtils.isBlank(mobile)) {
             return Collections.EMPTY_MAP;
         }
-        Map params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("account_mobile", mobile);
         params.put("ip_address", ip);
         return DataProxy.queryForMap(serviceName, operationName_trade, params);

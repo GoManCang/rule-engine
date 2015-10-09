@@ -32,7 +32,7 @@ public class QiAn {
         if (StringUtils.isBlank(ip) && StringUtils.isBlank(mobile)) {
             return Collections.EMPTY_MAP;
         }
-        Map params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         params.put("mobile", mobile);
         params.put("ip", ip);
         return DataProxy.queryForMap(serviceName, operationName, params);

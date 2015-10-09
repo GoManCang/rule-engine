@@ -20,18 +20,20 @@ import org.apache.commons.lang3.StringUtils;
 public class CardInfo {
 
     private static final Logger logger = LoggerFactory.getLogger(CardInfo.class);
-//    private static final String clusterName = "CounterServer_03";
-//    private static final String cacheKeyPrefix = "ResourceCache__CardInfo__";
-//    private static final int cacheExpireTime = 7 * 24 * 3600;
 
-//    static String buildCacheKey(String cardInfoId) {
-//        StringBuilder builder = new StringBuilder(cacheKeyPrefix);
-//        builder.append(cardInfoId);
-//        return builder.toString();
-//    }
+    static final String serviceName = "SOAServiceClient";
+    static final String operationName = "AccCashCreditCard_GetCreditCardInfo";
+
+    public static Map query(String cardInfoId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("cardInfoId", cardInfoId);
+        return DataProxy.queryForMap(serviceName, operationName, params);
+    }
+
     /**
      * 这里的serviceName必须是“getinfo”
      */
+    @Deprecated
     public static Map query(String serviceName, Map<String, Object> params) {
         beforeInvoke("CardInfo.query");
         Map<String, String> result = new HashMap();

@@ -8,7 +8,6 @@ package com.ctrip.infosec.rule.converter;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.rule.resource.CardInfo;
-import com.ctrip.infosec.rule.resource.Crypto;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -54,8 +53,7 @@ public class CardInfoDecryptConverter implements Converter {
         }
 
         if (StringUtils.isNotBlank(cardInfoIdFieldValue)) {
-            Map params = ImmutableMap.of("cardInfoId", cardInfoIdFieldValue);
-            Map<String, Object> result = CardInfo.query("getinfo", params);
+            Map<String, Object> result = CardInfo.query(cardInfoIdFieldValue);
             if (result != null && !result.isEmpty()) {
 //                try {
 //                    String CreditCardNumber = (String) result.get("CreditCardNumber");
