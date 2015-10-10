@@ -12,6 +12,7 @@ import com.ctrip.infosec.configs.event.ModelRule;
 import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessModelRuleEngine;
 import com.ctrip.infosec.sars.monitor.mq.SarsMqStatRepository;
@@ -47,6 +48,7 @@ public class ModelRulesExecutorService {
      */
     public RiskFact executeModelRules(RiskFact fact) {
         try {
+            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
             queue.put(fact);
 //            execute(fact);
         } catch (InterruptedException ex) {
@@ -64,11 +66,19 @@ public class ModelRulesExecutorService {
                 @Override
                 public void run() {
                     while (true) {
+                        RiskFact fact = null;
                         try {
-                            RiskFact fact = queue.take();
+                            fact = queue.take();
+                            TraceLogger.beginTrans(fact.eventId);
+                            TraceLogger.setParentTransId(valueAsString(fact.ext, Constants.key_traceLoggerParentTransId));
+                            fact.ext.remove(Constants.key_traceLoggerParentTransId);
                             execute(fact);
                         } catch (Exception ex) {
                             logger.error("dequeue exception.", ex);
+                        } finally {
+                            if (fact != null) {
+                                TraceLogger.commitTrans();
+                            }
                         }
                     }
                 }
