@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,37 +35,37 @@ public class RiskFactPersistStrategy {
     public static final String column4ReqId = GlobalConfig.getString("reqId.column.name");
 
     public static boolean supportLocally(String eventPoint) {
-        InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(eventPoint);
-        return config != null;
+        List<InternalRiskFactPersistConfig> configList = RiskFactPersistConfigHolder.localPersistConfigs.get(eventPoint);
+        return CollectionUtils.isNotEmpty(configList);
     }
 
     public static RiskFactPersistManager preparePersistence(RiskFact riskFact, InternalRiskFact fact, Long outerRiskReqId) {
         RiskFactPersistManager persistManager = new RiskFactPersistManager();
         if (fact != null) {
-            InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
-            persistManager.setOperationChain(buildDbOperationChain(riskFact, fact, config, outerRiskReqId));
+            List<InternalRiskFactPersistConfig> configList = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
+            persistManager.setOperationChain(buildDbOperationChain(riskFact, fact, configList, outerRiskReqId));
         }
         return persistManager;
     }
 
-    private static DbOperationChain buildDbOperationChain(RiskFact riskFact, InternalRiskFact fact, InternalRiskFactPersistConfig config, Long outerRiskReqId) {
-        if (config == null) {
+    private static DbOperationChain buildDbOperationChain(RiskFact riskFact, InternalRiskFact fact, List<InternalRiskFactPersistConfig> configList, Long outerRiskReqId) {
+        if (CollectionUtils.isEmpty(configList)) {
             return null;
         }
-        if (!Configs.match(config.getConditions(), config.getConditionsLogical(), riskFact.eventBody)) {
+        List<RdbmsTableOperationConfig> opConfigs = getMatchedOps(riskFact, configList);
+        if (CollectionUtils.isEmpty(opConfigs)) {
             return null;
         }
         DbOperationChain firstOne = genReqIdOperationChain(outerRiskReqId);
         // 业务消息落地
         DbOperationChain last = firstOne;
-        List<RdbmsTableOperationConfig> opConfigs = config.getOps();
         if (CollectionUtils.isNotEmpty(opConfigs)) {
             for (RdbmsTableOperationConfig operationConfig : opConfigs) {
                 DataUnitMetadata meta = getMetadata(operationConfig.getDataUnitMetaId());
                 if (meta == null) {
                     continue;
                 }
-                DbOperationChain chain = buildDbOperationChain(fact, findCorrespondingDataUnit(fact, meta.getName()), operationConfig, meta);
+                DbOperationChain chain = buildDbOperationChain(fact, findCorrespondingDataUnit(fact, meta.getName()), operationConfig, meta, opConfigs);
                 if (chain != null) {
                     if (firstOne == null) {
                         firstOne = chain;
@@ -77,6 +78,16 @@ public class RiskFactPersistStrategy {
             }
         }
         return firstOne;
+    }
+
+    private static List<RdbmsTableOperationConfig> getMatchedOps(RiskFact riskFact, List<InternalRiskFactPersistConfig> configList) {
+        List<RdbmsTableOperationConfig> result = new ArrayList<>();
+        for (InternalRiskFactPersistConfig config : configList) {
+            if (Configs.match(config.getConditions(), config.getConditionsLogical(), riskFact.eventBody)) {
+                result.addAll(config.getOps());
+            }
+        }
+        return result;
     }
 
     private static DbOperationChain genReqIdOperationChain(final Long outerRiskReqId) {
@@ -110,27 +121,28 @@ public class RiskFactPersistStrategy {
         }
     }
 
-    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, DataUnit dataUnit, RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, DataUnit dataUnit, RdbmsTableOperationConfig config,
+                                                          DataUnitMetadata meta, List<RdbmsTableOperationConfig> opConfigs) {
         if (dataUnit == null) {
             return null;
         }
         DataUnitType type = DataUnitType.getByCode(dataUnit.getDefinition().getType());
         switch (type) {
             case SINGLE:
-                return buildDbOperationChain(fact, (Map<String, Object>) dataUnit.getData(), config, meta);
+                return buildDbOperationChain(fact, (Map<String, Object>) dataUnit.getData(), config, meta, opConfigs);
             case LIST:
-                return buildDbOperationChain(fact, (List<Map<String, Object>>) dataUnit.getData(), config, meta);
+                return buildDbOperationChain(fact, (List<Map<String, Object>>) dataUnit.getData(), config, meta, opConfigs);
         }
         return null;
     }
 
-    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, List<Map<String, Object>> dataList,
-                                                          RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, List<Map<String, Object>> dataList, RdbmsTableOperationConfig config,
+                                                          DataUnitMetadata meta, List<RdbmsTableOperationConfig> opConfigs) {
         DbOperationChain firstOne = null;
         DbOperationChain last = null;
         if (CollectionUtils.isNotEmpty(dataList)) {
             for (Map<String, Object> data : dataList) {
-                DbOperationChain chain = buildDbOperationChain(fact, data, config, meta);
+                DbOperationChain chain = buildDbOperationChain(fact, data, config, meta, opConfigs);
                 if (chain != null) {
                     if (firstOne == null) {
                         firstOne = chain;
@@ -145,18 +157,20 @@ public class RiskFactPersistStrategy {
         return firstOne;
     }
 
-    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, Map<String, Object> data,
-                                                          RdbmsTableOperationConfig config, DataUnitMetadata meta) {
+    private static DbOperationChain buildDbOperationChain(InternalRiskFact fact, Map<String, Object> data, RdbmsTableOperationConfig config,
+                                                          DataUnitMetadata meta, List<RdbmsTableOperationConfig> opConfigs) {
         DbOperationChain chain = null;
-        // 简单类型，对应一个落地操作
-        Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
-        PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
-        if (operationType == PersistOperationType.INSERT) {
-            RdbmsInsert insert = new RdbmsInsert();
-            insert.setChannel(config.getChannel());
-            insert.setTable(config.getTableName());
-            insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
-            chain = new DbOperationChain(insert, config.getConditions(), config.getConditionsLogical(), data);
+        if(config != null){
+            // 简单类型，对应一个落地操作
+            Map<String, Object> simpleFieldMap = extractFieldData(data, meta);
+            PersistOperationType operationType = PersistOperationType.getByCode(config.getOpType());
+            if (operationType == PersistOperationType.INSERT) {
+                RdbmsInsert insert = new RdbmsInsert();
+                insert.setChannel(config.getChannel());
+                insert.setTable(config.getTableName());
+                insert.setColumnPropertiesMap(generateColumnProperties(simpleFieldMap, config, meta));
+                chain = new DbOperationChain(insert, config.getConditions(), config.getConditionsLogical(), data);
+            }
         }
         if (chain == null) {
             chain = new DbOperationChain(new RdbmsEmptyOperation(), config.getConditions(), config.getConditionsLogical(), data);
@@ -172,13 +186,13 @@ public class RiskFactPersistStrategy {
                     switch (columnType) {
                         case Object:
                             Map<String, Object> map = (Map<String, Object>) entry.getValue();
-                            chain.addToChildOperationChain(buildDbOperationChain(fact, map, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
-                                    metaColumn.getNestedDataUnitMeta()));
+                            chain.addToChildOperationChain(buildDbOperationChain(fact, map, getPersistConfig(opConfigs, metaColumn.getNestedDataUnitMataNo()),
+                                    metaColumn.getNestedDataUnitMeta(), opConfigs));
                             break;
                         case List:
                             List<Map<String, Object>> list = (List<Map<String, Object>>) entry.getValue();
-                            chain.addToChildOperationChain(buildDbOperationChain(fact, list, getPersistConfig(fact, metaColumn.getNestedDataUnitMataNo()),
-                                    metaColumn.getNestedDataUnitMeta()));
+                            chain.addToChildOperationChain(buildDbOperationChain(fact, list, getPersistConfig(opConfigs, metaColumn.getNestedDataUnitMataNo()),
+                                    metaColumn.getNestedDataUnitMeta(), opConfigs));
                             break;
                         default:
                             continue;
@@ -189,9 +203,7 @@ public class RiskFactPersistStrategy {
         return chain;
     }
 
-    private static RdbmsTableOperationConfig getPersistConfig(InternalRiskFact fact, final String metadataId) {
-        InternalRiskFactPersistConfig config = RiskFactPersistConfigHolder.localPersistConfigs.get(fact.getEventPoint());
-        List<RdbmsTableOperationConfig> configOps = config.getOps();
+    private static RdbmsTableOperationConfig getPersistConfig(List<RdbmsTableOperationConfig> configOps, final String metadataId) {
         return (RdbmsTableOperationConfig) CollectionUtils.find(configOps, new Predicate() {
             @Override
             public boolean evaluate(Object obj) {

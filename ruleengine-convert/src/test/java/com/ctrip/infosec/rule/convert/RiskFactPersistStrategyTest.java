@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.junit.Ignore;
@@ -36,8 +37,8 @@ public class RiskFactPersistStrategyTest {
         RiskFact fact = Utils.JSON.parseObject(data, RiskFact.class);
         ConfigsDeamon daemon = new ConfigsDeamon();
 
-        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
-//        daemon.setUrl("http://localhost:8083/rest/loadconfig");
+//        daemon.setUrl("http://10.2.10.76:8080/configsws/rest/loadconfig");
+        daemon.setUrl("http://localhost:8083/rest/loadconfig");
         daemon.setPart(Part.RuleEngine);
         daemon.setCallback(new ConvertRuleUpdateCallback());
         daemon.start();
@@ -85,7 +86,7 @@ public class RiskFactPersistStrategyTest {
         InternalRiskFactPersistConfig config = new InternalRiskFactPersistConfig();
         config.setEventPoint(eventPoint);
         config.setOps(getRdbmsTableOperationConfigs());
-        RiskFactPersistConfigHolder.localPersistConfigs.put(eventPoint, config);
+        RiskFactPersistConfigHolder.localPersistConfigs.put(eventPoint, Arrays.asList(config));
 
         DataUnitMetadata meta = new DataUnitMetadata();
         meta.setMetadataNo("complexMeta");

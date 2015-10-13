@@ -2,7 +2,7 @@
   "eventPoint" : "CP0001001",
   "eventId" : "r3",
   "eventBody" : {
-    "DID" : "",
+    "DID" : "123",
     "IPAddr" : "192.168.1.1",
     "MerchantID" : "1565858",
     "OrderID" : "4990841",
