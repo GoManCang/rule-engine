@@ -7,6 +7,7 @@ package com.ctrip.infosec.rule.util;
 
 import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsInt;
 import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
+import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsBoolean;
 
 import java.util.List;
 import java.util.Map;
@@ -469,7 +470,7 @@ public class Emitter {
      * Counter里的名单库
      */
     public static void emitListRepoResult(RiskFact fact, int riskLevel, String riskMessage) {
-        boolean _isAsync = MapUtils.getBoolean(fact.ext, Constants.key_isAsync, false);
+        boolean _isAsync = valueAsBoolean(fact.ext, Constants.key_isAsync, false);
         if (!_isAsync) {
             boolean finalWhitelistResultSetted = fact.finalWhitelistResult.containsKey(Constants.riskLevel);
             int finalWhitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
