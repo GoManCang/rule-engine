@@ -470,7 +470,7 @@ public class Emitter {
      * Counter里的名单库
      */
     public static void emitListRepoResult(RiskFact fact, int riskLevel, String riskMessage) {
-        boolean _isAsync = valueAsBoolean(fact.ext, Constants.key_isAsync, false);
+        boolean _isAsync = valueAsBoolean(fact.ext, Constants.key_isAsync);
         if (!_isAsync) {
             boolean finalWhitelistResultSetted = fact.finalWhitelistResult.containsKey(Constants.riskLevel);
             int finalWhitelistRiskLevel = valueAsInt(fact.finalWhitelistResult, Constants.riskLevel);
