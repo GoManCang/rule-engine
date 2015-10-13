@@ -117,9 +117,9 @@ public class EventDataMergeService {
                 if (valueIsEmpty(fv)) {
 
                     if (targetFieldValue instanceof Map || targetFieldValue instanceof List || targetFieldValue instanceof Object[]) {
-                        TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + JSON.toJSONString(targetFieldValue));
+                        TraceLogger.traceLog("GET: " + sourceFieldName + " >> " + targetFieldName + ", value = " + JSON.toJSONString(targetFieldValue));
                     } else {
-                        TraceLogger.traceLog("GET: " + sourceFieldName + " &DoubleRightArrow; " + targetFieldName + ", value = " + targetFieldValue);
+                        TraceLogger.traceLog("GET: " + sourceFieldName + " >> " + targetFieldName + ", value = " + targetFieldValue);
                     }
                     fact.eventBody.put(targetFieldName, targetFieldValue);
                 }
