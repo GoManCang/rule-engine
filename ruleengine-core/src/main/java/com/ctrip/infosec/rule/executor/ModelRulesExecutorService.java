@@ -47,12 +47,14 @@ public class ModelRulesExecutorService {
      * 执行模型规则
      */
     public RiskFact executeModelRules(RiskFact fact) {
-        try {
-            fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
-            queue.put(fact);
-//            execute(fact);
-        } catch (InterruptedException ex) {
-            // ignored
+        List<ModelRule> matchedRules = Configs.matchModelRules(fact);
+        if (!matchedRules.isEmpty()) {
+            try {
+                fact.ext.put(Constants.key_traceLoggerParentTransId, TraceLogger.getTransId());
+                queue.put(fact);
+            } catch (InterruptedException ex) {
+                // ignored
+            }
         }
         return fact;
     }
