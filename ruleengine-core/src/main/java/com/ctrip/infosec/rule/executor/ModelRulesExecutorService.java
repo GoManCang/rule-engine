@@ -6,6 +6,9 @@
 package com.ctrip.infosec.rule.executor;
 
 import com.ctrip.infosec.common.Constants;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.afterInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.beforeInvoke;
+import static com.ctrip.infosec.common.SarsMonitorWrapper.fault;
 import com.ctrip.infosec.common.model.RiskFact;
 import com.ctrip.infosec.configs.Configs;
 import com.ctrip.infosec.configs.event.ModelRule;
@@ -13,6 +16,7 @@ import com.ctrip.infosec.configs.rule.trace.logger.TraceLogger;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorHelper;
 import com.ctrip.infosec.configs.rulemonitor.RuleMonitorType;
 import static com.ctrip.infosec.configs.utils.EventBodyUtils.valueAsString;
+import com.ctrip.infosec.configs.utils.Threads;
 import com.ctrip.infosec.rule.Contexts;
 import com.ctrip.infosec.rule.engine.StatelessModelRuleEngine;
 import com.ctrip.infosec.sars.monitor.mq.SarsMqStatRepository;
@@ -69,6 +73,7 @@ public class ModelRulesExecutorService {
                 public void run() {
                     while (true) {
                         RiskFact fact = null;
+                        beforeInvoke("ModelRules.execute");
                         try {
                             fact = queue.take();
                             TraceLogger.beginTrans(fact.eventId);
@@ -76,11 +81,14 @@ public class ModelRulesExecutorService {
                             fact.ext.remove(Constants.key_traceLoggerParentTransId);
                             execute(fact);
                         } catch (Exception ex) {
+                            fault("ModelRules.execute");
                             logger.error("dequeue exception.", ex);
                         } finally {
+                            afterInvoke("ModelRules.execute");
                             if (fact != null) {
                                 TraceLogger.commitTrans();
                             }
+                            Threads.sleep(10, TimeUnit.MILLISECONDS);
                         }
                     }
                 }

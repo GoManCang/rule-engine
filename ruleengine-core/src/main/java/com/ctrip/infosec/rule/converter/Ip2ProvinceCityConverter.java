@@ -12,6 +12,7 @@ import com.ctrip.infosec.rule.resource.DataProxy;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ public class Ip2ProvinceCityConverter implements Converter {
         ipFieldValue = StringUtils.removeStart(ipFieldValue, "\"");
         ipFieldValue = StringUtils.removeEnd(ipFieldValue, "\"");
         ipFieldValue = StringUtils.substringBefore(ipFieldValue, ":");
+        // 更新原字段
+        PropertyUtils.setNestedProperty(fact.eventBody, ipFieldName, ipFieldValue);
 
         if (StringUtils.isNotBlank(ipFieldValue) && !"127.0.0.1".equals(ipFieldValue)) {
             Map params = ImmutableMap.of("ip", ipFieldValue);

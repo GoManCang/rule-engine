@@ -100,7 +100,7 @@ public class Counter {
             flowPushRequest.setKvData(kvData);
 
             // TraceLogger
-            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+            if (!Contexts.isAsync() && StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
 
                 TraceLoggerHeader header = new TraceLoggerHeader();
@@ -158,7 +158,7 @@ public class Counter {
             flowPushRequest.setKvData(kvData);
 
             // TraceLogger
-            if (StringUtils.isNotBlank(TraceLogger.getEventId())
+            if (!Contexts.isAsync() && StringUtils.isNotBlank(TraceLogger.getEventId())
                     && StringUtils.isNotBlank(TraceLogger.getTransId())) {
 
                 TraceLoggerHeader header = new TraceLoggerHeader();
