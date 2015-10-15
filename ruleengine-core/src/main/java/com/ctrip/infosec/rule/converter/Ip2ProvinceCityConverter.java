@@ -50,10 +50,12 @@ public class Ip2ProvinceCityConverter implements Converter {
         ipFieldValue = StringUtils.removeStart(ipFieldValue, "\"");
         ipFieldValue = StringUtils.removeEnd(ipFieldValue, "\"");
         ipFieldValue = StringUtils.substringBefore(ipFieldValue, ":");
-        // 更新原字段
-        PropertyUtils.setNestedProperty(fact.eventBody, ipFieldName, ipFieldValue);
 
         if (StringUtils.isNotBlank(ipFieldValue) && !"127.0.0.1".equals(ipFieldValue)) {
+
+            // 更新原字段
+            PropertyUtils.setNestedProperty(fact.eventBody, ipFieldName, ipFieldValue);
+
             Map params = ImmutableMap.of("ip", ipFieldValue);
             Map result = DataProxy.queryForMap(serviceName, operationName, params);
             if (result != null && !result.isEmpty()) {
