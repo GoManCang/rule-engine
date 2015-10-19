@@ -48,7 +48,7 @@ public class PersistPreRuleExecutorService {
         List<PersistPreRule> matchedRules = matchRules(fact);
         List<String> scriptRulePackageNames = Collections3.extractToList(matchedRules, "eventPoint");
         logger.debug(Contexts.getLogPrefix() + "matched post rules: " + StringUtils.join(scriptRulePackageNames, ", "));
-        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条落地前规则 ...");
+        TraceLogger.traceLog("匹配到 " + matchedRules.size() + " 条落地数据准备规则 ...");
 
         StatelessPersistPreRuleEngine statelessPersistPreRuleEngine = SpringContextHolder.getBean(StatelessPersistPreRuleEngine.class);
         for (PersistPreRule rule : matchedRules) {
@@ -76,14 +76,16 @@ public class PersistPreRuleExecutorService {
     }
 
     private List<PersistPreRule> matchRules(final RiskFact fact) {
+        TraceLogger.traceLog("数据准备规则列表：" + CollectionUtils.isEmpty(Caches.persistPreRuleConfigs));
         if(CollectionUtils.isEmpty(Caches.persistPreRuleConfigs)){
             return ListUtils.EMPTY_LIST;
         }
         final String eventPoint = fact.getEventPoint();
+        TraceLogger.traceLog("报文eventPoint：" + eventPoint);
         return Lists.newArrayList(Collections2.filter(Caches.persistPreRuleConfigs, new Predicate<PersistPreRule>() {
             @Override
             public boolean apply(PersistPreRule input) {
-                return input.getEventPoint().equals(eventPoint) && Configs.match(input.getConditions(), input.getConditionsLogical(), fact);
+                return input.getEventPoint().equals(eventPoint) && Configs.match(input.getConditions(), input.getConditionsLogical(), fact.eventBody);
             }
         }));
     }
