@@ -76,7 +76,7 @@ public class PersistPreRuleExecutorService {
     }
 
     private List<PersistPreRule> matchRules(final RiskFact fact) {
-        TraceLogger.traceLog("数据准备规则列表：" + CollectionUtils.isEmpty(Caches.persistPreRuleConfigs));
+        TraceLogger.traceLog("数据准备规则列表：" + !CollectionUtils.isEmpty(Caches.persistPreRuleConfigs));
         if(CollectionUtils.isEmpty(Caches.persistPreRuleConfigs)){
             return ListUtils.EMPTY_LIST;
         }
