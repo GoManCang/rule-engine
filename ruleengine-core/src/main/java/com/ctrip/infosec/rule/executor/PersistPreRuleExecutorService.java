@@ -75,7 +75,7 @@ public class PersistPreRuleExecutorService {
 
     }
 
-    private List<PersistPreRule> matchRules(RiskFact fact) {
+    private List<PersistPreRule> matchRules(final RiskFact fact) {
         if(CollectionUtils.isEmpty(Caches.persistPreRuleConfigs)){
             return ListUtils.EMPTY_LIST;
         }
@@ -83,7 +83,7 @@ public class PersistPreRuleExecutorService {
         return Lists.newArrayList(Collections2.filter(Caches.persistPreRuleConfigs, new Predicate<PersistPreRule>() {
             @Override
             public boolean apply(PersistPreRule input) {
-                return input.getEventPoint().equals(eventPoint);
+                return input.getEventPoint().equals(eventPoint) && Configs.match(input.getConditions(), input.getConditionsLogical(), fact);
             }
         }));
     }
